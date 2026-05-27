@@ -1,3 +1,6 @@
+bash
+
+cat > /mnt/user-data/outputs/TheLedger.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,196 +11,350 @@
 <meta name="theme-color" content="#0a0a0f"/>
 <title>The Ledger</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{background:#0a0a0f;color:#e8e4d9;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;}
-  button{font-family:'Courier New',monospace;cursor:pointer;}
-  input{font-family:'Courier New',monospace;}
-  .glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 15%,rgba(180,140,60,0.07) 0%,transparent 55%),radial-gradient(ellipse at 85% 85%,rgba(60,120,80,0.05) 0%,transparent 55%);}
-  #app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding-bottom:120px;}
-  .header{padding:24px 18px 0;border-bottom:1px solid rgba(180,140,60,0.18);}
-  .header-row{display:flex;justify-content:space-between;align-items:flex-start;}
-  .header-label{font-size:10px;letter-spacing:5px;color:#b48c3c;margin-bottom:3px;text-transform:uppercase;}
-  .header-title{font-size:24px;font-weight:700;letter-spacing:-1px;color:#f0ead8;}
-  .save-status{font-size:9px;letter-spacing:3px;margin-top:3px;transition:color 0.3s;}
-  .save-status.saving{color:#b48c3c;}
-  .save-status.saved{color:#2a2a3a;}
-  .stock-label{font-size:9px;color:#555;letter-spacing:3px;}
-  .stock-value{font-size:34px;font-weight:700;line-height:1;}
-  .stock-value.low{color:#e05c5c;}
-  .stock-value.ok{color:#b48c3c;}
-  .stock-unit{font-size:13px;color:#666;margin-left:3px;}
-  .bar-wrap{margin-top:14px;margin-bottom:14px;}
-  .bar-bg{height:3px;background:#181826;border-radius:2px;overflow:hidden;}
-  .bar-fill{height:100%;background:linear-gradient(90deg,#8a6a28,#d4af5a);border-radius:2px;transition:width 0.6s ease;}
-  .bar-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:#444;letter-spacing:2px;}
-  .tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.05);padding:0 18px;}
-  .tab-btn{flex:1;padding:11px 0;background:none;border:none;font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;color:#3a3a4a;}
-  .tab-btn.active{color:#b48c3c;border-bottom-color:#b48c3c;}
-  .tab-content{padding:18px;}
-  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
-  .stat-card{background:#111118;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:13px 14px;}
-  .stat-label{font-size:8px;letter-spacing:3px;color:#444;margin-bottom:5px;}
-  .stat-value{font-size:21px;font-weight:700;}
-  .exp-card{background:#111118;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:13px 14px;margin-bottom:14px;}
-  .exp-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9px;letter-spacing:3px;color:#555;}
-  .exp-row span{color:#b48c3c;}
-  .use-card{background:#111118;border:1px solid rgba(224,92,92,0.12);border-radius:8px;padding:14px;margin-bottom:14px;}
-  .use-label{font-size:9px;letter-spacing:3px;color:#e05c5c;margin-bottom:11px;}
-  .use-row{display:flex;gap:10px;align-items:center;}
-  .use-controls{display:flex;align-items:center;gap:8px;flex:1;}
-  .use-display{text-align:center;min-width:54px;}
-  .use-display .big{font-size:20px;font-weight:700;}
-  .use-display .small{font-size:8px;color:#555;letter-spacing:2px;}
-  .use-summary{margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.04);font-size:10px;color:#555;}
-  .use-summary .red{color:#e05c5c;}
-  .btn-log-use{background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.25);color:#e05c5c;border-radius:6px;padding:10px 14px;font-size:10px;letter-spacing:2px;}
-  .btn-sale{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:8px;padding:15px;color:#0a0a0f;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;box-shadow:0 4px 24px rgba(180,140,60,0.25);margin-bottom:14px;}
-  .section-label{font-size:8px;letter-spacing:3px;color:#444;margin-bottom:9px;}
-  .pack-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:#111118;border:1px solid rgba(255,255,255,0.04);border-radius:6px;margin-bottom:6px;}
-  .pack-name{color:#b48c3c;font-weight:700;}
-  .pack-price{color:#444;font-size:10px;margin-left:8px;}
-  .pack-count{font-weight:700;}
-  .pack-earn{color:#4caf7a;font-size:10px;margin-left:8px;}
-  .btn-reset{margin-top:18px;width:100%;background:none;border:1px solid rgba(255,255,255,0.06);color:#333;border-radius:6px;padding:10px;font-size:9px;letter-spacing:3px;text-transform:uppercase;}
-  .btn-pm{width:36px;height:36px;background:#1c1c2a;border:1px solid rgba(255,255,255,0.1);color:#e8e4d9;border-radius:6px;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .log-entry{border-radius:8px;padding:13px 14px;margin-bottom:8px;}
-  .log-entry.sale{background:#111118;border:1px solid rgba(76,175,122,0.12);border-left:3px solid #4caf7a;}
-  .log-entry.use{background:#111118;border:1px solid rgba(224,92,92,0.1);border-left:3px solid #e05c5c;}
-  .log-inner{display:flex;justify-content:space-between;align-items:flex-start;}
-  .log-title{font-size:12px;font-weight:700;}
-  .log-title.sale{color:#4caf7a;}
-  .log-title.use{color:#e05c5c;}
-  .log-note{font-size:10px;color:#555;margin-top:2px;}
-  .log-date{font-size:9px;color:#2a2a3a;margin-top:5px;letter-spacing:1px;}
-  .log-right{text-align:right;flex-shrink:0;margin-left:12px;}
-  .log-amount{font-size:17px;font-weight:700;color:#4caf7a;}
-  .log-stock{font-size:9px;color:#333;margin-top:3px;}
-  .log-empty{text-align:center;color:#2a2a3a;padding:70px 0;font-size:12px;letter-spacing:3px;}
-  .tip-card{background:#111118;border:1px solid rgba(180,140,60,0.08);border-left:3px solid #b48c3c;border-radius:8px;padding:14px;margin-bottom:10px;}
-  .tip-header{margin-bottom:6px;}
-  .tip-icon{font-size:15px;}
-  .tip-title{font-size:11px;font-weight:700;color:#b48c3c;margin-left:8px;letter-spacing:1px;}
-  .tip-text{font-size:11px;color:#777;line-height:1.7;}
-  .price-ref{background:#111118;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);}
-  .price-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:11px 14px;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);}
-  .price-row:last-child{border-bottom:none;}
-  .price-row .size{color:#b48c3c;font-weight:700;}
-  .price-row .pg{color:#555;text-align:right;}
-  .ai-box{background:#0e0e1a;border:1px solid rgba(120,100,200,0.25);border-left:3px solid #7c6cd4;border-radius:8px;padding:16px;margin-bottom:16px;}
-  .ai-box-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .ai-box-title{font-size:10px;letter-spacing:3px;color:#7c6cd4;font-weight:700;}
-  .ai-badge{font-size:8px;letter-spacing:2px;color:#7c6cd4;background:rgba(124,108,212,0.12);border:1px solid rgba(124,108,212,0.2);border-radius:4px;padding:3px 7px;}
-  .ai-text{font-size:12px;color:#aaa;line-height:1.8;white-space:pre-wrap;}
-  .ai-text.loading{color:#555;font-style:italic;}
-  .btn-ai-refresh{width:100%;background:rgba(124,108,212,0.1);border:1px solid rgba(124,108,212,0.2);color:#7c6cd4;border-radius:6px;padding:11px;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;transition:background 0.2s;}
-  .btn-ai-refresh:active{background:rgba(124,108,212,0.2);}
-  .btn-ai-refresh:disabled{opacity:0.4;cursor:not-allowed;}
-  .ai-dot{display:inline-block;animation:blink 1s infinite;}
-  .ai-dot:nth-child(2){animation-delay:0.2s;}
-  .ai-dot:nth-child(3){animation-delay:0.4s;}
-  @keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
-  .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;}
-  .modal-box{width:100%;max-width:480px;margin:0 auto;background:#13131f;border:1px solid rgba(180,140,60,0.18);border-radius:16px 16px 0 0;padding:22px 18px 50px;}
-  .modal-title{font-size:9px;letter-spacing:5px;color:#b48c3c;margin-bottom:18px;text-transform:uppercase;}
-  .modal-section{margin-bottom:15px;}
-  .modal-label{font-size:8px;letter-spacing:3px;color:#444;margin-bottom:7px;}
-  .pack-btns{display:flex;gap:7px;}
-  .pack-btn{flex:1;padding:10px 0;border-radius:6px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,0.07);background:#111118;color:#444;}
-  .pack-btn.active{background:rgba(180,140,60,0.18);border-color:#b48c3c;color:#b48c3c;}
-  .qty-row{display:flex;align-items:center;gap:10px;}
-  .qty-val{font-size:22px;font-weight:700;min-width:36px;text-align:center;}
-  .qty-hint{font-size:11px;color:#555;margin-left:4px;}
-  .price-row-modal{display:flex;align-items:center;gap:10px;}
-  .price-val{font-size:22px;font-weight:700;color:#4caf7a;min-width:52px;text-align:center;}
-  .price-total{font-size:12px;color:#4caf7a;font-weight:700;margin-left:4px;}
-  .note-input{width:100%;background:#111118;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:10px 12px;color:#e8e4d9;font-size:11px;outline:none;}
-  .btn-confirm{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:8px;padding:15px;color:#0a0a0f;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
-  .hidden{display:none!important;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#0a0a0f;color:#e8e4d9;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;}
+button,input,select{font-family:'Courier New',monospace;}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 15%,rgba(180,140,60,0.07) 0%,transparent 55%),radial-gradient(ellipse at 85% 85%,rgba(60,120,80,0.05) 0%,transparent 55%);}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding-bottom:120px;}
+
+/* SETUP SCREEN */
+.setup-screen{position:fixed;inset:0;z-index:200;background:#0a0a0f;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 24px;}
+.setup-title{font-size:28px;font-weight:700;color:#f0ead8;letter-spacing:-1px;margin-bottom:6px;}
+.setup-sub{font-size:10px;letter-spacing:4px;color:#b48c3c;text-transform:uppercase;margin-bottom:40px;}
+.setup-field{width:100%;margin-bottom:18px;}
+.setup-label{font-size:9px;letter-spacing:3px;color:#555;margin-bottom:7px;text-transform:uppercase;}
+.setup-input{width:100%;background:#111118;border:1px solid rgba(180,140,60,0.2);border-radius:8px;padding:14px 16px;color:#e8e4d9;font-size:18px;font-weight:700;outline:none;text-align:center;}
+.setup-input:focus{border-color:#b48c3c;}
+.setup-btn{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:8px;padding:16px;color:#0a0a0f;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-top:8px;box-shadow:0 4px 24px rgba(180,140,60,0.3);}
+.setup-note{font-size:10px;color:#333;text-align:center;margin-top:16px;line-height:1.6;}
+
+/* HEADER */
+.header{padding:20px 18px 0;border-bottom:1px solid rgba(180,140,60,0.18);}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.header-left{}
+.header-label{font-size:9px;letter-spacing:5px;color:#b48c3c;margin-bottom:2px;text-transform:uppercase;}
+.header-title{font-size:22px;font-weight:700;letter-spacing:-1px;color:#f0ead8;}
+.save-status{font-size:8px;letter-spacing:3px;margin-top:2px;transition:color 0.3s;}
+.save-status.saving{color:#b48c3c;}
+.save-status.saved{color:#222230;}
+.header-right{text-align:right;}
+.stock-label{font-size:8px;color:#555;letter-spacing:3px;}
+.stock-value{font-size:30px;font-weight:700;line-height:1;}
+.stock-value.low{color:#e05c5c;}
+.stock-value.ok{color:#b48c3c;}
+.stock-unit{font-size:12px;color:#666;margin-left:2px;}
+
+/* STRAIN SELECTOR */
+.strain-bar{display:flex;align-items:center;gap:8px;padding:10px 0 12px;}
+.strain-select{flex:1;background:#111118;border:1px solid rgba(180,140,60,0.2);border-radius:6px;padding:8px 12px;color:#b48c3c;font-size:11px;font-weight:700;letter-spacing:2px;outline:none;appearance:none;-webkit-appearance:none;}
+.btn-add-strain{background:rgba(180,140,60,0.12);border:1px solid rgba(180,140,60,0.25);color:#b48c3c;border-radius:6px;padding:8px 12px;font-size:18px;line-height:1;}
+.btn-manage-strain{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#555;border-radius:6px;padding:8px 12px;font-size:10px;letter-spacing:1px;}
+
+.bar-wrap{margin-bottom:12px;}
+.bar-bg{height:3px;background:#181826;border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,#8a6a28,#d4af5a);border-radius:2px;transition:width 0.6s ease;}
+.bar-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:8px;color:#333;letter-spacing:2px;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.05);}
+.tab-btn{flex:1;padding:10px 0;background:none;border:none;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;color:#333;}
+.tab-btn.active{color:#b48c3c;border-bottom-color:#b48c3c;}
+
+.tab-content{padding:16px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.stat-card{background:#111118;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:12px 13px;}
+.stat-label{font-size:7px;letter-spacing:3px;color:#3a3a4a;margin-bottom:4px;}
+.stat-value{font-size:20px;font-weight:700;}
+
+.exp-card{background:#111118;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:12px 13px;margin-bottom:12px;}
+.exp-row{display:flex;justify-content:space-between;margin-bottom:7px;font-size:8px;letter-spacing:2px;color:#444;}
+.exp-row span{color:#b48c3c;}
+
+/* ACTION CARDS */
+.action-card{background:#111118;border-radius:8px;padding:13px;margin-bottom:12px;}
+.action-card.green{border:1px solid rgba(76,175,122,0.15);}
+.action-card.red{border:1px solid rgba(224,92,92,0.12);}
+.action-card.gold{border:1px solid rgba(180,140,60,0.15);}
+.action-label{font-size:8px;letter-spacing:3px;margin-bottom:10px;text-transform:uppercase;}
+.action-label.green{color:#4caf7a;}
+.action-label.red{color:#e05c5c;}
+.action-label.gold{color:#b48c3c;}
+.action-row{display:flex;gap:9px;align-items:center;}
+.action-controls{display:flex;align-items:center;gap:7px;flex:1;}
+.action-display{text-align:center;min-width:50px;}
+.action-display .big{font-size:19px;font-weight:700;}
+.action-display .small{font-size:7px;color:#444;letter-spacing:2px;}
+.action-summary{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);font-size:10px;color:#444;}
+.action-summary .red{color:#e05c5c;}
+.action-summary .green{color:#4caf7a;}
+
+.btn-action{border-radius:6px;padding:9px 13px;font-size:9px;letter-spacing:2px;border:1px solid;}
+.btn-action.green{background:rgba(76,175,122,0.12);border-color:rgba(76,175,122,0.25);color:#4caf7a;}
+.btn-action.red{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.25);color:#e05c5c;}
+
+.btn-sale{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:8px;padding:14px;color:#0a0a0f;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;box-shadow:0 4px 20px rgba(180,140,60,0.22);margin-bottom:12px;}
+.section-label{font-size:7px;letter-spacing:3px;color:#333;margin-bottom:8px;text-transform:uppercase;}
+.pack-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#111118;border:1px solid rgba(255,255,255,0.04);border-radius:6px;margin-bottom:5px;}
+.pack-name{color:#b48c3c;font-weight:700;font-size:12px;}
+.pack-price{color:#333;font-size:9px;margin-left:7px;}
+.pack-count{font-weight:700;font-size:12px;}
+.pack-earn{color:#4caf7a;font-size:9px;margin-left:7px;}
+.btn-reset{margin-top:16px;width:100%;background:none;border:1px solid rgba(255,255,255,0.05);color:#2a2a3a;border-radius:6px;padding:9px;font-size:8px;letter-spacing:3px;text-transform:uppercase;}
+.btn-pm{width:34px;height:34px;background:#1a1a28;border:1px solid rgba(255,255,255,0.09);color:#e8e4d9;border-radius:6px;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+
+/* LOG */
+.log-entry{border-radius:8px;padding:12px 13px;margin-bottom:7px;}
+.log-entry.sale{background:#111118;border:1px solid rgba(76,175,122,0.1);border-left:3px solid #4caf7a;}
+.log-entry.use{background:#111118;border:1px solid rgba(224,92,92,0.08);border-left:3px solid #e05c5c;}
+.log-entry.restock{background:#111118;border:1px solid rgba(76,175,122,0.1);border-left:3px solid #4caf7a;}
+.log-entry.expense{background:#111118;border:1px solid rgba(224,92,92,0.08);border-left:3px solid #e05c5c;}
+.log-inner{display:flex;justify-content:space-between;align-items:flex-start;}
+.log-title{font-size:11px;font-weight:700;}
+.log-title.sale,.log-title.restock{color:#4caf7a;}
+.log-title.use,.log-title.expense{color:#e05c5c;}
+.log-strain{font-size:9px;color:#b48c3c;margin-top:1px;letter-spacing:1px;}
+.log-note{font-size:9px;color:#444;margin-top:2px;}
+.log-date{font-size:8px;color:#222230;margin-top:4px;letter-spacing:1px;}
+.log-right{text-align:right;flex-shrink:0;margin-left:10px;}
+.log-amount{font-size:15px;font-weight:700;}
+.log-amount.green{color:#4caf7a;}
+.log-amount.red{color:#e05c5c;}
+.log-stock{font-size:8px;color:#2a2a3a;margin-top:2px;}
+.log-empty{text-align:center;color:#222230;padding:60px 0;font-size:11px;letter-spacing:3px;}
+.log-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+.log-filter-btn{background:#111118;border:1px solid rgba(255,255,255,0.05);color:#444;border-radius:20px;padding:5px 12px;font-size:9px;letter-spacing:2px;white-space:nowrap;cursor:pointer;}
+.log-filter-btn.active{background:rgba(180,140,60,0.12);border-color:#b48c3c;color:#b48c3c;}
+
+/* TIPS / AI */
+.ai-box{background:#0e0e1a;border:1px solid rgba(120,100,200,0.2);border-left:3px solid #7c6cd4;border-radius:8px;padding:14px;margin-bottom:14px;}
+.ai-box-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.ai-box-title{font-size:9px;letter-spacing:3px;color:#7c6cd4;font-weight:700;}
+.ai-badge{font-size:7px;letter-spacing:2px;color:#7c6cd4;background:rgba(124,108,212,0.1);border:1px solid rgba(124,108,212,0.18);border-radius:3px;padding:2px 6px;}
+.ai-text{font-size:11px;color:#888;line-height:1.9;white-space:pre-wrap;}
+.ai-text.loading{color:#444;font-style:italic;}
+.btn-ai{width:100%;background:rgba(124,108,212,0.08);border:1px solid rgba(124,108,212,0.18);color:#7c6cd4;border-radius:6px;padding:10px;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;cursor:pointer;}
+.btn-ai:disabled{opacity:0.35;cursor:not-allowed;}
+.ai-dot{display:inline-block;animation:blink 1s infinite;}
+.ai-dot:nth-child(2){animation-delay:0.2s;}
+.ai-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
+
+.qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+.qs-card{background:#111118;border:1px solid rgba(255,255,255,0.04);border-radius:7px;padding:10px 12px;}
+.qs-label{font-size:7px;letter-spacing:2px;color:#333;margin-bottom:3px;}
+.qs-value{font-size:16px;font-weight:700;}
+
+.price-ref{background:#111118;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);}
+.price-ref-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 13px;font-size:10px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.price-ref-row:last-child{border-bottom:none;}
+.price-ref-row .sz{color:#b48c3c;font-weight:700;}
+.price-ref-row .pg{color:#444;text-align:right;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.9);display:flex;align-items:flex-end;}
+.modal-box{width:100%;max-width:480px;margin:0 auto;background:#12121e;border:1px solid rgba(180,140,60,0.15);border-radius:16px 16px 0 0;padding:20px 18px 50px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:8px;letter-spacing:5px;color:#b48c3c;margin-bottom:16px;text-transform:uppercase;}
+.modal-section{margin-bottom:13px;}
+.modal-label{font-size:7px;letter-spacing:3px;color:#333;margin-bottom:6px;text-transform:uppercase;}
+.pack-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.pack-btn{padding:9px 12px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.07);background:#111118;color:#333;cursor:pointer;}
+.pack-btn.active{background:rgba(180,140,60,0.15);border-color:#b48c3c;color:#b48c3c;}
+.qty-row{display:flex;align-items:center;gap:9px;}
+.qty-val{font-size:20px;font-weight:700;min-width:34px;text-align:center;}
+.qty-hint{font-size:10px;color:#444;margin-left:3px;}
+.price-row-m{display:flex;align-items:center;gap:9px;}
+.price-val{font-size:20px;font-weight:700;color:#4caf7a;min-width:50px;text-align:center;}
+.price-total-m{font-size:11px;color:#4caf7a;font-weight:700;margin-left:3px;}
+.note-input{width:100%;background:#111118;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:9px 11px;color:#e8e4d9;font-size:11px;outline:none;}
+.btn-confirm{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:8px;padding:14px;color:#0a0a0f;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;cursor:pointer;}
+
+/* STRAIN MODAL */
+.strain-modal-box{width:100%;max-width:480px;margin:0 auto;background:#12121e;border:1px solid rgba(180,140,60,0.15);border-radius:16px 16px 0 0;padding:20px 18px 50px;}
+.strain-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#111118;border:1px solid rgba(255,255,255,0.04);border-radius:6px;margin-bottom:6px;}
+.strain-item-name{font-size:12px;font-weight:700;color:#b48c3c;}
+.strain-item-stock{font-size:10px;color:#555;}
+.btn-del-strain{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.2);color:#e05c5c;border-radius:5px;padding:5px 10px;font-size:9px;cursor:pointer;}
+.new-strain-row{display:flex;gap:8px;margin-top:14px;}
+.new-strain-input{flex:1;background:#111118;border:1px solid rgba(180,140,60,0.2);border-radius:6px;padding:10px 12px;color:#e8e4d9;font-size:12px;outline:none;}
+.btn-add-strain-confirm{background:rgba(180,140,60,0.15);border:1px solid rgba(180,140,60,0.3);color:#b48c3c;border-radius:6px;padding:10px 16px;font-size:10px;letter-spacing:2px;cursor:pointer;}
+
+/* EXPENSE MODAL */
+.exp-modal-box{width:100%;max-width:480px;margin:0 auto;background:#12121e;border:1px solid rgba(224,92,92,0.15);border-radius:16px 16px 0 0;padding:20px 18px 50px;}
+.exp-input{width:100%;background:#111118;border:1px solid rgba(224,92,92,0.2);border-radius:8px;padding:14px 16px;color:#e8e4d9;font-size:22px;font-weight:700;outline:none;text-align:center;}
+.btn-exp-confirm{width:100%;background:linear-gradient(135deg,#c0392b,#922b21);border:none;border-radius:8px;padding:14px;color:#fff;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-top:12px;cursor:pointer;}
+
+.hidden{display:none!important;}
 </style>
 </head>
 <body>
 <div class="glow"></div>
-<div id="app">
+
+<!-- SETUP SCREEN -->
+<div class="setup-screen" id="setupScreen">
+  <div style="text-align:center;margin-bottom:8px;font-size:32px">📦</div>
+  <div class="setup-title">The Ledger</div>
+  <div class="setup-sub">Set up your first product</div>
+  <div class="setup-field">
+    <div class="setup-label">Product / Strain Name</div>
+    <input class="setup-input" id="setupStrain" placeholder="e.g. Runtz" style="font-size:16px;"/>
+  </div>
+  <div class="setup-field">
+    <div class="setup-label">Starting Stock (grams)</div>
+    <input class="setup-input" id="setupStock" type="number" placeholder="0" inputmode="decimal"/>
+  </div>
+  <div class="setup-field">
+    <div class="setup-label">Total Expenses ($)</div>
+    <input class="setup-input" id="setupExpenses" type="number" placeholder="0" inputmode="decimal"/>
+  </div>
+  <button class="setup-btn" onclick="completeSetup()">Let's Go →</button>
+  <div class="setup-note">You can add more products and adjust<br/>everything later inside the app.</div>
+</div>
+
+<div id="app" class="hidden">
+
+  <!-- HEADER -->
   <div class="header">
-    <div class="header-row">
-      <div>
+    <div class="header-top">
+      <div class="header-left">
         <div class="header-label">Inventory Manager</div>
         <div class="header-title">The Ledger</div>
         <div class="save-status saved" id="saveStatus">● SAVED</div>
       </div>
-      <div style="text-align:right">
+      <div class="header-right">
         <div class="stock-label">REMAINING</div>
-        <div class="stock-value ok" id="stockDisplay">448<span class="stock-unit">g</span></div>
+        <div class="stock-value ok" id="stockDisplay">0<span class="stock-unit">g</span></div>
       </div>
     </div>
+
+    <!-- STRAIN SELECTOR -->
+    <div class="strain-bar">
+      <select class="strain-select" id="strainSelect" onchange="switchStrain(this.value)"></select>
+      <button class="btn-add-strain" onclick="openStrainModal()" title="Manage products">⚙</button>
+    </div>
+
     <div class="bar-wrap">
-      <div class="bar-bg"><div class="bar-fill" id="stockBar" style="width:100%"></div></div>
-      <div class="bar-labels"><span id="barLeft">100% REMAINING</span><span id="barRight">0% MOVED</span></div>
+      <div class="bar-bg"><div class="bar-fill" id="stockBar" style="width:0%"></div></div>
+      <div class="bar-labels"><span id="barLeft">0% REMAINING</span><span id="barRight">0% MOVED</span></div>
     </div>
   </div>
+
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('dashboard')">📦 Stock</button>
     <button class="tab-btn" onclick="switchTab('log')">📋 Log</button>
     <button class="tab-btn" onclick="switchTab('tips')">💡 Tips</button>
   </div>
+
+  <!-- DASHBOARD -->
   <div id="tab-dashboard" class="tab-content">
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-label">EARNED</div><div class="stat-value" id="statEarned" style="color:#4caf7a">$0</div></div>
-      <div class="stat-card"><div class="stat-label">PROFIT</div><div class="stat-value" id="statProfit" style="color:#e05c5c">-$1450</div></div>
-      <div class="stat-card"><div class="stat-label">EXPENSES</div><div class="stat-value" style="color:#e05c5c">$1,450</div></div>
+      <div class="stat-card"><div class="stat-label">TOTAL EARNED</div><div class="stat-value" id="statEarned" style="color:#4caf7a">$0</div></div>
+      <div class="stat-card"><div class="stat-label">NET PROFIT</div><div class="stat-value" id="statProfit" style="color:#e05c5c">$0</div></div>
+      <div class="stat-card"><div class="stat-label">EXPENSES</div><div class="stat-value" id="statExp" style="color:#e05c5c">$0</div></div>
       <div class="stat-card"><div class="stat-label">EST VALUE</div><div class="stat-value" id="statEst" style="color:#b48c3c">~$0</div></div>
     </div>
+
+    <!-- Expense bar -->
     <div class="exp-card">
-      <div class="exp-row">EXPENSES COVERED <span id="expCovered">$0 / $1450</span></div>
+      <div class="exp-row">EXPENSES COVERED <span id="expCovered">$0 / $0</span></div>
       <div class="bar-bg"><div class="bar-fill" id="expBar" style="width:0%;background:linear-gradient(90deg,#e05c5c,#b48c3c)"></div></div>
-    </div>
-    <div class="use-card">
-      <div class="use-label">DAILY USE / PERSONAL</div>
-      <div class="use-row">
-        <div class="use-controls">
-          <button class="btn-pm" onclick="adjustUse(-0.5)">−</button>
-          <div class="use-display"><div class="big" id="useAmtDisplay">2g</div><div class="small">AMOUNT</div></div>
-          <button class="btn-pm" onclick="adjustUse(0.5)">+</button>
-        </div>
-        <button class="btn-log-use" onclick="logUse()">LOG USE</button>
+      <div style="margin-top:10px;display:flex;gap:7px;">
+        <button onclick="openExpModal()" style="flex:1;background:rgba(224,92,92,0.08);border:1px solid rgba(224,92,92,0.15);color:#e05c5c;border-radius:5px;padding:7px;font-size:8px;letter-spacing:2px;cursor:pointer;">+ ADD EXPENSE</button>
+        <button onclick="openExpModal('edit')" style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#444;border-radius:5px;padding:7px;font-size:8px;letter-spacing:2px;cursor:pointer;">EDIT TOTAL</button>
       </div>
-      <div id="useSummary" class="use-summary hidden">
+    </div>
+
+    <!-- Restock -->
+    <div class="action-card green">
+      <div class="action-label green">+ ADD / RESTOCK INVENTORY</div>
+      <div class="action-row">
+        <div class="action-controls">
+          <button class="btn-pm" onclick="adjustAmt('restock',-0.5)">−</button>
+          <div class="action-display">
+            <div class="big" id="restockDisplay">14g</div>
+            <div class="small">GRAMS</div>
+          </div>
+          <button class="btn-pm" onclick="adjustAmt('restock',0.5)">+</button>
+        </div>
+        <button class="btn-action green" onclick="logRestock()">ADD STOCK</button>
+      </div>
+      <div id="restockSummary" class="action-summary hidden">
+        Total restocked: <span class="green" id="restockTotal">0g</span>
+      </div>
+    </div>
+
+    <!-- Daily use -->
+    <div class="action-card red">
+      <div class="action-label red">DAILY USE / PERSONAL</div>
+      <div class="action-row">
+        <div class="action-controls">
+          <button class="btn-pm" onclick="adjustAmt('use',-0.5)">−</button>
+          <div class="action-display">
+            <div class="big" id="useDisplay">2g</div>
+            <div class="small">GRAMS</div>
+          </div>
+          <button class="btn-pm" onclick="adjustAmt('use',0.5)">+</button>
+        </div>
+        <button class="btn-action red" onclick="logUse()">LOG USE</button>
+      </div>
+      <div id="useSummary" class="action-summary hidden">
         Total personal: <span class="red" id="useTotalG">0g</span> · Est. lost: <span class="red" id="useTotalLost">$0</span>
       </div>
     </div>
-    <button class="btn-sale" onclick="openModal()">+ Record Sale</button>
-    <div class="section-label">POSSIBLE PACKS FROM CURRENT STOCK</div>
+
+    <button class="btn-sale" onclick="openSaleModal()">+ Record Sale</button>
+
+    <div class="section-label">POSSIBLE PACKS — CURRENT STOCK</div>
     <div id="packBreakdown"></div>
-    <button class="btn-reset" onclick="resetAll()">↺ Reset All Data</button>
+
+    <button class="btn-reset" onclick="resetStrain()">↺ Reset This Product's Data</button>
   </div>
+
+  <!-- LOG -->
   <div id="tab-log" class="tab-content hidden">
+    <div class="log-filter" id="logFilter">
+      <button class="log-filter-btn active" onclick="setLogFilter('all',this)">ALL</button>
+      <button class="log-filter-btn" onclick="setLogFilter('sale',this)">SALES</button>
+      <button class="log-filter-btn" onclick="setLogFilter('restock',this)">RESTOCK</button>
+      <button class="log-filter-btn" onclick="setLogFilter('use',this)">PERSONAL</button>
+      <button class="log-filter-btn" onclick="setLogFilter('expense',this)">EXPENSES</button>
+    </div>
     <div class="section-label" id="logCount">0 ENTRIES</div>
     <div id="logList"><div class="log-empty">NO TRANSACTIONS YET</div></div>
   </div>
+
+  <!-- TIPS -->
   <div id="tab-tips" class="tab-content hidden">
     <div class="ai-box">
-      <div class="ai-box-header"><span class="ai-box-title">✦ AI ADVISOR</span><span class="ai-badge">LIVE ANALYSIS</span></div>
-      <div class="ai-text loading" id="aiText">Tap "Get AI Advice" to analyze your current situation...</div>
+      <div class="ai-box-header">
+        <span class="ai-box-title">✦ AI ADVISOR</span>
+        <span class="ai-badge">LIVE ANALYSIS</span>
+      </div>
+      <div class="ai-text loading" id="aiText">Tap below to get a live AI analysis of your current situation...</div>
     </div>
-    <button class="btn-ai-refresh" id="aiBtn" onclick="fetchAI()">✦ Get AI Advice</button>
-    <div class="section-label">QUICK STATS</div>
-    <div id="tipsList"></div>
-    <div style="margin-top:20px">
+    <button class="btn-ai" id="aiBtn" onclick="fetchAI()">✦ Get AI Advice</button>
+
+    <div class="section-label">QUICK STATS — ALL PRODUCTS</div>
+    <div class="qs-grid" id="qsGrid"></div>
+
+    <div style="margin-top:4px">
       <div class="section-label">PRICE REFERENCE</div>
       <div class="price-ref">
-        <div class="price-row"><span class="size">14g</span><span>$80–$90</span><span class="pg">$5.71–$6.43/g</span></div>
-        <div class="price-row"><span class="size">7g</span><span>$50</span><span class="pg">$7.14/g</span></div>
-        <div class="price-row"><span class="size">3.5g</span><span>$25–$30</span><span class="pg">$7.14–$8.57/g</span></div>
-        <div class="price-row"><span class="size">1g</span><span>$10–$12</span><span class="pg">$10–$12/g</span></div>
+        <div class="price-ref-row"><span class="sz">14g</span><span>$80–$90</span><span class="pg">$5.71–$6.43/g</span></div>
+        <div class="price-ref-row"><span class="sz">7g</span><span>$50</span><span class="pg">$7.14/g</span></div>
+        <div class="price-ref-row"><span class="sz">3.5g</span><span>$25–$30</span><span class="pg">$7.14–$8.57/g</span></div>
+        <div class="price-ref-row"><span class="sz">1g</span><span>$10–$12</span><span class="pg">$10–$12/g</span></div>
       </div>
     </div>
   </div>
 </div>
-<div class="modal-overlay hidden" id="modal" onclick="closeModalOutside(event)">
+
+<!-- SALE MODAL -->
+<div class="modal-overlay hidden" id="saleModal" onclick="closeOnOverlay(event,'saleModal')">
   <div class="modal-box">
     <div class="modal-title">Record Sale</div>
     <div class="modal-section">
-      <div class="modal-label">PACK SIZE</div>
+      <div class="modal-label">Pack Size</div>
       <div class="pack-btns">
         <button class="pack-btn active" onclick="selectPack('14g',this)">14g</button>
         <button class="pack-btn" onclick="selectPack('7g',this)">7g</button>
@@ -206,7 +363,7 @@
       </div>
     </div>
     <div class="modal-section">
-      <div class="modal-label">QUANTITY</div>
+      <div class="modal-label">Quantity</div>
       <div class="qty-row">
         <button class="btn-pm" onclick="adjustQty(-1)">−</button>
         <span class="qty-val" id="qtyVal">1</span>
@@ -215,104 +372,577 @@
       </div>
     </div>
     <div class="modal-section">
-      <div class="modal-label">PRICE PER PACK</div>
-      <div class="price-row-modal">
+      <div class="modal-label">Price Per Pack</div>
+      <div class="price-row-m">
         <button class="btn-pm" onclick="adjustPrice(-1)">−</button>
         <span class="price-val" id="priceVal">$90</span>
         <button class="btn-pm" onclick="adjustPrice(1)">+</button>
-        <span class="price-total" id="priceTotal">= $90 total</span>
+        <span class="price-total-m" id="priceTotal">= $90 total</span>
       </div>
     </div>
     <div class="modal-section">
-      <div class="modal-label">NOTE (optional)</div>
+      <div class="modal-label">Note (optional)</div>
       <input class="note-input" id="saleNote" placeholder="e.g. regular, cash, front..."/>
     </div>
     <button class="btn-confirm" id="confirmBtn" onclick="confirmSale()">Confirm — $90</button>
   </div>
 </div>
+
+<!-- STRAIN MODAL -->
+<div class="modal-overlay hidden" id="strainModal" onclick="closeOnOverlay(event,'strainModal')">
+  <div class="strain-modal-box">
+    <div class="modal-title">Manage Products</div>
+    <div id="strainList"></div>
+    <div class="new-strain-row">
+      <input class="new-strain-input" id="newStrainInput" placeholder="New product name..."/>
+      <button class="btn-add-strain-confirm" onclick="addStrain()">+ ADD</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay hidden" id="expModal" onclick="closeOnOverlay(event,'expModal')">
+  <div class="exp-modal-box">
+    <div class="modal-title" id="expModalTitle">Add Expense</div>
+    <div class="modal-label" id="expModalLabel">Amount ($)</div>
+    <input class="exp-input" id="expInput" type="number" placeholder="0" inputmode="decimal"/>
+    <div class="modal-section" style="margin-top:12px">
+      <div class="modal-label">Note (optional)</div>
+      <input class="note-input" id="expNote" placeholder="e.g. re-up cost, supplies..."/>
+    </div>
+    <button class="btn-exp-confirm" id="expConfirmBtn" onclick="confirmExpense()">Confirm</button>
+  </div>
+</div>
+
 <script>
-const INITIAL_STOCK=448,EXPENSES=1450,STORAGE_KEY="ledger_state_v1";
-const PRICES={"14g":{weight:14,low:80,high:90},"7g":{weight:7,low:50,high:50},"3.5g":{weight:3.5,low:25,high:30},"1g":{weight:1,low:10,high:12}};
-let state={stock:INITIAL_STOCK,totalEarned:0,dailyUseTotal:0,logs:[]};
-let useAmt=2,saleType="14g",saleQty=1,salePrice=90,aiLoading=false;
-function save(){const el=document.getElementById("saveStatus");el.textContent="● SAVING...";el.className="save-status saving";try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}setTimeout(()=>{el.textContent="● SAVED";el.className="save-status saved";},400);}
-function load(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const p=JSON.parse(raw);if(p&&p.logs)state=p;}}catch(e){}}
-function estValue(s){return Math.floor(s/14)*90+Math.floor((s%14)/7)*50+Math.floor((s%7)/3.5)*30+Math.floor((s%3.5)/1)*12;}
-async function fetchAI(){
-  if(aiLoading)return;aiLoading=true;
-  const btn=document.getElementById("aiBtn"),textEl=document.getElementById("aiText");
-  btn.disabled=true;btn.innerHTML='✦ Analyzing<span class="ai-dot">.</span><span class="ai-dot">.</span><span class="ai-dot">.</span>';
-  textEl.className="ai-text loading";textEl.textContent="Analyzing your situation...";
-  const{stock,totalEarned,dailyUseTotal,logs}=state;
-  const profit=totalEarned-EXPENSES;
-  const salesByPack={};logs.filter(l=>l.type==="sale").forEach(l=>{salesByPack[l.pack]=(salesByPack[l.pack]||0)+l.qty;});
-  const recentSales=logs.filter(l=>l.type==="sale").slice(0,10).map(s=>({pack:s.pack,qty:s.qty,price:s.price,date:s.date}));
-  const recentUse=logs.filter(l=>l.type==="use").slice(0,5).map(u=>({weight:u.weight,date:u.date}));
-  const prompt=`You are a sharp, street-smart business advisor helping someone manage their inventory and maximize earnings. Be direct, specific, and actionable. No fluff.\n\nCurrent Inventory Snapshot:\n- Starting stock: ${INITIAL_STOCK}g\n- Remaining stock: ${stock}g (${((stock/INITIAL_STOCK)*100).toFixed(1)}% left)\n- Total earned: $${totalEarned}\n- Total expenses: $${EXPENSES}\n- Profit/Loss: ${profit>=0?'+':''}$${profit.toFixed(0)}\n- Personal use total: ${dailyUseTotal}g (est. $${((dailyUseTotal/3.5)*27.5).toFixed(0)} lost revenue)\n- Total sales: ${logs.filter(l=>l.type==="sale").length}\n- Sales by pack: ${JSON.stringify(salesByPack)}\n- Recent sales: ${JSON.stringify(recentSales)}\n- Recent personal use: ${JSON.stringify(recentUse)}\n\nPricing: 14g=$80-90, 7g=$50, 3.5g=$25-30, 1g=$10-12\n\nGive 3-4 specific personalized suggestions based on this REAL data. Focus on pack size priorities, personal use impact, path to covering expenses, and any patterns. Use specific numbers. Keep each point 1-3 sentences. Start each with an emoji. Line breaks between points.`;
-  try{
-    const response=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
-    const data=await response.json();
-    const text=data.content&&data.content[0]&&data.content[0].text;
-    if(text){textEl.className="ai-text";textEl.textContent=text;}else{throw new Error("No response");}
-  }catch(e){textEl.className="ai-text";textEl.textContent="Couldn't connect to AI right now. Make sure you're online and try again.";}
-  aiLoading=false;btn.disabled=false;btn.innerHTML='✦ Refresh AI Advice';
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = "ledger_v3";
+const PRICES = {
+  "14g":  {weight:14,  low:80,  high:90},
+  "7g":   {weight:7,   low:50,  high:50},
+  "3.5g": {weight:3.5, low:25,  high:30},
+  "1g":   {weight:1,   low:10,  high:12},
+};
+
+// Global app data
+let appData = {
+  strains: {},       // { strainName: { stock, expenses, totalEarned, dailyUseTotal, restockTotal, logs[] } }
+  currentStrain: "", // active strain
+  globalLogs: [],    // all logs across strains
+};
+
+// UI state
+let restockAmt = 14;
+let useAmt = 2;
+let saleType = "14g";
+let saleQty = 1;
+let salePrice = 90;
+let aiLoading = false;
+let logFilter = "all";
+let expModalMode = "add"; // "add" or "edit"
+
+// ═══════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════
+function save() {
+  const el = document.getElementById("saveStatus");
+  el.textContent = "● SAVING..."; el.className = "save-status saving";
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e){}
+  setTimeout(()=>{ el.textContent="● SAVED"; el.className="save-status saved"; }, 500);
 }
-function getSuggestions(stock,totalEarned,dailyUseTotal){
-  const out=[];
-  out.push({icon:"📊",title:"Best Margin",text:`3.5g packs return $${(27.5/3.5).toFixed(2)}/g vs $${(85/14).toFixed(2)}/g for 14g. Break down when you can.`});
-  if(stock>=14){const p14=Math.floor(stock/14);out.push({icon:"💰",title:`${p14} packs of 14g available`,text:`All as 14g = ~$${(p14*85).toLocaleString()}. Mix with 3.5g splits for higher ceiling.`});}
-  const needed=EXPENSES-totalEarned;
-  if(needed>0){out.push({icon:"🎯",title:"To Break Even",text:`$${needed.toFixed(0)} still needed. ~${Math.ceil(needed/85)} more 14g sales gets you there.`});}
-  else{out.push({icon:"✅",title:"Expenses Covered",text:`You've cleared $${EXPENSES.toLocaleString()}. Every dollar now is pure profit.`});}
-  if(dailyUseTotal>0){out.push({icon:"⚠️",title:"Personal Use",text:`${dailyUseTotal}g personal = ~$${((dailyUseTotal/3.5)*27.5).toFixed(0)} in lost revenue.`});}
-  if(stock<50&&stock>0){out.push({icon:"🔥",title:"Low Stock",text:`Under 50g left. Break into 3.5g packs — max $${(Math.floor(stock/3.5)*30).toFixed(0)} from what's left.`});}
-  return out;
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.strains) appData = p;
+    }
+  } catch(e){}
 }
-function render(){
-  const{stock,totalEarned,dailyUseTotal,logs}=state;
-  const stockPct=((stock/INITIAL_STOCK)*100).toFixed(1),movedPct=(((INITIAL_STOCK-stock)/INITIAL_STOCK)*100).toFixed(1);
-  const sdEl=document.getElementById("stockDisplay");
-  sdEl.innerHTML=`${stock%1===0?stock:stock.toFixed(1)}<span class="stock-unit">g</span>`;
-  sdEl.className="stock-value "+(stock<50?"low":"ok");
-  document.getElementById("stockBar").style.width=stockPct+"%";
-  document.getElementById("barLeft").textContent=stockPct+"% REMAINING";
-  document.getElementById("barRight").textContent=movedPct+"% MOVED";
-  const profit=totalEarned-EXPENSES;
-  document.getElementById("statEarned").textContent="$"+totalEarned.toFixed(0);
-  const profEl=document.getElementById("statProfit");
-  profEl.textContent=profit>=0?"+$"+profit.toFixed(0):"-$"+Math.abs(profit).toFixed(0);
-  profEl.style.color=profit>=0?"#4caf7a":"#e05c5c";
-  document.getElementById("statEst").textContent="~$"+estValue(stock).toFixed(0);
-  const pct=Math.min(100,(totalEarned/EXPENSES)*100).toFixed(1);
-  document.getElementById("expBar").style.width=pct+"%";
-  document.getElementById("expCovered").textContent="$"+Math.min(totalEarned,EXPENSES).toFixed(0)+" / $"+EXPENSES;
-  document.getElementById("useAmtDisplay").textContent=useAmt+"g";
-  if(dailyUseTotal>0){document.getElementById("useSummary").classList.remove("hidden");document.getElementById("useTotalG").textContent=dailyUseTotal+"g";document.getElementById("useTotalLost").textContent="$"+((dailyUseTotal/3.5)*27.5).toFixed(0);}
-  else{document.getElementById("useSummary").classList.add("hidden");}
-  let pbHtml="";Object.entries(PRICES).forEach(([k,p])=>{const count=Math.floor(stock/p.weight);const priceStr=p.low===p.high?"$"+p.low:"$"+p.low+"–$"+p.high;pbHtml+=`<div class="pack-row"><div><span class="pack-name">${k}</span><span class="pack-price">${priceStr}</span></div><div style="text-align:right"><span class="pack-count">${count} packs</span><span class="pack-earn">~$${(count*p.high).toLocaleString()}</span></div></div>`;});
-  document.getElementById("packBreakdown").innerHTML=pbHtml;
-  document.getElementById("logCount").textContent=logs.length+" ENTRIES";
-  if(logs.length===0){document.getElementById("logList").innerHTML='<div class="log-empty">NO TRANSACTIONS YET</div>';}
-  else{document.getElementById("logList").innerHTML=logs.map(log=>{if(log.type==="sale"){return`<div class="log-entry sale"><div class="log-inner"><div><div class="log-title sale">SOLD ${log.qty}× ${log.pack}</div>${log.note?`<div class="log-note">${log.note}</div>`:""}<div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-amount">+$${log.total}</div><div class="log-stock">${typeof log.stockAfter==="number"?log.stockAfter.toFixed(1):log.stockAfter}g left</div></div></div></div>`;}else{return`<div class="log-entry use"><div class="log-inner"><div><div class="log-title use">PERSONAL USE ${log.weight}g</div><div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-stock">${typeof log.stockAfter==="number"?log.stockAfter.toFixed(1):log.stockAfter}g left</div></div></div></div>`;}}).join("");}
-  const tips=getSuggestions(stock,totalEarned,dailyUseTotal);
-  document.getElementById("tipsList").innerHTML=tips.map(t=>`<div class="tip-card"><div class="tip-header"><span class="tip-icon">${t.icon}</span><span class="tip-title">${t.title}</span></div><div class="tip-text">${t.text}</div></div>`).join("");
-  document.getElementById("confirmBtn").textContent=`Confirm — $${salePrice*saleQty}`;
-  document.getElementById("qtyVal").textContent=saleQty;
-  document.getElementById("qtyHint").textContent=`= ${(PRICES[saleType].weight*saleQty).toFixed(1)}g total`;
-  document.getElementById("priceVal").textContent="$"+salePrice;
-  document.getElementById("priceTotal").textContent=`= $${salePrice*saleQty} total`;
+
+function isSetupDone() {
+  return appData.currentStrain && appData.strains[appData.currentStrain];
 }
-function switchTab(tab){["dashboard","log","tips"].forEach((t,i)=>{document.getElementById("tab-"+t).classList.toggle("hidden",t!==tab);document.querySelectorAll(".tab-btn")[i].classList.toggle("active",t===tab);});}
-function adjustUse(delta){useAmt=Math.round(Math.min(10,Math.max(0.5,useAmt+delta))*10)/10;render();}
-function logUse(){if(useAmt>state.stock){alert("Not enough stock!");return;}const newStock=Math.round((state.stock-useAmt)*10)/10;state.stock=newStock;state.dailyUseTotal=Math.round((state.dailyUseTotal+useAmt)*10)/10;state.logs.unshift({id:Date.now(),type:"use",weight:useAmt,date:new Date().toLocaleString(),stockAfter:newStock});save();render();}
-function resetAll(){if(!confirm("Reset everything back to 448g / $0?"))return;state={stock:INITIAL_STOCK,totalEarned:0,dailyUseTotal:0,logs:[]};document.getElementById("aiText").textContent='Tap "Get AI Advice" to analyze your current situation...';document.getElementById("aiText").className="ai-text loading";document.getElementById("aiBtn").innerHTML="✦ Get AI Advice";save();render();}
-function openModal(){document.getElementById("modal").classList.remove("hidden");document.getElementById("saleNote").value="";saleQty=1;saleType="14g";salePrice=PRICES["14g"].high;document.querySelectorAll(".pack-btn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".pack-btn")[0].classList.add("active");render();}
-function closeModalOutside(e){if(e.target.id==="modal")document.getElementById("modal").classList.add("hidden");}
-function selectPack(type,btn){saleType=type;salePrice=PRICES[type].high;saleQty=1;document.querySelectorAll(".pack-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");render();}
-function adjustQty(delta){saleQty=Math.max(1,saleQty+delta);render();}
-function adjustPrice(delta){salePrice=Math.max(1,salePrice+delta);render();}
-function confirmSale(){const pack=PRICES[saleType];const totalW=Math.round(pack.weight*saleQty*10)/10;if(totalW>state.stock){alert("Not enough stock!");return;}const earned=salePrice*saleQty;const note=document.getElementById("saleNote").value.trim();const newStock=Math.round((state.stock-totalW)*10)/10;state.stock=newStock;state.totalEarned+=earned;state.logs.unshift({id:Date.now(),type:"sale",pack:saleType,qty:saleQty,price:salePrice,total:earned,weight:totalW,note:note,date:new Date().toLocaleString(),stockAfter:newStock});document.getElementById("modal").classList.add("hidden");save();render();}
-load();render();
+
+// ═══════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════
+function completeSetup() {
+  const name = document.getElementById("setupStrain").value.trim() || "Product 1";
+  const stock = parseFloat(document.getElementById("setupStock").value) || 0;
+  const expenses = parseFloat(document.getElementById("setupExpenses").value) || 0;
+  createStrain(name, stock, expenses);
+  document.getElementById("setupScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  save();
+  renderAll();
+}
+
+function createStrain(name, stock=0, expenses=0) {
+  if (appData.strains[name]) return; // already exists
+  appData.strains[name] = {
+    stock: stock,
+    startStock: stock,
+    expenses: expenses,
+    totalEarned: 0,
+    dailyUseTotal: 0,
+    restockTotal: 0,
+    logs: [],
+  };
+  appData.currentStrain = name;
+}
+
+// ═══════════════════════════════════════════════
+// STRAIN MANAGEMENT
+// ═══════════════════════════════════════════════
+function switchStrain(name) {
+  if (appData.strains[name]) {
+    appData.currentStrain = name;
+    save();
+    renderAll();
+  }
+}
+
+function getCurrentStrain() {
+  return appData.strains[appData.currentStrain] || null;
+}
+
+function openStrainModal() {
+  renderStrainList();
+  document.getElementById("strainModal").classList.remove("hidden");
+}
+
+function renderStrainList() {
+  const list = document.getElementById("strainList");
+  const strains = Object.keys(appData.strains);
+  if (strains.length === 0) { list.innerHTML = ""; return; }
+  list.innerHTML = strains.map(name => {
+    const s = appData.strains[name];
+    const isCurrent = name === appData.currentStrain;
+    return `<div class="strain-item">
+      <div>
+        <div class="strain-item-name">${name}${isCurrent?' <span style="color:#555;font-size:9px;font-weight:400">● ACTIVE</span>':''}</div>
+        <div class="strain-item-stock">${s.stock % 1 === 0 ? s.stock : s.stock.toFixed(1)}g remaining · $${s.totalEarned.toFixed(0)} earned</div>
+      </div>
+      <button class="btn-del-strain" onclick="deleteStrain('${name}')" ${isCurrent&&strains.length===1?'disabled':''}>DEL</button>
+    </div>`;
+  }).join("");
+}
+
+function addStrain() {
+  const input = document.getElementById("newStrainInput");
+  const name = input.value.trim();
+  if (!name) return;
+  if (appData.strains[name]) { alert("Product already exists!"); return; }
+  createStrain(name);
+  input.value = "";
+  save();
+  renderStrainList();
+  renderStrainSelector();
+  renderAll();
+}
+
+function deleteStrain(name) {
+  const strains = Object.keys(appData.strains);
+  if (strains.length <= 1) { alert("Can't delete your only product!"); return; }
+  if (!confirm(`Delete "${name}" and all its data?`)) return;
+  delete appData.strains[name];
+  if (appData.currentStrain === name) {
+    appData.currentStrain = Object.keys(appData.strains)[0];
+  }
+  save();
+  renderStrainList();
+  renderStrainSelector();
+  renderAll();
+}
+
+function renderStrainSelector() {
+  const sel = document.getElementById("strainSelect");
+  const strains = Object.keys(appData.strains);
+  sel.innerHTML = strains.map(name =>
+    `<option value="${name}" ${name===appData.currentStrain?'selected':''}>${name}</option>`
+  ).join("");
+}
+
+// ═══════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════
+function adjustAmt(type, delta) {
+  if (type === 'restock') {
+    restockAmt = Math.round(Math.min(9999, Math.max(0.5, restockAmt+delta))*10)/10;
+    document.getElementById("restockDisplay").textContent = restockAmt+"g";
+  } else {
+    useAmt = Math.round(Math.min(100, Math.max(0.5, useAmt+delta))*10)/10;
+    document.getElementById("useDisplay").textContent = useAmt+"g";
+  }
+}
+
+function logRestock() {
+  const s = getCurrentStrain();
+  if (!s) return;
+  const newStock = Math.round((s.stock + restockAmt)*10)/10;
+  s.stock = newStock;
+  s.startStock = Math.max(s.startStock || 0, newStock); // keep track of max for progress bar
+  s.restockTotal = Math.round(((s.restockTotal||0) + restockAmt)*10)/10;
+  const entry = {id:Date.now(),type:"restock",strain:appData.currentStrain,weight:restockAmt,date:new Date().toLocaleString(),stockAfter:newStock};
+  s.logs.unshift(entry);
+  save(); renderAll();
+}
+
+function logUse() {
+  const s = getCurrentStrain();
+  if (!s) return;
+  if (useAmt > s.stock) { alert("Not enough stock!"); return; }
+  const newStock = Math.round((s.stock - useAmt)*10)/10;
+  s.stock = newStock;
+  s.dailyUseTotal = Math.round(((s.dailyUseTotal||0) + useAmt)*10)/10;
+  const entry = {id:Date.now(),type:"use",strain:appData.currentStrain,weight:useAmt,date:new Date().toLocaleString(),stockAfter:newStock};
+  s.logs.unshift(entry);
+  save(); renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// EXPENSE MODAL
+// ═══════════════════════════════════════════════
+function openExpModal(mode='add') {
+  expModalMode = mode;
+  const s = getCurrentStrain();
+  const titleEl = document.getElementById("expModalTitle");
+  const labelEl = document.getElementById("expModalLabel");
+  const input = document.getElementById("expInput");
+  const btn = document.getElementById("expConfirmBtn");
+  if (mode === 'edit') {
+    titleEl.textContent = "Edit Total Expenses";
+    labelEl.textContent = "New Total Expenses ($)";
+    input.value = s ? s.expenses : 0;
+    btn.textContent = "Update Total";
+  } else {
+    titleEl.textContent = "Add Expense";
+    labelEl.textContent = "Amount ($)";
+    input.value = "";
+    btn.textContent = "Confirm";
+  }
+  document.getElementById("expNote").value = "";
+  document.getElementById("expModal").classList.remove("hidden");
+}
+
+function confirmExpense() {
+  const s = getCurrentStrain();
+  if (!s) return;
+  const val = parseFloat(document.getElementById("expInput").value) || 0;
+  const note = document.getElementById("expNote").value.trim();
+  if (expModalMode === 'edit') {
+    s.expenses = val;
+  } else {
+    s.expenses = (s.expenses||0) + val;
+    const entry = {id:Date.now(),type:"expense",strain:appData.currentStrain,amount:val,note:note,date:new Date().toLocaleString()};
+    s.logs.unshift(entry);
+  }
+  document.getElementById("expModal").classList.add("hidden");
+  save(); renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// SALE
+// ═══════════════════════════════════════════════
+function openSaleModal() {
+  document.getElementById("saleModal").classList.remove("hidden");
+  document.getElementById("saleNote").value = "";
+  saleQty=1; saleType="14g"; salePrice=PRICES["14g"].high;
+  document.querySelectorAll(".pack-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".pack-btn")[0].classList.add("active");
+  updateSaleModal();
+}
+
+function updateSaleModal() {
+  document.getElementById("qtyVal").textContent = saleQty;
+  document.getElementById("qtyHint").textContent = `= ${(PRICES[saleType].weight*saleQty).toFixed(1)}g total`;
+  document.getElementById("priceVal").textContent = "$"+salePrice;
+  document.getElementById("priceTotal").textContent = `= $${salePrice*saleQty} total`;
+  document.getElementById("confirmBtn").textContent = `Confirm — $${salePrice*saleQty}`;
+}
+
+function selectPack(type, btn) {
+  saleType=type; salePrice=PRICES[type].high; saleQty=1;
+  document.querySelectorAll(".pack-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  updateSaleModal();
+}
+
+function adjustQty(d) { saleQty=Math.max(1,saleQty+d); updateSaleModal(); }
+function adjustPrice(d) { salePrice=Math.max(1,salePrice+d); updateSaleModal(); }
+
+function confirmSale() {
+  const s = getCurrentStrain();
+  if (!s) return;
+  const totalW = Math.round(PRICES[saleType].weight*saleQty*10)/10;
+  if (totalW > s.stock) { alert("Not enough stock!"); return; }
+  const earned = salePrice * saleQty;
+  const note = document.getElementById("saleNote").value.trim();
+  const newStock = Math.round((s.stock - totalW)*10)/10;
+  s.stock = newStock;
+  s.totalEarned = (s.totalEarned||0) + earned;
+  const entry = {id:Date.now(),type:"sale",strain:appData.currentStrain,pack:saleType,qty:saleQty,price:salePrice,total:earned,weight:totalW,note:note,date:new Date().toLocaleString(),stockAfter:newStock};
+  s.logs.unshift(entry);
+  document.getElementById("saleModal").classList.add("hidden");
+  save(); renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════
+function resetStrain() {
+  if (!confirm(`Reset all data for "${appData.currentStrain}"?`)) return;
+  const s = getCurrentStrain();
+  if (!s) return;
+  s.stock=0; s.startStock=0; s.expenses=0; s.totalEarned=0;
+  s.dailyUseTotal=0; s.restockTotal=0; s.logs=[];
+  save(); renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════════
+async function fetchAI() {
+  if (aiLoading) return;
+  aiLoading = true;
+  const btn = document.getElementById("aiBtn");
+  const textEl = document.getElementById("aiText");
+  btn.disabled = true;
+  btn.innerHTML = '✦ Analyzing<span class="ai-dot">.</span><span class="ai-dot">.</span><span class="ai-dot">.</span>';
+  textEl.className = "ai-text loading";
+  textEl.textContent = "Reading your data...";
+
+  // Build snapshot across all strains
+  const allStrains = Object.entries(appData.strains).map(([name, s]) => {
+    const profit = (s.totalEarned||0) - (s.expenses||0);
+    const salesByPack = {};
+    (s.logs||[]).filter(l=>l.type==="sale").forEach(l=>{salesByPack[l.pack]=(salesByPack[l.pack]||0)+l.qty;});
+    return {
+      name, stock:s.stock, expenses:s.expenses||0,
+      totalEarned:s.totalEarned||0, profit,
+      dailyUseTotal:s.dailyUseTotal||0,
+      restockTotal:s.restockTotal||0,
+      totalSales:(s.logs||[]).filter(l=>l.type==="sale").length,
+      salesByPack,
+      recentSales:(s.logs||[]).filter(l=>l.type==="sale").slice(0,5).map(l=>({pack:l.pack,qty:l.qty,price:l.price,date:l.date})),
+    };
+  });
+
+  const current = appData.strains[appData.currentStrain];
+  const totalAllEarned = allStrains.reduce((a,s)=>a+s.totalEarned,0);
+  const totalAllExpenses = allStrains.reduce((a,s)=>a+s.expenses,0);
+  const totalAllProfit = totalAllEarned - totalAllExpenses;
+
+  const prompt = `You are a sharp, street-smart business advisor. The user tracks their inventory using this app. Give real, specific, actionable advice based on their ACTUAL data. Be direct — no fluff, no filler. Sound like a smart business partner, not a bot.
+
+ACTIVE PRODUCT: ${appData.currentStrain}
+${JSON.stringify(allStrains.find(s=>s.name===appData.currentStrain), null, 2)}
+
+ALL PRODUCTS OVERVIEW:
+${JSON.stringify(allStrains, null, 2)}
+
+OVERALL:
+- Total earned across all products: $${totalAllEarned.toFixed(0)}
+- Total expenses across all: $${totalAllExpenses.toFixed(0)}
+- Net profit/loss: ${totalAllProfit>=0?'+':''}$${totalAllProfit.toFixed(0)}
+
+PRICING CONTEXT: 14g=$80-90, 7g=$50, 3.5g=$25-30, 1g=$10-12 (1g and 3.5g have highest $/g margin)
+
+Give 4-5 personalized insights. Each point should:
+- Reference their actual numbers, not generic advice
+- Highlight what's working and what needs attention
+- Give a specific action they can take TODAY
+- Call out personal use impact if significant
+- Compare products if multiple exist
+
+Format: emoji + bold insight title on first line, then 1-2 sentence explanation. Blank line between each point. Be real with them.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const data = await response.json();
+    const text = data.content && data.content[0] && data.content[0].text;
+    if (text) {
+      textEl.className = "ai-text";
+      textEl.textContent = text;
+    } else {
+      throw new Error("empty");
+    }
+  } catch(e) {
+    textEl.className = "ai-text";
+    textEl.textContent = "⚠️ Couldn't reach AI right now. Check your connection and try again.";
+  }
+  aiLoading = false;
+  btn.disabled = false;
+  btn.innerHTML = "✦ Refresh AI Advice";
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function estValue(stock) {
+  return Math.floor(stock/14)*90 + Math.floor((stock%14)/7)*50 + Math.floor((stock%7)/3.5)*30 + Math.floor((stock%3.5)/1)*12;
+}
+
+function renderAll() {
+  const s = getCurrentStrain();
+  if (!s) return;
+
+  // Header stock
+  const sdEl = document.getElementById("stockDisplay");
+  sdEl.innerHTML = `${s.stock%1===0?s.stock:s.stock.toFixed(1)}<span class="stock-unit">g</span>`;
+  sdEl.className = "stock-value "+(s.stock<50?"low":"ok");
+
+  // Progress bar — based on highest stock seen
+  const maxSeen = Math.max(s.startStock||0, s.stock, (s.restockTotal||0));
+  const base = maxSeen > 0 ? maxSeen : 1;
+  const stockPct = Math.min(100, (s.stock/base)*100).toFixed(1);
+  const movedPct = (100 - parseFloat(stockPct)).toFixed(1);
+  document.getElementById("stockBar").style.width = stockPct+"%";
+  document.getElementById("barLeft").textContent = stockPct+"% REMAINING";
+  document.getElementById("barRight").textContent = movedPct+"% MOVED";
+
+  // Strain selector
+  renderStrainSelector();
+
+  // Stats
+  const earned = s.totalEarned||0;
+  const expenses = s.expenses||0;
+  const profit = earned - expenses;
+  document.getElementById("statEarned").textContent = "$"+earned.toFixed(0);
+  const profEl = document.getElementById("statProfit");
+  profEl.textContent = (profit>=0?"+$":"-$")+Math.abs(profit).toFixed(0);
+  profEl.style.color = profit>=0?"#4caf7a":"#e05c5c";
+  document.getElementById("statExp").textContent = "$"+expenses.toFixed(0);
+  document.getElementById("statEst").textContent = "~$"+estValue(s.stock).toFixed(0);
+
+  // Expense bar
+  const expPct = expenses>0 ? Math.min(100,(earned/expenses)*100).toFixed(1) : (earned>0?100:0);
+  document.getElementById("expBar").style.width = expPct+"%";
+  document.getElementById("expCovered").textContent = "$"+Math.min(earned,expenses).toFixed(0)+" / $"+expenses.toFixed(0);
+
+  // Restock summary
+  if ((s.restockTotal||0) > 0) {
+    document.getElementById("restockSummary").classList.remove("hidden");
+    document.getElementById("restockTotal").textContent = s.restockTotal+"g";
+  } else {
+    document.getElementById("restockSummary").classList.add("hidden");
+  }
+
+  // Use summary
+  if ((s.dailyUseTotal||0) > 0) {
+    document.getElementById("useSummary").classList.remove("hidden");
+    document.getElementById("useTotalG").textContent = s.dailyUseTotal+"g";
+    document.getElementById("useTotalLost").textContent = "$"+((s.dailyUseTotal/3.5)*27.5).toFixed(0);
+  } else {
+    document.getElementById("useSummary").classList.add("hidden");
+  }
+
+  // Pack breakdown
+  let pb = "";
+  Object.entries(PRICES).forEach(([k,p])=>{
+    const count = Math.floor(s.stock/p.weight);
+    const ps = p.low===p.high?"$"+p.low:"$"+p.low+"–$"+p.high;
+    pb += `<div class="pack-row"><div><span class="pack-name">${k}</span><span class="pack-price">${ps}</span></div><div><span class="pack-count">${count} packs</span><span class="pack-earn">~$${(count*p.high).toLocaleString()}</span></div></div>`;
+  });
+  document.getElementById("packBreakdown").innerHTML = pb;
+
+  // Log
+  renderLog();
+
+  // Quick stats
+  renderQuickStats();
+}
+
+function renderLog() {
+  const s = getCurrentStrain();
+  if (!s) return;
+  const logs = (s.logs||[]).filter(l => logFilter==="all" || l.type===logFilter);
+  document.getElementById("logCount").textContent = logs.length+" ENTRIES";
+  if (logs.length===0) {
+    document.getElementById("logList").innerHTML = '<div class="log-empty">NO ENTRIES YET</div>';
+    return;
+  }
+  document.getElementById("logList").innerHTML = logs.map(log => {
+    if (log.type==="sale") {
+      return `<div class="log-entry sale"><div class="log-inner"><div><div class="log-title sale">SOLD ${log.qty}× ${log.pack}</div>${log.note?`<div class="log-note">${log.note}</div>`:""}<div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-amount green">+$${log.total}</div><div class="log-stock">${typeof log.stockAfter==="number"?log.stockAfter.toFixed(1):log.stockAfter}g left</div></div></div></div>`;
+    } else if (log.type==="restock") {
+      return `<div class="log-entry restock"><div class="log-inner"><div><div class="log-title restock">📦 RESTOCKED +${log.weight}g</div><div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-amount green">+${log.weight}g</div><div class="log-stock">${typeof log.stockAfter==="number"?log.stockAfter.toFixed(1):log.stockAfter}g total</div></div></div></div>`;
+    } else if (log.type==="use") {
+      return `<div class="log-entry use"><div class="log-inner"><div><div class="log-title use">PERSONAL ${log.weight}g</div><div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-amount red">-${log.weight}g</div><div class="log-stock">${typeof log.stockAfter==="number"?log.stockAfter.toFixed(1):log.stockAfter}g left</div></div></div></div>`;
+    } else if (log.type==="expense") {
+      return `<div class="log-entry expense"><div class="log-inner"><div><div class="log-title expense">💸 EXPENSE</div>${log.note?`<div class="log-note">${log.note}</div>`:""}<div class="log-date">${log.date}</div></div><div class="log-right"><div class="log-amount red">-$${log.amount}</div></div></div></div>`;
+    }
+    return "";
+  }).join("");
+}
+
+function renderQuickStats() {
+  const allStrains = Object.entries(appData.strains);
+  const totalEarned = allStrains.reduce((a,[,s])=>a+(s.totalEarned||0),0);
+  const totalExpenses = allStrains.reduce((a,[,s])=>a+(s.expenses||0),0);
+  const totalProfit = totalEarned - totalExpenses;
+  const totalStock = allStrains.reduce((a,[,s])=>a+s.stock,0);
+  const totalUse = allStrains.reduce((a,[,s])=>a+(s.dailyUseTotal||0),0);
+  const totalSales = allStrains.reduce((a,[,s])=>a+(s.logs||[]).filter(l=>l.type==="sale").length,0);
+
+  document.getElementById("qsGrid").innerHTML = [
+    {label:"ALL PRODUCTS EARNED",val:"$"+totalEarned.toFixed(0),color:"#4caf7a"},
+    {label:"TOTAL NET PROFIT",val:(totalProfit>=0?"+$":"-$")+Math.abs(totalProfit).toFixed(0),color:totalProfit>=0?"#4caf7a":"#e05c5c"},
+    {label:"TOTAL STOCK LEFT",val:totalStock.toFixed(1)+"g",color:"#b48c3c"},
+    {label:"TOTAL SALES LOGGED",val:totalSales,color:"#e8e4d9"},
+    {label:"PERSONAL USE (ALL)",val:totalUse+"g",color:"#e05c5c"},
+    {label:"PRODUCTS TRACKED",val:allStrains.length,color:"#b48c3c"},
+  ].map(q=>`<div class="qs-card"><div class="qs-label">${q.label}</div><div class="qs-value" style="color:${q.color}">${q.val}</div></div>`).join("");
+}
+
+// ═══════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  ["dashboard","log","tips"].forEach((t,i)=>{
+    document.getElementById("tab-"+t).classList.toggle("hidden",t!==tab);
+    document.querySelectorAll(".tab-btn")[i].classList.toggle("active",t===tab);
+  });
+  if (tab==="tips") renderQuickStats();
+}
+
+function setLogFilter(type, btn) {
+  logFilter = type;
+  document.querySelectorAll(".log-filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderLog();
+}
+
+function closeOnOverlay(e, id) {
+  if (e.target.id===id) document.getElementById(id).classList.add("hidden");
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+load();
+if (isSetupDone()) {
+  document.getElementById("setupScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  renderAll();
+} else {
+  document.getElementById("setupScreen").classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+}
 </script>
 </body>
 </html>
+HTMLEOF
+echo "Done — $(wc -l < /mnt/user-data/outputs/TheLedger.html) lines"
