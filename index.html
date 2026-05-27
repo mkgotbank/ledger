@@ -211,12 +211,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
     <label class="setup-label">Total Expenses ($)</label>
     <input class="setup-input" id="ss-exp" type="number" placeholder="0" inputmode="decimal"/>
   </div>
-  <div class="setup-field">
-    <label class="setup-label">Anthropic API Key — for AI Advisor</label>
-    <input class="setup-input" id="ss-key" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="font-size:13px;letter-spacing:0.5px;"/>
-  </div>
   <button class="setup-btn" onclick="doSetup()">Let's Go →</button>
-  <div class="setup-note">API key is stored only on your device. Get one free at console.anthropic.com — you can also add or update it later inside the app.</div>
+  <div class="setup-note">You can add more products and edit everything inside the app at any time.</div>
 </div>
 
 <!-- ════ MAIN APP ════ -->
@@ -398,14 +394,6 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
       <input class="ns-in" id="nsInput" placeholder="New product name..." autocomplete="off"/>
       <button class="ns-add" onclick="addStrain()">+ Add</button>
     </div>
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);">
-      <span class="m-lbl" style="display:block;margin-bottom:8px;">AI Advisor — Anthropic API Key</span>
-      <div class="ns-row">
-        <input class="ns-in" id="keyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="font-size:11px;"/>
-        <button class="ns-add" onclick="saveApiKey()">Save</button>
-      </div>
-      <div id="keyStatus" style="font-size:9px;color:#3a3a52;margin-top:6px;letter-spacing:1px;"></div>
-    </div>
   </div>
 </div>
 
@@ -435,7 +423,7 @@ const PRICES = {
   "1g":{w:1,lo:10,hi:12}
 };
 
-let D = { strains:{}, cur:"", apiKey:"" };
+let D = { strains:{}, cur:"" };
 
 function fresh(stock,expenses){
   return {stock:+stock||0,startStock:+stock||0,expenses:+expenses||0,earned:0,useTotal:0,restockTotal:0,logs:[]};
@@ -469,10 +457,8 @@ function doSetup(){
   const name=(document.getElementById("ss-name").value.trim())||"Product 1";
   const stock=parseFloat(document.getElementById("ss-stock").value)||0;
   const exp=parseFloat(document.getElementById("ss-exp").value)||0;
-  const key=document.getElementById("ss-key").value.trim();
   if(!D.strains[name]){D.strains[name]=fresh(stock,exp);}
   D.cur=name;
-  if(key) D.apiKey=key;
   document.getElementById("setupScreen").style.display="none";
   document.getElementById("mainApp").style.display="block";
   persist(); renderAll();
@@ -565,23 +551,8 @@ function setFilter(f,btn){
 // MODALS
 // ═══════════════════════════════
 function openModal(id){
-  if(id==="strainMgr"){
-    renderStrainMgr();
-    const ki=document.getElementById("keyInput");
-    if(ki) ki.value=D.apiKey||"";
-    const ks=document.getElementById("keyStatus");
-    if(ks) ks.textContent=D.apiKey?"● KEY SAVED":"No key set";
-  }
+  if(id==="strainMgr") renderStrainMgr();
   document.getElementById("modal-"+id).classList.add("open");
-}
-
-function saveApiKey(){
-  const val=document.getElementById("keyInput").value.trim();
-  if(!val){return;}
-  D.apiKey=val;
-  persist();
-  const ks=document.getElementById("keyStatus");
-  if(ks){ks.style.color="#4caf7a";ks.textContent="● KEY SAVED";}
 }
 function closeModal(id){ document.getElementById("modal-"+id).classList.remove("open"); }
 function overlayClose(e,id){ if(e.target.id==="modal-"+id) closeModal(id); }
@@ -715,41 +686,27 @@ Tips to cover:
 
 Format: Start each tip with an emoji. 2-3 sentences per tip. Blank line between tips. Plain conversational text — no headers, no bullet sub-points, no repeating back the raw numbers as the main point.`;
 
-  if(!D.apiKey){
-    body.className="ai-body idle";
-    body.textContent="No API key set. Tap the ⚙ settings icon and enter your Anthropic API key to enable AI advice. Get one free at console.anthropic.com.";
-    aiLoading=false; btn.disabled=false; btn.innerHTML="✦ Get AI Advice";
-    return;
-  }
-
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
+    const res=await fetch("https://text.pollinations.ai/",{
       method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":D.apiKey,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:800,
-        messages:[{role:"user",content:prompt}]
+        messages:[{role:"user",content:prompt}],
+        model:"openai",
+        seed:Date.now()
       })
     });
-    const data=await res.json();
-    if(data.error){throw new Error(data.error.message||"API error");}
-    const txt=data&&data.content&&data.content[0]&&data.content[0].text;
-    if(txt){
+    if(!res.ok) throw new Error("status "+res.status);
+    const txt=await res.text();
+    if(txt&&txt.trim()){
       body.className="ai-body";
-      body.textContent=txt;
-
+      body.textContent=txt.trim();
     } else {
-      throw new Error("empty");
+      throw new Error("empty response");
     }
   } catch(e){
     body.className="ai-body idle";
-    body.textContent="⚠️ Couldn't reach AI — "+(e.message||"check your API key and internet connection.");
+    body.textContent="⚠️ Couldn't reach AI — check your internet connection and try again.";
   }
   aiLoading=false;
   btn.disabled=false;
