@@ -165,10 +165,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .qs-tips{margin-bottom:16px;}
 .qs-tip{background:#1c1c2e;border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 14px;margin-bottom:7px;font-size:11px;color:#b0aec8;line-height:1.6;box-shadow:0 1px 8px rgba(0,0,0,0.25);}
 .pref{background:#1c1c2e;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.3);}
-.pref-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:11px 14px;font-size:10px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.pref-row{display:grid;grid-template-columns:1fr 1fr 1fr 28px;padding:9px 14px;font-size:10px;border-bottom:1px solid rgba(255,255,255,0.07);align-items:center;}
 .pref-row:last-child{border-bottom:none;}
 .pref-sz{color:#c9a040;font-weight:700;}
 .pref-pg{color:#7878a0;text-align:right;}
+.pref-edit-btn{background:rgba(180,140,60,0.1);border:1px solid rgba(180,140,60,0.25);color:#c9a040;border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;padding:0;line-height:1;}
+.pref-edit-btn:active{background:rgba(180,140,60,0.25);}
 
 /* Blurred modal overlay */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;}
@@ -371,14 +373,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="sec-lbl">Smart Suggestions</div>
     <div class="qs-tips" id="qsTips"></div>
 
-    <div class="sec-lbl" style="margin-top:4px">Price Reference</div>
-    <div class="pref">
-      <div class="pref-row"><span class="pref-sz">14g (½oz)</span><span>$80–$90</span><span class="pref-pg">$5.71–$6.43/g</span></div>
-      <div class="pref-row"><span class="pref-sz">28g (1oz)</span><span>$150–$180</span><span class="pref-pg">$5.36–$6.43/g</span></div>
-      <div class="pref-row"><span class="pref-sz">7g (¼oz)</span><span>$50</span><span class="pref-pg">$7.14/g</span></div>
-      <div class="pref-row"><span class="pref-sz">3.5g (⅛oz)</span><span>$25–$30</span><span class="pref-pg">$7.14–$8.57/g</span></div>
-      <div class="pref-row"><span class="pref-sz">1g</span><span>$10–$12</span><span class="pref-pg">$10–$12/g</span></div>
-    </div>
+    <div class="sec-lbl" style="margin-top:4px">Price Reference <span style="color:#505065;font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
+    <div class="pref" id="priceRef"></div>
   </div>
 </div>
 
@@ -472,6 +468,25 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- EDIT PRICE REF MODAL -->
+<div class="overlay" id="modal-editPrice" onclick="overlayClose(event,'modal-editPrice')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title" id="editPriceMTitle">Edit Price</div>
+      <button class="modal-close" onclick="closeModal('editPrice')">✕</button>
+    </div>
+    <div class="m-sec">
+      <span class="m-lbl">Low Price ($)</span>
+      <input class="m-input" id="editPriceLo" type="number" placeholder="0" inputmode="decimal"/>
+    </div>
+    <div class="m-sec">
+      <span class="m-lbl">High Price ($) — same as low for a single price</span>
+      <input class="m-input" id="editPriceHi" type="number" placeholder="0" inputmode="decimal"/>
+    </div>
+    <button class="btn-confirm" onclick="confirmEditPrice()">Update Price</button>
+  </div>
+</div>
+
 <!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
@@ -490,12 +505,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <script>
 const SK = "ledger_v4";
-const PRICES = {
+let PRICES = {
   "14g": { w:14,  lo:80,  hi:90  },
   "7g":  { w:7,   lo:50,  hi:50  },
   "3.5g":{ w:3.5, lo:25,  hi:30  },
   "1g":  { w:1,   lo:10,  hi:12  }
 };
+const PRICE_REF_DEFAULTS = [
+  { label:"14g (½oz)",  grams:14,  lo:80,  hi:90  },
+  { label:"28g (1oz)",  grams:28,  lo:150, hi:180 },
+  { label:"7g (¼oz)",   grams:7,   lo:50,  hi:50  },
+  { label:"3.5g (⅛oz)", grams:3.5, lo:25,  hi:30  },
+  { label:"1g",         grams:1,   lo:10,  hi:12  }
+];
+const PRICE_REF_PACK_MAP = { "14g (½oz)":"14g", "7g (¼oz)":"7g", "3.5g (⅛oz)":"3.5g", "1g":"1g" };
 const UNITS = {
   g:     { abbr:"g",   label:"Grams",   grams:1   },
   halfoz:{ abbr:"½oz", label:"Half Oz", grams:14  },
@@ -509,7 +532,7 @@ const UNIT_STEPS            = { g:1,  halfoz:0.5, oz:0.25, halflb:0.25, lb:0.125
 const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
 
 let D = { strains:{}, cur:"" };
-let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add";
+let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add", editingPriceIdx = -1;
 
 function fresh(stock, expenses){
   return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[] };
@@ -568,6 +591,8 @@ function persist(){
 }
 function hydrate(){
   try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; } } catch(e){}
+  if(!D.priceRef) D.priceRef = PRICE_REF_DEFAULTS.map(r => ({...r}));
+  syncPricesFromRef();
 }
 function isReady(){ return D.cur && D.strains[D.cur]; }
 
@@ -802,8 +827,49 @@ Cover: best pack to push and why, personal use dollar cost, expense coverage sta
   aiLoading = false; btn.disabled = false; btn.innerHTML = "✦ Refresh AI Advice";
 }
 
+// ── PRICE REFERENCE ──
+function syncPricesFromRef(){
+  (D.priceRef||[]).forEach(r => {
+    const pk = PRICE_REF_PACK_MAP[r.label];
+    if(pk && PRICES[pk]){ PRICES[pk].lo = r.lo; PRICES[pk].hi = r.hi; }
+  });
+}
+function renderPriceRef(){
+  const el = document.getElementById("priceRef"); if(!el) return;
+  el.innerHTML = (D.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
+    const priceStr = r.lo===r.hi ? `$${r.lo}` : `$${r.lo}–$${r.hi}`;
+    const perG = r.lo===r.hi
+      ? `$${(r.lo/r.grams).toFixed(2)}/g`
+      : `$${(r.lo/r.grams).toFixed(2)}–$${(r.hi/r.grams).toFixed(2)}/g`;
+    return `<div class="pref-row">
+      <span class="pref-sz">${r.label}</span>
+      <span>${priceStr}</span>
+      <span class="pref-pg">${perG}</span>
+      <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
+    </div>`;
+  }).join("");
+}
+function openEditPriceModal(i){
+  editingPriceIdx = i;
+  const r = D.priceRef[i];
+  document.getElementById("editPriceMTitle").textContent = "Edit — " + r.label;
+  document.getElementById("editPriceLo").value = r.lo;
+  document.getElementById("editPriceHi").value = r.hi;
+  document.getElementById("modal-editPrice").classList.add("open");
+  setTimeout(() => document.getElementById("editPriceLo").focus(), 150);
+}
+function confirmEditPrice(){
+  const lo = Math.max(0, parseFloat(document.getElementById("editPriceLo").value)||0);
+  const hi = Math.max(lo, parseFloat(document.getElementById("editPriceHi").value)||lo);
+  D.priceRef[editingPriceIdx].lo = lo;
+  D.priceRef[editingPriceIdx].hi = hi;
+  closeModal("editPrice");
+  syncPricesFromRef();
+  persist(); renderPriceRef(); renderAll();
+}
+
 // ── HELPERS ──
-function estVal(g){ return Math.floor(g/14)*90 + Math.floor((g%14)/7)*50 + Math.floor((g%7)/3.5)*30 + Math.floor((g%3.5)/1)*12; }
+function estVal(g){ return Math.floor(g/14)*PRICES["14g"].hi + Math.floor((g%14)/7)*PRICES["7g"].hi + Math.floor((g%7)/3.5)*PRICES["3.5g"].hi + Math.floor((g%3.5)/1)*PRICES["1g"].hi; }
 function fmtG(g){ return g%1===0 ? g : g.toFixed(1); }
 function round(n){ return Math.round(n*10)/10; }
 function now(){ return new Date().toLocaleString(); }
@@ -942,6 +1008,7 @@ function renderQS(){
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
     : '<div class="qs-tip" style="color:#555568;font-style:italic;">Log some sales to unlock smart suggestions.</div>';
+  renderPriceRef();
 }
 
 // ── TAB SWITCHING ──
