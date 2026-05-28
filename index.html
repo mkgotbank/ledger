@@ -795,40 +795,39 @@ function deleteLog(id){
 }
 
 // ── AI ──
-const AI_MODELS = ["openai-large","openai","mistral","llama","unity"];
+const AI_MODELS = ["openai","mistral","llama","openai-large"];
 async function fetchWithRetry(prompt, statusEl){
   for(let i = 0; i < AI_MODELS.length; i++){
     if(i > 0){
-      const wait = 6000;
+      const wait = 9000;
       const end = Date.now() + wait;
       while(Date.now() < end){
         const s = Math.ceil((end - Date.now()) / 1000);
-        statusEl.textContent = `Busy — trying next model in ${s}s…`;
+        statusEl.textContent = `Retrying in ${s}s…`;
         await new Promise(r => setTimeout(r, 400));
       }
     }
+    statusEl.textContent = i === 0 ? "Analyzing your data..." : `Trying ${AI_MODELS[i]}…`;
     try {
-      statusEl.textContent = i === 0 ? "Reading your inventory data..." : `Trying ${AI_MODELS[i]}…`;
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 30000);
-      const res = await fetch("https://text.pollinations.ai/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages:[{ role:"user", content:prompt }], model:AI_MODELS[i], seed:Math.floor(Math.random()*99999), private:true }),
-        signal: ctrl.signal
-      });
+      const timer = setTimeout(() => ctrl.abort(), 45000);
+      const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt)
+        + "?model=" + AI_MODELS[i] + "&seed=" + Math.floor(Math.random() * 99999);
+      const res = await fetch(url, { signal: ctrl.signal });
       clearTimeout(timer);
       if(res.status === 429){ continue; }
       if(!res.ok) throw new Error("Server error " + res.status);
-      const data = await res.json();
-      const txt = data?.choices?.[0]?.message?.content || "";
-      if(txt.trim()) return txt.trim();
+      const txt = await res.text();
+      if(txt && txt.trim()) return txt.trim();
     } catch(e){
-      if(e.name === "AbortError") throw new Error("Timed out — try again on a stronger connection.");
+      if(e.name === "AbortError"){
+        if(i < AI_MODELS.length - 1) continue;
+        throw new Error("Timed out on all models — try again in a moment.");
+      }
       if(i === AI_MODELS.length - 1) throw e;
     }
   }
-  throw new Error("All models are busy right now — please try again in a minute.");
+  throw new Error("Service is busy — please try again in a few minutes.");
 }
 async function getAI(){
   if(aiLoading) return;
