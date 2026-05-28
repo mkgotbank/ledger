@@ -101,6 +101,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .acard-sum .g{color:#4caf7a;}
 .restock-input{background:rgba(76,175,122,0.08);border:1px solid rgba(76,175,122,0.3);border-radius:10px;color:#e8e4d9;font-size:20px;font-weight:700;width:78px;text-align:center;outline:none;font-family:'Courier New',monospace;padding:5px 4px;transition:border-color 0.2s;}
 .restock-input:focus{border-color:rgba(76,175,122,0.6);}
+.use-input{background:rgba(224,92,92,0.08);border:1px solid rgba(224,92,92,0.3);border-radius:10px;color:#e8e4d9;font-size:20px;font-weight:700;width:78px;text-align:center;outline:none;font-family:'Courier New',monospace;padding:5px 4px;transition:border-color 0.2s;}
+.use-input:focus{border-color:rgba(224,92,92,0.6);}
 
 .btn-pm{width:36px;height:36px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#c8c4b9;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;}
 .btn-pm:active{background:rgba(255,255,255,0.14);}
@@ -324,8 +326,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         <div class="acard-ctrl">
           <button class="btn-pm" onclick="adjUse(-1)">−</button>
           <div class="acard-disp">
-            <div class="big" id="useAmt">2g</div>
-            <div class="sm" id="useUnitLbl">Grams</div>
+            <input type="number" id="useAmt" value="2" inputmode="decimal" class="use-input"/>
+            <div class="sm" style="margin-top:3px;" id="useUnitLbl">Grams</div>
           </div>
           <button class="btn-pm" onclick="adjUse(1)">+</button>
         </div>
@@ -388,6 +390,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="m-sec">
       <span class="m-lbl">Pack Size</span>
       <div class="pack-btns">
+        <button class="pbtn" onclick="setPack('28g',this)">28g</button>
         <button class="pbtn on" onclick="setPack('14g',this)">14g</button>
         <button class="pbtn" onclick="setPack('7g',this)">7g</button>
         <button class="pbtn" onclick="setPack('3.5g',this)">3.5g</button>
@@ -572,6 +575,8 @@ function syncUnitDefaults(){
   useAmt     = UNIT_USE_DEFAULTS[u]     || 2;
   const inp = document.getElementById("restockAmt");
   if(inp) inp.value = restockAmt;
+  const useInp = document.getElementById("useAmt");
+  if(useInp) useInp.value = useAmt;
 }
 
 // ── TOAST ──
@@ -655,9 +660,10 @@ function adjRestock(dir){
   inp.value  = restockAmt;
 }
 function adjUse(dir){
+  const inp = document.getElementById("useAmt");
   const step = USE_STEPS[getUnit()] || 0.5;
-  useAmt = Math.round(Math.min(9999, Math.max(step, useAmt + dir * step)) * 1000) / 1000;
-  document.getElementById("useAmt").textContent = useAmt + unitAbbr();
+  useAmt = Math.round(Math.min(9999, Math.max(step, (parseFloat(inp.value)||useAmt) + dir * step)) * 1000) / 1000;
+  inp.value = useAmt;
 }
 function adjQty(d){ saleQty = Math.max(1, saleQty + d); updateSaleModal(); }
 function adjPrice(d){ salePrice = Math.max(1, salePrice + d); updateSaleModal(); }
@@ -690,7 +696,7 @@ function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleType = "14g"; salePrice = PRICES["14g"].hi;
-  document.querySelectorAll(".pbtn").forEach((b,i) => b.classList.toggle("on", i===0));
+  document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
   updateSaleModal(); openModal("sale");
 }
 function openExpModal(mode){
@@ -722,6 +728,9 @@ function doRestock(){
 }
 function doUse(){
   const s = cur(); if(!s) return;
+  const inputVal = Math.round(Math.min(9999, Math.max(0.001, parseFloat(document.getElementById("useAmt").value)||0)) * 1000) / 1000;
+  if(!inputVal){ showToast("Enter an amount first", "err"); return; }
+  useAmt = inputVal;
   const useGrams = fromDisp(useAmt);
   if(useGrams > s.stock){ showToast("Not enough stock!", "err"); return; }
   const ns = round(s.stock - useGrams);
@@ -742,7 +751,7 @@ function confirmSale(){
   s.logs.unshift({ id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns });
   closeModal("sale");
   saleQty = 1; saleType = "14g"; salePrice = PRICES["14g"].hi;
-  document.querySelectorAll(".pbtn").forEach((b,i) => b.classList.toggle("on", i===0));
+  document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
   updateSaleModal();
   showToast("Sale recorded — $" + earned, "ok");
   persist(); renderAll();
@@ -786,6 +795,31 @@ function deleteLog(id){
 }
 
 // ── AI ──
+const AI_MODELS = ["openai", "mistral", "llama"];
+async function fetchWithRetry(prompt){
+  for(let i = 0; i < AI_MODELS.length; i++){
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 25000);
+      const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt) + "?model=" + AI_MODELS[i] + "&seed=" + Math.floor(Date.now() % 99999);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if(res.status === 429){
+        if(i < AI_MODELS.length - 1){ await new Promise(r => setTimeout(r, 1500)); continue; }
+        throw new Error("Rate limited — wait a moment and try again.");
+      }
+      if(!res.ok) throw new Error("Server error " + res.status);
+      const txt = await res.text();
+      if(txt && txt.trim()) return txt.trim();
+      if(i < AI_MODELS.length - 1){ await new Promise(r => setTimeout(r, 800)); continue; }
+      throw new Error("Empty response");
+    } catch(e){
+      if(e.name === "AbortError") throw new Error("Timed out — try again on a stronger connection.");
+      if(i === AI_MODELS.length - 1) throw e;
+      await new Promise(r => setTimeout(r, 800));
+    }
+  }
+}
 async function getAI(){
   if(aiLoading) return;
   aiLoading = true;
@@ -812,18 +846,11 @@ ALL PRODUCTS: Earned $${totalEarned.toFixed(0)} / Expenses $${totalExp.toFixed(0
 Cover: best pack to push and why, personal use dollar cost, expense coverage status, one specific move to make right now, honest overall outlook.`;
 
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 30000);
-    const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt) + "?model=openai&seed=" + Math.floor(Date.now() % 99999);
-    const res = await fetch(url, { signal:ctrl.signal });
-    clearTimeout(timer);
-    if(!res.ok) throw new Error("Server error " + res.status);
-    const txt = await res.text();
-    if(txt && txt.trim()){ body.className = "ai-body"; body.textContent = txt.trim(); }
-    else throw new Error("Empty response");
+    const txt = await fetchWithRetry(prompt);
+    body.className = "ai-body"; body.textContent = txt;
   } catch(e){
     body.className = "ai-body idle";
-    body.textContent = "⚠️ " + (e.name==="AbortError" ? "Timed out — try again on a stronger connection." : e.message || "Unknown error");
+    body.textContent = "⚠️ " + (e.message || "Unknown error");
   }
   aiLoading = false; btn.disabled = false; btn.innerHTML = "✦ Refresh AI Advice";
 }
@@ -884,8 +911,9 @@ function renderAll(){
   const u = getUnit();
   document.querySelectorAll(".uBtn").forEach(b => b.classList.toggle("on", b.dataset.unit === u));
   document.getElementById("restockUnitLbl").textContent = unitLabel();
-  document.getElementById("useUnitLbl").textContent     = unitLabel();
-  document.getElementById("useAmt").textContent         = useAmt + unitAbbr();
+  document.getElementById("useUnitLbl").textContent = unitLabel();
+  const useInp = document.getElementById("useAmt");
+  if(useInp) useInp.value = useAmt;
 
   // Header stock
   const sv = document.getElementById("hdrStock");
