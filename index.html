@@ -276,7 +276,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
       <div class="acard-row">
         <div class="acard-ctrl">
           <button class="btn-pm" onclick="adj('restock',-1)">−</button>
-          <div class="acard-disp"><div class="big" id="restockAmt">14g</div><div class="sm">Grams</div></div>
+          <div class="acard-disp">
+            <input type="number" id="restockAmt" value="14" inputmode="decimal" style="background:rgba(76,175,122,0.06);border:1px solid rgba(76,175,122,0.25);border-radius:6px;color:#e8e4d9;font-size:20px;font-weight:700;width:78px;text-align:center;outline:none;font-family:'Courier New',monospace;padding:5px 4px;"/>
+            <div class="sm" style="margin-top:3px;">Grams</div>
+          </div>
           <button class="btn-pm" onclick="adj('restock',1)">+</button>
         </div>
         <button class="btn-act g" onclick="doRestock()">Add Stock</button>
@@ -527,8 +530,9 @@ let restockAmt=14, useAmt=2, saleType="14g", saleQty=1, salePrice=90, logFilter=
 
 function adj(type,d){
   if(type==="restock"){
-    restockAmt=Math.round(Math.min(9999,Math.max(0.5,restockAmt+d))*10)/10;
-    document.getElementById("restockAmt").textContent=restockAmt+"g";
+    const inp=document.getElementById("restockAmt");
+    restockAmt=Math.round(Math.min(9999,Math.max(0.5,(parseFloat(inp.value)||restockAmt)+d))*10)/10;
+    inp.value=restockAmt;
   } else {
     useAmt=Math.round(Math.min(100,Math.max(0.5,useAmt+d))*10)/10;
     document.getElementById("useAmt").textContent=useAmt+"g";
@@ -586,6 +590,8 @@ function openExpModal(mode){
 // ═══════════════════════════════
 function doRestock(){
   const s=cur(); if(!s)return;
+  restockAmt=Math.round(Math.min(9999,Math.max(0.1,parseFloat(document.getElementById("restockAmt").value)||0))*10)/10;
+  if(!restockAmt){return;}
   const ns=round(s.stock+restockAmt);
   s.stock=ns;
   s.startStock=Math.max(s.startStock||0,ns);
