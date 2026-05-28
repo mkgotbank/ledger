@@ -8,7 +8,6 @@
 <meta name="theme-color" content="#0d0d18"/>
 <title>The Ledger</title>
 <style>
-/* ── RESET ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow-x:hidden;}
 body{background:#0d0d18;color:#e8e4d9;font-family:'Courier New',monospace;min-height:100vh;}
@@ -16,13 +15,11 @@ button,input,select,textarea{font-family:'Courier New',monospace;}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
-/* ── TOAST ── */
 #toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:#1e1e30;border:1px solid rgba(255,255,255,0.12);color:#e8e4d9;padding:11px 22px;border-radius:8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
 #toast.show{opacity:1;}
 #toast.err{border-color:rgba(224,92,92,0.35);color:#e05c5c;}
 #toast.ok{border-color:rgba(76,175,122,0.35);color:#4caf7a;}
 
-/* ── SETUP ── */
 #setupScreen{position:fixed;inset:0;z-index:999;background:#0d0d18;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{font-size:40px;text-align:center;margin-bottom:12px;}
 .setup-title{font-size:26px;font-weight:700;color:#f0ead8;text-align:center;letter-spacing:-1px;}
@@ -34,10 +31,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .setup-btn{width:100%;background:linear-gradient(135deg,#b48c3c,#7a5e1e);border:none;border-radius:10px;padding:16px;color:#0a0a0f;font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-top:12px;box-shadow:0 4px 24px rgba(180,140,60,0.3);cursor:pointer;}
 .setup-note{font-size:10px;color:#666;text-align:center;margin-top:14px;line-height:1.7;}
 
-/* ── APP ── */
 #mainApp{display:none;max-width:480px;margin:0 auto;padding-bottom:110px;}
 
-/* ── HEADER ── */
 .hdr{padding:22px 18px 0;border-bottom:1px solid rgba(212,170,80,0.3);}
 .hdr-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .hdr-lbl{font-size:9px;letter-spacing:5px;color:#c9a040;text-transform:uppercase;margin-bottom:2px;}
@@ -52,33 +47,33 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .hdr-stock-val.low{color:#e05c5c;}
 .hdr-stock-unit{font-size:12px;color:#888;margin-left:2px;}
 
-/* ── STRAIN BAR ── */
 .strain-bar{display:flex;align-items:center;gap:8px;padding:10px 0 11px;}
 .strain-sel{flex:1;background:#13131f;border:1px solid rgba(212,170,80,0.3);border-radius:6px;padding:8px 12px;color:#d4b04a;font-size:11px;font-weight:700;letter-spacing:2px;outline:none;-webkit-appearance:none;appearance:none;}
 .btn-gear{background:rgba(180,140,60,0.1);border:1px solid rgba(180,140,60,0.25);color:#c9a040;border-radius:6px;padding:8px 13px;font-size:16px;cursor:pointer;line-height:1;}
 
-/* ── PROGRESS BAR ── */
-.prog-wrap{padding-bottom:12px;}
+.prog-wrap{padding-bottom:8px;}
 .prog-bg{height:3px;background:#181826;border-radius:2px;overflow:hidden;}
 .prog-fill{height:100%;background:linear-gradient(90deg,#7a5e1e,#d4af5a);border-radius:2px;transition:width 0.6s ease;}
 .prog-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:8px;color:#777;letter-spacing:2px;}
 
-/* ── TABS ── */
+.unit-bar{display:flex;align-items:center;gap:9px;padding:7px 0 10px;}
+.unit-bar-lbl{font-size:7px;letter-spacing:2px;color:#555;text-transform:uppercase;flex-shrink:0;}
+.unit-btns{display:flex;gap:5px;}
+.uBtn{background:#13131f;border:1px solid rgba(255,255,255,0.07);color:#555568;border-radius:4px;padding:4px 9px;font-size:9px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;}
+.uBtn.on{background:rgba(180,140,60,0.12);border-color:rgba(180,140,60,0.35);color:#c9a040;}
+
 .tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.05);}
 .tab{flex:1;padding:11px 0;background:none;border:none;border-bottom:2px solid transparent;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6a6a88;cursor:pointer;transition:all 0.2s;}
 .tab.on{color:#c9a040;border-bottom-color:#c9a040;}
 
-/* ── TAB PANELS ── */
 .panel{padding:16px;display:none;}
 .panel.on{display:block;}
 
-/* ── STAT GRID ── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
 .scard{background:#13131f;border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:12px 13px;}
 .scard-lbl{font-size:7px;letter-spacing:3px;color:#6a6a85;margin-bottom:4px;text-transform:uppercase;}
 .scard-val{font-size:20px;font-weight:700;}
 
-/* ── EXPENSE CARD ── */
 .exp-card{background:#13131f;border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:12px 13px;margin-bottom:12px;}
 .exp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:8px;letter-spacing:2px;color:#7070a0;text-transform:uppercase;}
 .exp-top span{color:#c9a040;}
@@ -87,7 +82,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .exp-btn.add{background:rgba(224,92,92,0.07);border-color:rgba(224,92,92,0.18);color:#c05050;}
 .exp-btn.edit{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#888;}
 
-/* ── ACTION CARDS ── */
 .acard{border-radius:8px;padding:13px;margin-bottom:12px;}
 .acard.g{background:#13131f;border:1px solid rgba(76,175,122,0.2);}
 .acard.r{background:#13131f;border:1px solid rgba(224,92,92,0.18);}
@@ -105,7 +99,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .restock-input{background:rgba(76,175,122,0.06);border:1px solid rgba(76,175,122,0.25);border-radius:6px;color:#e8e4d9;font-size:20px;font-weight:700;width:78px;text-align:center;outline:none;font-family:'Courier New',monospace;padding:5px 4px;}
 .restock-input:focus{border-color:rgba(76,175,122,0.5);}
 
-/* ── BUTTONS ── */
 .btn-pm{width:34px;height:34px;background:#16161f;border:1px solid rgba(255,255,255,0.08);color:#c8c4b9;border-radius:6px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .btn-act{border-radius:6px;padding:9px 13px;font-size:9px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border:1px solid;white-space:nowrap;}
 .btn-act.g{background:rgba(76,175,122,0.1);border-color:rgba(76,175,122,0.22);color:#4caf7a;}
@@ -114,7 +107,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-rst{margin-top:6px;width:100%;background:none;border:1px solid rgba(255,255,255,0.09);color:#666678;border-radius:6px;padding:9px;font-size:8px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;}
 .btn-rst.danger{border-color:rgba(224,92,92,0.2);color:#c05050;}
 
-/* ── PACK BREAKDOWN ── */
 .sec-lbl{font-size:7px;letter-spacing:3px;color:#666682;margin-bottom:8px;text-transform:uppercase;}
 .pack-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#13131f;border:1px solid rgba(255,255,255,0.09);border-radius:6px;margin-bottom:5px;}
 .pack-row.empty{opacity:0.35;}
@@ -123,7 +115,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .pack-ct{font-weight:700;font-size:12px;}
 .pack-ea{color:#4caf7a;font-size:9px;margin-left:6px;}
 
-/* ── LOG ── */
 .log-filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch;}
 .lf-btn{background:#13131f;border:1px solid rgba(255,255,255,0.09);color:#6a6a88;border-radius:20px;padding:5px 13px;font-size:8px;letter-spacing:2px;white-space:nowrap;cursor:pointer;text-transform:uppercase;}
 .lf-btn.on{background:rgba(180,140,60,0.12);border-color:rgba(180,140,60,0.35);color:#c9a040;}
@@ -147,7 +138,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .log-del:active{color:#e05c5c;}
 .log-empty{text-align:center;color:#555568;padding:60px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;}
 
-/* ── TIPS ── */
 .ai-box{background:#0d0d18;border:1px solid rgba(124,108,212,0.2);border-left:3px solid #7c6cd4;border-radius:8px;padding:14px;margin-bottom:12px;}
 .ai-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .ai-title{font-size:9px;letter-spacing:3px;color:#7c6cd4;font-weight:700;text-transform:uppercase;}
@@ -174,7 +164,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .pref-sz{color:#c9a040;font-weight:700;}
 .pref-pg{color:#7070a0;text-align:right;}
 
-/* ── MODALS ── */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.88);display:none;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
 .mbox{width:100%;max-width:480px;background:#141422;border:1px solid rgba(180,140,60,0.2);border-radius:16px 16px 0 0;padding:20px 18px 52px;max-height:85vh;overflow-y:auto;}
@@ -207,7 +196,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-no{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#aaa;border-radius:8px;padding:14px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;}
 .btn-yes-red{flex:1;background:linear-gradient(135deg,#c0392b,#7b241c);border:none;border-radius:8px;padding:14px;color:#fff;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;}
 
-/* ── STRAIN MANAGE ── */
 .strain-item{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;background:#13131f;border:1px solid rgba(255,255,255,0.09);border-radius:6px;margin-bottom:6px;}
 .si-name{font-size:12px;font-weight:700;color:#c9a040;}
 .si-sub{font-size:9px;color:#7070a0;margin-top:1px;}
@@ -220,7 +208,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <body>
 <div id="toast"></div>
 
-<!-- ════ SETUP SCREEN ════ -->
 <div id="setupScreen">
   <div class="setup-logo">📦</div>
   <div class="setup-title">The Ledger</div>
@@ -241,10 +228,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   <div class="setup-note">You can add more products and edit everything inside the app at any time.</div>
 </div>
 
-<!-- ════ MAIN APP ════ -->
 <div id="mainApp">
-
-  <!-- HEADER -->
   <div class="hdr">
     <div class="hdr-top">
       <div>
@@ -265,16 +249,24 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       <div class="prog-labels"><span id="progL">0% REMAINING</span><span id="progR">0% MOVED</span></div>
     </div>
+    <div class="unit-bar">
+      <span class="unit-bar-lbl">Unit</span>
+      <div class="unit-btns">
+        <button class="uBtn on" data-unit="g"      onclick="setUnit('g')">g</button>
+        <button class="uBtn"    data-unit="halfoz" onclick="setUnit('halfoz')">½oz</button>
+        <button class="uBtn"    data-unit="oz"     onclick="setUnit('oz')">oz</button>
+        <button class="uBtn"    data-unit="halflb" onclick="setUnit('halflb')">½lb</button>
+        <button class="uBtn"    data-unit="lb"     onclick="setUnit('lb')">lb</button>
+      </div>
+    </div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab on" onclick="switchTab('stock',this)">📦 Stock</button>
     <button class="tab" onclick="switchTab('log',this)">📋 Log</button>
     <button class="tab" onclick="switchTab('tips',this)">💡 Tips</button>
   </div>
 
-  <!-- ── STOCK PANEL ── -->
   <div class="panel on" id="panel-stock">
     <div class="sgrid">
       <div class="scard"><div class="scard-lbl">Earned</div><div class="scard-val" id="s-earned" style="color:#4caf7a">$0</div></div>
@@ -292,17 +284,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
 
-    <!-- RESTOCK -->
     <div class="acard g">
       <div class="acard-lbl g">+ Add / Restock Inventory</div>
       <div class="acard-row">
         <div class="acard-ctrl">
-          <button class="btn-pm" onclick="adj('restock',-1)">−</button>
+          <button class="btn-pm" onclick="adjRestock(-1)">−</button>
           <div class="acard-disp">
             <input type="number" id="restockAmt" value="14" inputmode="decimal" class="restock-input"/>
-            <div class="sm" style="margin-top:3px;">Grams</div>
+            <div class="sm" style="margin-top:3px;" id="restockUnitLbl">Grams</div>
           </div>
-          <button class="btn-pm" onclick="adj('restock',1)">+</button>
+          <button class="btn-pm" onclick="adjRestock(1)">+</button>
         </div>
         <button class="btn-act g" onclick="doRestock()">Add Stock</button>
       </div>
@@ -311,14 +302,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
 
-    <!-- DAILY USE -->
     <div class="acard r">
       <div class="acard-lbl r">Daily Use / Personal</div>
       <div class="acard-row">
         <div class="acard-ctrl">
-          <button class="btn-pm" onclick="adj('use',-0.5)">−</button>
-          <div class="acard-disp"><div class="big" id="useAmt">2g</div><div class="sm">Grams</div></div>
-          <button class="btn-pm" onclick="adj('use',0.5)">+</button>
+          <button class="btn-pm" onclick="adjUse(-1)">−</button>
+          <div class="acard-disp">
+            <div class="big" id="useAmt">2g</div>
+            <div class="sm" id="useUnitLbl">Grams</div>
+          </div>
+          <button class="btn-pm" onclick="adjUse(1)">+</button>
         </div>
         <button class="btn-act r" onclick="doUse()">Log Use</button>
       </div>
@@ -336,7 +329,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <button class="btn-rst danger" onclick="openModal('resetAll')">⚠ Reset All Data</button>
   </div>
 
-  <!-- ── LOG PANEL ── -->
   <div class="panel" id="panel-log">
     <div class="log-filters">
       <button class="lf-btn on" onclick="setFilter('all',this)">All</button>
@@ -349,7 +341,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div id="logList"></div>
   </div>
 
-  <!-- ── TIPS PANEL ── -->
   <div class="panel" id="panel-tips">
     <div class="ai-box">
       <div class="ai-hdr">
@@ -368,15 +359,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
     <div class="sec-lbl" style="margin-top:4px">Price Reference</div>
     <div class="pref">
-      <div class="pref-row"><span class="pref-sz">14g</span><span>$80–$90</span><span class="pref-pg">$5.71–$6.43/g</span></div>
-      <div class="pref-row"><span class="pref-sz">7g</span><span>$50</span><span class="pref-pg">$7.14/g</span></div>
-      <div class="pref-row"><span class="pref-sz">3.5g</span><span>$25–$30</span><span class="pref-pg">$7.14–$8.57/g</span></div>
+      <div class="pref-row"><span class="pref-sz">14g (½oz)</span><span>$80–$90</span><span class="pref-pg">$5.71–$6.43/g</span></div>
+      <div class="pref-row"><span class="pref-sz">28g (1oz)</span><span>$150–$180</span><span class="pref-pg">$5.36–$6.43/g</span></div>
+      <div class="pref-row"><span class="pref-sz">7g (¼oz)</span><span>$50</span><span class="pref-pg">$7.14/g</span></div>
+      <div class="pref-row"><span class="pref-sz">3.5g (⅛oz)</span><span>$25–$30</span><span class="pref-pg">$7.14–$8.57/g</span></div>
       <div class="pref-row"><span class="pref-sz">1g</span><span>$10–$12</span><span class="pref-pg">$10–$12/g</span></div>
     </div>
   </div>
 </div>
 
-<!-- ════ SALE MODAL ════ -->
+<!-- SALE MODAL -->
 <div class="overlay" id="modal-sale" onclick="overlayClose(event,'modal-sale')">
   <div class="mbox">
     <div class="modal-hdr">
@@ -418,7 +410,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
-<!-- ════ STRAIN MANAGER MODAL ════ -->
+<!-- STRAIN MANAGER MODAL -->
 <div class="overlay" id="modal-strainMgr" onclick="overlayClose(event,'modal-strainMgr')">
   <div class="mbox">
     <div class="modal-hdr">
@@ -433,7 +425,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
-<!-- ════ EXPENSE MODAL ════ -->
+<!-- EXPENSE MODAL -->
 <div class="overlay" id="modal-exp" onclick="overlayClose(event,'modal-exp')">
   <div class="mbox mbox-red">
     <div class="modal-hdr">
@@ -450,7 +442,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
-<!-- ════ RESET PRODUCT MODAL ════ -->
+<!-- RESET PRODUCT MODAL -->
 <div class="overlay" id="modal-resetProduct" onclick="overlayClose(event,'modal-resetProduct')">
   <div class="mbox mbox-red">
     <div class="modal-hdr">
@@ -466,7 +458,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
-<!-- ════ RESET ALL MODAL ════ -->
+<!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
     <div class="modal-hdr">
@@ -485,25 +477,70 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <script>
 const SK = "ledger_v4";
 const PRICES = {
-  "14g": { w:14, lo:80, hi:90 },
-  "7g":  { w:7,  lo:50, hi:50 },
-  "3.5g":{ w:3.5,lo:25, hi:30 },
-  "1g":  { w:1,  lo:10, hi:12 }
+  "14g": { w:14,  lo:80,  hi:90  },
+  "7g":  { w:7,   lo:50,  hi:50  },
+  "3.5g":{ w:3.5, lo:25,  hi:30  },
+  "1g":  { w:1,   lo:10,  hi:12  }
 };
+const UNITS = {
+  g:     { abbr:"g",   label:"Grams",   grams:1   },
+  halfoz:{ abbr:"½oz", label:"Half Oz", grams:14  },
+  oz:    { abbr:"oz",  label:"Ounces",  grams:28  },
+  halflb:{ abbr:"½lb", label:"Half Lb", grams:224 },
+  lb:    { abbr:"lb",  label:"Pounds",  grams:448 }
+};
+const UNIT_RESTOCK_DEFAULTS = { g:14, halfoz:1, oz:0.5, halflb:0.5, lb:0.25 };
+const UNIT_USE_DEFAULTS     = { g:2,  halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
+const UNIT_STEPS            = { g:1,  halfoz:0.5, oz:0.25, halflb:0.25, lb:0.125 };
+const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
 
 let D = { strains:{}, cur:"" };
+let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add";
 
 function fresh(stock, expenses){
   return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[] };
 }
 function cur(){ return D.strains[D.cur] || null; }
 
+// ── UNIT HELPERS ──
+function getUnit(){ return (cur() && cur().unit) || "g"; }
+function unitAbbr(){ return UNITS[getUnit()].abbr; }
+function unitLabel(){ return UNITS[getUnit()].label; }
+
+function toDisp(grams, unit){
+  const u = unit || getUnit();
+  const f = UNITS[u].grams;
+  const v = grams / f;
+  if(f === 1) return v % 1 === 0 ? v : Math.round(v * 10) / 10;
+  return Math.round(v * 100) / 100;
+}
+function fromDisp(val){ return Math.round(val * UNITS[getUnit()].grams * 10) / 10; }
+
+function fmtDisp(grams, unit){
+  const u = unit || getUnit();
+  return toDisp(grams, u) + UNITS[u].abbr;
+}
+
+function setUnit(u){
+  const s = cur(); if(!s) return;
+  s.unit = u;
+  syncUnitDefaults();
+  persist(); renderAll();
+}
+
+function syncUnitDefaults(){
+  const u = getUnit();
+  restockAmt = UNIT_RESTOCK_DEFAULTS[u] || 14;
+  useAmt     = UNIT_USE_DEFAULTS[u]     || 2;
+  const inp = document.getElementById("restockAmt");
+  if(inp) inp.value = restockAmt;
+}
+
 // ── TOAST ──
 let _toastTimer;
 function showToast(msg, type=""){
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = "show" + (type ? " "+type : "");
+  t.textContent = msg; t.className = "show" + (type ? " "+type : "");
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.className = "", 2500);
 }
@@ -515,33 +552,28 @@ function persist(){
   try { localStorage.setItem(SK, JSON.stringify(D)); } catch(e){}
   setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
 }
-
 function hydrate(){
-  try {
-    const r = localStorage.getItem(SK);
-    if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; }
-  } catch(e){}
+  try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; } } catch(e){}
 }
-
 function isReady(){ return D.cur && D.strains[D.cur]; }
 
 // ── SETUP ──
 function doSetup(){
-  const name = (document.getElementById("ss-name").value.trim()) || "Product 1";
+  const name  = document.getElementById("ss-name").value.trim() || "Product 1";
   const stock = parseFloat(document.getElementById("ss-stock").value) || 0;
   const exp   = parseFloat(document.getElementById("ss-exp").value)   || 0;
   if(!D.strains[name]) D.strains[name] = fresh(stock, exp);
   D.cur = name;
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
+  syncUnitDefaults();
   persist(); renderAll(); updateSaleModal();
 }
 
 // ── STRAIN MANAGEMENT ──
 function switchStrain(n){
-  if(D.strains[n]){ D.cur = n; persist(); renderAll(); }
+  if(D.strains[n]){ D.cur = n; syncUnitDefaults(); persist(); renderAll(); }
 }
-
 function addStrain(){
   const inp = document.getElementById("nsInput");
   const n = inp.value.trim(); if(!n) return;
@@ -550,7 +582,6 @@ function addStrain(){
   persist(); renderStrainSel(); renderStrainMgr();
   showToast("Product added", "ok");
 }
-
 function deleteStrain(n){
   if(Object.keys(D.strains).length <= 1){ showToast("Can't delete your only product!", "err"); return; }
   delete D.strains[n];
@@ -558,17 +589,14 @@ function deleteStrain(n){
   persist(); renderAll(); renderStrainMgr();
   showToast("Product deleted");
 }
-
 function renderStrainSel(){
   document.getElementById("strainSel").innerHTML = Object.keys(D.strains)
     .map(n => `<option value="${n}"${n===D.cur?" selected":""}>${n}</option>`).join("");
 }
-
 function renderStrainMgr(){
   const keys = Object.keys(D.strains);
   document.getElementById("strainList").innerHTML = keys.map(n => {
-    const s = D.strains[n];
-    const active = n === D.cur;
+    const s = D.strains[n], active = n === D.cur;
     return `<div class="strain-item">
       <div>
         <div class="si-name">${n}${active?' <span style="color:#555;font-size:8px;font-weight:400">● ACTIVE</span>':''}</div>
@@ -579,30 +607,25 @@ function renderStrainMgr(){
   }).join("");
 }
 
-// ── UI STATE ──
-let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add";
-
-function adj(type, d){
-  if(type === "restock"){
-    const inp = document.getElementById("restockAmt");
-    restockAmt = Math.round(Math.min(9999, Math.max(0.5, (parseFloat(inp.value)||restockAmt) + d)) * 10) / 10;
-    inp.value = restockAmt;
-  } else {
-    useAmt = Math.round(Math.min(100, Math.max(0.5, useAmt + d)) * 10) / 10;
-    document.getElementById("useAmt").textContent = useAmt + "g";
-  }
+// ── CONTROLS ──
+function adjRestock(dir){
+  const inp  = document.getElementById("restockAmt");
+  const step = UNIT_STEPS[getUnit()] || 1;
+  restockAmt = Math.round(Math.min(9999, Math.max(step, (parseFloat(inp.value)||restockAmt) + dir * step)) * 1000) / 1000;
+  inp.value  = restockAmt;
 }
-
+function adjUse(dir){
+  const step = USE_STEPS[getUnit()] || 0.5;
+  useAmt = Math.round(Math.min(9999, Math.max(step, useAmt + dir * step)) * 1000) / 1000;
+  document.getElementById("useAmt").textContent = useAmt + unitAbbr();
+}
 function adjQty(d){ saleQty = Math.max(1, saleQty + d); updateSaleModal(); }
 function adjPrice(d){ salePrice = Math.max(1, salePrice + d); updateSaleModal(); }
-
 function setPack(t, btn){
   saleType = t; salePrice = PRICES[t].hi; saleQty = 1;
   document.querySelectorAll(".pbtn").forEach(b => b.classList.remove("on"));
-  btn.classList.add("on");
-  updateSaleModal();
+  btn.classList.add("on"); updateSaleModal();
 }
-
 function updateSaleModal(){
   document.getElementById("qtyN").textContent = saleQty;
   document.getElementById("qtyHint").textContent = "= " + (PRICES[saleType].w * saleQty).toFixed(1) + "g";
@@ -610,79 +633,71 @@ function updateSaleModal(){
   document.getElementById("priceTot").textContent = "= $" + (salePrice * saleQty) + " total";
   document.getElementById("saleConfirm").textContent = "Confirm — $" + (salePrice * saleQty);
 }
-
 function setFilter(f, btn){
   logFilter = f;
   document.querySelectorAll(".lf-btn").forEach(b => b.classList.remove("on"));
-  btn.classList.add("on");
-  renderLog();
+  btn.classList.add("on"); renderLog();
 }
 
 // ── MODALS ──
 function openModal(id){
   if(id === "strainMgr") renderStrainMgr();
-  if(id === "resetProduct"){
-    const el = document.getElementById("resetProductName");
-    if(el) el.textContent = D.cur;
-  }
+  if(id === "resetProduct"){ const el = document.getElementById("resetProductName"); if(el) el.textContent = D.cur; }
   document.getElementById("modal-"+id).classList.add("open");
 }
 function closeModal(id){ document.getElementById("modal-"+id).classList.remove("open"); }
 function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
-
 function openSaleModal(){
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleType = "14g"; salePrice = PRICES["14g"].hi;
   document.querySelectorAll(".pbtn").forEach((b,i) => b.classList.toggle("on", i===0));
-  updateSaleModal();
-  openModal("sale");
+  updateSaleModal(); openModal("sale");
 }
-
 function openExpModal(mode){
   expMode = mode;
   const s = cur();
-  document.getElementById("expMTitle").textContent = mode === "edit" ? "Edit Total Expenses" : "Add Expense";
-  document.getElementById("expMLabel").textContent = mode === "edit" ? "New Total ($)" : "Amount ($)";
-  document.getElementById("expMConfirm").textContent = mode === "edit" ? "Update Total" : "Confirm";
-  document.getElementById("expMInput").value = mode === "edit" ? (s ? s.expenses : 0) : "";
-  document.getElementById("expMNote").value = "";
-  document.getElementById("expNoteWrap").style.display = mode === "edit" ? "none" : "block";
+  document.getElementById("expMTitle").textContent   = mode==="edit" ? "Edit Total Expenses" : "Add Expense";
+  document.getElementById("expMLabel").textContent   = mode==="edit" ? "New Total ($)" : "Amount ($)";
+  document.getElementById("expMConfirm").textContent = mode==="edit" ? "Update Total" : "Confirm";
+  document.getElementById("expMInput").value  = mode==="edit" ? (s ? s.expenses : 0) : "";
+  document.getElementById("expMNote").value   = "";
+  document.getElementById("expNoteWrap").style.display = mode==="edit" ? "none" : "block";
   document.getElementById("modal-exp").classList.add("open");
 }
 
 // ── ACTIONS ──
 function doRestock(){
   const s = cur(); if(!s) return;
-  restockAmt = Math.round(Math.min(9999, Math.max(0.1, parseFloat(document.getElementById("restockAmt").value)||0)) * 10) / 10;
-  if(!restockAmt) return;
-  const ns = round(s.stock + restockAmt);
+  const inputVal = Math.round(Math.min(9999, Math.max(0.001, parseFloat(document.getElementById("restockAmt").value)||0)) * 1000) / 1000;
+  if(!inputVal){ showToast("Enter an amount first", "err"); return; }
+  restockAmt = inputVal;
+  const addGrams = fromDisp(restockAmt);
+  const ns = round(s.stock + addGrams);
   s.stock = ns;
-  s.startStock = Math.max(s.startStock||0, ns);
-  s.restockTotal = round((s.restockTotal||0) + restockAmt);
-  s.logs.unshift({ id:Date.now(), type:"restock", w:restockAmt, date:now(), after:ns });
-  showToast("+" + restockAmt + "g added", "ok");
+  s.startStock    = Math.max(s.startStock||0, ns);
+  s.restockTotal  = round((s.restockTotal||0) + addGrams);
+  s.logs.unshift({ id:Date.now(), type:"restock", w:addGrams, date:now(), after:ns });
+  showToast("+" + restockAmt + unitAbbr() + " added", "ok");
   persist(); renderAll();
 }
-
 function doUse(){
   const s = cur(); if(!s) return;
-  if(useAmt > s.stock){ showToast("Not enough stock!", "err"); return; }
-  const ns = round(s.stock - useAmt);
+  const useGrams = fromDisp(useAmt);
+  if(useGrams > s.stock){ showToast("Not enough stock!", "err"); return; }
+  const ns = round(s.stock - useGrams);
   s.stock = ns;
-  s.useTotal = round((s.useTotal||0) + useAmt);
-  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt, date:now(), after:ns });
-  showToast(useAmt + "g logged");
+  s.useTotal = round((s.useTotal||0) + useGrams);
+  s.logs.unshift({ id:Date.now(), type:"use", w:useGrams, date:now(), after:ns });
+  showToast(useAmt + unitAbbr() + " logged");
   persist(); renderAll();
 }
-
 function confirmSale(){
   const s = cur(); if(!s) return;
   const tw = round(PRICES[saleType].w * saleQty);
   if(tw > s.stock){ showToast("Not enough stock!", "err"); return; }
   const earned = salePrice * saleQty;
   const ns = round(s.stock - tw);
-  s.stock = ns;
-  s.earned = (s.earned||0) + earned;
+  s.stock = ns; s.earned = (s.earned||0) + earned;
   const note = document.getElementById("saleNote").value.trim();
   s.logs.unshift({ id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns });
   closeModal("sale");
@@ -692,83 +707,58 @@ function confirmSale(){
   showToast("Sale recorded — $" + earned, "ok");
   persist(); renderAll();
 }
-
 function confirmExp(){
   const s = cur(); if(!s) return;
   const val = parseFloat(document.getElementById("expMInput").value) || 0;
   if(!val){ showToast("Enter an amount first", "err"); return; }
   const note = document.getElementById("expMNote").value.trim();
   if(expMode === "edit"){
-    s.expenses = val;
-    showToast("Expenses updated");
+    s.expenses = val; showToast("Expenses updated");
   } else {
     s.expenses = (s.expenses||0) + val;
     s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, date:now() });
     showToast("$" + val + " expense logged");
   }
-  closeModal("exp");
-  persist(); renderAll();
+  closeModal("exp"); persist(); renderAll();
 }
-
 function doReset(){
   D.strains[D.cur] = fresh(0, 0);
-  closeModal("resetProduct");
-  showToast("Product data cleared");
+  closeModal("resetProduct"); showToast("Product data cleared");
   persist(); renderAll();
 }
-
 function doResetAll(){
   try { localStorage.removeItem(SK); } catch(e){}
   location.reload();
 }
-
 function deleteLog(id){
   const s = cur(); if(!s) return;
   const idx = s.logs.findIndex(l => l.id === id);
   if(idx === -1) return;
   const l = s.logs[idx];
-  if(l.type === "sale"){
-    s.stock = round(s.stock + l.w);
-    s.earned = Math.max(0, (s.earned||0) - l.total);
-  } else if(l.type === "restock"){
-    s.stock = round(Math.max(0, s.stock - l.w));
-    s.restockTotal = round(Math.max(0, (s.restockTotal||0) - l.w));
-  } else if(l.type === "use"){
-    s.stock = round(s.stock + l.w);
-    s.useTotal = round(Math.max(0, (s.useTotal||0) - l.w));
-  } else if(l.type === "expense"){
-    s.expenses = Math.max(0, (s.expenses||0) - l.amount);
-  }
+  if(l.type==="sale"){ s.stock = round(s.stock + l.w); s.earned = Math.max(0, (s.earned||0) - l.total); }
+  else if(l.type==="restock"){ s.stock = round(Math.max(0, s.stock - l.w)); s.restockTotal = round(Math.max(0, (s.restockTotal||0) - l.w)); }
+  else if(l.type==="use"){ s.stock = round(s.stock + l.w); s.useTotal = round(Math.max(0, (s.useTotal||0) - l.w)); }
+  else if(l.type==="expense"){ s.expenses = Math.max(0, (s.expenses||0) - l.amount); }
   s.logs.splice(idx, 1);
-  // Recalculate startStock from remaining restock log highs
-  const highs = s.logs.filter(ll => ll.type === "restock" && ll.after != null).map(ll => ll.after);
+  const highs = s.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
-  showToast("Entry removed");
-  persist(); renderAll();
+  showToast("Entry removed"); persist(); renderAll();
 }
 
 // ── AI ──
 async function getAI(){
   if(aiLoading) return;
   aiLoading = true;
-  const btn  = document.getElementById("aiBtn");
-  const body = document.getElementById("aiBody");
+  const btn = document.getElementById("aiBtn"), body = document.getElementById("aiBody");
   btn.disabled = true;
   btn.innerHTML = '✦ Analyzing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
-  body.className = "ai-body loading";
-  body.textContent = "Reading your inventory data...";
+  body.className = "ai-body loading"; body.textContent = "Reading your inventory data...";
 
   const strainData = Object.entries(D.strains).map(([n,s]) => {
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
-    return {
-      name:n, stock:s.stock, expenses:s.expenses||0,
-      earned:s.earned||0, profit:(s.earned||0)-(s.expenses||0),
-      personalUse:s.useTotal||0, totalSales:(s.logs||[]).filter(l=>l.type==="sale").length,
-      salesByPack
-    };
+    return { name:n, stock:s.stock, expenses:s.expenses||0, earned:s.earned||0, profit:(s.earned||0)-(s.expenses||0), personalUse:s.useTotal||0, totalSales:(s.logs||[]).filter(l=>l.type==="sale").length, salesByPack };
   });
-
   const totalEarned = strainData.reduce((a,s) => a+s.earned, 0);
   const totalExp    = strainData.reduce((a,s) => a+s.expenses, 0);
   const totalProfit = totalEarned - totalExp;
@@ -782,33 +772,24 @@ ALL PRODUCTS: Earned $${totalEarned.toFixed(0)} / Expenses $${totalExp.toFixed(0
 Cover: best pack to push and why, personal use dollar cost, expense coverage status, one specific move to make right now, honest overall outlook.`;
 
   try {
-    const ctrl  = new AbortController();
+    const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 30000);
-    const url   = "https://text.pollinations.ai/" + encodeURIComponent(prompt) + "?model=openai&seed=" + Math.floor(Date.now() % 99999);
-    const res   = await fetch(url, { signal:ctrl.signal });
+    const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt) + "?model=openai&seed=" + Math.floor(Date.now() % 99999);
+    const res = await fetch(url, { signal:ctrl.signal });
     clearTimeout(timer);
     if(!res.ok) throw new Error("Server error " + res.status);
     const txt = await res.text();
-    if(txt && txt.trim()){
-      body.className = "ai-body";
-      body.textContent = txt.trim();
-    } else {
-      throw new Error("Empty response");
-    }
+    if(txt && txt.trim()){ body.className = "ai-body"; body.textContent = txt.trim(); }
+    else throw new Error("Empty response");
   } catch(e){
     body.className = "ai-body idle";
-    const msg = e.name === "AbortError" ? "Timed out — try again on a stronger connection." : e.message || "Unknown error";
-    body.textContent = "⚠️ " + msg;
+    body.textContent = "⚠️ " + (e.name==="AbortError" ? "Timed out — try again on a stronger connection." : e.message || "Unknown error");
   }
-  aiLoading = false;
-  btn.disabled = false;
-  btn.innerHTML = "✦ Refresh AI Advice";
+  aiLoading = false; btn.disabled = false; btn.innerHTML = "✦ Refresh AI Advice";
 }
 
-// ── RENDER HELPERS ──
-function estVal(g){
-  return Math.floor(g/14)*90 + Math.floor((g%14)/7)*50 + Math.floor((g%7)/3.5)*30 + Math.floor((g%3.5)/1)*12;
-}
+// ── HELPERS ──
+function estVal(g){ return Math.floor(g/14)*90 + Math.floor((g%14)/7)*50 + Math.floor((g%7)/3.5)*30 + Math.floor((g%3.5)/1)*12; }
 function fmtG(g){ return g%1===0 ? g : g.toFixed(1); }
 function round(n){ return Math.round(n*10)/10; }
 function now(){ return new Date().toLocaleString(); }
@@ -818,8 +799,16 @@ function renderAll(){
   const s = cur(); if(!s) return;
   renderStrainSel();
 
+  // Unit bar
+  const u = getUnit();
+  document.querySelectorAll(".uBtn").forEach(b => b.classList.toggle("on", b.dataset.unit === u));
+  document.getElementById("restockUnitLbl").textContent = unitLabel();
+  document.getElementById("useUnitLbl").textContent     = unitLabel();
+  document.getElementById("useAmt").textContent         = useAmt + unitAbbr();
+
+  // Header stock
   const sv = document.getElementById("hdrStock");
-  sv.innerHTML = fmtG(s.stock) + '<span class="hdr-stock-unit">g</span>';
+  sv.innerHTML = toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>';
   sv.className = "hdr-stock-val " + (s.stock < 50 ? "low" : "ok");
 
   const base = Math.max(s.startStock||1, s.stock, 1);
@@ -831,7 +820,7 @@ function renderAll(){
   const earned = s.earned||0, exp = s.expenses||0, profit = earned-exp;
   document.getElementById("s-earned").textContent = "$" + earned.toFixed(0);
   const pe = document.getElementById("s-profit");
-  pe.textContent = (profit>=0 ? "+$" : "-$") + Math.abs(profit).toFixed(0);
+  pe.textContent = (profit>=0?"+$":"-$") + Math.abs(profit).toFixed(0);
   pe.style.color = profit >= 0 ? "#4caf7a" : "#c05050";
   document.getElementById("s-exp").textContent = "$" + exp.toFixed(0);
   document.getElementById("s-est").textContent = "$" + estVal(s.stock).toFixed(0);
@@ -842,19 +831,21 @@ function renderAll(){
 
   const rt = s.restockTotal||0;
   const rsEl = document.getElementById("restockSum");
-  if(rt > 0){ rsEl.style.display = "block"; document.getElementById("restockTot").textContent = rt + "g"; }
-  else { rsEl.style.display = "none"; }
+  if(rt > 0){
+    rsEl.style.display = "block";
+    document.getElementById("restockTot").textContent = u==="g" ? fmtG(rt)+"g" : toDisp(rt)+unitAbbr()+" ("+fmtG(rt)+"g)";
+  } else { rsEl.style.display = "none"; }
 
   const ut = s.useTotal||0;
   const usEl = document.getElementById("useSum");
   if(ut > 0){
     usEl.style.display = "block";
-    document.getElementById("useTotG").textContent = ut + "g";
+    document.getElementById("useTotG").textContent    = u==="g" ? ut+"g" : toDisp(ut)+unitAbbr()+" ("+ut+"g)";
     document.getElementById("useTotLost").textContent = "$" + ((ut/3.5)*27.5).toFixed(0);
   } else { usEl.style.display = "none"; }
 
   document.getElementById("packBreak").innerHTML = Object.entries(PRICES).map(([k,p]) => {
-    const c  = Math.floor(s.stock / p.w);
+    const c = Math.floor(s.stock / p.w);
     const pr = p.lo===p.hi ? "$"+p.lo : "$"+p.lo+"–$"+p.hi;
     const empty = c === 0;
     return `<div class="pack-row${empty?" empty":""}">
@@ -863,34 +854,33 @@ function renderAll(){
     </div>`;
   }).join("");
 
-  renderLog();
-  renderQS();
+  renderLog(); renderQS();
 }
 
 // ── RENDER LOG ──
 function renderLog(){
   const s = cur(); if(!s) return;
+  const u    = getUnit();
   const logs = (s.logs||[]).filter(l => logFilter==="all" || l.type===logFilter);
   document.getElementById("logCount").textContent = logs.length + " Entries";
-  if(!logs.length){
-    document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>';
-    return;
-  }
+  if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
-    const del = `<button class="log-del" onclick="deleteLog(${l.id})">✕</button>`;
+    const del   = `<button class="log-del" onclick="deleteLog(${l.id})">✕</button>`;
+    const wD    = fmtDisp(l.w, u);
+    const afterD = l.after != null ? fmtDisp(l.after, u) : "";
     if(l.type==="sale")
-      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+$${l.total}</div><div class="log-left">${fmtG(l.after)}g left</div>${del}</div></div></div>`;
+      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+$${l.total}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
     if(l.type==="restock")
-      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">📦 RESTOCKED +${l.w}g</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${l.w}g</div><div class="log-left">${fmtG(l.after)}g total</div>${del}</div></div></div>`;
+      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">📦 RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div><div class="log-left">${afterD} total</div>${del}</div></div></div>`;
     if(l.type==="use")
-      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL ${l.w}g</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${l.w}g</div><div class="log-left">${fmtG(l.after)}g left</div>${del}</div></div></div>`;
+      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
     if(l.type==="expense")
       return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">💸 EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−$${l.amount}</div>${del}</div></div></div>`;
     return "";
   }).join("");
 }
 
-// ── RENDER QUICK STATS + SUGGESTIONS ──
+// ── QUICK STATS + SUGGESTIONS ──
 function renderQS(){
   const all = Object.values(D.strains);
   const te  = all.reduce((a,s) => a+(s.earned||0), 0);
@@ -901,36 +891,28 @@ function renderQS(){
   const tsl = all.reduce((a,s) => a+(s.logs||[]).filter(l=>l.type==="sale").length, 0);
 
   document.getElementById("qsGrid").innerHTML = [
-    { l:"All Products Earned",  v:"$"+te.toFixed(0),                                             c:"#4caf7a"  },
-    { l:"Total Net Profit",     v:(tp>=0?"+$":"-$")+Math.abs(tp).toFixed(0),                     c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Total Stock Left",     v:ts.toFixed(1)+"g",                                             c:"#c9a040"  },
-    { l:"Sales Logged",         v:tsl,                                                            c:"#e8e4d9"  },
-    { l:"Personal Use (All)",   v:tu+"g",                                                         c:"#c05050"  },
-    { l:"Products Tracked",     v:Object.keys(D.strains).length,                                  c:"#c9a040"  },
+    { l:"All Products Earned", v:"$"+te.toFixed(0),                                          c:"#4caf7a" },
+    { l:"Total Net Profit",    v:(tp>=0?"+$":"-$")+Math.abs(tp).toFixed(0),                  c:tp>=0?"#4caf7a":"#c05050" },
+    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                          c:"#c9a040" },
+    { l:"Sales Logged",        v:tsl,                                                        c:"#e8e4d9" },
+    { l:"Personal Use (All)",  v:tu+"g",                                                     c:"#c05050" },
+    { l:"Products Tracked",    v:Object.keys(D.strains).length,                              c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
-  const tips = [];
-  const s = cur();
+  const tips = [], s = cur();
   if(s){
-    if(tp < 0)
-      tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
-    else if(tx>0 && te>=tx && tp<tx*0.3)
-      tips.push("📈 Expenses covered — you're in profit but margins are slim. Focus on smaller packs for better $/g.");
-    else if(tp >= tx*0.5 && tx>0)
-      tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
-    else if(tx===0 && te>0)
-      tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
+    if(tp < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
+    else if(tx>0 && te>=tx && tp<tx*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
+    else if(tp>=tx*0.5 && tx>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
+    else if(tx===0 && te>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
 
-    if(ts === 0)
-      tips.push("🚨 Out of stock — restock before you lose customers.");
-    else if(ts < 14)
-      tips.push("📦 Stock is getting low — plan your next re-up soon.");
+    if(ts===0) tips.push("🚨 Out of stock — restock before you lose customers.");
+    else if(ts<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round((tu/3.5)*27.5);
-      if(lostVal > 20) tips.push(`💨 Personal use has cost ~$${lostVal} in lost sales — worth keeping an eye on.`);
+      if(lostVal>20) tips.push(`💨 Personal use has cost ~$${lostVal} in lost sales — worth keeping an eye on.`);
     }
-
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
     const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
@@ -942,7 +924,6 @@ function renderQS(){
       tips.push(`⭐ ${best} is your top earner — prioritize keeping it stocked.`);
     }
   }
-
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
@@ -955,16 +936,16 @@ function switchTab(name, btn){
   document.querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
   document.getElementById("panel-"+name).classList.add("on");
   btn.classList.add("on");
-  if(name === "tips") renderQS();
+  if(name==="tips") renderQS();
 }
 
 // ── INIT ──
 hydrate();
 if(isReady()){
+  syncUnitDefaults();
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
-  renderAll();
-  updateSaleModal();
+  renderAll(); updateSaleModal();
 } else {
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
