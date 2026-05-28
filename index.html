@@ -311,6 +311,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
     <div id="packBreak"></div>
 
     <button class="btn-rst" onclick="doReset()">↺ Reset This Product's Data</button>
+    <button class="btn-rst" style="margin-top:6px;color:#c05050;border-color:rgba(224,92,92,0.18);" onclick="openModal('resetAll')">⚠ Reset All Data</button>
   </div>
 
   <!-- ── LOG PANEL ── -->
@@ -424,6 +425,22 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
       <input class="m-input" id="expMNote" placeholder="e.g. re-up cost, supplies..."/>
     </div>
     <button class="btn-confirm-red" id="expMConfirm" onclick="confirmExp()">Confirm</button>
+  </div>
+</div>
+
+<!-- ════ RESET ALL CONFIRM MODAL ════ -->
+<div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
+  <div class="mbox mbox-red">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div class="m-title" style="margin-bottom:0;color:#e05c5c;letter-spacing:3px;">⚠ Reset All Data</div>
+      <button onclick="closeModal('resetAll')" style="background:none;border:none;color:#666;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">✕</button>
+    </div>
+    <div style="color:#aaa8c0;font-size:13px;line-height:1.8;margin-bottom:22px;text-align:center;">This will permanently delete <strong style="color:#e05c5c;">all products, sales, logs and expenses</strong>.<br/>The app will restart from scratch.</div>
+    <div style="font-size:10px;letter-spacing:2px;color:#666;text-align:center;margin-bottom:16px;text-transform:uppercase;">Are you sure?</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeModal('resetAll')" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#aaa;border-radius:8px;padding:14px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;">No</button>
+      <button onclick="doResetAll()" style="flex:1;background:linear-gradient(135deg,#c0392b,#7b241c);border:none;border-radius:8px;padding:14px;color:#fff;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;">Yes, Reset</button>
+    </div>
   </div>
 </div>
 
@@ -646,6 +663,11 @@ function doReset(){
   if(!confirm("Reset all data for \""+D.cur+"\"?"))return;
   D.strains[D.cur]=fresh(0,0);
   persist(); renderAll();
+}
+
+function doResetAll(){
+  try{localStorage.removeItem(SK);}catch(e){}
+  location.reload();
 }
 
 function deleteLog(id){
