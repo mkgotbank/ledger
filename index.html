@@ -506,6 +506,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <script>
 const SK = "ledger_v4";
 let PRICES = {
+  "28g": { w:28,  lo:150, hi:180 },
   "14g": { w:14,  lo:80,  hi:90  },
   "7g":  { w:7,   lo:50,  hi:50  },
   "3.5g":{ w:3.5, lo:25,  hi:30  },
@@ -518,7 +519,7 @@ const PRICE_REF_DEFAULTS = [
   { label:"3.5g (⅛oz)", grams:3.5, lo:25,  hi:30  },
   { label:"1g",         grams:1,   lo:10,  hi:12  }
 ];
-const PRICE_REF_PACK_MAP = { "14g (½oz)":"14g", "7g (¼oz)":"7g", "3.5g (⅛oz)":"3.5g", "1g":"1g" };
+const PRICE_REF_PACK_MAP = { "28g (1oz)":"28g", "14g (½oz)":"14g", "7g (¼oz)":"7g", "3.5g (⅛oz)":"3.5g", "1g":"1g" };
 const UNITS = {
   g:     { abbr:"g",   label:"Grams",   grams:1   },
   halfoz:{ abbr:"½oz", label:"Half Oz", grams:14  },
@@ -869,7 +870,7 @@ function confirmEditPrice(){
 }
 
 // ── HELPERS ──
-function estVal(g){ return Math.floor(g/14)*PRICES["14g"].hi + Math.floor((g%14)/7)*PRICES["7g"].hi + Math.floor((g%7)/3.5)*PRICES["3.5g"].hi + Math.floor((g%3.5)/1)*PRICES["1g"].hi; }
+function estVal(g){ return Math.floor(g/28)*PRICES["28g"].hi + Math.floor((g%28)/14)*PRICES["14g"].hi + Math.floor((g%14)/7)*PRICES["7g"].hi + Math.floor((g%7)/3.5)*PRICES["3.5g"].hi + Math.floor((g%3.5)/1)*PRICES["1g"].hi; }
 function fmtG(g){ return g%1===0 ? g : g.toFixed(1); }
 function round(n){ return Math.round(n*10)/10; }
 function now(){ return new Date().toLocaleString(); }
