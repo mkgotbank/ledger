@@ -694,61 +694,32 @@ async function getAI(){
   const totalProfit=totalEarned-totalExp;
   const activeStrain=strainData.find(s=>s.name===D.cur);
 
-  const prompt=`You are a street-smart cannabis business advisor. Give 5 practical tips based on this data. Lead every point with a specific action or recommendation — what to DO, not just what the numbers show. Be direct, like a mentor who's done this before.
+  const as=activeStrain;
+  const prompt=`You are a cannabis business advisor. Give 5 actionable tips. Start each with an emoji. 2-3 sentences each. Blank line between tips. Plain text only — no bold, no headers.
 
-ACTIVE PRODUCT: ${D.cur}
-- Stock left: ${activeStrain.stock}g
-- Total earned: $${activeStrain.earned}
-- Expenses: $${activeStrain.expenses}
-- Net: ${activeStrain.profit>=0?'+':''}$${activeStrain.profit}
-- Personal use: ${activeStrain.personalUse}g
-- Sales count: ${activeStrain.totalSales}
-- Sales by pack size: ${JSON.stringify(activeStrain.salesByPack)}
-- Recent sales: ${JSON.stringify(activeStrain.recentSales)}
+PRODUCT: ${D.cur} | Stock: ${as.stock}g | Earned: $${as.earned} | Expenses: $${as.expenses} | Profit: ${as.profit>=0?'+':''}$${as.profit} | Personal use: ${as.personalUse}g | Sales: ${as.totalSales} | By pack: ${JSON.stringify(as.salesByPack)}
+ALL PRODUCTS: Earned $${totalEarned.toFixed(0)} / Expenses $${totalExp.toFixed(0)} / Net ${totalProfit>=0?'+':''}$${totalProfit.toFixed(0)}
 
-ALL PRODUCTS COMBINED:
-- Earned: $${totalEarned.toFixed(0)} | Expenses: $${totalExp.toFixed(0)} | Net: ${totalProfit>=0?'+':''}$${totalProfit.toFixed(0)}
-
-PACK MARGINS: 1g=$10-12 (best $/g), 3.5g=$25-30, 7g=$50, 14g=$80-90 (worst $/g but fastest moving)
-
-Tips to cover:
-1. What pack size they should push more based on their actual sales mix — and why
-2. Whether personal use is costing them real money (give a dollar estimate of the impact)
-3. Honest take on where they stand with expenses — are they covered, close, or underwater
-4. One specific pricing or restocking move they should make right now
-5. A motivating but realistic outlook — what's working, what needs fixing
-
-Format: Start each tip with an emoji. 2-3 sentences per tip. Blank line between tips. Plain conversational text — no headers, no bullet sub-points, no repeating back the raw numbers as the main point.`;
+Cover: best pack to push and why, personal use dollar cost, expense coverage status, one specific move to make right now, honest overall outlook.`;
 
   try{
     const ctrl=new AbortController();
     const timer=setTimeout(()=>ctrl.abort(),30000);
-    const res=await fetch("https://text.pollinations.ai/",{
-      method:"POST",
-      signal:ctrl.signal,
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        messages:[
-          {role:"system",content:"You are a sharp, street-smart cannabis business advisor giving short practical tips."},
-          {role:"user",content:prompt}
-        ],
-        model:"openai",
-        seed:Date.now()
-      })
-    });
+    const url="https://text.pollinations.ai/"+encodeURIComponent(prompt)+"?model=openai&seed="+Math.floor(Date.now()%99999);
+    const res=await fetch(url,{signal:ctrl.signal});
     clearTimeout(timer);
-    if(!res.ok) throw new Error("status "+res.status);
+    if(!res.ok) throw new Error("Server error "+res.status);
     const txt=await res.text();
     if(txt&&txt.trim()){
       body.className="ai-body";
       body.textContent=txt.trim();
     } else {
-      throw new Error("empty response");
+      throw new Error("Empty response");
     }
   } catch(e){
     body.className="ai-body idle";
-    const msg=e.name==="AbortError"?"Request timed out — try again on a stronger connection.":"Couldn't reach AI — check your internet and try again.";
-    body.textContent="⚠️ "+msg;
+    const msg=e.name==="AbortError"?"Timed out — try again on a stronger connection.":e.message||"Unknown error";
+    body.textContent="⚠️ AI error: "+msg;
   }
   aiLoading=false;
   btn.disabled=false;
