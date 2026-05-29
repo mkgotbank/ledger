@@ -217,38 +217,41 @@ html, body {
 }
 
 /* ── SLOTS ── */
+.slots-wrap { margin-bottom: 3cqw; }
+.slots-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.2cqw;
+  font-size: 1.9cqw;
+  letter-spacing: .3cqw;
+  text-transform: uppercase;
+}
+.slots-labels .lbl-taken { color: #904040; }
+.slots-labels .lbl-open  { color: #806820; }
 .slots {
   display: flex;
-  gap: 1.2cqw;
-  margin-bottom: 3cqw;
+  gap: 1.3cqw;
 }
 .slot {
   flex: 1;
-  aspect-ratio: 1 / 1.1;
-  border-radius: 1.2cqw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.6cqw;
-  font-weight: 700;
-  font-family: Arial, sans-serif;
+  height: 5.5cqw;
+  border-radius: 1cqw;
 }
 .slot.taken {
-  background: rgba(200,70,60,.1);
-  border: 1px solid rgba(200,70,60,.25);
-  color: #b84840;
+  background: linear-gradient(135deg, #6b2828, #8a3030);
+  box-shadow: 0 1px 4px rgba(0,0,0,.4);
 }
 .slot.open {
-  background: rgba(220,170,50,.08);
-  border: 1px solid rgba(220,170,50,.22);
-  color: #c8a038;
-  animation: slot-pulse 3s ease-in-out infinite;
+  background: rgba(220,170,50,.07);
+  border: 1px solid rgba(220,170,50,.28);
+  animation: slot-pulse 2.8s ease-in-out infinite;
 }
-.slot.open:nth-child(even) { animation-delay: .4s; }
-.slot.open:nth-child(3n)   { animation-delay: .8s; }
+.slot.open:nth-child(3n)  { animation-delay: .5s; }
+.slot.open:nth-child(4n)  { animation-delay: 1s; }
+.slot.open:nth-child(5n)  { animation-delay: 1.5s; }
 @keyframes slot-pulse {
-  0%,100% { border-color: rgba(220,170,50,.22); }
-  50%      { border-color: rgba(220,170,50,.45); }
+  0%,100% { border-color: rgba(220,170,50,.28); background: rgba(220,170,50,.07); }
+  50%      { border-color: rgba(220,170,50,.55); background: rgba(220,170,50,.13); }
 }
 
 /* ── DIVIDER ── */
@@ -381,19 +384,25 @@ html, body {
     </div>
 
     <!-- SLOTS — flip "open" → "taken" per sale (12 total) -->
-    <div class="slots">
-      <div class="slot taken">✕</div>
-      <div class="slot taken">✕</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
-      <div class="slot open">✓</div>
+    <div class="slots-wrap">
+      <div class="slots-labels">
+        <span class="lbl-taken">● Claimed</span>
+        <span class="lbl-open">Available ●</span>
+      </div>
+      <div class="slots">
+        <div class="slot taken"></div>
+        <div class="slot taken"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+      </div>
     </div>
 
     <div class="divider"></div>
