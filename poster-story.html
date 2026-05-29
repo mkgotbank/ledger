@@ -226,8 +226,8 @@ html, body {
   letter-spacing: .3cqw;
   text-transform: uppercase;
 }
-.slots-labels .lbl-taken { color: #904040; }
-.slots-labels .lbl-open  { color: #806820; }
+.slots-labels .lbl-taken { color: #c89820; }
+.slots-labels .lbl-open  { color: #504838; }
 .slots {
   display: flex;
   gap: 1.3cqw;
@@ -238,17 +238,14 @@ html, body {
   border-radius: 1cqw;
 }
 .slot.taken {
-  background: linear-gradient(135deg, #6b2828, #8a3030);
-  box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  background: linear-gradient(135deg, #c8920a, #e8b820);
+  box-shadow: 0 0 6cqw rgba(230,185,30,.55), 0 0 2cqw rgba(230,185,30,.8);
+  border: 1px solid rgba(255,210,60,.5);
 }
 .slot.open {
-  background: rgba(220,170,50,.07);
-  border: 1px solid rgba(220,170,50,.28);
-  animation: slot-pulse 2.8s ease-in-out infinite;
+  background: rgba(220,170,50,.06);
+  border: 1px solid rgba(220,170,50,.18);
 }
-.slot.open:nth-child(3n)  { animation-delay: .5s; }
-.slot.open:nth-child(4n)  { animation-delay: 1s; }
-.slot.open:nth-child(5n)  { animation-delay: 1.5s; }
 @keyframes slot-pulse {
   0%,100% { border-color: rgba(220,170,50,.28); background: rgba(220,170,50,.07); }
   50%      { border-color: rgba(220,170,50,.55); background: rgba(220,170,50,.13); }
