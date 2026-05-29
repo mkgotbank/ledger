@@ -391,24 +391,27 @@
       <div class="offer-unit">FREE</div>
     </div>
     <div class="offer-desc">
-      Every purchase comes with an <strong>extra 2 grams on the house</strong>.
+      Cop a <strong>Half Oz (14g) or more</strong> and we'll throw in an
+      <strong>extra 2 grams on the house</strong>.
       First come, first served — only the next <strong>10 orders</strong> qualify.
-      No minimum, no code needed.
     </div>
   </div>
 
+  <!-- COUNTER: update "X / 10 Claimed", "Y Left", progress width, and slot classes each order -->
   <div class="scarcity">
     <div class="scarcity-top">
-      <span>Slots Remaining</span>
-      <span class="live">● 7 Left</span>
+      <span>0 / 10 Claimed</span>
+      <span class="live">● 10 Left</span>
     </div>
     <div class="progress-bg">
-      <div class="progress-fill"></div>
+      <!-- progress-fill width = (claimed/10)*100% -->
+      <div class="progress-fill" style="width:0%"></div>
     </div>
+    <!-- SLOTS: 0/10 claimed — update by changing "open" → "taken" as orders come in -->
     <div class="slots-row">
-      <div class="slot taken">Gone</div>
-      <div class="slot taken">Gone</div>
-      <div class="slot taken">Gone</div>
+      <div class="slot open">Open</div>
+      <div class="slot open">Open</div>
+      <div class="slot open">Open</div>
       <div class="slot open">Open</div>
       <div class="slot open">Open</div>
       <div class="slot open">Open</div>
