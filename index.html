@@ -957,10 +957,11 @@ Cover: best pack to push and why, personal use dollar cost, expense coverage sta
   try {
     const txt = await fetchWithRetry(prompt, body);
     body.className = "ai-body"; body.textContent = txt;
-    s.aiTips = txt; s.aiChat = []; persist();
+    const cs2 = cur(); if(cs2){ cs2.aiTips = txt; cs2.aiChat = []; }
+    persist();
     // Show chat input now that advice is ready
-    const cs = document.getElementById("chatSection");
-    if(cs) cs.style.display = "block";
+    const chatSec = document.getElementById("chatSection");
+    if(chatSec) chatSec.style.display = "block";
     renderChat();
   } catch(e){
     body.className = "ai-body idle";
