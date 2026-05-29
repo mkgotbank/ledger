@@ -48,33 +48,26 @@ html, body {
     transparent 0%, rgba(255,200,80,.6) 25%,
     #ffe080 50%, rgba(255,200,80,.6) 75%, transparent 100%);
 }
-/* heavenly light beam from above */
+/* heavenly light — soft glow from above */
 .poster::after {
   content: '';
   position: absolute;
   top: 0; left: 50%;
   transform: translateX(-50%);
-  width: 80cqw;
-  height: 70cqh;
+  width: 160cqw;
+  height: 80cqh;
   background:
-    conic-gradient(from -20deg at 50% -10%,
-      transparent        0deg,
-      rgba(255,220,80,.04) 8deg,
-      transparent       16deg,
-      rgba(255,220,80,.06) 24deg,
-      transparent       32deg,
-      rgba(255,220,80,.04) 40deg,
-      transparent       48deg,
-      rgba(255,220,80,.05) 56deg,
-      transparent       64deg,
-      rgba(255,220,80,.03) 72deg,
-      transparent       80deg
+    radial-gradient(ellipse 52% 48% at 50% 0%,
+      rgba(255,235,130,.16) 0%,
+      rgba(245,210,90,.06)  25%,
+      rgba(230,185,60,.015) 50%,
+      transparent           68%
     ),
-    radial-gradient(ellipse 100% 80% at 50% 0%,
-      rgba(255,230,100,.14) 0%,
-      rgba(255,210,60,.06)  35%,
-      transparent          70%
+    radial-gradient(ellipse 22% 18% at 50% 0%,
+      rgba(255,252,215,.10) 0%,
+      transparent           44%
     );
+  mix-blend-mode: screen;
   pointer-events: none;
   z-index: 0;
 }
@@ -176,15 +169,6 @@ html, body {
   position: relative;
   overflow: hidden;
 }
-/* decorative star top-right */
-.offer::after {
-  content: '✦';
-  position: absolute;
-  top: 3cqw; right: 4cqw;
-  font-size: 4cqw;
-  color: rgba(220,170,50,.25);
-  line-height: 1;
-}
 .offer-lbl {
   font-size: 2.3cqw;
   letter-spacing: .6cqw;
@@ -215,10 +199,10 @@ html, body {
 }
 .offer-body {
   font-size: 2.5cqw;
-  color: #9898c0;
+  color: #8e8aac;
   line-height: 1.6;
 }
-.offer-body strong { color: #c8c4e0; font-weight: 700; }
+.offer-body strong { color: #ccc8e4; font-weight: 700; }
 
 /* ── COUNTER ── */
 .counter-row {
@@ -230,7 +214,7 @@ html, body {
 .counter-claimed {
   font-size: 2.4cqw;
   letter-spacing: .3cqw;
-  color: #504868;
+  color: #7a7298;
   text-transform: uppercase;
   font-weight: 700;
 }
@@ -268,42 +252,35 @@ html, body {
   border-radius: 1cqw;
 }
 .slot.taken {
-  background: linear-gradient(170deg, #f5d860 0%, #d4a010 40%, #a86800 100%);
-  border: 1px solid rgba(240,210,80,.6);
+  background: linear-gradient(170deg, #d4a828 0%, #a87808 45%, #7a5200 100%);
+  border: 1px solid rgba(210,175,55,.45);
   box-shadow:
-    0 0 2cqw .5cqw rgba(240,200,60,.7),
-    0 0 6cqw 2cqw  rgba(220,165,20,.5),
-    0 0 14cqw 4cqw rgba(200,135,10,.35),
-    0 0 24cqw 5cqw rgba(170,110,8,.2),
-    inset 0 0 2cqw  rgba(255,240,160,.35);
+    0 0 2cqw .4cqw rgba(210,170,40,.5),
+    0 0 5cqw 1.5cqw rgba(190,140,18,.35),
+    0 0 11cqw 3cqw rgba(165,110,8,.22),
+    inset 0 0 2cqw rgba(240,210,120,.2);
   animation: heaven-pulse 2.2s ease-in-out infinite;
 }
 .slot.taken:nth-child(2) { animation-delay: .6s; }
 @keyframes heaven-pulse {
   0%,100% {
     box-shadow:
-      0 0 2cqw .5cqw rgba(240,200,60,.7),
-      0 0 6cqw 2cqw  rgba(220,165,20,.5),
-      0 0 14cqw 4cqw rgba(200,135,10,.35),
-      0 0 24cqw 5cqw rgba(170,110,8,.2),
-      inset 0 0 2cqw rgba(255,240,160,.35);
+      0 0 2cqw .4cqw rgba(210,170,40,.5),
+      0 0 5cqw 1.5cqw rgba(190,140,18,.35),
+      0 0 11cqw 3cqw rgba(165,110,8,.22),
+      inset 0 0 2cqw rgba(240,210,120,.2);
   }
   50% {
     box-shadow:
-      0 0 3cqw 1cqw  rgba(245,210,70,.85),
-      0 0 8cqw 3cqw  rgba(225,175,25,.65),
-      0 0 18cqw 5cqw rgba(205,145,12,.45),
-      0 0 30cqw 7cqw rgba(175,120,10,.28),
-      inset 0 0 2cqw rgba(255,245,180,.5);
+      0 0 2.5cqw .6cqw rgba(220,180,50,.62),
+      0 0 7cqw 2cqw  rgba(200,155,22,.45),
+      0 0 14cqw 4cqw rgba(175,120,10,.3),
+      inset 0 0 2cqw rgba(245,220,140,.28);
   }
 }
 .slot.open {
   background: rgba(220,170,50,.04);
   border: 1px solid rgba(220,170,50,.15);
-}
-@keyframes slot-pulse {
-  0%,100% { border-color: rgba(220,170,50,.28); background: rgba(220,170,50,.07); }
-  50%      { border-color: rgba(220,170,50,.55); background: rgba(220,170,50,.13); }
 }
 
 /* ── DIVIDER ── */
@@ -318,7 +295,7 @@ html, body {
 .cta-lbl {
   font-size: 2.3cqw;
   letter-spacing: .6cqw;
-  color: #403860;
+  color: #524c7c;
   text-transform: uppercase;
   margin-bottom: 1.4cqw;
 }
@@ -346,7 +323,7 @@ html, body {
   padding-top: 2.2cqw;
   border-top: 1px solid rgba(255,255,255,.05);
 }
-.footer-legal { font-size: 1.9cqw; color: #2e2848; line-height: 1.5; }
+.footer-legal { font-size: 1.9cqw; color: #44406a; line-height: 1.5; }
 .footer-logo  { font-size: 2.2cqw; letter-spacing: .5cqw; color: rgba(210,160,40,.3); text-transform: uppercase; }
 
 /* ── HIDE BUTTON (pure CSS — no JS) ── */
@@ -416,7 +393,7 @@ html, body {
     <div class="hl-sub">We got a deal for you 🤝</div>
 
     <div class="offer">
-      <div class="offer-lbl">✦ The Deal</div>
+      <div class="offer-lbl">The Deal</div>
       <div class="offer-big">
         <div class="offer-num">+2G</div>
         <div class="offer-free">FREE</div>
