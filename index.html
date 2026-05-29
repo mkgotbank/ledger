@@ -246,6 +246,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .font-btn:active{opacity:0.8;}
 .settings-sec{margin-bottom:22px;}
 
+/* ── What's New ── */
+.wn-badge{display:inline-block;font-size:8px;letter-spacing:3px;color:var(--acc);text-transform:uppercase;background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:6px;padding:3px 9px;margin-bottom:18px;}
+.wn-list{margin-bottom:22px;}
+.wn-item{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.wn-item:last-child{border-bottom:none;}
+.wn-icon{font-size:20px;flex-shrink:0;width:30px;text-align:center;margin-top:1px;}
+.wn-title{font-size:12px;font-weight:700;color:var(--txt-b);margin-bottom:3px;letter-spacing:-0.2px;}
+.wn-desc{font-size:10px;color:var(--txt-d);line-height:1.65;}
+
 /* ── AI Chat ── */
 .chat-wrap{margin-bottom:16px;}
 .chat-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
@@ -447,6 +456,48 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- WHAT'S NEW MODAL -->
+<div class="overlay" id="modal-whatsNew" onclick="if(event.target.id==='modal-whatsNew')dismissWhatsNew()">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">✦ What's New</div>
+      <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
+    </div>
+    <div class="wn-badge" id="wnVersion">Version 1.5</div>
+    <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">💬</div>
+        <div>
+          <div class="wn-title">AI Chat Follow-Up</div>
+          <div class="wn-desc">After loading your AI advice, ask follow-up questions directly in the Tips tab. The advisor knows your full product data and stays on topic.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">✎</div>
+        <div>
+          <div class="wn-title">Edit Log Notes</div>
+          <div class="wn-desc">Tap the pencil icon on any log entry to add or update its note — works on sales, restocks, personal use and expenses.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">📊</div>
+        <div>
+          <div class="wn-title">Per-Product Tips & Stats</div>
+          <div class="wn-desc">Quick Stats, Smart Suggestions and AI advice are now separate for each product. Switch products and each one remembers its own analysis.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">⚡</div>
+        <div>
+          <div class="wn-title">Auto-Updates</div>
+          <div class="wn-desc">The app now updates itself automatically when you open it — no need to re-add it to your home screen after every release.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-confirm" onclick="dismissWhatsNew()">Got It</button>
+  </div>
+</div>
+
 <!-- SALE MODAL -->
 <div class="overlay" id="modal-sale" onclick="overlayClose(event,'modal-sale')">
   <div class="mbox">
@@ -589,7 +640,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 </div>
 
 <script>
-const SK = "ledger_v4";
+const SK      = "ledger_v4";
+const VERSION = "1.5";
+const VER_KEY = "ledger_seen_ver";
 let PRICES = {
   "28g": { w:28,  lo:150, hi:180 },
   "14g": { w:14,  lo:80,  hi:90  },
@@ -1422,6 +1475,21 @@ function renderSettings(){
   ).join("");
 }
 
+// ── WHAT'S NEW ──
+function checkVersion(){
+  try {
+    if(localStorage.getItem(VER_KEY) !== VERSION){
+      const el = document.getElementById("wnVersion");
+      if(el) el.textContent = "Version " + VERSION;
+      setTimeout(() => document.getElementById("modal-whatsNew").classList.add("open"), 700);
+    }
+  } catch(e){}
+}
+function dismissWhatsNew(){
+  try { localStorage.setItem(VER_KEY, VERSION); } catch(e){}
+  document.getElementById("modal-whatsNew").classList.remove("open");
+}
+
 // ── TAB SWITCHING ──
 function switchTab(name, btn){
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("on"));
@@ -1441,6 +1509,7 @@ if(isReady()){
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
   renderAll(); updateSaleModal();
+  checkVersion();
 } else {
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
