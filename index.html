@@ -151,6 +151,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .log-left{font-size:8px;color:#606080;margin-top:2px;}
 .log-del{background:none;border:none;color:#505070;font-size:14px;cursor:pointer;margin-top:4px;padding:2px 0;line-height:1;display:block;transition:color 0.15s;}
 .log-del:active{color:#e05c5c;}
+.log-edit{background:none;border:none;color:#505070;font-size:13px;cursor:pointer;margin-top:3px;padding:2px 0;line-height:1;display:block;transition:color 0.15s;}
+.log-edit:active{color:var(--acc);}
 .log-empty{text-align:center;color:#555568;padding:60px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;}
 
 .ai-box{background:rgba(18,16,36,0.9);border:1px solid rgba(124,108,212,0.22);border-left:3px solid #8070d8;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
@@ -523,6 +525,21 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- EDIT NOTE MODAL -->
+<div class="overlay" id="modal-editNote" onclick="overlayClose(event,'modal-editNote')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">Edit Note</div>
+      <button class="modal-close" onclick="closeModal('editNote')">✕</button>
+    </div>
+    <div class="m-sec">
+      <span class="m-lbl">Note</span>
+      <input class="m-input" id="editNoteInput" placeholder="Add a note..." autocomplete="off"/>
+    </div>
+    <button class="btn-confirm" onclick="saveEditNote()">Save Note</button>
+  </div>
+</div>
+
 <!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
@@ -569,7 +586,7 @@ const UNIT_STEPS            = { g:1,  halfoz:0.5, oz:0.25, halflb:0.25, lb:0.125
 const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
 
 let D = { strains:{}, cur:"" };
-let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add", editingPriceIdx = -1;
+let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 
 function fresh(stock, expenses){
   return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[] };
@@ -827,6 +844,24 @@ function deleteLog(id){
   showToast("Entry removed"); persist(); renderAll();
 }
 
+// ── EDIT NOTE ──
+function openEditNote(id){
+  const s = cur(); if(!s) return;
+  const l = s.logs.find(l => l.id === id); if(!l) return;
+  editNoteId = id;
+  document.getElementById("editNoteInput").value = l.note || "";
+  openModal("editNote");
+  setTimeout(() => document.getElementById("editNoteInput").focus(), 150);
+}
+function saveEditNote(){
+  const s = cur(); if(!s) return;
+  const l = s.logs.find(l => l.id === editNoteId); if(!l) return;
+  l.note = document.getElementById("editNoteInput").value.trim();
+  closeModal("editNote");
+  showToast("Note updated", "ok");
+  persist(); renderLog();
+}
+
 // ── AI ──
 const AI_MODELS = ["openai","mistral","llama","openai-large"];
 async function fetchWithRetry(prompt, statusEl){
@@ -1016,17 +1051,18 @@ function renderLog(){
   document.getElementById("logCount").textContent = logs.length + " Entries";
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
-    const del   = `<button class="log-del" onclick="deleteLog(${l.id})">✕</button>`;
+    const del  = `<button class="log-del" onclick="deleteLog(${l.id})">✕</button>`;
+    const edit = `<button class="log-edit" onclick="openEditNote(${l.id})">✎</button>`;
     const wD    = fmtDisp(l.w, u);
     const afterD = l.after != null ? fmtDisp(l.after, u) : "";
     if(l.type==="sale")
-      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+$${l.total}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
+      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+$${l.total}</div><div class="log-left">${afterD} left</div>${edit}${del}</div></div></div>`;
     if(l.type==="restock")
-      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">📦 RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div><div class="log-left">${afterD} total</div>${del}</div></div></div>`;
+      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">📦 RESTOCKED +${wD}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div><div class="log-left">${afterD} total</div>${edit}${del}</div></div></div>`;
     if(l.type==="use")
-      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
+      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL ${wD}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div><div class="log-left">${afterD} left</div>${edit}${del}</div></div></div>`;
     if(l.type==="expense")
-      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">💸 EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−$${l.amount}</div>${del}</div></div></div>`;
+      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">💸 EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−$${l.amount}</div>${edit}${del}</div></div></div>`;
     return "";
   }).join("");
 }
