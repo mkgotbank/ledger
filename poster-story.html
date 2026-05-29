@@ -3,276 +3,343 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>Flash Sale — Story</title>
+<title>Flash Sale — The Ledger</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-
+*{margin:0;padding:0;box-sizing:border-box;}
 html,body{
   width:100%;height:100%;
   background:#050510;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
   overflow:hidden;
   font-family:'Courier New',monospace;
-}
-
-/* ── STORY WRAPPER — fills screen, locks 9:16 ── */
-.wrap{
-  position:relative;
-  width:min(100vw, calc(100svh * 9/16));
-  height:min(100svh, calc(100vw * 16/9));
-  container-type:size;
-}
-
-/* ── POSTER ── */
-.poster{
-  width:100%;height:100%;
-  background:linear-gradient(170deg,#0e0e1c 0%,#0a0a16 60%,#07070f 100%);
-  display:flex;flex-direction:column;
-  padding:5cqw 6cqw 4cqw;
   gap:0;
-  overflow:hidden;
-  position:relative;
 }
-
-/* top gold line */
-.poster::before{
-  content:'';
-  position:absolute;top:0;left:0;right:0;height:.4cqw;
-  background:linear-gradient(90deg,transparent,#c9a040,#e8c060,#c9a040,transparent);
+canvas{
+  display:block;
+  /* Scale to fit, preserve 9:16 */
+  max-width:100vw;
+  max-height:calc(100svh - 56px);
+  width:auto;height:auto;
 }
-
-/* ambient glow */
-.poster::after{
-  content:'';
-  position:absolute;top:-10cqw;left:50%;transform:translateX(-50%);
-  width:80cqw;height:50cqw;
-  background:radial-gradient(ellipse,rgba(201,160,64,.1) 0%,transparent 70%);
-  pointer-events:none;
+.bar{
+  width:100%;display:flex;justify-content:center;align-items:center;
+  height:56px;flex-shrink:0;
+  background:rgba(5,5,16,0.95);
+  border-top:1px solid rgba(201,160,64,0.12);
 }
-
-/* ── HEADER ── */
-.hdr{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:4cqw;
-  position:relative;z-index:1;
-}
-.brand{font-size:2.6cqw;letter-spacing:.8cqw;color:#c9a040;text-transform:uppercase;}
-.badge{
-  font-size:2cqw;letter-spacing:.4cqw;color:#6060808;text-transform:uppercase;
-  border:1px solid rgba(255,255,255,.12);border-radius:20cqw;padding:.6cqw 2cqw;
-  color:#707088;
-}
-
-/* ── FLASH LABEL ── */
-.flash-row{
-  display:inline-flex;align-items:center;gap:1.5cqw;
-  background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.4);
-  border-radius:1.5cqw;padding:1cqw 2.5cqw;
-  margin-bottom:3.5cqw;align-self:flex-start;
-  animation:pulse-bdr 2s ease-in-out infinite;
-  position:relative;z-index:1;
-}
-@keyframes pulse-bdr{
-  0%,100%{border-color:rgba(224,92,92,.4);box-shadow:none;}
-  50%{border-color:rgba(224,92,92,.7);box-shadow:0 0 2cqw rgba(224,92,92,.2);}
-}
-.flash-dot{
-  width:1.4cqw;height:1.4cqw;background:#e05c5c;border-radius:50%;
-  animation:blink 1s step-end infinite;flex-shrink:0;
-}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
-.flash-txt{font-size:2.2cqw;letter-spacing:.6cqw;color:#e05c5c;text-transform:uppercase;font-weight:700;}
-
-/* ── HEADLINE ── */
-.hl-wrap{margin-bottom:4cqw;position:relative;z-index:1;line-height:.88;}
-.hl-next{font-size:14cqw;font-weight:900;color:#e8e4d9;letter-spacing:-.5cqw;font-family:Impact,'Arial Black',sans-serif;}
-.hl-num{color:#e8c060;}
-.hl-buyers{font-size:18cqw;font-weight:900;color:#e8e4d9;letter-spacing:-.5cqw;font-family:Impact,'Arial Black',sans-serif;margin-top:-1cqw;}
-.hl-sub{font-size:2.4cqw;letter-spacing:.7cqw;color:#6060a0;text-transform:uppercase;margin-top:2cqw;}
-
-/* ── OFFER CARD ── */
-.offer{
-  background:linear-gradient(135deg,rgba(201,160,64,.1),rgba(201,160,64,.03));
-  border:1px solid rgba(201,160,64,.28);border-radius:3cqw;
-  padding:4cqw 4.5cqw 4cqw;
-  margin-bottom:4cqw;
-  position:relative;overflow:hidden;z-index:1;
-}
-.offer::before{
-  content:'';position:absolute;top:-6cqw;right:-6cqw;
-  width:22cqw;height:22cqw;
-  background:radial-gradient(circle,rgba(201,160,64,.12) 0%,transparent 70%);
-}
-.offer-lbl{font-size:2cqw;letter-spacing:.8cqw;color:#c9a040;text-transform:uppercase;margin-bottom:2cqw;}
-.offer-big{display:flex;align-items:baseline;gap:2cqw;margin-bottom:2cqw;}
-.offer-qty{font-size:17cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#e8c060;line-height:1;text-shadow:0 0 6cqw rgba(201,160,64,.4);}
-.offer-free{font-size:9cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#c9a040;line-height:1;padding-bottom:1cqw;}
-.offer-txt{font-size:2.6cqw;color:#b0aec8;line-height:1.6;}
-.offer-txt strong{color:#e8c060;}
-
-/* ── SLOTS ── */
-.slots-wrap{margin-bottom:4cqw;position:relative;z-index:1;}
-.slots-top{display:flex;justify-content:space-between;margin-bottom:1.5cqw;}
-.slots-top span{font-size:2cqw;letter-spacing:.5cqw;color:#707088;text-transform:uppercase;}
-.slots-top .live{color:#e05c5c;}
-.prog-bg{height:.8cqw;background:rgba(255,255,255,.07);border-radius:.5cqw;overflow:hidden;margin-bottom:2cqw;}
-.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#e05c5c,#ff8c42);border-radius:.5cqw;}
-.slot-grid{display:flex;gap:1.2cqw;}
-.slot{
-  flex:1;padding:1.5cqw 0;border-radius:1.2cqw;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.8cqw;letter-spacing:.2cqw;text-transform:uppercase;
-  font-weight:700;
-}
-.slot.open{
-  background:rgba(201,160,64,.07);border:1px solid rgba(201,160,64,.2);
-  color:#c9a040;
-}
-.slot.taken{
-  background:rgba(224,92,92,.08);border:1px solid rgba(224,92,92,.2);
-  color:#e05c5c;
-}
-
-/* ── CTA ── */
-.cta{
-  text-align:center;padding-top:3cqw;
-  border-top:1px solid rgba(255,255,255,.06);
-  margin-bottom:3cqw;position:relative;z-index:1;
-}
-.cta-lbl{font-size:2cqw;letter-spacing:.6cqw;color:#505068;text-transform:uppercase;margin-bottom:1.5cqw;}
-.cta-main{font-size:6cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#e8c060;letter-spacing:.3cqw;line-height:1;}
-.cta-sub{font-size:2.2cqw;letter-spacing:.3cqw;color:#505068;text-transform:uppercase;margin-top:1.5cqw;}
-
-/* ── FOOTER ── */
-.footer{
-  display:flex;justify-content:space-between;align-items:center;
-  padding-top:2cqw;border-top:1px solid rgba(255,255,255,.04);
-  position:relative;z-index:1;
-}
-.footer-legal{font-size:1.7cqw;color:#3a3a52;line-height:1.5;}
-.footer-logo{font-size:2cqw;letter-spacing:.5cqw;color:rgba(201,160,64,.3);text-transform:uppercase;}
-
-/* ── SAVE BUTTON (hidden when user screenshots) ── */
 .save-btn{
-  position:fixed;bottom:max(env(safe-area-inset-bottom),12px);right:12px;
-  background:rgba(201,160,64,.15);border:1px solid rgba(201,160,64,.3);
-  color:#c9a040;border-radius:12px;padding:10px 16px;
-  font-size:12px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;cursor:pointer;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  z-index:999;transition:opacity .2s;
+  background:rgba(201,160,64,0.13);
+  border:1px solid rgba(201,160,64,0.32);
+  color:#c9a040;border-radius:10px;
+  padding:9px 28px;
+  font:700 11px/1 'Courier New',monospace;
+  letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:opacity .15s;
 }
-.save-btn:active{opacity:.7;}
-.save-btn.hidden{display:none;}
-
-@media print{
-  html,body{background:#050510;}
-  .save-btn{display:none;}
-}
+.save-btn:active{opacity:.65;}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="poster" id="poster">
+<canvas id="c"></canvas>
 
-    <div class="hdr">
-      <div class="brand">The Ledger</div>
-      <div class="badge">Limited Time</div>
-    </div>
-
-    <div class="flash-row">
-      <div class="flash-dot"></div>
-      <span class="flash-txt">Flash Sale — Live Now</span>
-    </div>
-
-    <div class="hl-wrap">
-      <div class="hl-next">NEXT <span class="hl-num">10</span></div>
-      <div class="hl-buyers">BUYERS</div>
-      <div class="hl-sub">Get hooked up on every order</div>
-    </div>
-
-    <div class="offer">
-      <div class="offer-lbl">The Deal</div>
-      <div class="offer-big">
-        <div class="offer-qty">+2G</div>
-        <div class="offer-free">FREE</div>
-      </div>
-      <div class="offer-txt">
-        Cop a <strong>Half Oz (14g) or more</strong> and we'll throw in
-        an <strong>extra 2 grams on the house</strong>.
-        First come, first served — only the next <strong>10 orders</strong> qualify.
-      </div>
-    </div>
-
-    <!-- COUNTER: update X/10, Y Left, progress width, and slot classes per order -->
-    <div class="slots-wrap">
-      <div class="slots-top">
-        <span>0 / 10 Claimed</span>
-        <span class="live">● 10 Left</span>
-      </div>
-      <div class="prog-bg">
-        <div class="prog-fill" style="width:0%"></div>
-      </div>
-      <div class="slot-grid">
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-        <div class="slot open">✓</div>
-      </div>
-    </div>
-
-    <div class="cta">
-      <div class="cta-lbl">How to claim</div>
-      <div class="cta-main">ORDER NOW<br>TO LOCK IN</div>
-      <div class="cta-sub">Mention "flash" when you reach out · While slots last</div>
-    </div>
-
-    <div class="footer">
-      <div class="footer-legal">21+ only · Local laws apply<br>While 10-buyer limit lasts</div>
-      <div class="footer-logo">The Ledger</div>
-    </div>
-
-  </div>
+<div class="bar">
+  <button class="save-btn" id="btn" onclick="savePNG()">⬇ Save to Gallery</button>
 </div>
 
-<!-- Download PNG button (uses html2canvas) -->
-<button class="save-btn" id="saveBtn" onclick="downloadPNG()">⬇ Save PNG</button>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-  integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"></script>
 <script>
-function downloadPNG(){
-  const btn = document.getElementById('saveBtn');
-  btn.classList.add('hidden');
-  const el = document.getElementById('poster');
-  html2canvas(el, {
-    scale: 3,
-    useCORS: true,
-    backgroundColor: null,
-    logging: false
-  }).then(canvas => {
-    btn.classList.remove('hidden');
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = 1080, H = 1920;
+canvas.width  = W;
+canvas.height = H;
+
+/* ── roundRect polyfill ── */
+if(!ctx.roundRect){
+  ctx.roundRect = function(x,y,w,h,r){
+    this.beginPath();
+    this.moveTo(x+r,y);        this.lineTo(x+w-r,y);
+    this.quadraticCurveTo(x+w,y,  x+w,y+r);
+    this.lineTo(x+w,y+h-r);   this.quadraticCurveTo(x+w,y+h, x+w-r,y+h);
+    this.lineTo(x+r,y+h);     this.quadraticCurveTo(x,y+h,   x,y+h-r);
+    this.lineTo(x,y+r);        this.quadraticCurveTo(x,y,      x+r,y);
+    this.closePath();
+  };
+}
+
+/* ── text wrap helper ── */
+function wrapText(txt, x, y, maxW, lineH){
+  const words = txt.split(' ');
+  let line = '';
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i] + ' ';
+    if(ctx.measureText(test).width > maxW && i>0){
+      ctx.fillText(line.trimEnd(), x, y); line = words[i]+' '; y += lineH;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trimEnd(), x, y);
+}
+
+function draw(){
+  const pad = 72;
+  const aw  = W - pad*2;   // 936px available width
+
+  /* ─── BACKGROUND ─── */
+  const bgG = ctx.createLinearGradient(0,0,0,H);
+  bgG.addColorStop(0,   '#0f0f1e');
+  bgG.addColorStop(0.5, '#0a0a16');
+  bgG.addColorStop(1,   '#070710');
+  ctx.fillStyle = bgG;
+  ctx.fillRect(0,0,W,H);
+
+  /* top ambient gold glow */
+  const tg = ctx.createRadialGradient(W/2,0,0, W/2,0, 700);
+  tg.addColorStop(0,'rgba(201,160,64,0.13)');
+  tg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = tg;
+  ctx.fillRect(0,0,W,H*0.45);
+
+  /* bottom ambient glow */
+  const bg2 = ctx.createRadialGradient(W/2,H,0, W/2,H, 500);
+  bg2.addColorStop(0,'rgba(100,60,180,0.07)');
+  bg2.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = bg2;
+  ctx.fillRect(0,H*0.6,W,H*0.4);
+
+  /* ─── TOP GOLD LINE ─── */
+  const lg = ctx.createLinearGradient(0,0,W,0);
+  lg.addColorStop(0,   'rgba(201,160,64,0)');
+  lg.addColorStop(0.2, 'rgba(201,160,64,0.7)');
+  lg.addColorStop(0.5, 'rgba(232,192,96,1)');
+  lg.addColorStop(0.8, 'rgba(201,160,64,0.7)');
+  lg.addColorStop(1,   'rgba(201,160,64,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(0,0,W,5);
+
+  /* ─── HEADER ─── */
+  ctx.letterSpacing = '8px';
+  ctx.font = "bold 30px 'Courier New',monospace";
+  ctx.textAlign  = 'left';
+  ctx.fillStyle  = '#c9a040';
+  ctx.fillText('THE LEDGER', pad, 115);
+
+  ctx.letterSpacing = '3px';
+  ctx.font = "22px 'Courier New',monospace";
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#606078';
+  ctx.fillText('LIMITED TIME', W-pad, 113);
+
+  /* thin separator below header */
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath(); ctx.moveTo(pad,130); ctx.lineTo(W-pad,130); ctx.stroke();
+
+  /* ─── FLASH LABEL ─── */
+  const flY = 158, flH = 60;
+  ctx.letterSpacing = '4px';
+  ctx.font = "bold 22px 'Courier New',monospace";
+  const ftw = ctx.measureText('FLASH SALE — LIVE NOW').width + 4*21; // approx with spacing
+  const flW = ftw + 68;
+
+  ctx.fillStyle = 'rgba(224,92,92,0.08)';
+  ctx.beginPath(); ctx.roundRect(pad,flY,flW,flH,11); ctx.fill();
+  ctx.strokeStyle = 'rgba(224,92,92,0.38)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(pad,flY,flW,flH,11); ctx.stroke();
+
+  /* blinking red dot */
+  ctx.fillStyle = '#e05c5c';
+  ctx.beginPath(); ctx.arc(pad+26,flY+30,7,0,Math.PI*2); ctx.fill();
+
+  ctx.textAlign  = 'left';
+  ctx.fillStyle  = '#e05c5c';
+  ctx.fillText('FLASH SALE — LIVE NOW', pad+48, flY+38);
+
+  /* ─── HEADLINE ─── */
+  ctx.letterSpacing = '-1px';
+
+  /* "NEXT " white */
+  ctx.font      = "170px Impact,'Arial Black',sans-serif";
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(235,231,220,0.96)';
+  ctx.fillText('NEXT ', pad, 445);
+  const nxW = ctx.measureText('NEXT ').width;
+
+  /* "10" gold */
+  ctx.fillStyle = '#e8c060';
+  ctx.fillText('10', pad+nxW, 445);
+
+  /* "BUYERS" */
+  ctx.font      = "210px Impact,'Arial Black',sans-serif";
+  ctx.fillStyle = 'rgba(235,231,220,0.96)';
+  ctx.fillText('BUYERS', pad, 665);
+
+  /* subtitle */
+  ctx.letterSpacing = '5px';
+  ctx.font      = "26px 'Courier New',monospace";
+  ctx.fillStyle = '#484860';
+  ctx.fillText('GET HOOKED UP ON EVERY ORDER', pad, 715);
+
+  /* ─── OFFER CARD ─── */
+  const cY = 768, cH = 360;
+
+  /* card background */
+  const cg = ctx.createLinearGradient(pad,cY, pad+aw,cY+cH);
+  cg.addColorStop(0,'rgba(201,160,64,0.1)');
+  cg.addColorStop(1,'rgba(201,160,64,0.025)');
+  ctx.fillStyle = cg;
+  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.fill();
+
+  /* card border */
+  ctx.strokeStyle = 'rgba(201,160,64,0.26)';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.stroke();
+
+  /* card inner glow top-right */
+  const cgl = ctx.createRadialGradient(W-pad-60,cY+70,0, W-pad-60,cY+70,200);
+  cgl.addColorStop(0,'rgba(201,160,64,0.1)');
+  cgl.addColorStop(1,'rgba(201,160,64,0)');
+  ctx.fillStyle = cgl;
+  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.fill();
+
+  /* "THE DEAL" */
+  ctx.letterSpacing = '7px';
+  ctx.font      = "bold 22px 'Courier New',monospace";
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#c9a040';
+  ctx.fillText('THE DEAL', pad+46, cY+52);
+
+  /* "+2G" */
+  ctx.letterSpacing = '0px';
+  ctx.font      = "175px Impact,'Arial Black',sans-serif";
+  ctx.fillStyle = '#e8c060';
+  ctx.fillText('+2G', pad+38, cY+247);
+  const p2w = ctx.measureText('+2G').width;
+
+  /* text shadow / glow behind +2G */
+  ctx.shadowColor = 'rgba(232,192,96,0.25)';
+  ctx.shadowBlur  = 40;
+  ctx.fillText('+2G', pad+38, cY+247);
+  ctx.shadowBlur  = 0;
+
+  /* "FREE" */
+  ctx.font      = "88px Impact,'Arial Black',sans-serif";
+  ctx.fillStyle = '#c9a040';
+  ctx.fillText('FREE', pad+38+p2w+18, cY+247);
+
+  /* deal body */
+  ctx.letterSpacing = '0.3px';
+  ctx.font      = "25px 'Courier New',monospace";
+  ctx.fillStyle = '#8888a8';
+  wrapText(
+    "Cop a Half Oz (14g) or more — get an extra 2g FREE. First come, first served. Next 10 orders only.",
+    pad+42, cY+282, aw-84, 40
+  );
+
+  /* ─── SLOT COUNTER ─── */
+  const slY = cY+cH+52;
+
+  ctx.letterSpacing = '3px';
+  ctx.font      = "bold 23px 'Courier New',monospace";
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#585870';
+  ctx.fillText('0 / 10 CLAIMED', pad, slY+28);
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#c05050';
+  ctx.fillText('● 10 LEFT', W-pad, slY+28);
+
+  /* progress bar bg */
+  ctx.fillStyle = 'rgba(255,255,255,0.07)';
+  ctx.beginPath(); ctx.roundRect(pad, slY+44, aw, 10, 5); ctx.fill();
+  /* 0% fill — update width=(claimed/10)*aw when slots are taken */
+
+  /* 10 slots */
+  const sgY  = slY+66;
+  const sgap = 12;
+  const sw   = (aw - sgap*9) / 10;
+
+  for(let i=0;i<10;i++){
+    const sx = pad + i*(sw+sgap);
+    ctx.fillStyle = 'rgba(201,160,64,0.06)';
+    ctx.beginPath(); ctx.roundRect(sx,sgY,sw,64,9); ctx.fill();
+    ctx.strokeStyle = 'rgba(201,160,64,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(sx,sgY,sw,64,9); ctx.stroke();
+    /* checkmark */
+    ctx.letterSpacing = '0px';
+    ctx.font = "bold 26px Arial,sans-serif";
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#c9a040';
+    ctx.fillText('✓', sx+sw/2, sgY+42);
+  }
+
+  /* ─── DIVIDER ─── */
+  const divY = sgY+64+58;
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad,divY); ctx.lineTo(W-pad,divY); ctx.stroke();
+
+  /* ─── CTA ─── */
+  ctx.letterSpacing = '6px';
+  ctx.font      = "24px 'Courier New',monospace";
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#3a3a56';
+  ctx.fillText('HOW TO CLAIM', W/2, divY+54);
+
+  ctx.letterSpacing = '3px';
+  ctx.font      = "115px Impact,'Arial Black',sans-serif";
+  ctx.fillStyle = '#e8c060';
+  /* subtle glow */
+  ctx.shadowColor = 'rgba(232,192,96,0.18)';
+  ctx.shadowBlur  = 30;
+  ctx.fillText('ORDER NOW', W/2, divY+194);
+  ctx.fillText('TO LOCK IN', W/2, divY+322);
+  ctx.shadowBlur = 0;
+
+  ctx.letterSpacing = '1px';
+  ctx.font      = "24px 'Courier New',monospace";
+  ctx.fillStyle = '#3a3a56';
+  ctx.fillText('Mention "flash" when you reach out  ·  While slots last', W/2, divY+378);
+
+  /* ─── FOOTER ─── */
+  const ftDivY = H-100;
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad,ftDivY); ctx.lineTo(W-pad,ftDivY); ctx.stroke();
+
+  ctx.letterSpacing = '2px';
+  ctx.font      = "20px 'Courier New',monospace";
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#2c2c42';
+  ctx.fillText('21+ only  ·  Local laws apply', pad, H-55);
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(201,160,64,0.28)';
+  ctx.fillText('THE LEDGER', W-pad, H-55);
+}
+
+draw();
+
+/* ── Save as PNG ── */
+function savePNG(){
+  const btn = document.getElementById('btn');
+  btn.textContent = '...';
+  btn.disabled = true;
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ledger-flash-sale.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
     btn.textContent = '✓ Saved!';
-    setTimeout(() => btn.textContent = '⬇ Save PNG', 2000);
-    const link = document.createElement('a');
-    link.download = 'ledger-flash-sale.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(() => {
-    btn.classList.remove('hidden');
-    alert('On mobile: screenshot this page instead!');
-  });
+    setTimeout(() => { btn.textContent = '⬇ Save to Gallery'; btn.disabled = false; }, 2200);
+  }, 'image/png');
 }
 </script>
-
 </body>
 </html>
