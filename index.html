@@ -926,6 +926,7 @@ Cover: best pack to push and why, personal use dollar cost, expense coverage sta
   try {
     const txt = await fetchWithRetry(prompt, body);
     body.className = "ai-body"; body.textContent = txt;
+    s.aiTips = txt; persist();
   } catch(e){
     body.className = "ai-body idle";
     body.textContent = "⚠️ " + (e.message || "Unknown error");
@@ -1068,54 +1069,69 @@ function renderLog(){
   }).join("");
 }
 
-// ── QUICK STATS + SUGGESTIONS ──
+// ── QUICK STATS + SUGGESTIONS (per product) ──
 function renderQS(){
-  const all = Object.values(D.strains);
-  const te  = all.reduce((a,s) => a+(s.earned||0), 0);
-  const tx  = all.reduce((a,s) => a+(s.expenses||0), 0);
-  const tp  = te - tx;
-  const ts  = all.reduce((a,s) => a+(s.stock||0), 0);
-  const tu  = all.reduce((a,s) => a+(s.useTotal||0), 0);
-  const tsl = all.reduce((a,s) => a+(s.logs||[]).filter(l=>l.type==="sale").length, 0);
+  const s = cur(); if(!s) return;
+  const earned = s.earned   || 0;
+  const exp    = s.expenses || 0;
+  const profit = earned - exp;
+  const stock  = s.stock    || 0;
+  const use    = s.useTotal || 0;
+  const sales  = (s.logs||[]).filter(l => l.type==="sale");
 
   document.getElementById("qsGrid").innerHTML = [
-    { l:"All Products Earned", v:"$"+te.toFixed(0),                                          c:"#4caf7a" },
-    { l:"Total Net Profit",    v:(tp>=0?"+$":"-$")+Math.abs(tp).toFixed(0),                  c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                          c:"#c9a040" },
-    { l:"Sales Logged",        v:tsl,                                                        c:"#e8e4d9" },
-    { l:"Personal Use (All)",  v:tu+"g",                                                     c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                              c:"#c9a040" },
+    { l:"Earned",       v:"$"+earned.toFixed(0),                              c:"#4caf7a" },
+    { l:"Net Profit",   v:(profit>=0?"+$":"-$")+Math.abs(profit).toFixed(0), c:profit>=0?"#4caf7a":"#c05050" },
+    { l:"Stock Left",   v:stock.toFixed(1)+"g",                               c:"#c9a040" },
+    { l:"Sales Logged", v:sales.length,                                       c:"#e8e4d9" },
+    { l:"Expenses",     v:"$"+exp.toFixed(0),                                 c:"#c05050" },
+    { l:"Personal Use", v:use.toFixed(1)+"g",                                 c:"#c05050" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
-  const tips = [], s = cur();
-  if(s){
-    if(tp < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
-    else if(tx>0 && te>=tx && tp<tx*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
-    else if(tp>=tx*0.5 && tx>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
-    else if(tx===0 && te>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
+  const tips = [];
+  if(profit < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
+  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
+  else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
+  else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
 
-    if(ts===0) tips.push("🚨 Out of stock — restock before you lose customers.");
-    else if(ts<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
+  if(stock===0) tips.push("🚨 Out of stock — restock before you lose customers.");
+  else if(stock<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
 
-    if(tu>0 && tsl>0){
-      const lostVal = Math.round((tu/3.5)*27.5);
-      if(lostVal>20) tips.push(`💨 Personal use has cost ~$${lostVal} in lost sales — worth keeping an eye on.`);
-    }
-    const salesByPack = {};
-    (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
-    const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
-    if(top) tips.push(`🔥 ${top[0]} packs are your fastest seller — always keep that size available.`);
-
-    const strainKeys = Object.keys(D.strains);
-    if(strainKeys.length > 1){
-      const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
-      tips.push(`⭐ ${best} is your top earner — prioritize keeping it stocked.`);
-    }
+  if(use>0 && sales.length>0){
+    const lostVal = Math.round((use/3.5)*27.5);
+    if(lostVal>20) tips.push(`💨 Personal use has cost ~$${lostVal} in lost sales — worth keeping an eye on.`);
   }
+
+  const salesByPack = {};
+  sales.forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
+  const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
+  if(top) tips.push(`🔥 ${top[0]} packs are your fastest seller — always keep that size available.`);
+
+  const strainKeys = Object.keys(D.strains);
+  if(strainKeys.length > 1){
+    const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
+    if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
+  }
+
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
     : '<div class="qs-tip" style="color:#555568;font-style:italic;">Log some sales to unlock smart suggestions.</div>';
+
+  // Restore stored AI tips for this product
+  const aiBody = document.getElementById("aiBody");
+  const aiBtn  = document.getElementById("aiBtn");
+  if(aiBody && !aiLoading){
+    if(s.aiTips){
+      aiBody.className = "ai-body";
+      aiBody.textContent = s.aiTips;
+    } else {
+      aiBody.className = "ai-body idle";
+      aiBody.textContent = "Tap below to get a live AI analysis of your real data...";
+    }
+    if(aiBtn) aiBtn.innerHTML = s.aiTips ? "✦ Refresh AI Advice" : "✦ Get AI Advice";
+  }
+
   renderPriceRef();
 }
 
