@@ -9,7 +9,7 @@
 
 html, body {
   width: 100%; height: 100%;
-  background: #050510;
+  background: #06040e;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,50 +17,36 @@ html, body {
   font-family: 'Courier New', Courier, monospace;
 }
 
-/* ── Story container: 9:16, fills screen ── */
+/* ── Story container: 9:16 ── */
 .story {
   position: relative;
   width:  min(100vw, calc(100vh * 9 / 16));
   height: min(100vh, calc(100vw * 16 / 9));
   container-type: size;
-  container-name: story;
   overflow: hidden;
 }
 
-/* ── Poster background ── */
+/* ── Background ── */
 .poster {
   width: 100%; height: 100%;
-  background: linear-gradient(170deg, #0f0f1e 0%, #0a0a16 55%, #070710 100%);
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(220,160,40,.16)  0%, transparent 65%),
+    radial-gradient(ellipse 70% 40% at 15% 110%,  rgba(180,100,20,.12)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 85% 105%,  rgba(80,50,160,.1)    0%, transparent 55%),
+    linear-gradient(170deg, #130f20 0%, #0d0a18 50%, #08060f 100%);
   display: flex;
   flex-direction: column;
   padding: 5cqw 6.5cqw 4.5cqw;
-  gap: 0;
 }
 
-/* top gold line */
+/* top shimmer line */
 .poster::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: .45cqw;
+  top: 0; left: 0; right: 0; height: .5cqw;
   background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(201,160,64,.7) 20%,
-    #e8c060 50%,
-    rgba(201,160,64,.7) 80%,
-    transparent 100%
-  );
-}
-
-/* top ambient glow */
-.poster::after {
-  content: '';
-  position: absolute;
-  top: -5cqw; left: 50%;
-  transform: translateX(-50%);
-  width: 90cqw; height: 60cqw;
-  background: radial-gradient(ellipse, rgba(201,160,64,.1) 0%, transparent 70%);
-  pointer-events: none;
+    transparent 0%, rgba(255,200,80,.6) 25%,
+    #ffe080 50%, rgba(255,200,80,.6) 75%, transparent 100%);
 }
 
 /* ── HEADER ── */
@@ -74,100 +60,105 @@ html, body {
   font-size: 3cqw;
   font-weight: 700;
   letter-spacing: .8cqw;
-  color: #c9a040;
+  color: #d4a840;
   text-transform: uppercase;
 }
 .badge {
   font-size: 2cqw;
-  letter-spacing: .35cqw;
-  color: #555572;
+  letter-spacing: .3cqw;
+  color: #6060a0;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 99px;
   padding: .6cqw 2.2cqw;
   text-transform: uppercase;
+  background: rgba(255,255,255,.03);
 }
 
 /* ── FLASH LABEL ── */
 .flash {
   display: inline-flex;
   align-items: center;
-  gap: 1.8cqw;
-  background: rgba(224,92,92,.09);
-  border: 1px solid rgba(224,92,92,.38);
-  border-radius: 1.5cqw;
-  padding: 1.2cqw 3cqw;
-  margin-bottom: 3.5cqw;
+  gap: 2cqw;
+  background: rgba(230,80,60,.1);
+  border: 1px solid rgba(230,80,60,.4);
+  border-radius: 2cqw;
+  padding: 1.4cqw 3.2cqw;
+  margin-bottom: 4cqw;
   align-self: flex-start;
-  animation: pulse-bdr 2s ease-in-out infinite;
+  animation: pulse-bdr 1.8s ease-in-out infinite;
 }
 @keyframes pulse-bdr {
-  0%,100% { border-color: rgba(224,92,92,.38); box-shadow: none; }
-  50%      { border-color: rgba(224,92,92,.7);  box-shadow: 0 0 2cqw rgba(224,92,92,.18); }
+  0%,100% { border-color: rgba(230,80,60,.4); box-shadow: none; }
+  50%      { border-color: rgba(230,80,60,.75); box-shadow: 0 0 3cqw rgba(230,80,60,.2); }
 }
 .flash-dot {
-  width: 1.6cqw; height: 1.6cqw;
-  background: #e05c5c;
+  width: 1.8cqw; height: 1.8cqw;
+  background: #f05040;
   border-radius: 50%;
   flex-shrink: 0;
   animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
 .flash-txt {
-  font-size: 2.4cqw;
+  font-size: 2.5cqw;
   letter-spacing: .5cqw;
-  color: #e05c5c;
+  color: #f06050;
   font-weight: 700;
   text-transform: uppercase;
 }
+.flash-emoji { font-size: 3cqw; line-height: 1; }
 
 /* ── HEADLINE ── */
-.hl {
-  line-height: .88;
-  margin-bottom: 1.5cqw;
-}
+.hl { line-height: .88; margin-bottom: 1.5cqw; }
 .hl-row1 {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 19cqw;
-  color: rgba(235,231,220,.96);
-  letter-spacing: -.3cqw;
+  color: #eee8d8;
+  letter-spacing: -.2cqw;
 }
-.hl-row1 .gold { color: #e8c060; }
+.hl-row1 .gold {
+  color: #f0c850;
+  text-shadow: 0 0 8cqw rgba(240,200,80,.45), 0 0 20cqw rgba(240,200,80,.2);
+}
 .hl-row2 {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 23.5cqw;
-  color: rgba(235,231,220,.96);
-  letter-spacing: -.3cqw;
+  color: #eee8d8;
+  letter-spacing: -.2cqw;
 }
 .hl-sub {
-  font-size: 2.4cqw;
-  letter-spacing: .55cqw;
-  color: #424260;
-  text-transform: uppercase;
-  margin-top: 1.8cqw;
-  margin-bottom: 3.5cqw;
+  font-size: 2.6cqw;
+  color: #f0c850;
+  margin-top: 2cqw;
+  margin-bottom: 4cqw;
+  letter-spacing: .2cqw;
 }
 
 /* ── OFFER CARD ── */
 .offer {
-  background: linear-gradient(135deg, rgba(201,160,64,.1), rgba(201,160,64,.025));
-  border: 1px solid rgba(201,160,64,.26);
-  border-radius: 3cqw;
-  padding: 3.5cqw 4.5cqw 3.5cqw;
+  background:
+    radial-gradient(ellipse 70% 60% at 90% 20%, rgba(240,200,80,.12) 0%, transparent 60%),
+    linear-gradient(135deg, rgba(210,155,40,.13) 0%, rgba(160,110,20,.05) 100%);
+  border: 1px solid rgba(220,170,50,.32);
+  border-radius: 3.5cqw;
+  padding: 3.5cqw 4.5cqw;
   margin-bottom: 4cqw;
   position: relative;
   overflow: hidden;
 }
+/* decorative star top-right */
 .offer::after {
-  content: '';
+  content: '✦';
   position: absolute;
-  top: -4cqw; right: -4cqw;
-  width: 22cqw; height: 22cqw;
-  background: radial-gradient(circle, rgba(201,160,64,.12) 0%, transparent 70%);
+  top: 3cqw; right: 4cqw;
+  font-size: 4cqw;
+  color: rgba(220,170,50,.25);
+  line-height: 1;
 }
 .offer-lbl {
-  font-size: 2.2cqw;
-  letter-spacing: .8cqw;
-  color: #c9a040;
+  font-size: 2.3cqw;
+  letter-spacing: .6cqw;
+  color: #d4a840;
   text-transform: uppercase;
   margin-bottom: 1.5cqw;
 }
@@ -176,26 +167,28 @@ html, body {
   align-items: baseline;
   gap: 2cqw;
   line-height: 1;
-  margin-bottom: 2cqw;
+  margin-bottom: 2.2cqw;
 }
 .offer-num {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 17cqw;
-  color: #e8c060;
-  text-shadow: 0 0 6cqw rgba(232,192,96,.3);
+  color: #f0c850;
+  text-shadow:
+    0 0 5cqw  rgba(240,200,80,.5),
+    0 0 18cqw rgba(240,200,80,.25);
 }
 .offer-free {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 8.5cqw;
-  color: #c9a040;
+  color: #d4a840;
   padding-bottom: 1cqw;
 }
 .offer-body {
-  font-size: 2.4cqw;
-  color: #7070a0;
-  line-height: 1.55;
+  font-size: 2.5cqw;
+  color: #9898c0;
+  line-height: 1.6;
 }
-.offer-body strong { color: #b0b0d0; font-weight: 700; }
+.offer-body strong { color: #c8c4e0; font-weight: 700; }
 
 /* ── COUNTER ── */
 .counter-row {
@@ -206,15 +199,15 @@ html, body {
 }
 .counter-claimed {
   font-size: 2.4cqw;
-  letter-spacing: .4cqw;
-  color: #505068;
+  letter-spacing: .3cqw;
+  color: #504868;
   text-transform: uppercase;
   font-weight: 700;
 }
 .counter-left {
   font-size: 2.4cqw;
-  letter-spacing: .4cqw;
-  color: #c05050;
+  letter-spacing: .3cqw;
+  color: #d05048;
   text-transform: uppercase;
   font-weight: 700;
 }
@@ -226,64 +219,67 @@ html, body {
 /* ── SLOTS ── */
 .slots {
   display: flex;
-  gap: 1.1cqw;
+  gap: 1.2cqw;
   margin-bottom: 4.5cqw;
 }
 .slot {
   flex: 1;
   aspect-ratio: 1 / 1.1;
-  border-radius: 1cqw;
+  border-radius: 1.2cqw;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.8cqw;
+  font-size: 2.6cqw;
   font-weight: 700;
+  font-family: Arial, sans-serif;
 }
 .slot.taken {
-  background: rgba(224,92,92,.1);
-  border: 1px solid rgba(224,92,92,.28);
-  color: #c05050;
+  background: rgba(200,70,60,.1);
+  border: 1px solid rgba(200,70,60,.25);
+  color: #b84840;
 }
 .slot.open {
-  background: rgba(201,160,64,.06);
-  border: 1px solid rgba(201,160,64,.18);
-  color: #c9a040;
+  background: rgba(220,170,50,.08);
+  border: 1px solid rgba(220,170,50,.22);
+  color: #c8a038;
+  animation: slot-pulse 3s ease-in-out infinite;
+}
+.slot.open:nth-child(even) { animation-delay: .4s; }
+.slot.open:nth-child(3n)   { animation-delay: .8s; }
+@keyframes slot-pulse {
+  0%,100% { border-color: rgba(220,170,50,.22); }
+  50%      { border-color: rgba(220,170,50,.45); }
 }
 
 /* ── DIVIDER ── */
 .divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(255,255,255,.07);
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
   margin-bottom: 3cqw;
 }
 
 /* ── CTA ── */
-.cta {
-  text-align: center;
-  margin-bottom: 3cqw;
-}
+.cta { text-align: center; margin-bottom: 3cqw; }
 .cta-lbl {
-  font-size: 2.2cqw;
-  letter-spacing: .7cqw;
-  color: #353550;
+  font-size: 2.3cqw;
+  letter-spacing: .6cqw;
+  color: #403860;
   text-transform: uppercase;
-  margin-bottom: 1.2cqw;
+  margin-bottom: 1.4cqw;
 }
 .cta-main {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 12.5cqw;
-  letter-spacing: .3cqw;
-  color: #e8c060;
+  letter-spacing: .2cqw;
+  color: #f0c850;
   line-height: .95;
-  text-shadow: 0 0 5cqw rgba(232,192,96,.18);
+  text-shadow: 0 0 6cqw rgba(240,200,80,.2);
 }
 .cta-sub {
-  font-size: 2.2cqw;
-  letter-spacing: .3cqw;
-  color: #353550;
-  text-transform: uppercase;
-  margin-top: 1.8cqw;
+  font-size: 2.4cqw;
+  color: #6058a0;
+  margin-top: 2cqw;
+  line-height: 1.6;
 }
 
 /* ── FOOTER ── */
@@ -292,49 +288,30 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 2cqw;
+  padding-top: 2.2cqw;
   border-top: 1px solid rgba(255,255,255,.05);
 }
-.footer-legal {
-  font-size: 1.9cqw;
-  color: #282840;
-  line-height: 1.5;
-}
-.footer-logo {
-  font-size: 2.2cqw;
-  letter-spacing: .5cqw;
-  color: rgba(201,160,64,.28);
-  text-transform: uppercase;
-}
+.footer-legal { font-size: 1.9cqw; color: #2e2848; line-height: 1.5; }
+.footer-logo  { font-size: 2.2cqw; letter-spacing: .5cqw; color: rgba(210,160,40,.3); text-transform: uppercase; }
 
-/* ── OVERLAY BUTTONS (pure CSS — no JavaScript needed) ── */
+/* ── HIDE BUTTON (pure CSS — no JS) ── */
 .overlay {
   position: fixed;
   bottom: max(18px, env(safe-area-inset-bottom, 18px));
   right: 18px;
   z-index: 99;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
 }
-/* hide the real checkbox but keep it tappable */
 .overlay input[type="checkbox"] {
   position: absolute;
   opacity: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  cursor: pointer;
-  z-index: 1;
+  width: 100%; height: 100%;
+  margin: 0; cursor: pointer; z-index: 1;
 }
-/* when checked, hide the label */
 #hc:checked + .hide-lbl { display: none; }
-
-.hide-lbl, .pdf-lbl {
+.hide-lbl {
   display: block;
-  background: rgba(201,160,64,.15);
-  border: 1px solid rgba(201,160,64,.3);
+  background: rgba(210,160,40,.15);
+  border: 1px solid rgba(210,160,40,.3);
   color: #c9a040;
   border-radius: 10px;
   padding: 10px 22px;
@@ -344,30 +321,20 @@ html, body {
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
-  white-space: nowrap;
-  position: relative;
 }
-.hide-lbl:active, .pdf-lbl:active { opacity: .65; }
+.hide-lbl:active { opacity: .65; }
 
-/* ── PRINT / PDF ── */
+/* ── PRINT ── */
 @page { size: portrait; margin: 0; }
 @media print {
   *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  html, body {
-    background: #050510 !important;
-    overflow: hidden;
-  }
-  .story {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: none !important;
-    max-height: none !important;
-  }
+  html, body { background: #06040e !important; overflow: hidden; }
+  .story { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; }
   .overlay { display: none !important; }
-  .flash, .flash-dot { animation: none !important; }
+  .flash, .flash-dot, .slot { animation: none !important; }
 }
 </style>
 </head>
@@ -376,46 +343,43 @@ html, body {
 <div class="story">
   <div class="poster">
 
-    <!-- HEADER -->
     <div class="hdr">
       <div class="brand">The Ledger</div>
       <div class="badge">Limited Time</div>
     </div>
 
-    <!-- FLASH LABEL -->
     <div class="flash">
       <div class="flash-dot"></div>
       <span class="flash-txt">Flash Sale — Live Now</span>
+      <span class="flash-emoji">🔥</span>
     </div>
 
-    <!-- HEADLINE -->
     <div class="hl">
       <div class="hl-row1">NEXT <span class="gold">10</span></div>
       <div class="hl-row2">BUYERS</div>
     </div>
-    <div class="hl-sub">Get hooked up on every order</div>
+    <div class="hl-sub">We got a deal for you 🤝</div>
 
-    <!-- OFFER CARD -->
     <div class="offer">
-      <div class="offer-lbl">The Deal</div>
+      <div class="offer-lbl">✦ The Deal</div>
       <div class="offer-big">
         <div class="offer-num">+2G</div>
         <div class="offer-free">FREE</div>
       </div>
       <div class="offer-body">
-        Cop a <strong>Half Oz (14g) or more</strong> and we throw in
-        an <strong>extra 2g free</strong>. First come, first served —
-        <strong>12 orders only.</strong>
+        Grab a <strong>Half Oz (14g) or more</strong> and we throw
+        in <strong>2 extra grams on the house</strong> — no catch.
+        First come, first served. <strong>12 orders only.</strong>
       </div>
     </div>
 
-    <!-- COUNTER — update CLAIMED / LEFT here each sale -->
+    <!-- COUNTER — update these two numbers each sale -->
     <div class="counter-row">
-      <div class="counter-claimed">2 / 12 Claimed</div>
+      <div class="counter-claimed">2 / 12 Grabbed</div>
       <div class="counter-left">10 Spots Left</div>
     </div>
 
-    <!-- SLOTS — change class from "open" → "taken" per sale -->
+    <!-- SLOTS — flip "open" → "taken" per sale -->
     <div class="slots">
       <div class="slot taken">✕</div>
       <div class="slot taken">✕</div>
@@ -433,14 +397,12 @@ html, body {
 
     <div class="divider"></div>
 
-    <!-- CTA -->
     <div class="cta">
-      <div class="cta-lbl">How to claim</div>
-      <div class="cta-main">ORDER NOW<br>TO LOCK IN</div>
-      <div class="cta-sub">Mention "flash" when you reach out · While slots last</div>
+      <div class="cta-lbl">How to lock it in</div>
+      <div class="cta-main">HIT US UP<br>RIGHT NOW</div>
+      <div class="cta-sub">Just say "flash" when you reach out<br>Don't sleep on it 🔒</div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
       <div class="footer-legal">19+ only · Ontario laws apply<br>While 12-buyer limit lasts.</div>
       <div class="footer-logo">The Ledger</div>
@@ -449,15 +411,11 @@ html, body {
   </div>
 </div>
 
-<!-- Pure CSS overlay — no JavaScript required -->
 <div class="overlay">
-
-  <!-- Hide button: tap once → disappears, no JS needed -->
   <div style="position:relative;display:inline-block;">
     <input type="checkbox" id="hc">
     <label for="hc" class="hide-lbl">Hide for Screenshot</label>
   </div>
-
 </div>
 
 </body>
