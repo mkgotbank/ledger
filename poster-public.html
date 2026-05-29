@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>Flash — The Ledger</title>
+<title>Flash Sale — The Ledger</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,14 +30,13 @@ html, body {
 .poster {
   width: 100%; height: 100%;
   background:
-    radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(220,160,40,.18)  0%, transparent 62%),
+    radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(220,160,40,.16)  0%, transparent 65%),
     radial-gradient(ellipse 70% 40% at 15% 110%,  rgba(180,100,20,.12)  0%, transparent 55%),
     radial-gradient(ellipse 60% 40% at 85% 105%,  rgba(80,50,160,.1)    0%, transparent 55%),
     linear-gradient(170deg, #130f20 0%, #0d0a18 50%, #08060f 100%);
   display: flex;
   flex-direction: column;
   padding: 4cqw 6.5cqw 3.5cqw;
-  position: relative;
 }
 
 /* top shimmer line */
@@ -49,8 +48,7 @@ html, body {
     transparent 0%, rgba(255,200,80,.6) 25%,
     #ffe080 50%, rgba(255,200,80,.6) 75%, transparent 100%);
 }
-
-/* heavenly glow from above */
+/* heavenly light — soft glow from above */
 .poster::after {
   content: '';
   position: absolute;
@@ -60,8 +58,8 @@ html, body {
   height: 80cqh;
   background:
     radial-gradient(ellipse 52% 48% at 50% 0%,
-      rgba(255,235,130,.18) 0%,
-      rgba(245,210,90,.07)  25%,
+      rgba(255,235,130,.16) 0%,
+      rgba(245,210,90,.06)  25%,
       rgba(230,185,60,.015) 50%,
       transparent           68%
     ),
@@ -79,8 +77,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5cqw;
-  position: relative; z-index: 1;
+  margin-bottom: 4cqw;
 }
 .brand {
   font-size: 3cqw;
@@ -109,9 +106,8 @@ html, body {
   border: 1px solid rgba(230,80,60,.4);
   border-radius: 2cqw;
   padding: 1.4cqw 3.2cqw;
-  margin-bottom: 5cqw;
+  margin-bottom: 3cqw;
   align-self: flex-start;
-  position: relative; z-index: 1;
   animation: pulse-bdr 1.8s ease-in-out infinite;
 }
 @keyframes pulse-bdr {
@@ -133,52 +129,87 @@ html, body {
   font-weight: 700;
   text-transform: uppercase;
 }
+.flash-emoji { font-size: 3cqw; line-height: 1; }
 
-/* ── MYSTERY HEADLINE ── */
-.hl-block {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative; z-index: 1;
-}
-.hl-eyebrow {
-  font-size: 3cqw;
-  letter-spacing: .8cqw;
-  color: #6060a0;
-  text-transform: uppercase;
-  margin-bottom: 2cqw;
-}
-.hl-main {
+/* ── HEADLINE ── */
+.hl { line-height: .88; margin-bottom: 1.5cqw; }
+.hl-row1 {
   font-family: Impact, 'Arial Black', sans-serif;
-  font-size: 22cqw;
-  line-height: .88;
-  letter-spacing: -.3cqw;
+  font-size: 17cqw;
   color: #eee8d8;
-  margin-bottom: 3cqw;
+  letter-spacing: -.2cqw;
 }
-.hl-main .gold {
+.hl-row1 .gold {
   color: #f0c850;
-  text-shadow: 0 0 8cqw rgba(240,200,80,.45), 0 0 22cqw rgba(240,200,80,.2);
+  text-shadow: 0 0 8cqw rgba(240,200,80,.45), 0 0 20cqw rgba(240,200,80,.2);
 }
-.hl-tagline {
-  font-size: 3.2cqw;
-  letter-spacing: .15cqw;
-  color: #9090b8;
-  line-height: 1.5;
+.hl-row2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 21cqw;
+  color: #eee8d8;
+  letter-spacing: -.2cqw;
 }
-.hl-tagline strong { color: #d0ccdc; }
+.hl-sub {
+  font-size: 2.6cqw;
+  color: #f0c850;
+  margin-top: 1.5cqw;
+  margin-bottom: 2.5cqw;
+  letter-spacing: .2cqw;
+}
 
-/* ── SCARCITY BLOCK ── */
-.scarcity {
-  position: relative; z-index: 1;
-  margin-bottom: 4cqw;
+/* ── OFFER CARD ── */
+.offer {
+  background:
+    radial-gradient(ellipse 70% 60% at 90% 20%, rgba(240,200,80,.12) 0%, transparent 60%),
+    linear-gradient(135deg, rgba(210,155,40,.13) 0%, rgba(160,110,20,.05) 100%);
+  border: 1px solid rgba(220,170,50,.32);
+  border-radius: 3.5cqw;
+  padding: 3.5cqw 4.5cqw;
+  margin-bottom: 3cqw;
+  position: relative;
+  overflow: hidden;
 }
+.offer-lbl {
+  font-size: 2.3cqw;
+  letter-spacing: .6cqw;
+  color: #d4a840;
+  text-transform: uppercase;
+  margin-bottom: 1.5cqw;
+}
+.offer-big {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  line-height: 1;
+  margin-bottom: 2.2cqw;
+}
+.offer-num {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 15cqw;
+  color: #f0c850;
+  text-shadow:
+    0 0 5cqw  rgba(240,200,80,.5),
+    0 0 18cqw rgba(240,200,80,.25);
+}
+.offer-free {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 8.5cqw;
+  color: #d4a840;
+  padding-bottom: 1cqw;
+}
+.offer-body {
+  font-size: 2.5cqw;
+  color: #8e8aac;
+  line-height: 1.6;
+}
+.offer-body strong { color: #ccc8e4; font-weight: 700; }
+
+/* ── COUNTER ── */
 .counter-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.8cqw;
+  margin-bottom: 1.5cqw;
 }
 .counter-claimed {
   font-size: 2.4cqw;
@@ -198,6 +229,9 @@ html, body {
   content: '● ';
   animation: blink 1.4s step-end infinite;
 }
+
+/* ── SLOTS ── */
+.slots-wrap { margin-bottom: 3cqw; }
 .slots-labels {
   display: flex;
   justify-content: space-between;
@@ -253,43 +287,31 @@ html, body {
 .divider {
   width: 100%; height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
-  margin-bottom: 3.5cqw;
-  position: relative; z-index: 1;
+  margin-bottom: 3cqw;
 }
 
 /* ── CTA ── */
-.cta {
-  text-align: center;
-  position: relative; z-index: 1;
-  margin-bottom: 2cqw;
-}
+.cta { text-align: center; margin-bottom: 2cqw; }
 .cta-lbl {
   font-size: 2.3cqw;
   letter-spacing: .6cqw;
   color: #524c7c;
   text-transform: uppercase;
-  margin-bottom: 1.6cqw;
+  margin-bottom: 1.4cqw;
 }
 .cta-main {
   font-family: Impact, 'Arial Black', sans-serif;
-  font-size: 13.5cqw;
-  letter-spacing: .1cqw;
+  font-size: 12.5cqw;
+  letter-spacing: .2cqw;
   color: #f0c850;
-  line-height: .92;
-  text-shadow: 0 0 6cqw rgba(240,200,80,.22);
+  line-height: .95;
+  text-shadow: 0 0 6cqw rgba(240,200,80,.2);
 }
-.cta-keyword {
-  display: inline-block;
-  margin-top: 2.5cqw;
-  background: rgba(240,192,80,.1);
-  border: 1px solid rgba(240,192,80,.35);
-  border-radius: 1.5cqw;
-  padding: 1.4cqw 4cqw;
-  font-size: 3.5cqw;
-  letter-spacing: .6cqw;
-  color: #f0c850;
-  font-weight: 700;
-  text-transform: uppercase;
+.cta-sub {
+  font-size: 2.4cqw;
+  color: #6058a0;
+  margin-top: 2cqw;
+  line-height: 1.6;
 }
 
 /* ── FOOTER ── */
@@ -300,12 +322,11 @@ html, body {
   align-items: center;
   padding-top: 2.2cqw;
   border-top: 1px solid rgba(255,255,255,.05);
-  position: relative; z-index: 1;
 }
 .footer-legal { font-size: 1.9cqw; color: #44406a; line-height: 1.5; }
 .footer-logo  { font-size: 2.2cqw; letter-spacing: .5cqw; color: rgba(210,160,40,.3); text-transform: uppercase; }
 
-/* ── HIDE BUTTON (pure CSS) ── */
+/* ── HIDE BUTTON (pure CSS — no JS) ── */
 .overlay {
   position: fixed;
   bottom: max(18px, env(safe-area-inset-bottom, 18px));
@@ -343,7 +364,7 @@ html, body {
     print-color-adjust: exact !important;
   }
   html, body { background: #06040e !important; overflow: hidden; }
-  .story { width: 100vw !important; height: 100vh !important; }
+  .story { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; }
   .overlay { display: none !important; }
   .flash, .flash-dot, .slot { animation: none !important; }
 }
@@ -362,24 +383,37 @@ html, body {
     <div class="flash">
       <div class="flash-dot"></div>
       <span class="flash-txt">Flash Sale — Live Now</span>
+      <span class="flash-emoji">🔥</span>
     </div>
 
-    <div class="hl-block">
-      <div class="hl-eyebrow">We're running something</div>
-      <div class="hl-main">SOMETHING<br><span class="gold">GOOD</span></div>
-      <div class="hl-tagline">
-        A deal for the next few orders.<br>
-        <strong>DM us to find out what it is.</strong>
+    <div class="hl">
+      <div class="hl-row1">NEXT <span class="gold">10</span></div>
+      <div class="hl-row2">BUYERS</div>
+    </div>
+    <div class="hl-sub">We got a deal for you 🤝</div>
+
+    <div class="offer">
+      <div class="offer-lbl">The Deal</div>
+      <div class="offer-big">
+        <div class="offer-num">+2G</div>
+        <div class="offer-free">FREE</div>
+      </div>
+      <div class="offer-body">
+        Spend <strong>$100+</strong> or grab a
+        <strong>Half Oz (14g) or more</strong> and get
+        <strong>2 extra grams FREE</strong>. No catch,
+        no code — first come, first served.
       </div>
     </div>
 
     <!-- COUNTER — update these two numbers each sale (keep in sync with poster-story.html) -->
-    <div class="scarcity">
-      <div class="counter-row">
-        <div class="counter-claimed">2 / 12 Grabbed</div>
-        <div class="counter-left">10 Spots Left</div>
-      </div>
-      <!-- SLOTS — flip "open" → "taken" per sale (12 total) -->
+    <div class="counter-row">
+      <div class="counter-claimed">2 / 12 Grabbed</div>
+      <div class="counter-left">10 Spots Left</div>
+    </div>
+
+    <!-- SLOTS — flip "open" → "taken" per sale (12 total) -->
+    <div class="slots-wrap">
       <div class="slots-labels">
         <span class="lbl-taken">● Claimed</span>
         <span class="lbl-open">Available ●</span>
@@ -403,9 +437,9 @@ html, body {
     <div class="divider"></div>
 
     <div class="cta">
-      <div class="cta-lbl">How to get in</div>
-      <div class="cta-main">DM US<br>RIGHT NOW</div>
-      <div class="cta-keyword">Say "flash" 👀</div>
+      <div class="cta-lbl">How to lock it in</div>
+      <div class="cta-main">HIT US UP<br>RIGHT NOW</div>
+      <div class="cta-sub">Just say "flash" when you reach out<br>Don't sleep on it 🔒</div>
     </div>
 
     <div class="footer">
