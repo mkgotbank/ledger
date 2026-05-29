@@ -1,0 +1,10 @@
+{
+  "name": "The Ledger",
+  "short_name": "Ledger",
+  "description": "Cannabis inventory & business manager",
+  "start_url": "/ledger/",
+  "display": "standalone",
+  "background_color": "#111120",
+  "theme_color": "#111120",
+  "orientation": "portrait"
+}

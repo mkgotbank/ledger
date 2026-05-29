@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#111120"/>
+<link rel="manifest" href="manifest.json"/>
 <title>The Ledger</title>
 <style>
 :root{
@@ -1210,6 +1211,28 @@ if(isReady()){
 } else {
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/ledger/sw.js').then(reg => {
+      // When a new SW is found and installed, reload so user gets fresh version
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      });
+    });
+    // Reload when a new SW takes control (covers skipWaiting case)
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!reloading) { reloading = true; window.location.reload(); }
+    });
+  });
 }
 </script>
 </body>
