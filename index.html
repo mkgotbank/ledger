@@ -937,22 +937,67 @@ async function getAI(){
   btn.innerHTML = '✦ Analyzing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
   body.className = "ai-body loading"; body.textContent = "Reading your inventory data...";
 
-  const strainData = Object.entries(D.strains).map(([n,s]) => {
-    const salesByPack = {};
-    (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
-    return { name:n, stock:s.stock, expenses:s.expenses||0, earned:s.earned||0, profit:(s.earned||0)-(s.expenses||0), personalUse:s.useTotal||0, totalSales:(s.logs||[]).filter(l=>l.type==="sale").length, salesByPack };
+  // Build rich per-product data objects
+  const products = Object.entries(D.strains).map(([n, st]) => {
+    const logs      = st.logs || [];
+    const saleLogs  = logs.filter(l => l.type === "sale");
+    const earned    = st.earned    || 0;
+    const exp       = st.expenses  || 0;
+    const profit    = earned - exp;
+    const use       = st.useTotal  || 0;
+    const useLost   = Math.round(use / 3.5 * 27.5);
+    const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
+    const expCovPct = exp   > 0 ? Math.min(100, Math.round((earned / exp) * 100)) : (earned > 0 ? 100 : 0);
+    const avgSale   = saleLogs.length ? Math.round(saleLogs.reduce((a,l) => a+l.total, 0) / saleLogs.length) : 0;
+    const byPack    = {};
+    saleLogs.forEach(l => {
+      if(!byPack[l.pack]) byPack[l.pack] = { qty:0, rev:0 };
+      byPack[l.pack].qty += l.qty; byPack[l.pack].rev += l.total;
+    });
+    const topPack     = Object.entries(byPack).sort((a,b) => b[1].rev - a[1].rev)[0];
+    const recentSales = saleLogs.slice(0,5).map(l => `${l.qty}×${l.pack} $${l.total}${l.note?" ("+l.note+")":""}`).join(", ") || "none";
+    return { name:n, isCurrent:n===D.cur, stock:st.stock||0, earned, exp, profit, marginPct, expCovPct, salesCount:saleLogs.length, byPack, topPack, avgSale, use, useLost, recentSales };
   });
-  const totalEarned = strainData.reduce((a,s) => a+s.earned, 0);
-  const totalExp    = strainData.reduce((a,s) => a+s.expenses, 0);
+
+  const focus       = products.find(p => p.isCurrent);
+  const others      = products.filter(p => !p.isCurrent);
+  const totalEarned = products.reduce((a,p) => a+p.earned, 0);
+  const totalExp    = products.reduce((a,p) => a+p.exp,    0);
   const totalProfit = totalEarned - totalExp;
-  const as = strainData.find(s => s.name === D.cur);
 
-  const prompt = `You are a cannabis business advisor. Give 5 actionable tips. Start each with an emoji. 2-3 sentences each. Blank line between tips. Plain text only — no bold, no headers.
+  const packLines = Object.entries(focus.byPack)
+    .sort((a,b) => b[1].rev - a[1].rev)
+    .map(([p,v]) => `    ${p}: ${v.qty} sold — $${v.rev} revenue`)
+    .join("\n") || "    no sales yet";
 
-PRODUCT: ${D.cur} | Stock: ${as.stock}g | Earned: $${as.earned} | Expenses: $${as.expenses} | Profit: ${as.profit>=0?'+':''}$${as.profit} | Personal use: ${as.personalUse}g | Sales: ${as.totalSales} | By pack: ${JSON.stringify(as.salesByPack)}
-ALL PRODUCTS: Earned $${totalEarned.toFixed(0)} / Expenses $${totalExp.toFixed(0)} / Net ${totalProfit>=0?'+':''}$${totalProfit.toFixed(0)}
+  const otherLines = others.length
+    ? others.map(p => `  ${p.name}: $${p.earned.toFixed(0)} earned / ${p.profit>=0?"+":""}$${p.profit.toFixed(0)} profit / ${p.stock.toFixed(1)}g left`).join("\n")
+    : "  none";
 
-Cover: best pack to push and why, personal use dollar cost, expense coverage status, one specific move to make right now, honest overall outlook.`;
+  const prompt =
+`You are a sharp, number-driven cannabis business advisor. Analyze the real data below and give exactly 5 specific, actionable tips. Each tip must start with an emoji and be 2-3 sentences. Reference the actual numbers — no generic advice. Blank line between tips. Plain text only, no bold, no headers.
+
+FOCUS PRODUCT: ${focus.name}
+  Stock remaining : ${focus.stock.toFixed(1)}g
+  Total earned    : $${focus.earned.toFixed(0)}
+  Total expenses  : $${focus.exp.toFixed(0)}
+  Net profit      : ${focus.profit>=0?"+":""}$${focus.profit.toFixed(0)}  (${focus.marginPct}% margin)
+  Expenses covered: ${focus.expCovPct}%
+  Transactions    : ${focus.salesCount} sales  |  avg sale $${focus.avgSale}
+  Best pack       : ${focus.topPack ? focus.topPack[0]+" ("+focus.topPack[1].qty+" sold, $"+focus.topPack[1].rev+" rev)" : "none yet"}
+  Revenue by pack :
+${packLines}
+  Personal use    : ${focus.use.toFixed(1)}g  (~$${focus.useLost} in lost revenue)
+  Recent sales    : ${focus.recentSales}
+
+${others.length ? "OTHER PRODUCTS:\n"+otherLines+"\n\n" : ""}PORTFOLIO TOTAL: $${totalEarned.toFixed(0)} earned  /  $${totalExp.toFixed(0)} expenses  /  ${totalProfit>=0?"+":""}$${totalProfit.toFixed(0)} net
+
+Address exactly these 5 areas using the numbers above:
+1. Which pack size is the real money-maker and what to do with the slower sizes
+2. Whether personal use is meaningfully hurting margins (give the dollar impact)
+3. Expense coverage status and what the margin % means for the next restock decision
+4. One specific pricing or promo move to execute this week to increase revenue
+5. Honest product outlook — is this worth scaling, maintaining, or cutting relative to the portfolio`;
 
   try {
     const txt = await fetchWithRetry(prompt, body);
@@ -1001,51 +1046,68 @@ async function sendChatMsg(){
   if(chatLoading) return;
   const s = cur(); if(!s || !s.aiTips) return;
 
-  const input  = document.getElementById("chatInput");
+  const input   = document.getElementById("chatInput");
   const sendBtn = document.getElementById("chatSend");
   const question = input.value.trim();
   if(!question) return;
 
-  // Optimistically add user message + loading placeholder
   if(!s.aiChat) s.aiChat = [];
   s.aiChat.push({ role:"user",      content: question });
-  s.aiChat.push({ role:"assistant", content: null }); // null = typing indicator
+  s.aiChat.push({ role:"assistant", content: null });
   input.value = "";
-  chatLoading = true;
+  chatLoading  = true;
   sendBtn.disabled = true;
   input.disabled   = true;
   renderChat();
 
-  // Build conversation context — cap at last 8 messages (4 exchanges)
-  // to keep prompt lean and response fast
-  const history  = s.aiChat.slice(0, -2); // exclude current Q + placeholder
-  const trimmed  = history.slice(-8);
+  // ── Rich context for this product ──
+  const earned   = s.earned    || 0;
+  const exp      = s.expenses  || 0;
+  const profit   = earned - exp;
+  const use      = s.useTotal  || 0;
+  const useLost  = Math.round(use / 3.5 * 27.5);
+  const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
+  const saleLogs  = (s.logs||[]).filter(l => l.type === "sale");
 
-  const earned  = s.earned||0, exp = s.expenses||0;
-  const profit  = earned - exp;
-  const sales   = (s.logs||[]).filter(l => l.type==="sale").length;
+  const byPack = {};
+  saleLogs.forEach(l => {
+    if(!byPack[l.pack]) byPack[l.pack] = { qty:0, rev:0 };
+    byPack[l.pack].qty += l.qty; byPack[l.pack].rev += l.total;
+  });
+  const packSummary = Object.entries(byPack)
+    .sort((a,b) => b[1].rev - a[1].rev)
+    .map(([p,v]) => `${p}: ${v.qty} sold / $${v.rev} rev`)
+    .join(", ") || "no sales yet";
 
-  // Build prior conversation string
-  let convoStr = "";
-  for(let i = 0; i < trimmed.length - 1; i += 2){
-    const u = trimmed[i], a = trimmed[i+1];
-    if(u && a && u.role==="user" && a.role==="assistant"){
-      convoStr += `\nUser: ${u.content}\nAdvisor: ${a.content}`;
-    }
-  }
+  // ── All-products snapshot so AI can compare ──
+  const allProducts = Object.entries(D.strains)
+    .map(([n, st]) => {
+      const e = st.earned||0, x = st.expenses||0, p = e-x;
+      return `  ${n}${n===D.cur?" (active)":""}: $${e.toFixed(0)} earned / ${p>=0?"+":""}$${p.toFixed(0)} profit / ${(st.stock||0).toFixed(1)}g left`;
+    }).join("\n");
+
+  // ── Conversation history — last 6 messages, simple linear format ──
+  const history = s.aiChat.slice(0, -2).slice(-6);
+  const convoStr = history.length
+    ? "\nCHAT HISTORY:\n" + history.map(m => `${m.role==="user"?"User":"Advisor"}: ${m.content}`).join("\n")
+    : "";
 
   const prompt =
-`You are a cannabis business advisor. Answer the user's follow-up question about advice you gave. Be concise (2-3 sentences), specific, and practical. Plain text only — no bold, no headers.
+`You are a knowledgeable cannabis business advisor with full access to this seller's data. Answer the question directly, using the specific numbers. Be concise (2-4 sentences). Plain text only, no markdown.
 
-PRODUCT: ${D.cur} | Stock: ${(s.stock||0).toFixed(1)}g | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?'+':''}$${Math.abs(profit).toFixed(0)} | Sales: ${sales}
+ACTIVE PRODUCT: ${D.cur}
+  Stock: ${(s.stock||0).toFixed(1)}g | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
+  Sales by pack: ${packSummary}
+  Personal use: ${use.toFixed(1)}g (~$${useLost} lost revenue)
 
-YOUR PREVIOUS ADVICE:
+ALL PRODUCTS:
+${allProducts}
+
+ORIGINAL ADVICE:
 ${s.aiTips}
-${convoStr ? "\nCONVERSATION SO FAR:" + convoStr : ""}
+${convoStr}
 
-USER QUESTION: ${question}
-
-Answer directly and helpfully.`;
+USER QUESTION: ${question}`;
 
   let response = null;
   for(let i = 0; i < AI_MODELS.length; i++){
@@ -1067,7 +1129,6 @@ Answer directly and helpfully.`;
     }
   }
 
-  // Replace placeholder with actual response (or error)
   s.aiChat[s.aiChat.length - 1] = {
     role: "assistant",
     content: response || "⚠️ Couldn't reach the AI — please try again."
