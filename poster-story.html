@@ -5,360 +5,410 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Flash Sale — The Ledger</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{
-  width:100%;height:100%;
-  background:#050510;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  overflow:hidden;
-  font-family:'Courier New',monospace;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #050510;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
 }
-canvas{display:block;}
-.bar{
-  width:100%;display:flex;justify-content:center;align-items:center;
-  height:52px;flex-shrink:0;
-  background:rgba(5,5,16,0.96);
-  border-top:1px solid rgba(201,160,64,0.12);
+
+/* ── Story container: 9:16, fills screen ── */
+.story {
+  position: relative;
+  width:  min(100vw, calc(100vh * 9 / 16));
+  height: min(100vh, calc(100vw * 16 / 9));
+  container-type: size;
+  container-name: story;
+  overflow: hidden;
 }
-.save-btn{
-  background:rgba(201,160,64,0.13);
-  border:1px solid rgba(201,160,64,0.32);
-  color:#c9a040;border-radius:10px;
-  padding:9px 28px;
-  font:700 11px/1 'Courier New',monospace;
-  letter-spacing:3px;text-transform:uppercase;
-  cursor:pointer;transition:opacity .15s;
-  -webkit-appearance:none;
+
+/* ── Poster background ── */
+.poster {
+  width: 100%; height: 100%;
+  background: linear-gradient(170deg, #0f0f1e 0%, #0a0a16 55%, #070710 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 5cqw 6.5cqw 4.5cqw;
+  gap: 0;
 }
-.save-btn:active{opacity:.6;}
+
+/* top gold line */
+.poster::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: .45cqw;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(201,160,64,.7) 20%,
+    #e8c060 50%,
+    rgba(201,160,64,.7) 80%,
+    transparent 100%
+  );
+}
+
+/* top ambient glow */
+.poster::after {
+  content: '';
+  position: absolute;
+  top: -5cqw; left: 50%;
+  transform: translateX(-50%);
+  width: 90cqw; height: 60cqw;
+  background: radial-gradient(ellipse, rgba(201,160,64,.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── HEADER ── */
+.hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4cqw;
+}
+.brand {
+  font-size: 3cqw;
+  font-weight: 700;
+  letter-spacing: .8cqw;
+  color: #c9a040;
+  text-transform: uppercase;
+}
+.badge {
+  font-size: 2cqw;
+  letter-spacing: .35cqw;
+  color: #555572;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 99px;
+  padding: .6cqw 2.2cqw;
+  text-transform: uppercase;
+}
+
+/* ── FLASH LABEL ── */
+.flash {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.8cqw;
+  background: rgba(224,92,92,.09);
+  border: 1px solid rgba(224,92,92,.38);
+  border-radius: 1.5cqw;
+  padding: 1.2cqw 3cqw;
+  margin-bottom: 3.5cqw;
+  align-self: flex-start;
+  animation: pulse-bdr 2s ease-in-out infinite;
+}
+@keyframes pulse-bdr {
+  0%,100% { border-color: rgba(224,92,92,.38); box-shadow: none; }
+  50%      { border-color: rgba(224,92,92,.7);  box-shadow: 0 0 2cqw rgba(224,92,92,.18); }
+}
+.flash-dot {
+  width: 1.6cqw; height: 1.6cqw;
+  background: #e05c5c;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.flash-txt {
+  font-size: 2.4cqw;
+  letter-spacing: .5cqw;
+  color: #e05c5c;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ── HEADLINE ── */
+.hl {
+  line-height: .88;
+  margin-bottom: 1.5cqw;
+}
+.hl-row1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 19cqw;
+  color: rgba(235,231,220,.96);
+  letter-spacing: -.3cqw;
+}
+.hl-row1 .gold { color: #e8c060; }
+.hl-row2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 23.5cqw;
+  color: rgba(235,231,220,.96);
+  letter-spacing: -.3cqw;
+}
+.hl-sub {
+  font-size: 2.4cqw;
+  letter-spacing: .55cqw;
+  color: #424260;
+  text-transform: uppercase;
+  margin-top: 1.8cqw;
+  margin-bottom: 3.5cqw;
+}
+
+/* ── OFFER CARD ── */
+.offer {
+  background: linear-gradient(135deg, rgba(201,160,64,.1), rgba(201,160,64,.025));
+  border: 1px solid rgba(201,160,64,.26);
+  border-radius: 3cqw;
+  padding: 3.5cqw 4.5cqw 3.5cqw;
+  margin-bottom: 4cqw;
+  position: relative;
+  overflow: hidden;
+}
+.offer::after {
+  content: '';
+  position: absolute;
+  top: -4cqw; right: -4cqw;
+  width: 22cqw; height: 22cqw;
+  background: radial-gradient(circle, rgba(201,160,64,.12) 0%, transparent 70%);
+}
+.offer-lbl {
+  font-size: 2.2cqw;
+  letter-spacing: .8cqw;
+  color: #c9a040;
+  text-transform: uppercase;
+  margin-bottom: 1.5cqw;
+}
+.offer-big {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  line-height: 1;
+  margin-bottom: 2cqw;
+}
+.offer-num {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 19.5cqw;
+  color: #e8c060;
+  text-shadow: 0 0 6cqw rgba(232,192,96,.3);
+}
+.offer-free {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 10cqw;
+  color: #c9a040;
+  padding-bottom: 1cqw;
+}
+.offer-body {
+  font-size: 2.7cqw;
+  color: #7070a0;
+  line-height: 1.65;
+}
+.offer-body strong { color: #b0b0d0; font-weight: 700; }
+
+/* ── COUNTER ── */
+.counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5cqw;
+}
+.counter-claimed {
+  font-size: 2.4cqw;
+  letter-spacing: .4cqw;
+  color: #505068;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.counter-left {
+  font-size: 2.4cqw;
+  letter-spacing: .4cqw;
+  color: #c05050;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.counter-left::before {
+  content: '● ';
+  animation: blink 1.4s step-end infinite;
+}
+
+/* ── SLOTS ── */
+.slots {
+  display: flex;
+  gap: 1.1cqw;
+  margin-bottom: 4.5cqw;
+}
+.slot {
+  flex: 1;
+  aspect-ratio: 1 / 1.1;
+  border-radius: 1cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8cqw;
+  font-weight: 700;
+}
+.slot.taken {
+  background: rgba(224,92,92,.1);
+  border: 1px solid rgba(224,92,92,.28);
+  color: #c05050;
+}
+.slot.open {
+  background: rgba(201,160,64,.06);
+  border: 1px solid rgba(201,160,64,.18);
+  color: #c9a040;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,.07);
+  margin-bottom: 3cqw;
+}
+
+/* ── CTA ── */
+.cta {
+  text-align: center;
+  margin-bottom: 3cqw;
+}
+.cta-lbl {
+  font-size: 2.2cqw;
+  letter-spacing: .7cqw;
+  color: #353550;
+  text-transform: uppercase;
+  margin-bottom: 1.2cqw;
+}
+.cta-main {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 12.5cqw;
+  letter-spacing: .3cqw;
+  color: #e8c060;
+  line-height: .95;
+  text-shadow: 0 0 5cqw rgba(232,192,96,.18);
+}
+.cta-sub {
+  font-size: 2.2cqw;
+  letter-spacing: .3cqw;
+  color: #353550;
+  text-transform: uppercase;
+  margin-top: 1.8cqw;
+}
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2cqw;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.footer-legal {
+  font-size: 1.9cqw;
+  color: #282840;
+  line-height: 1.5;
+}
+.footer-logo {
+  font-size: 2.2cqw;
+  letter-spacing: .5cqw;
+  color: rgba(201,160,64,.28);
+  text-transform: uppercase;
+}
+
+/* ── HIDE BUTTON (tap to clean up before screenshot) ── */
+.hide-btn {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  background: rgba(201,160,64,.15);
+  border: 1px solid rgba(201,160,64,.3);
+  color: #c9a040;
+  border-radius: 10px;
+  padding: 9px 22px;
+  font: 700 10px/1 'Courier New', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-appearance: none;
+  z-index: 99;
+}
+.hide-btn.gone { display: none; }
 </style>
 </head>
 <body>
 
-<canvas id="c"></canvas>
-<div class="bar">
-  <button class="save-btn" id="btn" onclick="savePNG()">⬇ Save to Gallery</button>
+<div class="story">
+  <div class="poster">
+
+    <!-- HEADER -->
+    <div class="hdr">
+      <div class="brand">The Ledger</div>
+      <div class="badge">Limited Time</div>
+    </div>
+
+    <!-- FLASH LABEL -->
+    <div class="flash">
+      <div class="flash-dot"></div>
+      <span class="flash-txt">Flash Sale — Live Now</span>
+    </div>
+
+    <!-- HEADLINE -->
+    <div class="hl">
+      <div class="hl-row1">NEXT <span class="gold">10</span></div>
+      <div class="hl-row2">BUYERS</div>
+    </div>
+    <div class="hl-sub">Get hooked up on every order</div>
+
+    <!-- OFFER CARD -->
+    <div class="offer">
+      <div class="offer-lbl">The Deal</div>
+      <div class="offer-big">
+        <div class="offer-num">+2G</div>
+        <div class="offer-free">FREE</div>
+      </div>
+      <div class="offer-body">
+        Cop a <strong>Half Oz (14g) or more</strong> — get an
+        extra <strong>2 grams free</strong> on the house.
+        First come, first served. <strong>12 orders only.</strong>
+      </div>
+    </div>
+
+    <!-- COUNTER — update CLAIMED / LEFT here each sale -->
+    <div class="counter-row">
+      <div class="counter-claimed">2 / 12 Claimed</div>
+      <div class="counter-left">10 Spots Left</div>
+    </div>
+
+    <!-- SLOTS — change class from "open" → "taken" per sale -->
+    <div class="slots">
+      <div class="slot taken">✕</div>
+      <div class="slot taken">✕</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+      <div class="slot open">✓</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <div class="cta-lbl">How to claim</div>
+      <div class="cta-main">ORDER NOW<br>TO LOCK IN</div>
+      <div class="cta-sub">Mention "flash" when you reach out · While slots last</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="footer-legal">21+ only · Local laws apply<br>While 12-buyer limit lasts</div>
+      <div class="footer-logo">The Ledger</div>
+    </div>
+
+  </div>
 </div>
 
-<script>
-/* ── canvas setup ── */
-const canvas = document.getElementById('c');
-const ctx    = canvas.getContext('2d');
-const CW = 1080, CH = 1920;
-canvas.width  = CW;
-canvas.height = CH;
+<!-- Tap to hide this button, then screenshot the poster -->
+<button class="hide-btn" id="hbtn" onclick="this.classList.add('gone')">
+  Hide &amp; Screenshot
+</button>
 
-/* ── scale canvas to fill screen (cross-browser, no svh) ── */
-function resize(){
-  const barH = 52;
-  const winH = window.innerHeight - barH;
-  const winW = window.innerWidth;
-  let dW = winH * 9/16;
-  let dH = winH;
-  if(dW > winW){ dW = winW; dH = winW * 16/9; }
-  canvas.style.width  = Math.floor(dW) + 'px';
-  canvas.style.height = Math.floor(dH) + 'px';
-}
-resize();
-window.addEventListener('resize', resize);
-
-/* ── roundRect polyfill ── */
-if(!ctx.roundRect){
-  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
-    this.beginPath();
-    this.moveTo(x+r,y);        this.lineTo(x+w-r,y);
-    this.quadraticCurveTo(x+w,y,   x+w,y+r);
-    this.lineTo(x+w,y+h-r);   this.quadraticCurveTo(x+w,y+h, x+w-r,y+h);
-    this.lineTo(x+r,y+h);     this.quadraticCurveTo(x,y+h,   x,y+h-r);
-    this.lineTo(x,y+r);        this.quadraticCurveTo(x,y,      x+r,y);
-    this.closePath();
-  };
-}
-
-/* ── spaced text helper (replaces ctx.letterSpacing for compatibility) ── */
-function fillSpaced(text, x, y, spacing){
-  for(let i=0;i<text.length;i++){
-    ctx.fillText(text[i], x, y);
-    x += ctx.measureText(text[i]).width + spacing;
-  }
-}
-
-/* ── word-wrap helper ── */
-function wrapText(text, x, y, maxW, lineH){
-  const words = text.split(' ');
-  let line = '';
-  for(let i=0;i<words.length;i++){
-    const test = line + words[i] + ' ';
-    if(ctx.measureText(test).width > maxW && i > 0){
-      ctx.fillText(line.trimEnd(), x, y);
-      line = words[i] + ' '; y += lineH;
-    } else { line = test; }
-  }
-  ctx.fillText(line.trimEnd(), x, y);
-}
-
-/* ════════════════════════════════════════════
-   POSTER STATE  ← update these two numbers
-   ════════════════════════════════════════════ */
-const TOTAL   = 12;
-const CLAIMED = 2;
-const LEFT    = TOTAL - CLAIMED;
-
-function draw(){
-  const pad = 68;
-  const aw  = CW - pad*2;          // 944 px
-
-  /* ── background ── */
-  const bgG = ctx.createLinearGradient(0,0,0,CH);
-  bgG.addColorStop(0,   '#0f0f1e');
-  bgG.addColorStop(0.55,'#0a0a16');
-  bgG.addColorStop(1,   '#070710');
-  ctx.fillStyle = bgG;
-  ctx.fillRect(0,0,CW,CH);
-
-  /* top amber glow */
-  const tg = ctx.createRadialGradient(CW/2,0,0, CW/2,0, 720);
-  tg.addColorStop(0,'rgba(201,160,64,0.13)');
-  tg.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle = tg;
-  ctx.fillRect(0,0,CW,CH*0.45);
-
-  /* ── top gold bar ── */
-  const lg = ctx.createLinearGradient(0,0,CW,0);
-  lg.addColorStop(0,   'rgba(201,160,64,0)');
-  lg.addColorStop(0.2, 'rgba(201,160,64,0.7)');
-  lg.addColorStop(0.5, 'rgba(232,192,96,1)');
-  lg.addColorStop(0.8, 'rgba(201,160,64,0.7)');
-  lg.addColorStop(1,   'rgba(201,160,64,0)');
-  ctx.fillStyle = lg;
-  ctx.fillRect(0,0,CW,6);
-
-  /* ── HEADER ── */
-  ctx.textAlign = 'left';
-  ctx.font      = "bold 30px 'Courier New',monospace";
-  ctx.fillStyle = '#c9a040';
-  fillSpaced('THE LEDGER', pad, 115, 7);
-
-  ctx.font      = "22px 'Courier New',monospace";
-  ctx.fillStyle = '#555570';
-  ctx.textAlign = 'right';
-  fillSpaced('LIMITED TIME', CW-pad-22*8, 113, 2);  // right-aligned approx
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth   = 1;
-  ctx.beginPath(); ctx.moveTo(pad,133); ctx.lineTo(CW-pad,133); ctx.stroke();
-
-  /* ── FLASH LABEL ── */
-  const flLbl = 'FLASH SALE  —  LIVE NOW';
-  ctx.font      = "bold 24px 'Courier New',monospace";
-  ctx.textAlign = 'left';
-
-  /* measure spaced width */
-  let flW2 = 0;
-  for(let c of flLbl) flW2 += ctx.measureText(c).width + 4;
-  const flW = flW2 + 72, flY = 162, flH = 62;
-
-  ctx.fillStyle = 'rgba(224,92,92,0.08)';
-  ctx.beginPath(); ctx.roundRect(pad,flY,flW,flH,12); ctx.fill();
-  ctx.strokeStyle = 'rgba(224,92,92,0.38)';
-  ctx.lineWidth   = 1.5;
-  ctx.beginPath(); ctx.roundRect(pad,flY,flW,flH,12); ctx.stroke();
-
-  /* red dot */
-  ctx.fillStyle = '#e05c5c';
-  ctx.beginPath(); ctx.arc(pad+26, flY+31, 7, 0, Math.PI*2); ctx.fill();
-
-  ctx.fillStyle = '#e05c5c';
-  fillSpaced(flLbl, pad+50, flY+40, 4);
-
-  /* ── HEADLINE ── */
-  ctx.textAlign = 'left';
-  ctx.font      = "170px Impact,'Arial Black',sans-serif";
-
-  /* "NEXT " white */
-  ctx.fillStyle = 'rgba(235,231,220,0.96)';
-  ctx.fillText('NEXT ', pad, 448);
-  const nxW = ctx.measureText('NEXT ').width;
-
-  /* "10" gold */
-  ctx.fillStyle = '#e8c060';
-  ctx.fillText('10', pad + nxW, 448);
-
-  /* "BUYERS" */
-  ctx.font      = "212px Impact,'Arial Black',sans-serif";
-  ctx.fillStyle = 'rgba(235,231,220,0.96)';
-  ctx.fillText('BUYERS', pad, 672);
-
-  /* subtitle */
-  ctx.font      = "27px 'Courier New',monospace";
-  ctx.fillStyle = '#444460';
-  fillSpaced('GET HOOKED UP ON EVERY ORDER', pad, 722, 5);
-
-  /* ── OFFER CARD ── */
-  const cY = 775, cH = 358;
-
-  const cg = ctx.createLinearGradient(pad,cY, pad+aw,cY+cH);
-  cg.addColorStop(0,'rgba(201,160,64,0.1)');
-  cg.addColorStop(1,'rgba(201,160,64,0.025)');
-  ctx.fillStyle = cg;
-  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.fill();
-
-  ctx.strokeStyle = 'rgba(201,160,64,0.26)';
-  ctx.lineWidth   = 1.5;
-  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.stroke();
-
-  const cgl = ctx.createRadialGradient(CW-pad-80,cY+80,0, CW-pad-80,cY+80,200);
-  cgl.addColorStop(0,'rgba(201,160,64,0.1)');
-  cgl.addColorStop(1,'rgba(201,160,64,0)');
-  ctx.fillStyle = cgl;
-  ctx.beginPath(); ctx.roundRect(pad,cY,aw,cH,26); ctx.fill();
-
-  ctx.font      = "bold 22px 'Courier New',monospace";
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#c9a040';
-  fillSpaced('THE DEAL', pad+46, cY+52, 7);
-
-  /* +2G glow */
-  ctx.shadowColor = 'rgba(232,192,96,0.28)';
-  ctx.shadowBlur  = 40;
-  ctx.font        = "178px Impact,'Arial Black',sans-serif";
-  ctx.fillStyle   = '#e8c060';
-  ctx.fillText('+2G', pad+38, cY+248);
-  const p2w = ctx.measureText('+2G').width;
-  ctx.shadowBlur  = 0;
-
-  ctx.font        = "90px Impact,'Arial Black',sans-serif";
-  ctx.fillStyle   = '#c9a040';
-  ctx.fillText('FREE', pad+38+p2w+18, cY+248);
-
-  ctx.font      = "26px 'Courier New',monospace";
-  ctx.fillStyle = '#7878a0';
-  wrapText(
-    "Cop a Half Oz (14g) or more — extra 2g FREE on the house. First come, first served. " + TOTAL + " orders only.",
-    pad+42, cY+285, aw-84, 42
-  );
-
-  /* ── SLOT COUNTER ── */
-  const slY = cY + cH + 52;
-
-  ctx.font      = "bold 24px 'Courier New',monospace";
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#505068';
-  fillSpaced(CLAIMED + ' / ' + TOTAL + ' CLAIMED', pad, slY+30, 3);
-
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#c05050';
-  ctx.font      = "bold 24px 'Courier New',monospace";
-  fillSpaced('● ' + LEFT + ' SPOTS LEFT', CW - pad - 24*11, slY+30, 3);
-
-  /* progress bar */
-  ctx.fillStyle = 'rgba(255,255,255,0.07)';
-  ctx.beginPath(); ctx.roundRect(pad, slY+46, aw, 10, 5); ctx.fill();
-
-  const fillW = Math.round(aw * CLAIMED / TOTAL);
-  if(fillW > 0){
-    const pg = ctx.createLinearGradient(pad,0, pad+fillW,0);
-    pg.addColorStop(0,'#c05050'); pg.addColorStop(1,'#e07840');
-    ctx.fillStyle = pg;
-    ctx.beginPath(); ctx.roundRect(pad, slY+46, fillW, 10, 5); ctx.fill();
-  }
-
-  /* slots grid */
-  const sgY  = slY + 68;
-  const sgap = 10;
-  const sw   = (aw - sgap*(TOTAL-1)) / TOTAL;
-
-  for(let i=0;i<TOTAL;i++){
-    const sx     = pad + i*(sw+sgap);
-    const taken  = i < CLAIMED;
-
-    if(taken){
-      ctx.fillStyle = 'rgba(224,92,92,0.1)';
-      ctx.beginPath(); ctx.roundRect(sx,sgY,sw,60,8); ctx.fill();
-      ctx.strokeStyle = 'rgba(224,92,92,0.28)';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.roundRect(sx,sgY,sw,60,8); ctx.stroke();
-      ctx.font = "bold 26px Arial,sans-serif";
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#c05050';
-      ctx.fillText('✕', sx+sw/2, sgY+40);
-    } else {
-      ctx.fillStyle = 'rgba(201,160,64,0.06)';
-      ctx.beginPath(); ctx.roundRect(sx,sgY,sw,60,8); ctx.fill();
-      ctx.strokeStyle = 'rgba(201,160,64,0.18)';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.roundRect(sx,sgY,sw,60,8); ctx.stroke();
-      ctx.font = "bold 26px Arial,sans-serif";
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#c9a040';
-      ctx.fillText('✓', sx+sw/2, sgY+40);
-    }
-  }
-
-  /* ── DIVIDER ── */
-  const divY = sgY + 60 + 52;
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-  ctx.lineWidth   = 1;
-  ctx.beginPath(); ctx.moveTo(pad,divY); ctx.lineTo(CW-pad,divY); ctx.stroke();
-
-  /* ── CTA ── */
-  ctx.textAlign = 'center';
-  ctx.font      = "26px 'Courier New',monospace";
-  ctx.fillStyle = '#353552';
-  fillSpaced('HOW TO CLAIM', CW/2 - 26*7, divY+58, 6);
-
-  ctx.shadowColor = 'rgba(232,192,96,0.18)';
-  ctx.shadowBlur  = 28;
-  ctx.font        = "116px Impact,'Arial Black',sans-serif";
-  ctx.fillStyle   = '#e8c060';
-  ctx.fillText('ORDER NOW', CW/2, divY+198);
-  ctx.fillText('TO LOCK IN', CW/2, divY+326);
-  ctx.shadowBlur  = 0;
-
-  ctx.font      = "25px 'Courier New',monospace";
-  ctx.fillStyle = '#383852';
-  ctx.fillText('Mention “flash” · While spots last', CW/2, divY+384);
-
-  /* ── FOOTER ── */
-  const ftY = CH - 98;
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-  ctx.lineWidth   = 1;
-  ctx.beginPath(); ctx.moveTo(pad,ftY); ctx.lineTo(CW-pad,ftY); ctx.stroke();
-
-  ctx.font      = "20px 'Courier New',monospace";
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#2a2a40';
-  ctx.fillText('21+ only  ·  Local laws apply', pad, CH-55);
-
-  ctx.textAlign = 'right';
-  ctx.fillStyle = 'rgba(201,160,64,0.28)';
-  ctx.fillText('THE LEDGER', CW-pad, CH-55);
-}
-
-draw();
-
-/* ── save PNG ── */
-function savePNG(){
-  const btn = document.getElementById('btn');
-  btn.textContent = 'Saving...';
-  btn.disabled    = true;
-  canvas.toBlob(function(blob){
-    const url = URL.createObjectURL(blob);
-    const a   = document.createElement('a');
-    a.href     = url;
-    a.download = 'ledger-flash-sale.png';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-    btn.textContent = '✓ Saved!';
-    setTimeout(function(){
-      btn.textContent = '⬇ Save to Gallery';
-      btn.disabled    = false;
-    }, 2200);
-  }, 'image/png');
-}
-</script>
 </body>
 </html>
