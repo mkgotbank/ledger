@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Flash — The Ledger</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #06040e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* ── 9:16 story container ── */
+.story {
+  position: relative;
+  width:  min(100vw, calc(100vh * 9 / 16));
+  height: min(100vh, calc(100vw * 16 / 9));
+  container-type: size;
+  overflow: hidden;
+}
+
+/* ── Background ── */
+.poster {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(220,160,40,.18)  0%, transparent 62%),
+    radial-gradient(ellipse 70% 40% at 15% 110%,  rgba(180,100,20,.12)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 85% 105%,  rgba(80,50,160,.1)    0%, transparent 55%),
+    linear-gradient(170deg, #130f20 0%, #0d0a18 50%, #08060f 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 4cqw 6.5cqw 3.5cqw;
+  position: relative;
+}
+
+/* top shimmer line */
+.poster::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: .5cqw;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,200,80,.6) 25%,
+    #ffe080 50%, rgba(255,200,80,.6) 75%, transparent 100%);
+}
+
+/* heavenly glow from above */
+.poster::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 160cqw;
+  height: 80cqh;
+  background:
+    radial-gradient(ellipse 52% 48% at 50% 0%,
+      rgba(255,235,130,.18) 0%,
+      rgba(245,210,90,.07)  25%,
+      rgba(230,185,60,.015) 50%,
+      transparent           68%
+    ),
+    radial-gradient(ellipse 22% 18% at 50% 0%,
+      rgba(255,252,215,.10) 0%,
+      transparent           44%
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+.hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5cqw;
+  position: relative; z-index: 1;
+}
+.brand {
+  font-size: 3cqw;
+  font-weight: 700;
+  letter-spacing: .8cqw;
+  color: #d4a840;
+  text-transform: uppercase;
+}
+.badge {
+  font-size: 2cqw;
+  letter-spacing: .3cqw;
+  color: #6060a0;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 99px;
+  padding: .6cqw 2.2cqw;
+  text-transform: uppercase;
+  background: rgba(255,255,255,.03);
+}
+
+/* ── FLASH LABEL ── */
+.flash {
+  display: inline-flex;
+  align-items: center;
+  gap: 2cqw;
+  background: rgba(230,80,60,.1);
+  border: 1px solid rgba(230,80,60,.4);
+  border-radius: 2cqw;
+  padding: 1.4cqw 3.2cqw;
+  margin-bottom: 5cqw;
+  align-self: flex-start;
+  position: relative; z-index: 1;
+  animation: pulse-bdr 1.8s ease-in-out infinite;
+}
+@keyframes pulse-bdr {
+  0%,100% { border-color: rgba(230,80,60,.4); box-shadow: none; }
+  50%      { border-color: rgba(230,80,60,.75); box-shadow: 0 0 3cqw rgba(230,80,60,.2); }
+}
+.flash-dot {
+  width: 1.8cqw; height: 1.8cqw;
+  background: #f05040;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.flash-txt {
+  font-size: 2.5cqw;
+  letter-spacing: .5cqw;
+  color: #f06050;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ── MYSTERY HEADLINE ── */
+.hl-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative; z-index: 1;
+}
+.hl-eyebrow {
+  font-size: 3cqw;
+  letter-spacing: .8cqw;
+  color: #6060a0;
+  text-transform: uppercase;
+  margin-bottom: 2cqw;
+}
+.hl-main {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 22cqw;
+  line-height: .88;
+  letter-spacing: -.3cqw;
+  color: #eee8d8;
+  margin-bottom: 3cqw;
+}
+.hl-main .gold {
+  color: #f0c850;
+  text-shadow: 0 0 8cqw rgba(240,200,80,.45), 0 0 22cqw rgba(240,200,80,.2);
+}
+.hl-tagline {
+  font-size: 3.2cqw;
+  letter-spacing: .15cqw;
+  color: #9090b8;
+  line-height: 1.5;
+}
+.hl-tagline strong { color: #d0ccdc; }
+
+/* ── SCARCITY BLOCK ── */
+.scarcity {
+  position: relative; z-index: 1;
+  margin-bottom: 4cqw;
+}
+.counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.8cqw;
+}
+.counter-claimed {
+  font-size: 2.4cqw;
+  letter-spacing: .3cqw;
+  color: #7a7298;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.counter-left {
+  font-size: 2.4cqw;
+  letter-spacing: .3cqw;
+  color: #d05048;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.counter-left::before {
+  content: '● ';
+  animation: blink 1.4s step-end infinite;
+}
+.slots-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.2cqw;
+  font-size: 1.9cqw;
+  letter-spacing: .3cqw;
+  text-transform: uppercase;
+}
+.slots-labels .lbl-taken { color: #c89820; }
+.slots-labels .lbl-open  { color: #504838; }
+.slots {
+  display: flex;
+  gap: 1.3cqw;
+}
+.slot {
+  flex: 1;
+  height: 5.5cqw;
+  border-radius: 1cqw;
+}
+.slot.taken {
+  background: linear-gradient(170deg, #d4a828 0%, #a87808 45%, #7a5200 100%);
+  border: 1px solid rgba(210,175,55,.45);
+  box-shadow:
+    0 0 2cqw .4cqw rgba(210,170,40,.5),
+    0 0 5cqw 1.5cqw rgba(190,140,18,.35),
+    0 0 11cqw 3cqw rgba(165,110,8,.22),
+    inset 0 0 2cqw rgba(240,210,120,.2);
+  animation: heaven-pulse 2.2s ease-in-out infinite;
+}
+.slot.taken:nth-child(2) { animation-delay: .6s; }
+@keyframes heaven-pulse {
+  0%,100% {
+    box-shadow:
+      0 0 2cqw .4cqw rgba(210,170,40,.5),
+      0 0 5cqw 1.5cqw rgba(190,140,18,.35),
+      0 0 11cqw 3cqw rgba(165,110,8,.22),
+      inset 0 0 2cqw rgba(240,210,120,.2);
+  }
+  50% {
+    box-shadow:
+      0 0 2.5cqw .6cqw rgba(220,180,50,.62),
+      0 0 7cqw 2cqw  rgba(200,155,22,.45),
+      0 0 14cqw 4cqw rgba(175,120,10,.3),
+      inset 0 0 2cqw rgba(245,220,140,.28);
+  }
+}
+.slot.open {
+  background: rgba(220,170,50,.04);
+  border: 1px solid rgba(220,170,50,.15);
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  margin-bottom: 3.5cqw;
+  position: relative; z-index: 1;
+}
+
+/* ── CTA ── */
+.cta {
+  text-align: center;
+  position: relative; z-index: 1;
+  margin-bottom: 2cqw;
+}
+.cta-lbl {
+  font-size: 2.3cqw;
+  letter-spacing: .6cqw;
+  color: #524c7c;
+  text-transform: uppercase;
+  margin-bottom: 1.6cqw;
+}
+.cta-main {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 13.5cqw;
+  letter-spacing: .1cqw;
+  color: #f0c850;
+  line-height: .92;
+  text-shadow: 0 0 6cqw rgba(240,200,80,.22);
+}
+.cta-keyword {
+  display: inline-block;
+  margin-top: 2.5cqw;
+  background: rgba(240,192,80,.1);
+  border: 1px solid rgba(240,192,80,.35);
+  border-radius: 1.5cqw;
+  padding: 1.4cqw 4cqw;
+  font-size: 3.5cqw;
+  letter-spacing: .6cqw;
+  color: #f0c850;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2.2cqw;
+  border-top: 1px solid rgba(255,255,255,.05);
+  position: relative; z-index: 1;
+}
+.footer-legal { font-size: 1.9cqw; color: #44406a; line-height: 1.5; }
+.footer-logo  { font-size: 2.2cqw; letter-spacing: .5cqw; color: rgba(210,160,40,.3); text-transform: uppercase; }
+
+/* ── HIDE BUTTON (pure CSS) ── */
+.overlay {
+  position: fixed;
+  bottom: max(18px, env(safe-area-inset-bottom, 18px));
+  right: 18px;
+  z-index: 99;
+}
+.overlay input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%; height: 100%;
+  margin: 0; cursor: pointer; z-index: 1;
+}
+#hc:checked + .hide-lbl { display: none; }
+.hide-lbl {
+  display: block;
+  background: rgba(210,160,40,.15);
+  border: 1px solid rgba(210,160,40,.3);
+  color: #c9a040;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font: 700 10px/1 'Courier New', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hide-lbl:active { opacity: .65; }
+
+/* ── PRINT ── */
+@page { size: portrait; margin: 0; }
+@media print {
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  html, body { background: #06040e !important; overflow: hidden; }
+  .story { width: 100vw !important; height: 100vh !important; }
+  .overlay { display: none !important; }
+  .flash, .flash-dot, .slot { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="story">
+  <div class="poster">
+
+    <div class="hdr">
+      <div class="brand">The Ledger</div>
+      <div class="badge">Limited Time</div>
+    </div>
+
+    <div class="flash">
+      <div class="flash-dot"></div>
+      <span class="flash-txt">Flash Sale — Live Now</span>
+    </div>
+
+    <div class="hl-block">
+      <div class="hl-eyebrow">We're running something</div>
+      <div class="hl-main">SOMETHING<br><span class="gold">GOOD</span></div>
+      <div class="hl-tagline">
+        A deal for the next few orders.<br>
+        <strong>DM us to find out what it is.</strong>
+      </div>
+    </div>
+
+    <!-- COUNTER — update these two numbers each sale (keep in sync with poster-story.html) -->
+    <div class="scarcity">
+      <div class="counter-row">
+        <div class="counter-claimed">2 / 12 Grabbed</div>
+        <div class="counter-left">10 Spots Left</div>
+      </div>
+      <!-- SLOTS — flip "open" → "taken" per sale (12 total) -->
+      <div class="slots-labels">
+        <span class="lbl-taken">● Claimed</span>
+        <span class="lbl-open">Available ●</span>
+      </div>
+      <div class="slots">
+        <div class="slot taken"></div>
+        <div class="slot taken"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+        <div class="slot open"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="cta">
+      <div class="cta-lbl">How to get in</div>
+      <div class="cta-main">DM US<br>RIGHT NOW</div>
+      <div class="cta-keyword">Say "flash" 👀</div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-legal">19+ only · Ontario laws apply<br>While 12-buyer limit lasts.</div>
+      <div class="footer-logo">The Ledger</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="overlay">
+  <div style="position:relative;display:inline-block;">
+    <input type="checkbox" id="hc">
+    <label for="hc" class="hide-lbl">Hide for Screenshot</label>
+  </div>
+</div>
+
+</body>
+</html>
