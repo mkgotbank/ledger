@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Flash Sale — Story</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  width:100%;height:100%;
+  background:#050510;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  font-family:'Courier New',monospace;
+}
+
+/* ── STORY WRAPPER — fills screen, locks 9:16 ── */
+.wrap{
+  position:relative;
+  width:min(100vw, calc(100svh * 9/16));
+  height:min(100svh, calc(100vw * 16/9));
+  container-type:size;
+}
+
+/* ── POSTER ── */
+.poster{
+  width:100%;height:100%;
+  background:linear-gradient(170deg,#0e0e1c 0%,#0a0a16 60%,#07070f 100%);
+  display:flex;flex-direction:column;
+  padding:5cqw 6cqw 4cqw;
+  gap:0;
+  overflow:hidden;
+  position:relative;
+}
+
+/* top gold line */
+.poster::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:.4cqw;
+  background:linear-gradient(90deg,transparent,#c9a040,#e8c060,#c9a040,transparent);
+}
+
+/* ambient glow */
+.poster::after{
+  content:'';
+  position:absolute;top:-10cqw;left:50%;transform:translateX(-50%);
+  width:80cqw;height:50cqw;
+  background:radial-gradient(ellipse,rgba(201,160,64,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* ── HEADER ── */
+.hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:4cqw;
+  position:relative;z-index:1;
+}
+.brand{font-size:2.6cqw;letter-spacing:.8cqw;color:#c9a040;text-transform:uppercase;}
+.badge{
+  font-size:2cqw;letter-spacing:.4cqw;color:#6060808;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.12);border-radius:20cqw;padding:.6cqw 2cqw;
+  color:#707088;
+}
+
+/* ── FLASH LABEL ── */
+.flash-row{
+  display:inline-flex;align-items:center;gap:1.5cqw;
+  background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.4);
+  border-radius:1.5cqw;padding:1cqw 2.5cqw;
+  margin-bottom:3.5cqw;align-self:flex-start;
+  animation:pulse-bdr 2s ease-in-out infinite;
+  position:relative;z-index:1;
+}
+@keyframes pulse-bdr{
+  0%,100%{border-color:rgba(224,92,92,.4);box-shadow:none;}
+  50%{border-color:rgba(224,92,92,.7);box-shadow:0 0 2cqw rgba(224,92,92,.2);}
+}
+.flash-dot{
+  width:1.4cqw;height:1.4cqw;background:#e05c5c;border-radius:50%;
+  animation:blink 1s step-end infinite;flex-shrink:0;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.flash-txt{font-size:2.2cqw;letter-spacing:.6cqw;color:#e05c5c;text-transform:uppercase;font-weight:700;}
+
+/* ── HEADLINE ── */
+.hl-wrap{margin-bottom:4cqw;position:relative;z-index:1;line-height:.88;}
+.hl-next{font-size:14cqw;font-weight:900;color:#e8e4d9;letter-spacing:-.5cqw;font-family:Impact,'Arial Black',sans-serif;}
+.hl-num{color:#e8c060;}
+.hl-buyers{font-size:18cqw;font-weight:900;color:#e8e4d9;letter-spacing:-.5cqw;font-family:Impact,'Arial Black',sans-serif;margin-top:-1cqw;}
+.hl-sub{font-size:2.4cqw;letter-spacing:.7cqw;color:#6060a0;text-transform:uppercase;margin-top:2cqw;}
+
+/* ── OFFER CARD ── */
+.offer{
+  background:linear-gradient(135deg,rgba(201,160,64,.1),rgba(201,160,64,.03));
+  border:1px solid rgba(201,160,64,.28);border-radius:3cqw;
+  padding:4cqw 4.5cqw 4cqw;
+  margin-bottom:4cqw;
+  position:relative;overflow:hidden;z-index:1;
+}
+.offer::before{
+  content:'';position:absolute;top:-6cqw;right:-6cqw;
+  width:22cqw;height:22cqw;
+  background:radial-gradient(circle,rgba(201,160,64,.12) 0%,transparent 70%);
+}
+.offer-lbl{font-size:2cqw;letter-spacing:.8cqw;color:#c9a040;text-transform:uppercase;margin-bottom:2cqw;}
+.offer-big{display:flex;align-items:baseline;gap:2cqw;margin-bottom:2cqw;}
+.offer-qty{font-size:17cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#e8c060;line-height:1;text-shadow:0 0 6cqw rgba(201,160,64,.4);}
+.offer-free{font-size:9cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#c9a040;line-height:1;padding-bottom:1cqw;}
+.offer-txt{font-size:2.6cqw;color:#b0aec8;line-height:1.6;}
+.offer-txt strong{color:#e8c060;}
+
+/* ── SLOTS ── */
+.slots-wrap{margin-bottom:4cqw;position:relative;z-index:1;}
+.slots-top{display:flex;justify-content:space-between;margin-bottom:1.5cqw;}
+.slots-top span{font-size:2cqw;letter-spacing:.5cqw;color:#707088;text-transform:uppercase;}
+.slots-top .live{color:#e05c5c;}
+.prog-bg{height:.8cqw;background:rgba(255,255,255,.07);border-radius:.5cqw;overflow:hidden;margin-bottom:2cqw;}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#e05c5c,#ff8c42);border-radius:.5cqw;}
+.slot-grid{display:flex;gap:1.2cqw;}
+.slot{
+  flex:1;padding:1.5cqw 0;border-radius:1.2cqw;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8cqw;letter-spacing:.2cqw;text-transform:uppercase;
+  font-weight:700;
+}
+.slot.open{
+  background:rgba(201,160,64,.07);border:1px solid rgba(201,160,64,.2);
+  color:#c9a040;
+}
+.slot.taken{
+  background:rgba(224,92,92,.08);border:1px solid rgba(224,92,92,.2);
+  color:#e05c5c;
+}
+
+/* ── CTA ── */
+.cta{
+  text-align:center;padding-top:3cqw;
+  border-top:1px solid rgba(255,255,255,.06);
+  margin-bottom:3cqw;position:relative;z-index:1;
+}
+.cta-lbl{font-size:2cqw;letter-spacing:.6cqw;color:#505068;text-transform:uppercase;margin-bottom:1.5cqw;}
+.cta-main{font-size:6cqw;font-weight:900;font-family:Impact,'Arial Black',sans-serif;color:#e8c060;letter-spacing:.3cqw;line-height:1;}
+.cta-sub{font-size:2.2cqw;letter-spacing:.3cqw;color:#505068;text-transform:uppercase;margin-top:1.5cqw;}
+
+/* ── FOOTER ── */
+.footer{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:2cqw;border-top:1px solid rgba(255,255,255,.04);
+  position:relative;z-index:1;
+}
+.footer-legal{font-size:1.7cqw;color:#3a3a52;line-height:1.5;}
+.footer-logo{font-size:2cqw;letter-spacing:.5cqw;color:rgba(201,160,64,.3);text-transform:uppercase;}
+
+/* ── SAVE BUTTON (hidden when user screenshots) ── */
+.save-btn{
+  position:fixed;bottom:max(env(safe-area-inset-bottom),12px);right:12px;
+  background:rgba(201,160,64,.15);border:1px solid rgba(201,160,64,.3);
+  color:#c9a040;border-radius:12px;padding:10px 16px;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  font-family:'Courier New',monospace;cursor:pointer;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:999;transition:opacity .2s;
+}
+.save-btn:active{opacity:.7;}
+.save-btn.hidden{display:none;}
+
+@media print{
+  html,body{background:#050510;}
+  .save-btn{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="poster" id="poster">
+
+    <div class="hdr">
+      <div class="brand">The Ledger</div>
+      <div class="badge">Limited Time</div>
+    </div>
+
+    <div class="flash-row">
+      <div class="flash-dot"></div>
+      <span class="flash-txt">Flash Sale — Live Now</span>
+    </div>
+
+    <div class="hl-wrap">
+      <div class="hl-next">NEXT <span class="hl-num">10</span></div>
+      <div class="hl-buyers">BUYERS</div>
+      <div class="hl-sub">Get hooked up on every order</div>
+    </div>
+
+    <div class="offer">
+      <div class="offer-lbl">The Deal</div>
+      <div class="offer-big">
+        <div class="offer-qty">+2G</div>
+        <div class="offer-free">FREE</div>
+      </div>
+      <div class="offer-txt">
+        Cop a <strong>Half Oz (14g) or more</strong> and we'll throw in
+        an <strong>extra 2 grams on the house</strong>.
+        First come, first served — only the next <strong>10 orders</strong> qualify.
+      </div>
+    </div>
+
+    <!-- COUNTER: update X/10, Y Left, progress width, and slot classes per order -->
+    <div class="slots-wrap">
+      <div class="slots-top">
+        <span>0 / 10 Claimed</span>
+        <span class="live">● 10 Left</span>
+      </div>
+      <div class="prog-bg">
+        <div class="prog-fill" style="width:0%"></div>
+      </div>
+      <div class="slot-grid">
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+        <div class="slot open">✓</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="cta-lbl">How to claim</div>
+      <div class="cta-main">ORDER NOW<br>TO LOCK IN</div>
+      <div class="cta-sub">Mention "flash" when you reach out · While slots last</div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-legal">21+ only · Local laws apply<br>While 10-buyer limit lasts</div>
+      <div class="footer-logo">The Ledger</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Download PNG button (uses html2canvas) -->
+<button class="save-btn" id="saveBtn" onclick="downloadPNG()">⬇ Save PNG</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+  integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"></script>
+<script>
+function downloadPNG(){
+  const btn = document.getElementById('saveBtn');
+  btn.classList.add('hidden');
+  const el = document.getElementById('poster');
+  html2canvas(el, {
+    scale: 3,
+    useCORS: true,
+    backgroundColor: null,
+    logging: false
+  }).then(canvas => {
+    btn.classList.remove('hidden');
+    btn.textContent = '✓ Saved!';
+    setTimeout(() => btn.textContent = '⬇ Save PNG', 2000);
+    const link = document.createElement('a');
+    link.download = 'ledger-flash-sale.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => {
+    btn.classList.remove('hidden');
+    alert('On mobile: screenshot this page instead!');
+  });
+}
+</script>
+
+</body>
+</html>
