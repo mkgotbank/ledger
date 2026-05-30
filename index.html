@@ -964,10 +964,6 @@ const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fr
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
 
 // ── AUTO UPDATE ──
-// Downloads new HTML, writes it into the SW cache, then shows a tap-to-apply
-// banner. Never auto-reloads — that caused transient iOS localStorage failures
-// which made hydrate() return empty, triggering the setup screen and data loss.
-let _updateBannerActive = false;
 async function checkForUpdate(){
   try {
     const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
@@ -984,7 +980,7 @@ async function checkForUpdate(){
     }
     if(!isNewer) return;
 
-    // Write new HTML into SW cache — SW serves it on next navigation
+    // Write new HTML into SW cache so the reload serves the new version
     try {
       if('serviceWorker' in navigator && navigator.serviceWorker.controller){
         navigator.serviceWorker.controller.postMessage({ type:'CACHE_UPDATE', html });
@@ -998,22 +994,10 @@ async function checkForUpdate(){
       ]);
     } catch(e){}
 
-    // Show a persistent tap-to-apply banner — never force-reload automatically
-    if(_updateBannerActive) return;
-    _updateBannerActive = true;
-    const t = document.getElementById("toast");
-    if(!t) return;
-    clearTimeout(_toastTimer);
-    t.innerHTML = "✓ Update ready &nbsp;·&nbsp; <u>tap to apply</u>";
-    t.className = "show ok";
-    t.style.cursor = "pointer";
-    t.onclick = () => {
-      t.onclick = null; t.style.cursor = "";
-      t.textContent = "Reloading…";
-      // Persist latest data before reload so iOS has it freshly written
-      try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
-      setTimeout(() => location.reload(), 600);
-    };
+    // Flush data to localStorage immediately before reloading
+    try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
+    showToast("Updating app…");
+    setTimeout(() => location.reload(), 1200);
   } catch(e){}
 }
 
