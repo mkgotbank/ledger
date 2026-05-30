@@ -724,48 +724,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.1.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.2.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔒</div>
+        <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">PIN Lock</div>
-          <div class="wn-desc">Secure your data with a 4-digit PIN. Set it in Settings → Security. Shows every time the app opens.</div>
+          <div class="wn-title">Data Never Lost on Update</div>
+          <div class="wn-desc">Updates now reload the page safely instead of rewriting it — your inventory, logs and earnings are always preserved. A backup copy is also saved automatically every time you make a change.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📈</div>
+        <div class="wn-icon">📦</div>
         <div>
-          <div class="wn-title">14-Day Earnings Chart</div>
-          <div class="wn-desc">Live sparkline in the Tips tab — revenue trend, week-over-week % change, and estimated days of stock left based on your sales velocity.</div>
+          <div class="wn-title">Units Fixed Everywhere</div>
+          <div class="wn-desc">Count products (bottles, pieces, etc.) now show the correct unit in every screen — edit log modal, product manager, sale hints and AI analysis all respect your chosen unit.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📅</div>
+        <div class="wn-icon">✦</div>
         <div>
-          <div class="wn-title">Log Date Filters</div>
-          <div class="wn-desc">Filter your transaction log by Today, This Week, This Month or All Time — stacked with the existing type filters.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✎</div>
-        <div>
-          <div class="wn-title">Edit Any Log Entry</div>
-          <div class="wn-desc">Tap the pencil on any entry to correct the amount, price or note — sales, restocks, internal use and expenses all supported.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">⚙</div>
-        <div>
-          <div class="wn-title">Settings Tab</div>
-          <div class="wn-desc">Theme, Font, PIN and Danger Zone all in one place. Reset buttons moved out of the Stock panel for a cleaner layout.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">🔄</div>
-        <div>
-          <div class="wn-title">Auto-Updates</div>
-          <div class="wn-desc">The app silently checks for updates on every load and applies them automatically. Your data is never touched during updates.</div>
+          <div class="wn-title">AI Advisor Improved</div>
+          <div class="wn-desc">The AI Advisor and chat now send data more reliably, fixing failures that happened when product notes were long. Should be faster and more consistent.</div>
         </div>
       </div>
     </div>
@@ -972,7 +951,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.1.2";
+const APP_VER    = "2.2.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1012,8 +991,10 @@ async function checkForUpdate(){
       ]);
     } catch(e){}
 
-    // 2. Rewrite current page — SW will serve cached (new) version on next reload
-    document.open(); document.write(html); document.close();
+    // 2. Safe reload — data stays in localStorage, SW serves the new cached version
+    showToast("✓ Update ready — reloading…");
+    sessionStorage.setItem('_swr', '1'); // prevent double-reload from SW_UPDATED handler
+    setTimeout(() => location.reload(), 1500);
   } catch(e){}
 }
 
@@ -1401,14 +1382,24 @@ function showToast(msg, type=""){
 }
 
 // ── STORAGE ──
+const SK_BAK = SK + "_bak";
 function persist(){
   const el = document.getElementById("saveStatus");
   el.textContent = "● SAVING..."; el.className = "hdr-save saving";
-  try { localStorage.setItem(SK, JSON.stringify(D)); } catch(e){}
+  try {
+    const json = JSON.stringify(D);
+    localStorage.setItem(SK, json);
+    localStorage.setItem(SK_BAK, json); // safety backup — survives update reloads
+  } catch(e){}
   setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
 }
 function hydrate(){
-  try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; } } catch(e){}
+  let loaded = false;
+  try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains){ D = p; loaded = true; } } } catch(e){}
+  // If primary key failed, try the backup (guards against update-time reload glitches)
+  if(!loaded){
+    try { const r = localStorage.getItem(SK_BAK); if(r){ const p = JSON.parse(r); if(p && p.strains){ D = p; loaded = true; } } } catch(e){}
+  }
   // Migrate: copy global priceRef into products that lack one, add unitCfg to old products
   const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
   Object.values(D.strains).forEach(s => {
@@ -1725,9 +1716,12 @@ async function fetchWithRetry(prompt, statusEl){
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 45000);
-      const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt)
-        + "?model=" + AI_MODELS[i] + "&seed=" + Math.floor(Math.random() * 99999);
-      const res = await fetch(url, { signal: ctrl.signal });
+      const res = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages:[{role:"user",content:prompt}], model:AI_MODELS[i], seed:Math.floor(Math.random()*99999), private:true }),
+        signal: ctrl.signal
+      });
       clearTimeout(timer);
       if(res.status === 429){ continue; }
       if(!res.ok) throw new Error("Server error " + res.status);
@@ -1911,7 +1905,7 @@ async function sendChatMsg(){
 `You are a knowledgeable cannabis business advisor with full access to this seller's data. Answer the question directly, using the specific numbers. Be concise (2-4 sentences). Plain text only, no markdown.
 
 ACTIVE PRODUCT: ${D.cur}
-  Stock: ${(s.stock||0).toFixed(1)}g | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
+  Stock: ${fmtQty(s.stock||0,s)} | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
   Sales by pack: ${packSummary}
   Internal use: ${use.toFixed(1)} ${unitPlural(s)} (~$${useLost} lost revenue)
 
@@ -1929,9 +1923,12 @@ USER QUESTION: ${question}`;
     const ctrl  = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 30000);
     try {
-      const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt)
-        + "?model=" + AI_MODELS[i] + "&seed=" + Math.floor(Math.random() * 99999);
-      const res = await fetch(url, { signal: ctrl.signal });
+      const res = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages:[{role:"user",content:prompt}], model:AI_MODELS[i], seed:Math.floor(Math.random()*99999), private:true }),
+        signal: ctrl.signal
+      });
       clearTimeout(timer);
       if(res.status === 429) continue;
       if(!res.ok) throw new Error("Status " + res.status);
@@ -2381,8 +2378,17 @@ if(isReady()){
     checkVersion();
   }
 } else {
-  document.getElementById("setupScreen").style.display = "flex";
-  document.getElementById("mainApp").style.display = "none";
+  // If saved data exists but failed to parse, retry once before showing setup
+  // (guards against transient read errors during update reloads)
+  const _hasSavedData = !!(localStorage.getItem(SK) || localStorage.getItem(SK_BAK));
+  if(_hasSavedData && !sessionStorage.getItem('_hydrate_retry')){
+    sessionStorage.setItem('_hydrate_retry', '1');
+    setTimeout(() => location.reload(), 400);
+  } else {
+    sessionStorage.removeItem('_hydrate_retry');
+    document.getElementById("setupScreen").style.display = "flex";
+    document.getElementById("mainApp").style.display = "none";
+  }
 }
 // These two run unconditionally — no rendering crash can block them
 setTimeout(checkVersion,   100); // belt-and-suspenders: fire again if init skipped it
