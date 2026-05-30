@@ -466,6 +466,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="wn-badge" id="wnVersion">Version 1.5</div>
     <div class="wn-list">
       <div class="wn-item">
+        <div class="wn-icon">💲</div>
+        <div>
+          <div class="wn-title">Per-Product Price Reference</div>
+          <div class="wn-desc">Each product now has its own price suggestions. Tap any row in the Price Reference to set prices specific to that product — switching products updates everything automatically.</div>
+        </div>
+      </div>
+      <div class="wn-item">
         <div class="wn-icon">💬</div>
         <div>
           <div class="wn-title">AI Chat Follow-Up</div>
@@ -483,14 +490,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         <div class="wn-icon">📊</div>
         <div>
           <div class="wn-title">Per-Product Tips & Stats</div>
-          <div class="wn-desc">Quick Stats, Smart Suggestions and AI advice are now separate for each product. Switch products and each one remembers its own analysis.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">⚡</div>
-        <div>
-          <div class="wn-title">Auto-Updates</div>
-          <div class="wn-desc">The app now updates itself automatically when you open it — no need to re-add it to your home screen after every release.</div>
+          <div class="wn-desc">Quick Stats, Smart Suggestions and AI advice are now separate for each product. Each one remembers its own analysis.</div>
         </div>
       </div>
     </div>
@@ -641,7 +641,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <script>
 const SK      = "ledger_v4";
-const VERSION = "1.5";
+const VERSION = "1.6";
 const VER_KEY = "ledger_seen_ver";
 let PRICES = {
   "28g": { w:28,  lo:150, hi:180 },
@@ -674,7 +674,7 @@ let D = { strains:{}, cur:"" };
 let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 
 function fresh(stock, expenses){
-  return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[] };
+  return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[], priceRef: PRICE_REF_DEFAULTS.map(r => ({...r})) };
 }
 function cur(){ return D.strains[D.cur] || null; }
 
@@ -732,7 +732,12 @@ function persist(){
 }
 function hydrate(){
   try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; } } catch(e){}
-  if(!D.priceRef) D.priceRef = PRICE_REF_DEFAULTS.map(r => ({...r}));
+  // Migrate global priceRef → per-product (one-time for existing users)
+  const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
+  Object.values(D.strains).forEach(s => {
+    if(!s.priceRef) s.priceRef = globalRef.map(r => ({...r}));
+  });
+  delete D.priceRef;
   syncPricesFromRef();
 }
 function isReady(){ return D.cur && D.strains[D.cur]; }
@@ -752,7 +757,7 @@ function doSetup(){
 
 // ── STRAIN MANAGEMENT ──
 function switchStrain(n){
-  if(D.strains[n]){ D.cur = n; syncUnitDefaults(); persist(); renderAll(); }
+  if(D.strains[n]){ D.cur = n; syncUnitDefaults(); syncPricesFromRef(); persist(); renderAll(); }
 }
 function addStrain(){
   const inp = document.getElementById("nsInput");
@@ -1197,14 +1202,16 @@ USER QUESTION: ${question}`;
 
 // ── PRICE REFERENCE ──
 function syncPricesFromRef(){
-  (D.priceRef||[]).forEach(r => {
+  const s = cur(); if(!s) return;
+  (s.priceRef||[]).forEach(r => {
     const pk = PRICE_REF_PACK_MAP[r.label];
     if(pk && PRICES[pk]){ PRICES[pk].lo = r.lo; PRICES[pk].hi = r.hi; }
   });
 }
 function renderPriceRef(){
+  const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
-  el.innerHTML = (D.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
+  el.innerHTML = (s.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
     const priceStr = r.lo===r.hi ? `$${r.lo}` : `$${r.lo}–$${r.hi}`;
     const perG = r.lo===r.hi
       ? `$${(r.lo/r.grams).toFixed(2)}/g`
@@ -1218,8 +1225,9 @@ function renderPriceRef(){
   }).join("");
 }
 function openEditPriceModal(i){
+  const s = cur(); if(!s) return;
   editingPriceIdx = i;
-  const r = D.priceRef[i];
+  const r = s.priceRef[i];
   document.getElementById("editPriceMTitle").textContent = "Edit — " + r.label;
   document.getElementById("editPriceLo").value = r.lo;
   document.getElementById("editPriceHi").value = r.hi;
@@ -1227,10 +1235,11 @@ function openEditPriceModal(i){
   setTimeout(() => document.getElementById("editPriceLo").focus(), 150);
 }
 function confirmEditPrice(){
+  const s = cur(); if(!s) return;
   const lo = Math.max(0, parseFloat(document.getElementById("editPriceLo").value)||0);
   const hi = Math.max(lo, parseFloat(document.getElementById("editPriceHi").value)||lo);
-  D.priceRef[editingPriceIdx].lo = lo;
-  D.priceRef[editingPriceIdx].hi = hi;
+  s.priceRef[editingPriceIdx].lo = lo;
+  s.priceRef[editingPriceIdx].hi = hi;
   closeModal("editPrice");
   syncPricesFromRef();
   persist(); renderPriceRef(); renderAll();
