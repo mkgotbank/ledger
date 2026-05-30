@@ -265,6 +265,39 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-sm-danger:active{background:rgba(224,92,92,0.18);}
 .danger-zone{background:rgba(224,92,92,0.03);border:1px solid rgba(224,92,92,0.18);border-radius:14px;padding:4px 14px;overflow:hidden;}
 
+/* ── UNIT TYPE SELECTOR ── */
+.utype-row{display:flex;gap:8px;margin-bottom:8px;}
+.utype-btn{flex:1;padding:11px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:1px;border:1px solid var(--bdr);background:rgba(255,255,255,0.04);color:var(--txt-d);cursor:pointer;text-align:center;transition:all 0.2s;font-family:var(--font);}
+.utype-btn.on{border-color:var(--acc);color:var(--acc);background:var(--acc-dim);}
+.unit-static-lbl{font-size:9px;letter-spacing:2px;color:var(--acc);font-weight:700;text-transform:uppercase;padding:6px 0;}
+
+/* ── WHAT'S NEW ── */
+.wn-badge{display:inline-block;font-size:8px;letter-spacing:3px;color:var(--acc);text-transform:uppercase;background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:6px;padding:3px 9px;margin-bottom:18px;}
+.wn-list{margin-bottom:22px;}
+.wn-item{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.wn-item:last-child{border-bottom:none;}
+.wn-icon{font-size:20px;flex-shrink:0;width:30px;text-align:center;margin-top:1px;}
+.wn-title{font-size:12px;font-weight:700;color:var(--txt-b);margin-bottom:3px;letter-spacing:-0.2px;}
+.wn-desc{font-size:10px;color:var(--txt-d);line-height:1.65;}
+
+/* ── AI CHAT ── */
+.chat-wrap{margin-bottom:16px;}
+.chat-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.chat-hdr-lbl{font-size:7px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;}
+.chat-clear{background:none;border:none;color:#505070;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:0;font-family:var(--font);transition:color 0.15s;}
+.chat-clear:active{color:#e05c5c;}
+.chat-msgs{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px;padding-right:2px;}
+.cm{font-size:12px;line-height:1.75;padding:10px 13px;border-radius:14px;max-width:88%;word-break:break-word;}
+.cm-u{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc-hi);align-self:flex-end;border-radius:14px 14px 4px 14px;}
+.cm-a{background:var(--card);border:1px solid var(--bdr);color:var(--txt);align-self:flex-start;border-radius:14px 14px 14px 4px;}
+.chat-row{display:flex;gap:8px;align-items:center;}
+.chat-in{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:12px;padding:11px 13px;color:var(--txt);font-size:12px;outline:none;transition:border-color 0.2s;font-family:var(--font);}
+.chat-in:focus{border-color:rgba(255,255,255,0.25);}
+.chat-in:disabled{opacity:0.45;}
+.chat-btn{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:12px;width:44px;height:44px;font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 0.2s;line-height:1;}
+.chat-btn:active{background:rgba(180,140,60,0.3);}
+.chat-btn:disabled{opacity:0.35;cursor:not-allowed;}
+
 /* ── PIN SCREEN ── */
 #pinScreen{position:fixed;inset:0;z-index:9998;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
 .pin-brand{font-size:9px;letter-spacing:5px;color:var(--acc);text-transform:uppercase;margin-bottom:8px;}
@@ -1981,20 +2014,8 @@ function renderQS(){
     const strainKeys = Object.keys(D.strains);
     if(strainKeys.length > 1){
       const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
-      tips.push(`⭐ ${best} is your top earner — prioritize keeping it stocked.`);
+      if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
     }
-  }
-
-  const salesByPack = {};
-  sales.forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
-  const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
-  if(top) tips.push(`🔥 ${top[0]} packs are your fastest seller — always keep that size available.`);
-
-  const strainKeys = Object.keys(D.strains);
-  if(strainKeys.length > 1){
-    const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
-    if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
-  }
 
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
