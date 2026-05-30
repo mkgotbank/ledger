@@ -731,27 +731,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.4.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.5.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🛡️</div>
+        <div class="wn-icon">✦</div>
         <div>
-          <div class="wn-title">App No Longer Shows Setup Screen</div>
-          <div class="wn-desc">Fixed a bug where the app would show the first-time setup screen on every load. Your products, logs and earnings now load reliably every time.</div>
+          <div class="wn-title">AI Advisor Fixed & Upgraded</div>
+          <div class="wn-desc">Fixed the "Server error 404" crash. Switched to the correct API endpoint and added a system prompt so advice is sharper and more specific. Chat follow-up now keeps 10 messages of context instead of 6.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🎨</div>
+        <div class="wn-icon">🐛</div>
         <div>
-          <div class="wn-title">Theme & Font Now Persist</div>
-          <div class="wn-desc">Your selected theme and font are now saved independently of product data, so they're never lost — even if something unexpected happens to the app.</div>
+          <div class="wn-title">Edit Log Crash Fixed</div>
+          <div class="wn-desc">Editing a sale entry on count products (bottles, pieces, etc.) no longer crashes the app. Pack buttons now show the correct options for your product type.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">✏️</div>
+        <div class="wn-icon">🔄</div>
         <div>
-          <div class="wn-title">Rename Products</div>
-          <div class="wn-desc">Tap the pencil icon next to any product in Manage Products to rename it inline. Changes save instantly.</div>
+          <div class="wn-title">Reset Product Keeps Unit Type</div>
+          <div class="wn-desc">Resetting a count product (bottles, pieces) no longer converts it back to grams. Full data wipe also properly clears all backups now.</div>
         </div>
       </div>
     </div>
@@ -958,7 +958,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.4.0";
+const APP_VER    = "2.5.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1188,8 +1188,23 @@ function openEditLog(id){
   document.getElementById("el-expense-sec").style.display = l.type==="expense" ?"block":"none";
   document.getElementById("el-note-sec").style.display    = (l.type==="sale"||l.type==="expense")?"block":"none";
   if(l.type==="sale"){
-    editSaleType=l.pack||"14g"; editSaleQty=l.qty||1; editSalePrice=l.price||midPrice(editSaleType);
-    document.querySelectorAll(".el-pbtn").forEach(b=>b.classList.toggle("on",b.dataset.pack===editSaleType));
+    editSaleType = l.pack || (isWeight(s) ? "14g" : ((s.priceRef||[])[0]?.label || "Single"));
+    editSaleQty  = l.qty || 1;
+    editSalePrice= l.price || 0;
+    // Build correct pack buttons for weight OR count product
+    const packBtnsEl = document.querySelector("#el-sale-sec .pack-btns");
+    if(packBtnsEl){
+      if(isWeight(s)){
+        packBtnsEl.innerHTML = packOrder.map(k =>
+          `<button class="pbtn el-pbtn${editSaleType===k?' on':''}" data-pack="${k}" onclick="setEditPack(this.dataset.pack,this)">${k}</button>`
+        ).join("");
+      } else {
+        packBtnsEl.innerHTML = (s.priceRef||[]).map(r => {
+          const nd = r.label.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          return `<button class="pbtn el-pbtn${editSaleType===r.label?' on':''}" data-pack="${nd}" onclick="setEditPack(this.dataset.pack,this)">${nd}</button>`;
+        }).join("");
+      }
+    }
     document.getElementById("el-note").value = l.note||"";
     updateEditSaleModal();
     document.getElementById("el-confirm").textContent = "Save — "+fmtDollar(editSalePrice*editSaleQty);
@@ -1209,22 +1224,37 @@ function openEditLog(id){
   openModal("editLog");
 }
 function updateEditSaleModal(){
-  document.getElementById("el-qty-n").textContent    = editSaleQty;
-  document.getElementById("el-qty-hint").textContent = "= "+fmtDisp(PRICES[editSaleType].w*editSaleQty);
-  document.getElementById("el-price-n").textContent  = fmtDollar(editSalePrice);
-  document.getElementById("el-price-tot").textContent= "= "+fmtDollar(editSalePrice*editSaleQty)+" total";
-  document.getElementById("el-confirm").textContent  = "Save — "+fmtDollar(editSalePrice*editSaleQty);
+  const s = cur();
+  document.getElementById("el-qty-n").textContent = editSaleQty;
+  if(isWeight(s)){
+    const pw = PRICES[editSaleType] ? PRICES[editSaleType].w : 0;
+    document.getElementById("el-qty-hint").textContent = "= " + fmtDisp(pw * editSaleQty);
+  } else {
+    const r = (s && s.priceRef||[]).find(r => r.label === editSaleType);
+    const total = (r ? packW(r) : 1) * editSaleQty;
+    document.getElementById("el-qty-hint").textContent = "= " + total + " " + unitPlural(s);
+  }
+  document.getElementById("el-price-n").textContent   = fmtDollar(editSalePrice);
+  document.getElementById("el-price-tot").textContent = "= " + fmtDollar(editSalePrice * editSaleQty) + " total";
+  document.getElementById("el-confirm").textContent   = "Save — " + fmtDollar(editSalePrice * editSaleQty);
 }
-function setEditPack(t,btn){
-  editSaleType=t; editSalePrice=midPrice(t); editSaleQty=1;
-  document.querySelectorAll(".el-pbtn").forEach(b=>b.classList.remove("on"));
+function setEditPack(t, btn){
+  const s = cur();
+  editSaleType = t; editSaleQty = 1;
+  if(isWeight(s)){
+    editSalePrice = midPrice(t);
+  } else {
+    const r = (s && s.priceRef||[]).find(r => r.label === t);
+    editSalePrice = r ? r.hi : editSalePrice;
+  }
+  document.querySelectorAll(".el-pbtn").forEach(b => b.classList.remove("on"));
   btn.classList.add("on"); updateEditSaleModal();
 }
 function adjEditQty(d){ editSaleQty=Math.max(1,editSaleQty+d); updateEditSaleModal(); }
 function adjEditPrice(d){ editSalePrice=Math.max(1,editSalePrice+d); updateEditSaleModal(); }
 function adjEditWeight(d){
   const inp=document.getElementById("el-weight-input");
-  const step=UNIT_STEPS[getUnit()]||1;
+  const step = isWeight() ? (UNIT_STEPS[getUnit()]||1) : 1;
   inp.value=Math.round(Math.max(step,(parseFloat(inp.value)||0)+d*step)*1000)/1000;
 }
 function confirmEditLog(){
@@ -1232,7 +1262,13 @@ function confirmEditLog(){
   const idx=s.logs.findIndex(l=>l.id===editingLogId); if(idx===-1) return;
   const l=s.logs[idx];
   if(l.type==="sale"){
-    const newW=round(PRICES[editSaleType].w*editSaleQty);
+    let newW;
+    if(isWeight(s)){
+      newW = round((PRICES[editSaleType]?.w || 0) * editSaleQty);
+    } else {
+      const r = (s.priceRef||[]).find(r=>r.label===editSaleType);
+      newW = round((r ? packW(r) : 1) * editSaleQty);
+    }
     const newTotal=editSalePrice*editSaleQty;
     const stockDelta=l.w-newW;
     if(s.stock+stockDelta<0){ showToast("Not enough stock for this edit!","err"); return; }
@@ -1587,7 +1623,7 @@ function adjUse(dir){
 }
 function adjQty(d){ saleQty = Math.max(1, saleQty + d); updateSaleModal(); }
 function adjPrice(d){ salePrice = Math.max(1, salePrice + d); updateSaleModal(); }
-function midPrice(t){ const p = PRICES[t]; return Math.round((p.lo + p.hi) / 2); }
+function midPrice(t){ const p = PRICES[t]; return p ? Math.round((p.lo + p.hi) / 2) : 0; }
 function setPack(t, btn){
   saleType = t; salePrice = midPrice(t); saleQty = 1;
   document.querySelectorAll(".pbtn").forEach(b => b.classList.remove("on"));
@@ -1715,9 +1751,10 @@ function confirmSale(){
   const note = document.getElementById("saleNote").value.trim();
   s.logs.unshift({ id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns });
   closeModal("sale");
-  saleQty = 1; saleType = "14g"; salePrice = midPrice("14g");
-  document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
-  updateSaleModal();
+  saleQty = 1;
+  if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
+  else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
+  renderPackBtns(); updateSaleModal();
   showToast("Sale recorded — " + fmtDollar(earned), "ok");
   persist(); renderAll();
 }
@@ -1736,12 +1773,15 @@ function confirmExp(){
   closeModal("exp"); persist(); renderAll();
 }
 function doReset(){
-  D.strains[D.cur] = fresh(0, 0);
+  // Preserve unitCfg so count products stay count after reset
+  const cfg = D.strains[D.cur]?.unitCfg;
+  D.strains[D.cur] = fresh(0, 0, cfg);
   closeModal("resetProduct"); showToast("Product data cleared");
   persist(); renderAll();
 }
 function doResetAll(){
-  try { localStorage.removeItem(SK); } catch(e){}
+  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); } catch(e){}
+  try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); } catch(e){}
   location.reload();
 }
 function deleteLog(id){
@@ -1778,15 +1818,17 @@ function saveEditNote(){
 }
 
 // ── AI ──
-const AI_MODELS = ["openai","mistral","llama","openai-large"];
+const AI_MODELS = ["openai","openai-large","mistral","llama"];
+const AI_URL = "https://text.pollinations.ai/openai/chat/completions";
+
 async function fetchWithRetry(prompt, statusEl){
+  const sysmsg = "You are a sharp, data-driven business advisor. Reference the exact numbers provided. Be specific and actionable. Plain text only, no markdown, no bullet symbols beyond emoji at the start of each tip.";
   for(let i = 0; i < AI_MODELS.length; i++){
     if(i > 0){
-      const wait = 9000;
+      const wait = 3000;
       const end = Date.now() + wait;
       while(Date.now() < end){
-        const s = Math.ceil((end - Date.now()) / 1000);
-        statusEl.textContent = `Retrying in ${s}s…`;
+        statusEl.textContent = `Retrying (${AI_MODELS[i]})…`;
         await new Promise(r => setTimeout(r, 400));
       }
     }
@@ -1794,26 +1836,27 @@ async function fetchWithRetry(prompt, statusEl){
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 45000);
-      const res = await fetch("https://text.pollinations.ai/", {
+      const res = await fetch(AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages:[{role:"user",content:prompt}], model:AI_MODELS[i], seed:Math.floor(Math.random()*99999), private:true }),
+        body: JSON.stringify({ model:AI_MODELS[i], messages:[{role:"system",content:sysmsg},{role:"user",content:prompt}], max_tokens:1200, seed:Math.floor(Math.random()*99999) }),
         signal: ctrl.signal
       });
       clearTimeout(timer);
       if(res.status === 429){ continue; }
       if(!res.ok) throw new Error("Server error " + res.status);
-      const txt = await res.text();
-      if(txt && txt.trim()) return txt.trim();
+      const data = await res.json();
+      const txt = data.choices?.[0]?.message?.content?.trim();
+      if(txt) return txt;
     } catch(e){
       if(e.name === "AbortError"){
         if(i < AI_MODELS.length - 1) continue;
-        throw new Error("Timed out on all models — try again in a moment.");
+        throw new Error("Timed out — try again in a moment.");
       }
       if(i === AI_MODELS.length - 1) throw e;
     }
   }
-  throw new Error("Service is busy — please try again in a few minutes.");
+  throw new Error("AI service is busy — please try again.");
 }
 async function getAI(){
   if(aiLoading) return;
@@ -1831,7 +1874,7 @@ async function getAI(){
     const exp       = st.expenses  || 0;
     const profit    = earned - exp;
     const use       = st.useTotal  || 0;
-    const useLost   = Math.round(use / 3.5 * 27.5);
+    const useLost   = Math.round(use * avgUnitPrice(st));
     const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
     const expCovPct = exp   > 0 ? Math.min(100, Math.round((earned / exp) * 100)) : (earned > 0 ? 100 : 0);
     const avgSale   = saleLogs.length ? Math.round(saleLogs.reduce((a,l) => a+l.total, 0) / saleLogs.length) : 0;
@@ -1845,7 +1888,8 @@ async function getAI(){
     return { name:n, isCurrent:n===D.cur, stock:st.stock||0, earned, exp, profit, marginPct, expCovPct, salesCount:saleLogs.length, byPack, topPack, avgSale, use, useLost, recentSales };
   });
 
-  const focus       = products.find(p => p.isCurrent);
+  const focus       = products.find(p => p.isCurrent) || products[0];
+  if(!focus){ body.className="ai-body idle"; body.textContent="No product data to analyze yet."; aiLoading=false; btn.disabled=false; btn.innerHTML="✦ Get AI Advice"; return; }
   const others      = products.filter(p => !p.isCurrent);
   const totalEarned = products.reduce((a,p) => a+p.earned, 0);
   const totalExp    = products.reduce((a,p) => a+p.exp,    0);
@@ -1952,7 +1996,7 @@ async function sendChatMsg(){
   const exp      = s.expenses  || 0;
   const profit   = earned - exp;
   const use      = s.useTotal  || 0;
-  const useLost  = Math.round(use / 3.5 * 27.5);
+  const useLost  = Math.round(use * avgUnitPrice(s));
   const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
   const saleLogs  = (s.logs||[]).filter(l => l.type === "sale");
 
@@ -1973,8 +2017,8 @@ async function sendChatMsg(){
       return `  ${n}${n===D.cur?" (active)":""}: $${e.toFixed(0)} earned / ${p>=0?"+":""}$${p.toFixed(0)} profit / ${(st.stock||0).toFixed(1)} ${unitPlural(st)} left`;
     }).join("\n");
 
-  // ── Conversation history — last 6 messages, simple linear format ──
-  const history = s.aiChat.slice(0, -2).slice(-6);
+  // ── Conversation history — last 10 messages ──
+  const history = s.aiChat.slice(0, -2).slice(-10);
   const convoStr = history.length
     ? "\nCHAT HISTORY:\n" + history.map(m => `${m.role==="user"?"User":"Advisor"}: ${m.content}`).join("\n")
     : "";
@@ -2001,17 +2045,23 @@ USER QUESTION: ${question}`;
     const ctrl  = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 30000);
     try {
-      const res = await fetch("https://text.pollinations.ai/", {
+      const chatMessages = [
+        { role:"system", content:"You are a knowledgeable business advisor with access to this seller's data. Answer directly and specifically using the numbers provided. Plain text only, no markdown." },
+        ...history.filter(m => m.content !== null).map(m => ({ role: m.role, content: m.content })),
+        { role:"user", content: prompt }
+      ];
+      const res = await fetch(AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages:[{role:"user",content:prompt}], model:AI_MODELS[i], seed:Math.floor(Math.random()*99999), private:true }),
+        body: JSON.stringify({ model:AI_MODELS[i], messages:chatMessages, max_tokens:600, seed:Math.floor(Math.random()*99999) }),
         signal: ctrl.signal
       });
       clearTimeout(timer);
       if(res.status === 429) continue;
       if(!res.ok) throw new Error("Status " + res.status);
-      const txt = await res.text();
-      if(txt && txt.trim()){ response = txt.trim(); break; }
+      const data = await res.json();
+      const txt = data.choices?.[0]?.message?.content?.trim();
+      if(txt){ response = txt; break; }
     } catch(e){
       clearTimeout(timer);
       if(e.name === "AbortError"){ if(i < AI_MODELS.length-1) continue; break; }
@@ -2280,7 +2330,7 @@ function renderQS(){
 
   const tips = [];
   if(profit < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
-  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
+  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on your best-selling pack sizes to maximize revenue.");
   else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
   else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
 
