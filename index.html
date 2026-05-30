@@ -308,8 +308,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .strain-item{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;margin-bottom:7px;}
 .si-name{font-size:12px;font-weight:700;color:var(--acc);}
 .si-sub{font-size:9px;color:var(--txt-d);margin-top:1px;}
-.si-del{background:rgba(224,92,92,0.09);border:1px solid rgba(224,92,92,0.22);color:#c05050;border-radius:8px;padding:6px 11px;font-size:8px;letter-spacing:1px;cursor:pointer;transition:background 0.15s;}
+.si-del{background:rgba(224,92,92,0.09);border:1px solid rgba(224,92,92,0.22);color:#c05050;border-radius:8px;padding:6px 11px;font-size:8px;letter-spacing:1px;cursor:pointer;transition:background 0.15s;font-family:var(--font);}
 .si-del:active{background:rgba(224,92,92,0.18);}
+.si-edit{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:8px;padding:6px 11px;font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;transition:background 0.15s;font-family:var(--font);}
+.si-edit:active{background:rgba(180,140,60,0.25);}
+.si-save{background:rgba(76,175,122,0.12);border:1px solid rgba(76,175,122,0.28);color:#4caf7a;border-radius:8px;padding:6px 13px;font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;flex-shrink:0;font-family:var(--font);transition:background 0.15s;}
+.si-save:active{background:rgba(76,175,122,0.22);}
+.si-btns{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+.si-rename-inp{flex:1;background:rgba(255,255,255,0.07);border:1px solid var(--acc-bdr);border-radius:8px;padding:8px 10px;color:var(--txt);font-size:12px;font-weight:700;outline:none;font-family:var(--font);min-width:0;}
+.si-rename-inp:focus{border-color:var(--acc);}
 .ns-row{display:flex;gap:8px;margin-top:14px;}
 .ns-in{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--acc-bdr);border-radius:10px;padding:11px 13px;color:var(--txt);font-size:12px;outline:none;transition:border-color 0.2s;}
 .ns-in:focus{border-color:var(--acc);}
@@ -724,27 +731,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.3.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.4.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">Data Protection — Complete Overhaul</div>
-          <div class="wn-desc">Updates no longer force-reload the page. A "tap to apply" banner appears instead, so you choose when to refresh. Three independent safety layers ensure your logs, stock and earnings can never be lost during an update.</div>
+          <div class="wn-title">App No Longer Shows Setup Screen</div>
+          <div class="wn-desc">Fixed a bug where the app would show the first-time setup screen on every load. Your products, logs and earnings now load reliably every time.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📦</div>
+        <div class="wn-icon">🎨</div>
         <div>
-          <div class="wn-title">Units Fixed Everywhere</div>
-          <div class="wn-desc">Count products (bottles, pieces, etc.) now show your chosen unit across every screen — stock header, logs, edit modals, sale hints and AI analysis.</div>
+          <div class="wn-title">Theme & Font Now Persist</div>
+          <div class="wn-desc">Your selected theme and font are now saved independently of product data, so they're never lost — even if something unexpected happens to the app.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">✦</div>
+        <div class="wn-icon">✏️</div>
         <div>
-          <div class="wn-title">AI Advisor More Reliable</div>
-          <div class="wn-desc">Switched to POST requests so long product histories no longer cause silent failures. The advisor and chat follow-up should work consistently now.</div>
+          <div class="wn-title">Rename Products</div>
+          <div class="wn-desc">Tap the pencil icon next to any product in Manage Products to rename it inline. Changes save instantly.</div>
         </div>
       </div>
     </div>
@@ -951,7 +958,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.3.0";
+const APP_VER    = "2.4.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1313,6 +1320,7 @@ const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005
 
 let D = { strains:{}, cur:"" };
 let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
+let _renamingStrain = null;
 
 function fresh(stock, expenses, unitCfg){
   const isW = !unitCfg || unitCfg.type === "weight";
@@ -1406,12 +1414,18 @@ function persist(){
   setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
 }
 function hydrate(){
-  let loaded = false;
-  try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains){ D = p; loaded = true; } } } catch(e){}
-  // If primary key failed, try the backup (guards against update-time reload glitches)
-  if(!loaded){
-    try { const r = localStorage.getItem(SK_BAK); if(r){ const p = JSON.parse(r); if(p && p.strains){ D = p; loaded = true; } } } catch(e){}
+  // Require at least one product — empty strains ({}) must NOT count as valid data
+  function _tryLoad(raw){
+    try { const p = JSON.parse(raw); if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
+    return null;
   }
+  let loaded = false;
+  const p1 = _tryLoad(localStorage.getItem(SK));
+  if(p1){ D = p1; loaded = true; }
+  if(!loaded){ const p2 = _tryLoad(localStorage.getItem(SK_BAK)); if(p2){ D = p2; loaded = true; } }
+  // Migrate theme/font to independent keys so they survive even if product data resets
+  if(D.theme && !localStorage.getItem("ledger_theme")) try{ localStorage.setItem("ledger_theme", D.theme); }catch(e){}
+  if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font);  }catch(e){}
   // Migrate: copy global priceRef into products that lack one, add unitCfg to old products
   const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
   Object.values(D.strains).forEach(s => {
@@ -1526,14 +1540,52 @@ function renderStrainMgr(){
   const keys = Object.keys(D.strains);
   document.getElementById("strainList").innerHTML = keys.map(n => {
     const s = D.strains[n], active = n === D.cur;
+    const nd = n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    if(_renamingStrain === n){
+      return `<div class="strain-item">
+        <input class="si-rename-inp" id="renameInp" value="${nd}" maxlength="40" autocomplete="off"
+          onkeydown="if(event.key==='Enter')confirmRename();else if(event.key==='Escape')cancelRename()"/>
+        <div class="si-btns">
+          <button class="si-save" onclick="confirmRename()">Save</button>
+          <button class="si-del" onclick="cancelRename()">✕</button>
+        </div>
+      </div>`;
+    }
     return `<div class="strain-item">
-      <div>
-        <div class="si-name">${n}${active?' <span style="color:#555;font-size:8px;font-weight:400">● ACTIVE</span>':''}</div>
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <div class="si-name">${nd}${active?'<span style="color:#555;font-size:8px;font-weight:400;margin-left:6px">● ACTIVE</span>':''}</div>
         <div class="si-sub">${fmtQty(s.stock, s)} remaining · ${fmtDollar(s.earned||0)} earned</div>
       </div>
-      <button class="si-del" onclick="deleteStrain('${n}')"${keys.length===1?" disabled":""}>DEL</button>
+      <div class="si-btns">
+        <button class="si-edit" data-n="${nd}" onclick="startRename(this.dataset.n)" title="Rename">✎</button>
+        <button class="si-del" data-n="${nd}" onclick="deleteStrain(this.dataset.n)"${keys.length===1?" disabled":""}>DEL</button>
+      </div>
     </div>`;
   }).join("");
+  if(_renamingStrain) setTimeout(()=>{const i=document.getElementById("renameInp");if(i){i.focus();i.select();}},30);
+}
+function startRename(name){
+  _renamingStrain = name;
+  renderStrainMgr();
+}
+function confirmRename(){
+  const inp = document.getElementById("renameInp");
+  if(!inp || !_renamingStrain) return;
+  const newName = inp.value.trim();
+  const oldName = _renamingStrain;
+  if(!newName){ showToast("Name can't be empty","err"); inp.focus(); return; }
+  if(newName === oldName){ cancelRename(); return; }
+  if(D.strains[newName]){ showToast("That name is already used","err"); inp.focus(); return; }
+  D.strains[newName] = D.strains[oldName];
+  delete D.strains[oldName];
+  if(D.cur === oldName) D.cur = newName;
+  _renamingStrain = null;
+  persist(); renderStrainSel(); renderStrainMgr();
+  showToast("Renamed to \"" + newName + "\"","ok");
+}
+function cancelRename(){
+  _renamingStrain = null;
+  renderStrainMgr();
 }
 
 // ── CONTROLS ──
@@ -1601,7 +1653,7 @@ function setFilter(f, btn){
 
 // ── MODALS ──
 function openModal(id){
-  if(id === "strainMgr") renderStrainMgr();
+  if(id === "strainMgr"){ _renamingStrain = null; renderStrainMgr(); }
   if(id === "resetProduct"){ const el = document.getElementById("resetProductName"); if(el) el.textContent = D.cur; }
   document.getElementById("modal-"+id).classList.add("open");
 }
@@ -2349,13 +2401,21 @@ function _applyFontVar(id){
   const f = FONTS.find(f => f.id === id) || FONTS[0];
   document.documentElement.style.setProperty("--font", f.font);
 }
-function applyTheme(id){ D.theme = id; _applyThemeVars(id); persist(); renderSettings(); }
-function applyFont(id){ D.font = id; _applyFontVar(id); persist(); renderSettings(); }
+function applyTheme(id){
+  D.theme = id; // keep in D for backward compat
+  try{ localStorage.setItem("ledger_theme", id); }catch(e){}
+  _applyThemeVars(id); persist(); renderSettings();
+}
+function applyFont(id){
+  D.font = id;
+  try{ localStorage.setItem("ledger_font", id); }catch(e){}
+  _applyFontVar(id); persist(); renderSettings();
+}
 
 function renderSettings(){
   const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
   const tg = document.getElementById("themeGrid"); if(!tg) return;
-  const curT = D.theme || "midnight-gold";
+  const curT = localStorage.getItem("ledger_theme") || D.theme || "midnight-gold";
   tg.innerHTML = THEMES.map(t =>
     `<div class="theme-card${t.id===curT?" on":""}" onclick="applyTheme('${t.id}')">
       <div class="theme-swatches">${t.dots.map(c=>`<div class="theme-dot" style="background:${c}"></div>`).join("")}</div>
@@ -2363,7 +2423,7 @@ function renderSettings(){
     </div>`
   ).join("");
   const fb = document.getElementById("fontBtns"); if(!fb) return;
-  const cf = D.font || "terminal";
+  const cf = localStorage.getItem("ledger_font") || D.font || "terminal";
   fb.innerHTML = FONTS.map(f =>
     `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
   ).join("");
@@ -2371,14 +2431,19 @@ function renderSettings(){
 }
 
 // ── WHAT'S NEW ──
-// VER_KEY is version-specific ("ledger_wn_2.1.0") so no existing stored value
-// can ever match — every new release gets its own key.
-let _wnShown = false; // prevents double-fire from belt-and-suspenders timeout
+// VER_KEY is version-specific — every new release gets its own key so the popup
+// always fires once per version regardless of what was previously dismissed.
+let _wnShown = false, _wnTries = 0;
 function checkVersion(){
   try {
-    if(!isReady()) return;              // don't show on setup screen for new users
-    if(_wnShown) return;               // already scheduled this session
-    if(localStorage.getItem(VER_KEY)) return; // already dismissed for this version
+    if(_wnShown) return;
+    if(!isReady()){
+      // Not ready yet (data still loading or new user) — retry up to ~3 seconds
+      if(++_wnTries < 7) setTimeout(checkVersion, 450);
+      return;
+    }
+    _wnTries = 0;
+    if(localStorage.getItem(VER_KEY)) return; // already seen this version
     _wnShown = true;
     const badge = document.getElementById("wnVersion");
     if(badge) badge.textContent = "Version " + VERSION;
@@ -2405,9 +2470,12 @@ function switchTab(name, btn){
 }
 
 // ── INIT ──
+// Apply theme and font FIRST from independent keys — they survive data resets
+try{ _applyThemeVars(localStorage.getItem("ledger_theme")); }catch(e){}
+try{ _applyFontVar(localStorage.getItem("ledger_font")); }catch(e){}
+
 hydrate();
-if(D.theme) _applyThemeVars(D.theme);
-if(D.font) _applyFontVar(D.font);
+
 if(isReady()){
   syncUnitDefaults();
   document.getElementById("setupScreen").style.display = "none";
@@ -2420,46 +2488,13 @@ if(isReady()){
     checkVersion();
   }
 } else {
-  // hydrate() returned empty D.
-  // On iOS PWA, localStorage can be transiently unreadable immediately after a
-  // page load. Wait 200ms and try reading directly — no reload needed.
-  const _rawData = localStorage.getItem(SK) || localStorage.getItem(SK_BAK);
-  if(_rawData){
-    // Data exists but wasn't loaded — retry asynchronously (no reload)
-    setTimeout(() => {
-      try {
-        const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || _rawData);
-        if(p && p.strains && Object.keys(p.strains).length > 0){
-          D = p;
-          Object.values(D.strains).forEach(s => {
-            if(!s.priceRef) s.priceRef = PRICE_REF_DEFAULTS.map(r=>({...r}));
-            if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
-          });
-          syncPricesFromRef();
-          document.getElementById("setupScreen").style.display = "none";
-          document.getElementById("mainApp").style.display = "block";
-          if(hasPIN()){
-            showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue");
-          } else {
-            syncUnitDefaults();
-            try { renderAll(); updateSaleModal(); } catch(e){}
-            checkVersion();
-          }
-          return;
-        }
-      } catch(e){}
-      // Still nothing — genuinely new user
-      document.getElementById("setupScreen").style.display = "flex";
-      document.getElementById("mainApp").style.display = "none";
-    }, 200);
-  } else {
-    // No data anywhere — genuinely new user, show setup immediately
-    document.getElementById("setupScreen").style.display = "flex";
-    document.getElementById("mainApp").style.display = "none";
-  }
+  // hydrate() found no valid product data — new user or all data was lost
+  document.getElementById("setupScreen").style.display = "flex";
+  document.getElementById("mainApp").style.display = "none";
 }
-// These two run unconditionally — no rendering crash can block them
-setTimeout(checkVersion,   100); // belt-and-suspenders: fire again if init skipped it
+
+// checkVersion retries on its own if isReady() is briefly false
+setTimeout(checkVersion,   300);
 setTimeout(checkForUpdate, 4000);
 </script>
 </body>
