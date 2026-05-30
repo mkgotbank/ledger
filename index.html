@@ -587,7 +587,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     </div>
 
     <div class="acard r">
-      <div class="acard-lbl r">Daily Use / Personal</div>
+      <div class="acard-lbl r">Internal Use</div>
       <div class="acard-row">
         <div class="acard-ctrl">
           <button class="btn-pm" onclick="adjUse(-1)">−</button>
@@ -597,10 +597,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
           </div>
           <button class="btn-pm" onclick="adjUse(1)">+</button>
         </div>
-        <button class="btn-act r" onclick="doUse()">Log Use</button>
+        <button class="btn-act r" onclick="doUse()">Log Internal</button>
       </div>
       <div class="acard-sum" id="useSum" style="display:none">
-        Total personal: <span class="r" id="useTotG">0g</span> · Est. lost: <span class="r" id="useTotLost">$0</span>
+        Internal use: <span class="r" id="useTotG">0g</span> · Est. lost: <span class="r" id="useTotLost">$0</span>
       </div>
     </div>
 
@@ -616,7 +616,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="lf-btn on" onclick="setFilter('all',this)">All</button>
       <button class="lf-btn" onclick="setFilter('sale',this)">Sales</button>
       <button class="lf-btn" onclick="setFilter('restock',this)">Restock</button>
-      <button class="lf-btn" onclick="setFilter('use',this)">Personal</button>
+      <button class="lf-btn" onclick="setFilter('use',this)">Internal</button>
       <button class="lf-btn" onclick="setFilter('expense',this)">Expenses</button>
     </div>
     <div class="log-filters" style="margin-bottom:10px">
@@ -736,7 +736,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         <div class="wn-icon">✎</div>
         <div>
           <div class="wn-title">Edit Log Notes</div>
-          <div class="wn-desc">Tap the pencil icon on any log entry to add or update its note — works on sales, restocks, personal use and expenses.</div>
+          <div class="wn-desc">Tap the pencil icon on any log entry to add or update its note — works on sales, restocks, internal use and expenses.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1162,7 +1162,7 @@ function openEditLog(id){
   const s = cur(); if(!s) return;
   const l = (s.logs||[]).find(l=>l.id===id); if(!l) return;
   editingLogId = id;
-  const titles = {sale:"Edit Sale",restock:"Edit Restock",use:"Edit Personal Use",expense:"Edit Expense"};
+  const titles = {sale:"Edit Sale",restock:"Edit Restock",use:"Edit Internal Use",expense:"Edit Expense"};
   document.getElementById("el-title").textContent = titles[l.type]||"Edit Entry";
   document.getElementById("el-badge").textContent = l.type;
   document.getElementById("el-sale-sec").style.display    = l.type==="sale"    ?"block":"none";
@@ -1736,14 +1736,14 @@ FOCUS PRODUCT: ${focus.name}
   Best pack       : ${focus.topPack ? focus.topPack[0]+" ("+focus.topPack[1].qty+" sold, $"+focus.topPack[1].rev+" rev)" : "none yet"}
   Revenue by pack :
 ${packLines}
-  Personal use    : ${focus.use.toFixed(1)} ${focusUnitPlural}  (~$${focus.useLost} in lost revenue)
+  Internal use    : ${focus.use.toFixed(1)} ${focusUnitPlural}  (~$${focus.useLost} in lost revenue)
   Recent sales    : ${focus.recentSales}
 
 ${others.length ? "OTHER PRODUCTS:\n"+otherLines+"\n\n" : ""}PORTFOLIO TOTAL: $${totalEarned.toFixed(0)} earned  /  $${totalExp.toFixed(0)} expenses  /  ${totalProfit>=0?"+":""}$${totalProfit.toFixed(0)} net
 
 Address exactly these 5 areas using the numbers above:
 1. Which pack size is the real money-maker and what to do with the slower sizes
-2. Whether personal use is meaningfully hurting margins (give the dollar impact)
+2. Whether internal use is meaningfully hurting margins (give the dollar impact)
 3. Expense coverage status and what the margin % means for the next restock decision
 4. One specific pricing or promo move to execute this week to increase revenue
 5. Honest product outlook — is this worth scaling, maintaining, or cutting relative to the portfolio`;
@@ -1847,7 +1847,7 @@ async function sendChatMsg(){
 ACTIVE PRODUCT: ${D.cur}
   Stock: ${(s.stock||0).toFixed(1)}g | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
   Sales by pack: ${packSummary}
-  Personal use: ${use.toFixed(1)} ${unitPlural(s)} (~$${useLost} lost revenue)
+  Internal use: ${use.toFixed(1)} ${unitPlural(s)} (~$${useLost} lost revenue)
 
 ALL PRODUCTS:
 ${allProducts}
@@ -2070,7 +2070,7 @@ function renderLog(){
     if(l.type==="restock")
       return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="use")
-      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="expense")
       return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     return "";
@@ -2092,7 +2092,7 @@ function renderQS(){
     { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                              c:tp>=0?"#4caf7a":"#c05050" },
     { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                                    c:"#c9a040" },
     { l:"Sales Logged",        v:tsl,                                                                  c:"#e8e4d9" },
-    { l:"Personal Use (All)",  v:tu+"g",                                                               c:"#c05050" },
+    { l:"Internal Use (All)",   v:tu+"g",                                                               c:"#c05050" },
     { l:"Products Tracked",    v:Object.keys(D.strains).length,                                        c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
@@ -2107,7 +2107,7 @@ function renderQS(){
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round((tu/3.5)*27.5);
-      if(lostVal>20) tips.push(`💨 Personal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`);
+      if(lostVal>20) tips.push(`💨 Internal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`);
     }
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
