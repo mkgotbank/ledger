@@ -664,15 +664,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div class="panel" id="panel-settings">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
-      <div>
-        <div style="font-size:18px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px">Settings</div>
-        <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Security · Data</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:8px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-bottom:5px">v<span id="appVerLbl"></span></div>
-        <button onclick="manualCheckUpdate(this)" class="btn-sm-acc" style="font-size:7px;padding:5px 10px">↻ Check Updates</button>
-      </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px">Settings</div>
+      <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Security · Data</div>
     </div>
     <div class="settings-sec">
       <div class="settings-sec-title">Theme</div>
@@ -699,6 +693,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         </div>
       </div>
     </div>
+    <div style="text-align:right;padding-top:18px;padding-bottom:4px">
+      <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger · v<span id="appVerLbl"></span></div>
+    </div>
   </div>
 </div>
 
@@ -709,41 +706,48 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 1.5</div>
+    <div class="wn-badge" id="wnVersion">Version 2.1.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">📦</div>
+        <div class="wn-icon">🔒</div>
         <div>
-          <div class="wn-title">Custom Units — Any Business</div>
-          <div class="wn-desc">Products now support Count/Unit tracking (bottles, pieces, boxes — anything). Choose your unit type when adding a product. Existing products continue working exactly as before.</div>
+          <div class="wn-title">PIN Lock</div>
+          <div class="wn-desc">Secure your data with a 4-digit PIN. Set it in Settings → Security. Shows every time the app opens.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">💲</div>
+        <div class="wn-icon">📈</div>
         <div>
-          <div class="wn-title">Per-Product Price Reference</div>
-          <div class="wn-desc">Each product has its own price suggestions. Tap any row in Price Reference to set prices specific to that product.</div>
+          <div class="wn-title">14-Day Earnings Chart</div>
+          <div class="wn-desc">Live sparkline in the Tips tab — revenue trend, week-over-week % change, and estimated days of stock left based on your sales velocity.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">💬</div>
+        <div class="wn-icon">📅</div>
         <div>
-          <div class="wn-title">AI Chat Follow-Up</div>
-          <div class="wn-desc">After loading your AI advice, ask follow-up questions directly in the Tips tab. The advisor knows your full product data and stays on topic.</div>
+          <div class="wn-title">Log Date Filters</div>
+          <div class="wn-desc">Filter your transaction log by Today, This Week, This Month or All Time — stacked with the existing type filters.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">✎</div>
         <div>
-          <div class="wn-title">Edit Log Notes</div>
-          <div class="wn-desc">Tap the pencil icon on any log entry to add or update its note — works on sales, restocks, internal use and expenses.</div>
+          <div class="wn-title">Edit Any Log Entry</div>
+          <div class="wn-desc">Tap the pencil on any entry to correct the amount, price or note — sales, restocks, internal use and expenses all supported.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📊</div>
+        <div class="wn-icon">⚙</div>
         <div>
-          <div class="wn-title">Per-Product Tips & Stats</div>
-          <div class="wn-desc">Quick Stats, Smart Suggestions and AI advice are now separate for each product. Each one remembers its own analysis.</div>
+          <div class="wn-title">Settings Tab</div>
+          <div class="wn-desc">Theme, Font, PIN and Danger Zone all in one place. Reset buttons moved out of the Stock panel for a cleaner layout.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">🔄</div>
+        <div>
+          <div class="wn-title">Auto-Updates</div>
+          <div class="wn-desc">The app silently checks for updates on every load and applies them automatically. Your data is never touched during updates.</div>
         </div>
       </div>
     </div>
@@ -945,10 +949,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <script>
 const SK = "ledger_v4";
 const PIN_SK = "ledger_pin";
-const APP_VER = "2.1.0";
+const APP_VER    = "2.1.0";
+const VERSION    = APP_VER;
+const VER_KEY    = "ledger_seen_ver";
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
 
-// ── AUTO UPDATE ──
+// ── AUTO UPDATE — silent, auto-apply; What's New shows automatically on reload ──
 async function checkForUpdate(){
   try {
     const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
@@ -959,29 +965,13 @@ async function checkForUpdate(){
     const remote = m[1].split(".").map(Number);
     const local  = APP_VER.split(".").map(Number);
     for(let i=0;i<3;i++){
-      if((remote[i]||0) > (local[i]||0)){ showUpdateBanner(html,m[1]); return; }
+      if((remote[i]||0) > (local[i]||0)){
+        document.open(); document.write(html); document.close();
+        return;
+      }
       if((remote[i]||0) < (local[i]||0)) return;
     }
-  } catch(e){ /* offline or blocked — silent */ }
-}
-function showUpdateBanner(newHtml, newVer){
-  const b = document.createElement("div");
-  b.id = "updateBanner";
-  b.innerHTML = `<span>Update v${newVer} available</span><button onclick="applyUpdate()" style="background:var(--acc);border:none;color:#0a0a0f;border-radius:8px;padding:5px 12px;font-size:8px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:var(--font);text-transform:uppercase;margin-left:10px">Update Now</button><button onclick="this.parentNode.remove()" style="background:none;border:none;color:var(--txt-d);font-size:16px;cursor:pointer;margin-left:6px;line-height:1">✕</button>`;
-  b.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--card);border-bottom:1px solid var(--acc-bdr);padding:10px 18px;display:flex;align-items:center;font-size:9px;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)";
-  document.body.prepend(b);
-  window._pendingUpdateHtml = newHtml;
-}
-function applyUpdate(){
-  document.open(); document.write(window._pendingUpdateHtml); document.close();
-}
-async function manualCheckUpdate(btn){
-  const orig = btn.textContent;
-  btn.textContent = "Checking…"; btn.disabled = true;
-  const hadBanner = !!document.getElementById("updateBanner");
-  await checkForUpdate();
-  btn.textContent = orig; btn.disabled = false;
-  if(!document.getElementById("updateBanner") && !hadBanner) showToast("You're up to date", "ok");
+  } catch(e){}
 }
 
 // ── FORMAT ──
@@ -1039,7 +1029,7 @@ function checkPIN(){
     if(pinBuffer === getPIN()){
       hidePINScreen();
       document.getElementById("mainApp").style.display = "block";
-      renderAll(); updateSaleModal();
+      renderAll(); updateSaleModal(); checkVersion();
     } else { pinDotError(); }
   } else if(pinPhase === "set1"){
     pinNew1 = pinBuffer; pinBuffer = ""; pinPhase = "set2";
@@ -2261,12 +2251,13 @@ if(isReady()){
   } else {
     document.getElementById("mainApp").style.display = "block";
     renderAll(); updateSaleModal();
+    checkVersion();
   }
 } else {
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
 }
-setTimeout(checkForUpdate, 3000);
+setTimeout(checkForUpdate, 4000);
 </script>
 </body>
 </html>
