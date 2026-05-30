@@ -1921,7 +1921,7 @@ function renderPriceRef(){
     return `<div class="pref-row">
       <span class="pref-sz">${r.label}</span>
       <span>${priceStr}</span>
-      <span class="pref-pg">${perUnit}</span>
+      <span class="pref-pg">${perG}</span>
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
     </div>`;
   }).join("");
@@ -2097,13 +2097,22 @@ function renderQS(){
   const use    = s.useTotal || 0;
   const sales  = (s.logs||[]).filter(l => l.type==="sale");
 
+  // All-products aggregates for quick stats grid
+  const all = Object.values(D.strains);
+  const te  = all.reduce((a,x) => a+(x.earned||0), 0);
+  const tx  = all.reduce((a,x) => a+(x.expenses||0), 0);
+  const tp  = te - tx;
+  const ts  = all.reduce((a,x) => a+(x.stock||0), 0);
+  const tu  = all.reduce((a,x) => a+(x.useTotal||0), 0);
+  const tsl = all.reduce((a,x) => a+(x.logs||[]).filter(l=>l.type==="sale").length, 0);
+
   document.getElementById("qsGrid").innerHTML = [
-    { l:"All Products Earned", v:fmtDollar(te),                                                        c:"#4caf7a" },
-    { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                              c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                                    c:"#c9a040" },
-    { l:"Sales Logged",        v:tsl,                                                                  c:"#e8e4d9" },
-    { l:"Internal Use (All)",   v:tu+"g",                                                               c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                        c:"#c9a040" },
+    { l:"All Products Earned", v:fmtDollar(te),                                       c:"#4caf7a" },
+    { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),             c:tp>=0?"#4caf7a":"#c05050" },
+    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                   c:"#c9a040" },
+    { l:"Sales Logged",        v:tsl,                                                 c:"#e8e4d9" },
+    { l:"Internal Use (All)",  v:tu+"g",                                              c:"#c05050" },
+    { l:"Products Tracked",    v:Object.keys(D.strains).length,                       c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [];
