@@ -28,7 +28,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #toast.ok{border-color:rgba(76,175,122,0.4);color:#4caf7a;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
-.setup-logo{font-size:40px;text-align:center;margin-bottom:12px;}
+.setup-logo{display:flex;justify-content:center;margin-bottom:16px;}
+.setup-mark{width:54px;height:54px;border:2px solid var(--acc);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:var(--acc);line-height:1;box-shadow:0 4px 22px var(--acc-glow);}
 .setup-title{font-size:26px;font-weight:700;color:var(--txt-b);text-align:center;letter-spacing:-1px;}
 .setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:36px;}
 .setup-field{margin-bottom:16px;}
@@ -52,11 +53,14 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .hdr-stock-lbl{font-size:8px;color:#9090a8;letter-spacing:3px;}
 .hdr-stock-val{font-size:32px;font-weight:700;line-height:1.1;}
 .hdr-stock-val.ok{color:var(--acc-hi);}
+.hdr-stock-val.amber{color:#e0a84a;}
 .hdr-stock-val.low{color:#e05c5c;}
 .hdr-stock-unit{font-size:12px;color:#9090a8;margin-left:2px;}
 
 .strain-bar{display:flex;align-items:center;gap:8px;padding:10px 0 11px;}
-.strain-sel{flex:1;background:rgba(28,28,46,0.9);border:1px solid var(--acc-bdr);border-radius:10px;padding:9px 12px;color:var(--acc-hi);font-size:11px;font-weight:700;letter-spacing:2px;outline:none;-webkit-appearance:none;appearance:none;}
+.strain-sel-wrap{flex:1;position:relative;}
+.strain-sel-wrap::after{content:'';position:absolute;right:13px;top:50%;width:7px;height:7px;border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);transform:translateY(-70%) rotate(45deg);pointer-events:none;border-radius:1px;}
+.strain-sel{width:100%;background:rgba(28,28,46,0.9);border:1px solid var(--acc-bdr);border-radius:10px;padding:9px 30px 9px 12px;color:var(--acc-hi);font-size:11px;font-weight:700;letter-spacing:2px;outline:none;-webkit-appearance:none;appearance:none;}
 .btn-gear{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:10px;padding:9px 14px;font-size:16px;cursor:pointer;line-height:1;transition:background 0.2s;}
 .btn-gear:active{background:rgba(180,140,60,0.22);}
 
@@ -125,6 +129,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .sec-lbl{font-size:7px;letter-spacing:3px;color:var(--txt-d);margin-bottom:8px;text-transform:uppercase;}
 .pack-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;margin-bottom:6px;box-shadow:0 1px 8px rgba(0,0,0,0.25);}
 .pack-row.empty{opacity:0.35;}
+.pack-row.best{border-color:var(--acc-bdr);box-shadow:0 1px 8px var(--acc-glow);}
+.pack-best-tag{color:var(--acc);font-size:7px;letter-spacing:1px;text-transform:uppercase;margin-left:7px;}
 .pack-nm{color:var(--acc);font-weight:700;font-size:12px;}
 .pack-pr{color:var(--txt-d);font-size:9px;margin-left:7px;}
 .pack-ct{font-weight:700;font-size:12px;}
@@ -157,7 +163,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .ai-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .ai-title{font-size:9px;letter-spacing:3px;color:#9080e0;font-weight:700;text-transform:uppercase;}
 .ai-badge{font-size:7px;letter-spacing:2px;color:#9080e0;background:rgba(124,108,212,0.1);border:1px solid rgba(124,108,212,0.22);border-radius:5px;padding:2px 7px;text-transform:uppercase;}
-.ai-body{font-size:12px;color:#b0aec8;line-height:1.9;white-space:pre-wrap;min-height:40px;}
+.ai-body{font-size:12px;color:#b0aec8;line-height:2;white-space:pre-wrap;}
 .ai-body.idle{color:#7070a0;font-style:italic;}
 .ai-body.loading{color:#7070a0;font-style:italic;}
 .btn-ai{width:100%;background:rgba(124,108,212,0.09);border:1px solid rgba(124,108,212,0.22);color:#9080e0;border-radius:12px;padding:12px;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;cursor:pointer;transition:background 0.2s;}
@@ -241,14 +247,99 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .font-btn{flex:1;padding:12px 6px;border-radius:12px;font-size:11px;cursor:pointer;border:1px solid var(--bdr);background:rgba(255,255,255,0.04);color:var(--txt-d);text-align:center;transition:all 0.2s;line-height:1.5;}
 .font-btn.on{border-color:var(--acc);color:var(--acc);background:var(--acc-dim);}
 .font-btn:active{opacity:0.8;}
-.settings-sec{margin-bottom:22px;}
+.settings-sec{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--bdr);}
+.settings-sec:last-child{border-bottom:none;padding-bottom:0;}
+.settings-sec-title{font-size:8px;letter-spacing:3px;color:var(--acc);margin-bottom:10px;text-transform:uppercase;}
+.font-btn .fb-sample{display:block;font-size:18px;margin-top:5px;line-height:1;}
+.settings-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:4px 14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.25);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-lbl{font-size:10px;color:var(--txt-d);}
+.btn-sm-row{display:flex;gap:8px;}
+.btn-sm-acc{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:8px;padding:6px 13px;font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);transition:background 0.15s;}
+.btn-sm-acc:active{background:rgba(180,140,60,0.28);}
+.btn-sm-danger{background:rgba(224,92,92,0.08);border:1px solid rgba(224,92,92,0.25);color:#c05050;border-radius:8px;padding:6px 13px;font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);transition:background 0.15s;}
+.btn-sm-danger:active{background:rgba(224,92,92,0.18);}
+.danger-zone{background:rgba(224,92,92,0.03);border:1px solid rgba(224,92,92,0.18);border-radius:14px;padding:4px 14px;overflow:hidden;}
+
+/* ── PIN SCREEN ── */
+#pinScreen{position:fixed;inset:0;z-index:9998;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
+.pin-brand{font-size:9px;letter-spacing:5px;color:var(--acc);text-transform:uppercase;margin-bottom:8px;}
+.pin-title{font-size:20px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px;margin-bottom:6px;text-align:center;}
+.pin-sub{font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-bottom:32px;text-align:center;}
+.pin-dots{display:flex;gap:18px;margin-bottom:10px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--acc-bdr);transition:all 0.15s;}
+.pin-dot.filled{background:var(--acc);border-color:var(--acc);}
+.pin-dot.error{background:#e05c5c;border-color:#e05c5c;}
+.pin-err{font-size:9px;letter-spacing:2px;color:#e05c5c;text-transform:uppercase;min-height:14px;margin-bottom:24px;text-align:center;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,76px);gap:12px;}
+.pin-key{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--bdr);color:var(--txt-b);font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.12s;font-family:var(--font);}
+.pin-key:active{background:rgba(255,255,255,0.18);}
+.pin-key.empty{background:none;border:none;cursor:default;}
+.pin-key.del{font-size:17px;}
+.pin-cancel{margin-top:20px;background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:8px 20px;}
+.pin-cancel:active{color:var(--acc);}
+
+/* ── CHART ── */
+.chart-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px 14px 10px;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
+.chart-hdr{font-size:7px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-bottom:12px;}
+.chart-meta-row{display:flex;align-items:center;margin-bottom:14px;}
+.chart-meta-item{flex:1;text-align:center;}
+.chart-meta-sep{width:1px;background:var(--bdr);height:28px;flex-shrink:0;}
+.chart-meta-val{font-size:17px;font-weight:700;line-height:1.2;}
+.chart-meta-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:2px;}
+.chart-x-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:7px;color:#606080;letter-spacing:1px;}
+.chart-empty-txt{display:flex;align-items:center;justify-content:center;text-align:center;min-height:80px;color:var(--txt-d);opacity:0.6;padding:24px 12px;font-size:9px;letter-spacing:3px;line-height:1.8;text-transform:uppercase;}
+
+/* ── LOG DATE FILTER ── */
+.ldf-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);color:#7070a8;border-radius:20px;padding:5px 13px;font-size:8px;letter-spacing:2px;white-space:nowrap;cursor:pointer;text-transform:uppercase;transition:all 0.2s;font-family:var(--font);}
+.ldf-btn.on{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:var(--txt-b);}
+
+/* ── LOG ACTIONS ── */
+.log-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:6px;}
+.log-edit-btn{background:none;border:none;color:#505070;font-size:13px;cursor:pointer;padding:2px 4px;line-height:1;transition:color 0.15s;font-family:var(--font);}
+.log-edit-btn:hover,.log-edit-btn:active{color:var(--acc);}
+.log-del{background:none;border:none;color:#505070;font-size:14px;cursor:pointer;padding:2px 2px;line-height:1;transition:color 0.15s;font-family:var(--font);}
+.log-del:hover,.log-del:active{color:#e05c5c;}
+
+/* ── EDIT LOG MODAL ── */
+.el-type-badge{font-size:7px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:5px;padding:2px 8px;margin-left:8px;vertical-align:middle;}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 
+<!-- PIN SCREEN -->
+<div id="pinScreen" style="display:none">
+  <div class="pin-brand">The Ledger</div>
+  <div class="pin-title" id="pinTitle">Enter PIN</div>
+  <div class="pin-sub" id="pinSub">Locked · Enter your PIN to continue</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pinErr"></div>
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key empty" disabled></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinBackspace()">⌫</button>
+  </div>
+  <button class="pin-cancel" id="pinCancel" style="display:none" onclick="cancelPINSetup()">Cancel</button>
+</div>
+
 <div id="setupScreen">
-  <div class="setup-logo">📦</div>
+  <div class="setup-logo"><div class="setup-mark">L</div></div>
   <div class="setup-title">The Ledger</div>
   <div class="setup-sub">Set up your first product</div>
   <div class="setup-field">
@@ -281,7 +372,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <div class="strain-bar">
-      <select class="strain-sel" id="strainSel" onchange="switchStrain(this.value)"></select>
+      <div class="strain-sel-wrap">
+        <select class="strain-sel" id="strainSel" onchange="switchStrain(this.value)"></select>
+      </div>
       <button class="btn-gear" onclick="openModal('strainMgr')">⚙</button>
     </div>
     <div class="prog-wrap">
@@ -304,7 +397,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <button class="tab on" onclick="switchTab('stock',this)">📦 Stock</button>
     <button class="tab" onclick="switchTab('log',this)">📋 Log</button>
     <button class="tab" onclick="switchTab('tips',this)">💡 Tips</button>
-    <button class="tab" onclick="switchTab('settings',this)">⚙ Style</button>
+    <button class="tab" onclick="switchTab('settings',this)">⚙ Settings</button>
   </div>
 
   <div class="panel on" id="panel-stock">
@@ -365,8 +458,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="sec-lbl">Possible Packs — Current Stock</div>
     <div id="packBreak"></div>
 
-    <button class="btn-rst" onclick="openModal('resetProduct')">↺ Reset This Product's Data</button>
-    <button class="btn-rst danger" onclick="openModal('resetAll')">⚠ Reset All Data</button>
   </div>
 
   <div class="panel" id="panel-log">
@@ -377,11 +468,18 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="lf-btn" onclick="setFilter('use',this)">Personal</button>
       <button class="lf-btn" onclick="setFilter('expense',this)">Expenses</button>
     </div>
+    <div class="log-filters" style="margin-bottom:10px">
+      <button class="ldf-btn on" onclick="setDateFilter('all',this)">All Time</button>
+      <button class="ldf-btn" onclick="setDateFilter('today',this)">Today</button>
+      <button class="ldf-btn" onclick="setDateFilter('week',this)">This Week</button>
+      <button class="ldf-btn" onclick="setDateFilter('month',this)">This Month</button>
+    </div>
     <div class="sec-lbl" id="logCount">0 Entries</div>
     <div id="logList"></div>
   </div>
 
   <div class="panel" id="panel-tips">
+    <div id="chartContainer"></div>
     <div class="ai-box">
       <div class="ai-hdr">
         <span class="ai-title">✦ AI Advisor</span>
@@ -402,13 +500,40 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div class="panel" id="panel-settings">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px">Settings</div>
+        <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Security · Data</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:8px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-bottom:5px">v<span id="appVerLbl"></span></div>
+        <button onclick="manualCheckUpdate(this)" class="btn-sm-acc" style="font-size:7px;padding:5px 10px">↻ Check Updates</button>
+      </div>
+    </div>
     <div class="settings-sec">
-      <div class="sec-lbl">Theme</div>
+      <div class="settings-sec-title">Theme</div>
       <div class="theme-grid" id="themeGrid"></div>
     </div>
     <div class="settings-sec">
-      <div class="sec-lbl">Font Style</div>
+      <div class="settings-sec-title">Font Style</div>
       <div class="font-row" id="fontBtns"></div>
+    </div>
+    <div class="settings-sec">
+      <div class="settings-sec-title">Security</div>
+      <div class="settings-card" id="pinSettings"></div>
+    </div>
+    <div class="settings-sec">
+      <div class="settings-sec-title">Danger Zone</div>
+      <div class="danger-zone">
+        <div class="settings-row">
+          <span class="settings-row-lbl">Reset active product data</span>
+          <button class="btn-sm-danger" onclick="openModal('resetProduct')">↺ Reset</button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-row-lbl">Wipe all data &amp; restart</span>
+          <button class="btn-sm-danger" onclick="openModal('resetAll')">⚠ Reset All</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -523,6 +648,68 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- EDIT LOG MODAL -->
+<div class="overlay" id="modal-editLog" onclick="overlayClose(event,'modal-editLog')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div><span class="m-title" id="el-title">Edit Entry</span><span class="el-type-badge" id="el-badge"></span></div>
+      <button class="modal-close" onclick="closeModal('editLog')">✕</button>
+    </div>
+    <div id="el-sale-sec">
+      <div class="m-sec">
+        <span class="m-lbl">Pack Size</span>
+        <div class="pack-btns">
+          <button class="pbtn el-pbtn" data-pack="28g" onclick="setEditPack('28g',this)">28g</button>
+          <button class="pbtn el-pbtn" data-pack="14g" onclick="setEditPack('14g',this)">14g</button>
+          <button class="pbtn el-pbtn" data-pack="7g" onclick="setEditPack('7g',this)">7g</button>
+          <button class="pbtn el-pbtn" data-pack="3.5g" onclick="setEditPack('3.5g',this)">3.5g</button>
+          <button class="pbtn el-pbtn" data-pack="1g" onclick="setEditPack('1g',this)">1g</button>
+        </div>
+      </div>
+      <div class="m-sec">
+        <span class="m-lbl">Quantity</span>
+        <div class="qty-row">
+          <button class="btn-pm" onclick="adjEditQty(-1)">−</button>
+          <span class="qty-n" id="el-qty-n">1</span>
+          <button class="btn-pm" onclick="adjEditQty(1)">+</button>
+          <span class="qty-hint" id="el-qty-hint">= 14.0g</span>
+        </div>
+      </div>
+      <div class="m-sec">
+        <span class="m-lbl">Price Per Pack</span>
+        <div class="prow">
+          <button class="btn-pm" onclick="adjEditPrice(-1)">−</button>
+          <span class="price-n" id="el-price-n">$90</span>
+          <button class="btn-pm" onclick="adjEditPrice(1)">+</button>
+          <span class="price-tot" id="el-price-tot">= $90 total</span>
+        </div>
+      </div>
+    </div>
+    <div id="el-weight-sec">
+      <div class="m-sec">
+        <span class="m-lbl" id="el-weight-title">Amount</span>
+        <div class="qty-row">
+          <button class="btn-pm" onclick="adjEditWeight(-1)">−</button>
+          <input type="number" id="el-weight-input" class="restock-input" inputmode="decimal" value="14"/>
+          <button class="btn-pm" onclick="adjEditWeight(1)">+</button>
+          <span class="qty-hint" id="el-weight-lbl">Grams</span>
+        </div>
+      </div>
+    </div>
+    <div id="el-expense-sec">
+      <div class="m-sec">
+        <span class="m-lbl">Amount ($)</span>
+        <input class="m-input-lg" id="el-exp-input" type="number" placeholder="0" inputmode="decimal"/>
+      </div>
+    </div>
+    <div class="m-sec" id="el-note-sec">
+      <span class="m-lbl">Note (optional)</span>
+      <input class="m-input" id="el-note" placeholder="e.g. regular, cash..."/>
+    </div>
+    <button class="btn-confirm" id="el-confirm" onclick="confirmEditLog()">Save Changes</button>
+  </div>
+</div>
+
 <!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
@@ -541,6 +728,310 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <script>
 const SK = "ledger_v4";
+const PIN_SK = "ledger_pin";
+const APP_VER = "2.1.0";
+const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
+
+// ── AUTO UPDATE ──
+async function checkForUpdate(){
+  try {
+    const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) return;
+    const html = await res.text();
+    const m = html.match(/const APP_VER\s*=\s*"([^"]+)"/);
+    if(!m) return;
+    const remote = m[1].split(".").map(Number);
+    const local  = APP_VER.split(".").map(Number);
+    for(let i=0;i<3;i++){
+      if((remote[i]||0) > (local[i]||0)){ showUpdateBanner(html,m[1]); return; }
+      if((remote[i]||0) < (local[i]||0)) return;
+    }
+  } catch(e){ /* offline or blocked — silent */ }
+}
+function showUpdateBanner(newHtml, newVer){
+  const b = document.createElement("div");
+  b.id = "updateBanner";
+  b.innerHTML = `<span>Update v${newVer} available</span><button onclick="applyUpdate()" style="background:var(--acc);border:none;color:#0a0a0f;border-radius:8px;padding:5px 12px;font-size:8px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:var(--font);text-transform:uppercase;margin-left:10px">Update Now</button><button onclick="this.parentNode.remove()" style="background:none;border:none;color:var(--txt-d);font-size:16px;cursor:pointer;margin-left:6px;line-height:1">✕</button>`;
+  b.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--card);border-bottom:1px solid var(--acc-bdr);padding:10px 18px;display:flex;align-items:center;font-size:9px;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)";
+  document.body.prepend(b);
+  window._pendingUpdateHtml = newHtml;
+}
+function applyUpdate(){
+  document.open(); document.write(window._pendingUpdateHtml); document.close();
+}
+async function manualCheckUpdate(btn){
+  const orig = btn.textContent;
+  btn.textContent = "Checking…"; btn.disabled = true;
+  const hadBanner = !!document.getElementById("updateBanner");
+  await checkForUpdate();
+  btn.textContent = orig; btn.disabled = false;
+  if(!document.getElementById("updateBanner") && !hadBanner) showToast("You're up to date", "ok");
+}
+
+// ── FORMAT ──
+function fmtDollar(n, dec=0){
+  const abs = Math.abs(+n||0);
+  const fixed = abs.toFixed(dec);
+  const [int, frac] = fixed.split('.');
+  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return '$' + (dec > 0 && frac !== undefined ? intFmt + '.' + frac : intFmt);
+}
+
+// ── PIN SYSTEM ──
+let pinBuffer = "", pinPhase = "verify", pinNew1 = "";
+function hasPIN(){ return !!localStorage.getItem(PIN_SK); }
+function getPIN(){ return localStorage.getItem(PIN_SK)||""; }
+function savePIN(p){ localStorage.setItem(PIN_SK, p); }
+function clearPIN(){ localStorage.removeItem(PIN_SK); }
+
+function showPINScreen(phase, title, sub){
+  pinBuffer = ""; pinPhase = phase; if(phase!=="set2") pinNew1="";
+  document.getElementById("pinTitle").textContent = title || "Enter PIN";
+  document.getElementById("pinSub").textContent   = sub  || "Locked · Enter your PIN to continue";
+  document.getElementById("pinErr").textContent   = "";
+  document.getElementById("pinCancel").style.display = phase==="verify" ? "none" : "block";
+  updatePINDots();
+  document.getElementById("pinScreen").style.display = "flex";
+}
+function hidePINScreen(){ document.getElementById("pinScreen").style.display = "none"; }
+
+function updatePINDots(){
+  for(let i=0;i<4;i++){
+    const d = document.getElementById("pd"+i);
+    d.className = "pin-dot" + (i < pinBuffer.length ? " filled" : "");
+  }
+}
+function pinDotError(){
+  for(let i=0;i<4;i++) document.getElementById("pd"+i).className = "pin-dot error";
+  document.getElementById("pinErr").textContent = "Incorrect PIN";
+  setTimeout(()=>{ pinBuffer=""; updatePINDots(); }, 700);
+}
+function pinPress(d){
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePINDots();
+  if(pinBuffer.length === 4) setTimeout(checkPIN, 160);
+}
+function pinBackspace(){
+  if(!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0,-1);
+  updatePINDots();
+  document.getElementById("pinErr").textContent = "";
+}
+function checkPIN(){
+  if(pinPhase === "verify"){
+    if(pinBuffer === getPIN()){
+      hidePINScreen();
+      document.getElementById("mainApp").style.display = "block";
+      renderAll(); updateSaleModal();
+    } else { pinDotError(); }
+  } else if(pinPhase === "set1"){
+    pinNew1 = pinBuffer; pinBuffer = ""; pinPhase = "set2";
+    updatePINDots();
+    document.getElementById("pinTitle").textContent = "Confirm PIN";
+    document.getElementById("pinSub").textContent   = "Enter the same PIN again";
+    document.getElementById("pinErr").textContent   = "";
+  } else if(pinPhase === "set2"){
+    if(pinBuffer === pinNew1){
+      savePIN(pinBuffer); hidePINScreen();
+      showToast("PIN enabled", "ok"); renderSettings();
+    } else {
+      document.getElementById("pinErr").textContent = "PINs don't match — try again";
+      pinBuffer=""; pinNew1=""; pinPhase="set1";
+      updatePINDots();
+      document.getElementById("pinTitle").textContent = "Create PIN";
+      document.getElementById("pinSub").textContent   = "Choose a 4-digit PIN";
+    }
+  }
+}
+function cancelPINSetup(){ hidePINScreen(); }
+function openSetPIN(){ showPINScreen("set1","Create PIN","Choose a 4-digit PIN"); }
+function doRemovePIN(){ clearPIN(); showToast("PIN removed"); renderSettings(); }
+function renderPINSettings(){
+  const el = document.getElementById("pinSettings"); if(!el) return;
+  if(hasPIN()){
+    el.innerHTML = `<div class="settings-row"><span class="settings-row-lbl">PIN lock is <strong style="color:var(--acc)">enabled</strong></span><div class="btn-sm-row"><button class="btn-sm-acc" onclick="openSetPIN()">Change</button><button class="btn-sm-danger" onclick="doRemovePIN()">Remove</button></div></div>`;
+  } else {
+    el.innerHTML = `<div class="settings-row"><span class="settings-row-lbl">No PIN set — app is unlocked</span><button class="btn-sm-acc" onclick="openSetPIN()">Set PIN</button></div>`;
+  }
+}
+
+// ── CHART / ANALYTICS ──
+let logDateFilter = "all";
+function getDailyEarnings(strainKey, days){
+  const s = D.strains[strainKey]; if(!s) return [];
+  const now = Date.now();
+  return Array.from({length:days},(_,i)=>{
+    const start = now - (days-i)*86400000;
+    const end   = start + 86400000;
+    const earned = (s.logs||[]).filter(l=>l.type==="sale"&&l.id>=start&&l.id<end).reduce((a,l)=>a+l.total,0);
+    return { i, earned, ts:start };
+  });
+}
+function calcDaysRemaining(s){
+  const cutoff = Date.now() - 14*86400000;
+  const g14 = (s.logs||[]).filter(l=>l.type==="sale"&&l.id>=cutoff).reduce((a,l)=>a+(l.w||0),0);
+  const perDay = g14/14;
+  if(perDay<=0||!s.stock) return null;
+  const d = Math.round(s.stock/perDay);
+  return d > 999 ? "999+" : d;
+}
+function renderChart(){
+  const el = document.getElementById("chartContainer"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML=""; return; }
+  const data = getDailyEarnings(D.cur, 14);
+  const total14 = data.reduce((a,d)=>a+d.earned,0);
+  const thisWeek = data.slice(7).reduce((a,d)=>a+d.earned,0);
+  const lastWeek = data.slice(0,7).reduce((a,d)=>a+d.earned,0);
+  const weekPct  = lastWeek>0 ? ((thisWeek-lastWeek)/lastWeek*100) : (thisWeek>0?100:0);
+  const daysLeft = calcDaysRemaining(s);
+  const maxVal = Math.max(...data.map(d=>d.earned),1);
+  const W=300,H=65,PX=6,PY=6;
+  const pts = data.map((d,i)=>({
+    x: PX+(i/(data.length-1))*(W-PX*2),
+    y: PY+(1-d.earned/maxVal)*(H-PY*2)
+  }));
+  function cPath(pts){
+    let d=`M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+      const cp1x=p1.x+(p2.x-p0.x)/6,cp1y=p1.y+(p2.y-p0.y)/6;
+      const cp2x=p2.x-(p3.x-p1.x)/6,cp2y=p2.y-(p3.y-p1.y)/6;
+      d+=` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    }
+    return d;
+  }
+  const linePath = cPath(pts);
+  const areaPath = linePath+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
+  const lblIdxs  = [0,6,13];
+  const xLabels  = lblIdxs.map(i=>{
+    const d = new Date(data[i].ts+43200000);
+    return `<span>${(d.getMonth()+1)+'/'+(d.getDate())}</span>`;
+  }).join('');
+  el.innerHTML = `<div class="chart-wrap">
+    <div class="chart-hdr">14-Day Earnings · ${D.cur}</div>
+    <div class="chart-meta-row">
+      <div class="chart-meta-item"><div class="chart-meta-val" style="color:#4caf7a">${fmtDollar(thisWeek)}</div><div class="chart-meta-lbl">This Week</div></div>
+      <div class="chart-meta-sep"></div>
+      <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#e05c5c'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
+      <div class="chart-meta-sep"></div>
+      <div class="chart-meta-item"><div class="chart-meta-val" style="color:var(--acc)">${daysLeft!==null?daysLeft+'d':'—'}</div><div class="chart-meta-lbl">Est. Days Left</div></div>
+    </div>
+    ${total14>0?`
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:65px;display:block;overflow:visible">
+      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" style="stop-color:var(--acc);stop-opacity:0.4"/>
+        <stop offset="100%" style="stop-color:var(--acc);stop-opacity:0.02"/>
+      </linearGradient></defs>
+      <path d="${areaPath}" fill="url(#cg)"/>
+      <path d="${linePath}" fill="none" style="stroke:var(--acc);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>
+    </svg>
+    <div class="chart-x-labels">${xLabels}</div>`
+    :`<div class="chart-empty-txt">No sales recorded yet — log a sale to see your chart</div>`}
+  </div>`;
+}
+
+// ── LOG DATE FILTER ──
+function setDateFilter(f, btn){
+  logDateFilter = f;
+  document.querySelectorAll(".ldf-btn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  renderLog();
+}
+
+// ── LOG EDITING ──
+let editingLogId = null, editSaleType="14g", editSaleQty=1, editSalePrice=90;
+
+function openEditLog(id){
+  const s = cur(); if(!s) return;
+  const l = (s.logs||[]).find(l=>l.id===id); if(!l) return;
+  editingLogId = id;
+  const titles = {sale:"Edit Sale",restock:"Edit Restock",use:"Edit Personal Use",expense:"Edit Expense"};
+  document.getElementById("el-title").textContent = titles[l.type]||"Edit Entry";
+  document.getElementById("el-badge").textContent = l.type;
+  document.getElementById("el-sale-sec").style.display    = l.type==="sale"    ?"block":"none";
+  document.getElementById("el-weight-sec").style.display  = (l.type==="restock"||l.type==="use")?"block":"none";
+  document.getElementById("el-expense-sec").style.display = l.type==="expense" ?"block":"none";
+  document.getElementById("el-note-sec").style.display    = (l.type==="sale"||l.type==="expense")?"block":"none";
+  if(l.type==="sale"){
+    editSaleType=l.pack||"14g"; editSaleQty=l.qty||1; editSalePrice=l.price||midPrice(editSaleType);
+    document.querySelectorAll(".el-pbtn").forEach(b=>b.classList.toggle("on",b.dataset.pack===editSaleType));
+    document.getElementById("el-note").value = l.note||"";
+    updateEditSaleModal();
+    document.getElementById("el-confirm").textContent = "Save — "+fmtDollar(editSalePrice*editSaleQty);
+  } else if(l.type==="restock"||l.type==="use"){
+    document.getElementById("el-weight-title").textContent = l.type==="restock"?"Grams Added":"Grams Used";
+    document.getElementById("el-weight-input").value = toDisp(l.w);
+    document.getElementById("el-weight-lbl").textContent = unitLabel();
+    document.getElementById("el-confirm").textContent = "Save Changes";
+  } else if(l.type==="expense"){
+    document.getElementById("el-exp-input").value = l.amount||0;
+    document.getElementById("el-note").value = l.note||"";
+    document.getElementById("el-confirm").textContent = "Save Changes";
+  }
+  openModal("editLog");
+}
+function updateEditSaleModal(){
+  document.getElementById("el-qty-n").textContent    = editSaleQty;
+  document.getElementById("el-qty-hint").textContent = "= "+(PRICES[editSaleType].w*editSaleQty).toFixed(1)+"g";
+  document.getElementById("el-price-n").textContent  = fmtDollar(editSalePrice);
+  document.getElementById("el-price-tot").textContent= "= "+fmtDollar(editSalePrice*editSaleQty)+" total";
+  document.getElementById("el-confirm").textContent  = "Save — "+fmtDollar(editSalePrice*editSaleQty);
+}
+function setEditPack(t,btn){
+  editSaleType=t; editSalePrice=midPrice(t); editSaleQty=1;
+  document.querySelectorAll(".el-pbtn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on"); updateEditSaleModal();
+}
+function adjEditQty(d){ editSaleQty=Math.max(1,editSaleQty+d); updateEditSaleModal(); }
+function adjEditPrice(d){ editSalePrice=Math.max(1,editSalePrice+d); updateEditSaleModal(); }
+function adjEditWeight(d){
+  const inp=document.getElementById("el-weight-input");
+  const step=UNIT_STEPS[getUnit()]||1;
+  inp.value=Math.round(Math.max(step,(parseFloat(inp.value)||0)+d*step)*1000)/1000;
+}
+function confirmEditLog(){
+  const s=cur(); if(!s||editingLogId===null) return;
+  const idx=s.logs.findIndex(l=>l.id===editingLogId); if(idx===-1) return;
+  const l=s.logs[idx];
+  if(l.type==="sale"){
+    const newW=round(PRICES[editSaleType].w*editSaleQty);
+    const newTotal=editSalePrice*editSaleQty;
+    const stockDelta=l.w-newW;
+    if(s.stock+stockDelta<0){ showToast("Not enough stock for this edit!","err"); return; }
+    s.stock=round(s.stock+stockDelta);
+    s.earned=Math.max(0,(s.earned||0)-l.total+newTotal);
+    const note=document.getElementById("el-note").value.trim();
+    s.logs[idx]={...l,pack:editSaleType,qty:editSaleQty,price:editSalePrice,total:newTotal,w:newW,note,after:null};
+  } else if(l.type==="restock"){
+    const newW=fromDisp(parseFloat(document.getElementById("el-weight-input").value)||0);
+    if(newW<=0){ showToast("Enter a valid amount","err"); return; }
+    const delta=newW-l.w;
+    s.stock=round(s.stock+delta);
+    s.restockTotal=round(Math.max(0,(s.restockTotal||0)+delta));
+    s.logs[idx]={...l,w:newW,after:null};
+    const highs=s.logs.filter(ll=>ll.type==="restock"&&ll.after!=null).map(ll=>ll.after);
+    s.startStock=highs.length>0?Math.max(...highs,s.stock):s.stock;
+  } else if(l.type==="use"){
+    const newW=fromDisp(parseFloat(document.getElementById("el-weight-input").value)||0);
+    if(newW<=0){ showToast("Enter a valid amount","err"); return; }
+    const delta=l.w-newW;
+    if(s.stock+delta<0){ showToast("Not enough stock for this edit!","err"); return; }
+    s.stock=round(s.stock+delta);
+    s.useTotal=round(Math.max(0,(s.useTotal||0)+(newW-l.w)));
+    s.logs[idx]={...l,w:newW,after:null};
+  } else if(l.type==="expense"){
+    const newAmt=parseFloat(document.getElementById("el-exp-input").value)||0;
+    if(newAmt<=0){ showToast("Enter a valid amount","err"); return; }
+    const note=document.getElementById("el-note").value.trim();
+    s.expenses=Math.max(0,(s.expenses||0)-l.amount+newAmt);
+    s.logs[idx]={...l,amount:newAmt,note};
+  }
+  closeModal("editLog");
+  showToast("Entry updated","ok");
+  persist(); renderAll();
+}
+
 let PRICES = {
   "28g": { w:28,  lo:150, hi:180 },
   "14g": { w:14,  lo:80,  hi:90  },
@@ -678,7 +1169,7 @@ function renderStrainMgr(){
     return `<div class="strain-item">
       <div>
         <div class="si-name">${n}${active?' <span style="color:#555;font-size:8px;font-weight:400">● ACTIVE</span>':''}</div>
-        <div class="si-sub">${fmtG(s.stock)}g remaining · $${(s.earned||0).toFixed(0)} earned</div>
+        <div class="si-sub">${fmtDisp(s.stock, s.unit||"g")} remaining · ${fmtDollar(s.earned||0)} earned</div>
       </div>
       <button class="si-del" onclick="deleteStrain('${n}')"${keys.length===1?" disabled":""}>DEL</button>
     </div>`;
@@ -700,17 +1191,18 @@ function adjUse(dir){
 }
 function adjQty(d){ saleQty = Math.max(1, saleQty + d); updateSaleModal(); }
 function adjPrice(d){ salePrice = Math.max(1, salePrice + d); updateSaleModal(); }
+function midPrice(t){ const p = PRICES[t]; return Math.round((p.lo + p.hi) / 2); }
 function setPack(t, btn){
-  saleType = t; salePrice = PRICES[t].hi; saleQty = 1;
+  saleType = t; salePrice = midPrice(t); saleQty = 1;
   document.querySelectorAll(".pbtn").forEach(b => b.classList.remove("on"));
   btn.classList.add("on"); updateSaleModal();
 }
 function updateSaleModal(){
   document.getElementById("qtyN").textContent = saleQty;
   document.getElementById("qtyHint").textContent = "= " + (PRICES[saleType].w * saleQty).toFixed(1) + "g";
-  document.getElementById("priceN").textContent = "$" + salePrice;
-  document.getElementById("priceTot").textContent = "= $" + (salePrice * saleQty) + " total";
-  document.getElementById("saleConfirm").textContent = "Confirm — $" + (salePrice * saleQty);
+  document.getElementById("priceN").textContent = fmtDollar(salePrice);
+  document.getElementById("priceTot").textContent = "= " + fmtDollar(salePrice * saleQty) + " total";
+  document.getElementById("saleConfirm").textContent = "Confirm — " + fmtDollar(salePrice * saleQty);
 }
 function setFilter(f, btn){
   logFilter = f;
@@ -728,7 +1220,7 @@ function closeModal(id){ document.getElementById("modal-"+id).classList.remove("
 function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
   document.getElementById("saleNote").value = "";
-  saleQty = 1; saleType = "14g"; salePrice = PRICES["14g"].hi;
+  saleQty = 1; saleType = "14g"; salePrice = midPrice("14g");
   document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
   updateSaleModal(); openModal("sale");
 }
@@ -783,10 +1275,10 @@ function confirmSale(){
   const note = document.getElementById("saleNote").value.trim();
   s.logs.unshift({ id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns });
   closeModal("sale");
-  saleQty = 1; saleType = "14g"; salePrice = PRICES["14g"].hi;
+  saleQty = 1; saleType = "14g"; salePrice = midPrice("14g");
   document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
   updateSaleModal();
-  showToast("Sale recorded — $" + earned, "ok");
+  showToast("Sale recorded — " + fmtDollar(earned), "ok");
   persist(); renderAll();
 }
 function confirmExp(){
@@ -799,7 +1291,7 @@ function confirmExp(){
   } else {
     s.expenses = (s.expenses||0) + val;
     s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, date:now() });
-    showToast("$" + val + " expense logged");
+    showToast(fmtDollar(val) + " expense logged");
   }
   closeModal("exp"); persist(); renderAll();
 }
@@ -907,10 +1399,10 @@ function syncPricesFromRef(){
 function renderPriceRef(){
   const el = document.getElementById("priceRef"); if(!el) return;
   el.innerHTML = (D.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
-    const priceStr = r.lo===r.hi ? `$${r.lo}` : `$${r.lo}–$${r.hi}`;
+    const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
     const perG = r.lo===r.hi
-      ? `$${(r.lo/r.grams).toFixed(2)}/g`
-      : `$${(r.lo/r.grams).toFixed(2)}–$${(r.hi/r.grams).toFixed(2)}/g`;
+      ? fmtDollar(r.lo/r.grams,2)+"/g"
+      : fmtDollar(r.lo/r.grams,2)+"–"+fmtDollar(r.hi/r.grams,2)+"/g";
     return `<div class="pref-row">
       <span class="pref-sz">${r.label}</span>
       <span>${priceStr}</span>
@@ -939,8 +1431,17 @@ function confirmEditPrice(){
 }
 
 // ── HELPERS ──
-function estVal(g){ return Math.floor(g/28)*PRICES["28g"].hi + Math.floor((g%28)/14)*PRICES["14g"].hi + Math.floor((g%14)/7)*PRICES["7g"].hi + Math.floor((g%7)/3.5)*PRICES["3.5g"].hi + Math.floor((g%3.5)/1)*PRICES["1g"].hi; }
-function fmtG(g){ return g%1===0 ? g : g.toFixed(1); }
+const packOrder = ["28g","14g","7g","3.5g","1g"];
+function estVal(g){
+  let rem = g, val = 0;
+  packOrder.forEach(k => {
+    const p = PRICES[k];
+    const n = Math.floor(rem / p.w);
+    val += n * p.hi;
+    rem = rem - n * p.w;
+  });
+  return val;
+}
 function round(n){ return Math.round(n*10)/10; }
 function now(){ return new Date().toLocaleString(); }
 
@@ -960,73 +1461,100 @@ function renderAll(){
   // Header stock
   const sv = document.getElementById("hdrStock");
   sv.innerHTML = toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>';
-  sv.className = "hdr-stock-val " + (s.stock < 50 ? "low" : "ok");
+  const startG = s.startStock || 0;
+  let stockCls = "ok";
+  if(startG > 0){
+    if(s.stock < startG*0.10) stockCls = "low";
+    else if(s.stock < startG*0.20) stockCls = "amber";
+  }
+  sv.className = "hdr-stock-val " + stockCls;
 
   const base = Math.max(s.startStock||1, s.stock, 1);
   const pct  = Math.min(100, (s.stock/base)*100);
+  const movedG = Math.max(0, round(base - s.stock));
   document.getElementById("progFill").style.width = pct.toFixed(1) + "%";
-  document.getElementById("progL").textContent = pct.toFixed(1) + "% REMAINING";
-  document.getElementById("progR").textContent = (100-pct).toFixed(1) + "% MOVED";
+  document.getElementById("progL").textContent = fmtDisp(s.stock) + " LEFT · " + pct.toFixed(0) + "%";
+  document.getElementById("progR").textContent = fmtDisp(movedG) + " MOVED";
 
   const earned = s.earned||0, exp = s.expenses||0, profit = earned-exp;
-  document.getElementById("s-earned").textContent = "$" + earned.toFixed(0);
+  document.getElementById("s-earned").textContent = fmtDollar(earned);
   const pe = document.getElementById("s-profit");
-  pe.textContent = (profit>=0?"+$":"-$") + Math.abs(profit).toFixed(0);
+  pe.textContent = (profit>=0?"+":"-") + fmtDollar(Math.abs(profit));
   pe.style.color = profit >= 0 ? "#4caf7a" : "#c05050";
-  document.getElementById("s-exp").textContent = "$" + exp.toFixed(0);
-  document.getElementById("s-est").textContent = "$" + estVal(s.stock).toFixed(0);
+  document.getElementById("s-exp").textContent = fmtDollar(exp);
+  document.getElementById("s-est").textContent = fmtDollar(estVal(s.stock));
 
   const ep = exp > 0 ? Math.min(100, (earned/exp)*100) : 0;
   document.getElementById("expBar").style.width = ep.toFixed(1) + "%";
-  document.getElementById("expFrac").textContent = "$" + Math.min(earned,exp).toFixed(0) + " / $" + exp.toFixed(0);
+  document.getElementById("expFrac").textContent = exp > 0
+    ? fmtDollar(Math.min(earned,exp)) + " / " + fmtDollar(exp)
+    : "No expenses logged";
 
   const rt = s.restockTotal||0;
   const rsEl = document.getElementById("restockSum");
   if(rt > 0){
     rsEl.style.display = "block";
-    document.getElementById("restockTot").textContent = u==="g" ? fmtG(rt)+"g" : toDisp(rt)+unitAbbr()+" ("+fmtG(rt)+"g)";
+    document.getElementById("restockTot").textContent = u==="g" ? fmtDisp(rt) : fmtDisp(rt)+" ("+rt+"g)";
   } else { rsEl.style.display = "none"; }
 
   const ut = s.useTotal||0;
   const usEl = document.getElementById("useSum");
   if(ut > 0){
     usEl.style.display = "block";
-    document.getElementById("useTotG").textContent    = u==="g" ? ut+"g" : toDisp(ut)+unitAbbr()+" ("+ut+"g)";
-    document.getElementById("useTotLost").textContent = "$" + ((ut/3.5)*27.5).toFixed(0);
+    document.getElementById("useTotG").textContent    = u==="g" ? fmtDisp(ut) : fmtDisp(ut)+" ("+ut+"g)";
+    document.getElementById("useTotLost").textContent = fmtDollar((ut/3.5)*27.5);
   } else { usEl.style.display = "none"; }
 
-  document.getElementById("packBreak").innerHTML = Object.entries(PRICES).map(([k,p]) => {
+  let bestPack = null, bestRatio = -1;
+  packOrder.forEach(k => {
+    const p = PRICES[k];
+    const ratio = p.hi / p.w;
+    if(ratio > bestRatio){ bestRatio = ratio; bestPack = k; }
+  });
+  document.getElementById("packBreak").innerHTML = packOrder.map(k => {
+    const p = PRICES[k];
     const c = Math.floor(s.stock / p.w);
-    const pr = p.lo===p.hi ? "$"+p.lo : "$"+p.lo+"–$"+p.hi;
+    const pr = p.lo===p.hi ? fmtDollar(p.lo) : fmtDollar(p.lo)+"–"+fmtDollar(p.hi);
     const empty = c === 0;
-    return `<div class="pack-row${empty?" empty":""}">
-      <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span></div>
-      <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~$${(c*p.hi).toLocaleString()}</span>`}</div>
+    const best = k === bestPack;
+    return `<div class="pack-row${empty?" empty":""}${best?" best":""}">
+      <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span>${best?'<span class="pack-best-tag">Best $/g</span>':''}</div>
+      <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
     </div>`;
   }).join("");
 
   renderLog(); renderQS();
+  const tipsPanel = document.getElementById("panel-tips");
+  if(tipsPanel && tipsPanel.classList.contains("on")) renderChart();
 }
 
 // ── RENDER LOG ──
 function renderLog(){
   const s = cur(); if(!s) return;
-  const u    = getUnit();
-  const logs = (s.logs||[]).filter(l => logFilter==="all" || l.type===logFilter);
-  document.getElementById("logCount").textContent = logs.length + " Entries";
+  const u = getUnit();
+  const now = Date.now();
+  const cutoffs = { today:now-86400000, week:now-7*86400000, month:now-30*86400000, all:0 };
+  const cutoff = cutoffs[logDateFilter]||0;
+  const allLogs = s.logs||[];
+  let logs = allLogs.filter(l => logFilter==="all" || l.type===logFilter);
+  if(cutoff>0) logs = logs.filter(l => l.id>=cutoff);
+  const filtered = logFilter!=="all" || logDateFilter!=="all";
+  document.getElementById("logCount").textContent = filtered
+    ? logs.length + " of " + allLogs.length + " entries"
+    : logs.length + " Entries";
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
-    const del   = `<button class="log-del" onclick="deleteLog(${l.id})">✕</button>`;
-    const wD    = fmtDisp(l.w, u);
+    const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`;
+    const wD     = fmtDisp(l.w, u);
     const afterD = l.after != null ? fmtDisp(l.after, u) : "";
     if(l.type==="sale")
-      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+$${l.total}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
+      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="restock")
-      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">📦 RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div><div class="log-left">${afterD} total</div>${del}</div></div></div>`;
+      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="use")
-      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div><div class="log-left">${afterD} left</div>${del}</div></div></div>`;
+      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">PERSONAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="expense")
-      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">💸 EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−$${l.amount}</div>${del}</div></div></div>`;
+      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     return "";
   }).join("");
 }
@@ -1042,12 +1570,12 @@ function renderQS(){
   const tsl = all.reduce((a,s) => a+(s.logs||[]).filter(l=>l.type==="sale").length, 0);
 
   document.getElementById("qsGrid").innerHTML = [
-    { l:"All Products Earned", v:"$"+te.toFixed(0),                                          c:"#4caf7a" },
-    { l:"Total Net Profit",    v:(tp>=0?"+$":"-$")+Math.abs(tp).toFixed(0),                  c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                          c:"#c9a040" },
-    { l:"Sales Logged",        v:tsl,                                                        c:"#e8e4d9" },
-    { l:"Personal Use (All)",  v:tu+"g",                                                     c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                              c:"#c9a040" },
+    { l:"All Products Earned", v:fmtDollar(te),                                                        c:"#4caf7a" },
+    { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                              c:tp>=0?"#4caf7a":"#c05050" },
+    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                                    c:"#c9a040" },
+    { l:"Sales Logged",        v:tsl,                                                                  c:"#e8e4d9" },
+    { l:"Personal Use (All)",  v:tu+"g",                                                               c:"#c05050" },
+    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                        c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [], s = cur();
@@ -1062,7 +1590,7 @@ function renderQS(){
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round((tu/3.5)*27.5);
-      if(lostVal>20) tips.push(`💨 Personal use has cost ~$${lostVal} in lost sales — worth keeping an eye on.`);
+      if(lostVal>20) tips.push(`💨 Personal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`);
     }
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
@@ -1137,10 +1665,11 @@ function applyTheme(id){ D.theme = id; _applyThemeVars(id); persist(); renderSet
 function applyFont(id){ D.font = id; _applyFontVar(id); persist(); renderSettings(); }
 
 function renderSettings(){
+  const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
   const tg = document.getElementById("themeGrid"); if(!tg) return;
-  const cur = D.theme || "midnight-gold";
+  const curT = D.theme || "midnight-gold";
   tg.innerHTML = THEMES.map(t =>
-    `<div class="theme-card${t.id===cur?" on":""}" onclick="applyTheme('${t.id}')">
+    `<div class="theme-card${t.id===curT?" on":""}" onclick="applyTheme('${t.id}')">
       <div class="theme-swatches">${t.dots.map(c=>`<div class="theme-dot" style="background:${c}"></div>`).join("")}</div>
       <div class="theme-name">${t.name}</div>
     </div>`
@@ -1148,8 +1677,9 @@ function renderSettings(){
   const fb = document.getElementById("fontBtns"); if(!fb) return;
   const cf = D.font || "terminal";
   fb.innerHTML = FONTS.map(f =>
-    `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}</button>`
+    `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
   ).join("");
+  renderPINSettings();
 }
 
 // ── TAB SWITCHING ──
@@ -1158,7 +1688,7 @@ function switchTab(name, btn){
   document.querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
   document.getElementById("panel-"+name).classList.add("on");
   btn.classList.add("on");
-  if(name==="tips") renderQS();
+  if(name==="tips"){ renderQS(); renderChart(); }
   if(name==="settings") renderSettings();
 }
 
@@ -1169,12 +1699,18 @@ if(D.font) _applyFontVar(D.font);
 if(isReady()){
   syncUnitDefaults();
   document.getElementById("setupScreen").style.display = "none";
-  document.getElementById("mainApp").style.display = "block";
-  renderAll(); updateSaleModal();
+  if(hasPIN()){
+    document.getElementById("mainApp").style.display = "none";
+    showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue");
+  } else {
+    document.getElementById("mainApp").style.display = "block";
+    renderAll(); updateSaleModal();
+  }
 } else {
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
 }
+setTimeout(checkForUpdate, 3000);
 </script>
 </body>
 </html>
