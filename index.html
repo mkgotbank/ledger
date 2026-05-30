@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#111120"/>
+<link rel="manifest" href="manifest.json"/>
 <title>The Ledger</title>
 <style>
 :root{
@@ -157,6 +158,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .log-left{font-size:8px;color:#606080;margin-top:2px;}
 .log-del{background:none;border:none;color:#505070;font-size:14px;cursor:pointer;margin-top:4px;padding:2px 0;line-height:1;display:block;transition:color 0.15s;}
 .log-del:active{color:#e05c5c;}
+.log-edit{background:none;border:none;color:#505070;font-size:13px;cursor:pointer;margin-top:3px;padding:2px 0;line-height:1;display:block;transition:color 0.15s;}
+.log-edit:active{color:var(--acc);}
 .log-empty{text-align:center;color:#555568;padding:60px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;}
 
 .ai-box{background:rgba(18,16,36,0.9);border:1px solid rgba(124,108,212,0.22);border-left:3px solid #8070d8;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
@@ -343,11 +346,22 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   <div class="setup-title">The Ledger</div>
   <div class="setup-sub">Set up your first product</div>
   <div class="setup-field">
-    <label class="setup-label">Product / Strain Name</label>
-    <input class="setup-input" id="ss-name" placeholder="e.g. Runtz" autocomplete="off"/>
+    <label class="setup-label">Product Name</label>
+    <input class="setup-input" id="ss-name" placeholder="e.g. Product 1" autocomplete="off"/>
   </div>
   <div class="setup-field">
-    <label class="setup-label">Starting Stock (grams)</label>
+    <label class="setup-label">Unit Type</label>
+    <div class="utype-row">
+      <button class="utype-btn on" id="ss-wbtn" onclick="ssSetUnit('weight',this)">⚖️ Weight<br><span style="font-size:8px;font-weight:400">g / oz / lb</span></button>
+      <button class="utype-btn" id="ss-cbtn" onclick="ssSetUnit('count',this)">📦 Count<br><span style="font-size:8px;font-weight:400">bottles, pieces…</span></button>
+    </div>
+  </div>
+  <div class="setup-field" id="ss-unitname-wrap" style="display:none">
+    <label class="setup-label">Unit Name (plural, e.g. bottles)</label>
+    <input class="setup-input" id="ss-unitname" placeholder="e.g. bottles" autocomplete="off"/>
+  </div>
+  <div class="setup-field">
+    <label class="setup-label" id="ss-stock-lbl">Starting Stock (grams)</label>
     <input class="setup-input" id="ss-stock" type="number" placeholder="0" inputmode="decimal"/>
   </div>
   <div class="setup-field">
@@ -381,15 +395,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       <div class="prog-labels"><span id="progL">0% REMAINING</span><span id="progR">0% MOVED</span></div>
     </div>
-    <div class="unit-bar">
+    <div class="unit-bar" id="unitBar">
       <span class="unit-bar-lbl">Unit</span>
-      <div class="unit-btns">
+      <div class="unit-btns" id="unitBtns">
         <button class="uBtn on" data-unit="g"      onclick="setUnit('g')">g</button>
         <button class="uBtn"    data-unit="halfoz" onclick="setUnit('halfoz')">½oz</button>
         <button class="uBtn"    data-unit="oz"     onclick="setUnit('oz')">oz</button>
         <button class="uBtn"    data-unit="halflb" onclick="setUnit('halflb')">½lb</button>
         <button class="uBtn"    data-unit="lb"     onclick="setUnit('lb')">lb</button>
       </div>
+      <span class="unit-static-lbl" id="unitStaticLbl" style="display:none"></span>
     </div>
   </div>
 
@@ -489,7 +504,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     </div>
     <button class="btn-ai" id="aiBtn" onclick="getAI()">✦ Get AI Advice</button>
 
-    <div class="sec-lbl">Quick Stats — All Products</div>
+    <!-- Chat follow-up — shown after advice loads -->
+    <div id="chatSection" style="display:none" class="chat-wrap">
+      <div class="chat-hdr">
+        <span class="chat-hdr-lbl">💬 Ask a Follow-Up</span>
+        <button class="chat-clear" onclick="clearChat()">Clear</button>
+      </div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="chat-row">
+        <input class="chat-in" id="chatInput" placeholder="Ask anything about your numbers..." maxlength="300" autocomplete="off"/>
+        <button class="chat-btn" id="chatSend" onclick="sendChatMsg()">↑</button>
+      </div>
+    </div>
+
+    <div class="sec-lbl" id="qsLbl">Quick Stats</div>
     <div class="qs-grid" id="qsGrid"></div>
 
     <div class="sec-lbl">Smart Suggestions</div>
@@ -538,6 +566,55 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- WHAT'S NEW MODAL -->
+<div class="overlay" id="modal-whatsNew" onclick="if(event.target.id==='modal-whatsNew')dismissWhatsNew()">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">✦ What's New</div>
+      <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
+    </div>
+    <div class="wn-badge" id="wnVersion">Version 1.5</div>
+    <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">📦</div>
+        <div>
+          <div class="wn-title">Custom Units — Any Business</div>
+          <div class="wn-desc">Products now support Count/Unit tracking (bottles, pieces, boxes — anything). Choose your unit type when adding a product. Existing products continue working exactly as before.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">💲</div>
+        <div>
+          <div class="wn-title">Per-Product Price Reference</div>
+          <div class="wn-desc">Each product has its own price suggestions. Tap any row in Price Reference to set prices specific to that product.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">💬</div>
+        <div>
+          <div class="wn-title">AI Chat Follow-Up</div>
+          <div class="wn-desc">After loading your AI advice, ask follow-up questions directly in the Tips tab. The advisor knows your full product data and stays on topic.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">✎</div>
+        <div>
+          <div class="wn-title">Edit Log Notes</div>
+          <div class="wn-desc">Tap the pencil icon on any log entry to add or update its note — works on sales, restocks, personal use and expenses.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">📊</div>
+        <div>
+          <div class="wn-title">Per-Product Tips & Stats</div>
+          <div class="wn-desc">Quick Stats, Smart Suggestions and AI advice are now separate for each product. Each one remembers its own analysis.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-confirm" onclick="dismissWhatsNew()">Got It</button>
+  </div>
+</div>
+
 <!-- SALE MODAL -->
 <div class="overlay" id="modal-sale" onclick="overlayClose(event,'modal-sale')">
   <div class="mbox">
@@ -547,13 +624,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     </div>
     <div class="m-sec">
       <span class="m-lbl">Pack Size</span>
-      <div class="pack-btns">
-        <button class="pbtn" onclick="setPack('28g',this)">28g</button>
-        <button class="pbtn on" onclick="setPack('14g',this)">14g</button>
-        <button class="pbtn" onclick="setPack('7g',this)">7g</button>
-        <button class="pbtn" onclick="setPack('3.5g',this)">3.5g</button>
-        <button class="pbtn" onclick="setPack('1g',this)">1g</button>
-      </div>
+      <div class="pack-btns" id="packBtns"></div>
     </div>
     <div class="m-sec">
       <span class="m-lbl">Quantity</span>
@@ -589,9 +660,18 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="modal-close" onclick="closeModal('strainMgr')">✕</button>
     </div>
     <div id="strainList"></div>
-    <div class="ns-row">
-      <input class="ns-in" id="nsInput" placeholder="New product name..." autocomplete="off"/>
-      <button class="ns-add" onclick="addStrain()">+ Add</button>
+    <div style="margin-top:14px">
+      <div class="utype-row" style="margin-bottom:8px">
+        <button class="utype-btn on" id="ns-wbtn" onclick="nsSetUnit('weight',this)">⚖️ Weight</button>
+        <button class="utype-btn" id="ns-cbtn" onclick="nsSetUnit('count',this)">📦 Count/Units</button>
+      </div>
+      <div id="ns-unitname-wrap" style="display:none;margin-bottom:8px">
+        <input class="ns-in" id="nsUnitName" placeholder="Unit name (e.g. bottles)" autocomplete="off" style="width:100%"/>
+      </div>
+      <div class="ns-row">
+        <input class="ns-in" id="nsInput" placeholder="New product name..." autocomplete="off"/>
+        <button class="ns-add" onclick="addStrain()">+ Add</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1047,6 +1127,12 @@ const PRICE_REF_DEFAULTS = [
   { label:"1g",         grams:1,   lo:10,  hi:12  }
 ];
 const PRICE_REF_PACK_MAP = { "28g (1oz)":"28g", "14g (½oz)":"14g", "7g (¼oz)":"7g", "3.5g (⅛oz)":"3.5g", "1g":"1g" };
+const COUNT_PACK_DEFAULTS = [
+  { label:"Single",  qty:1,  lo:5,  hi:5  },
+  { label:"3 Pack",  qty:3,  lo:12, hi:15 },
+  { label:"6 Pack",  qty:6,  lo:22, hi:25 },
+  { label:"12 Pack", qty:12, lo:40, hi:45 },
+];
 const UNITS = {
   g:     { abbr:"g",   label:"Grams",   grams:1   },
   halfoz:{ abbr:"½oz", label:"Half Oz", grams:14  },
@@ -1060,11 +1146,22 @@ const UNIT_STEPS            = { g:1,  halfoz:0.5, oz:0.25, halflb:0.25, lb:0.125
 const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
 
 let D = { strains:{}, cur:"" };
-let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, expMode = "add", editingPriceIdx = -1;
+let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 
-function fresh(stock, expenses){
-  return { stock:+stock||0, startStock:+stock||0, expenses:+expenses||0, earned:0, useTotal:0, restockTotal:0, logs:[] };
+function fresh(stock, expenses, unitCfg){
+  const isW = !unitCfg || unitCfg.type === "weight";
+  return {
+    stock:+stock||0, startStock:+stock||0, expenses:+expenses||0,
+    earned:0, useTotal:0, restockTotal:0, logs:[],
+    priceRef: isW ? PRICE_REF_DEFAULTS.map(r=>({...r})) : COUNT_PACK_DEFAULTS.map(r=>({...r})),
+    unitCfg: unitCfg || { type:"weight" }
+  };
 }
+// ── Unit helpers ──
+function isWeight(s){ s=s||cur(); return !s||!s.unitCfg||s.unitCfg.type==="weight"; }
+function packW(r){ return r.qty!==undefined ? r.qty : (r.grams||1); }
+function unitSingular(s){ s=s||cur(); if(isWeight(s)) return unitAbbr(); const p=s.unitCfg.plural||"units"; return s.unitCfg.singular||(p.endsWith("s")?p.slice(0,-1):p); }
+function unitPlural(s){ s=s||cur(); return isWeight(s) ? unitLabel() : (s.unitCfg.plural||"units"); }
 function cur(){ return D.strains[D.cur] || null; }
 
 // ── UNIT HELPERS ──
@@ -1094,9 +1191,13 @@ function setUnit(u){
 }
 
 function syncUnitDefaults(){
-  const u = getUnit();
-  restockAmt = UNIT_RESTOCK_DEFAULTS[u] || 14;
-  useAmt     = UNIT_USE_DEFAULTS[u]     || 2;
+  if(!isWeight()){
+    restockAmt = 1; useAmt = 1;
+  } else {
+    const u = getUnit();
+    restockAmt = UNIT_RESTOCK_DEFAULTS[u] || 14;
+    useAmt     = UNIT_USE_DEFAULTS[u]     || 2;
+  }
   const inp = document.getElementById("restockAmt");
   if(inp) inp.value = restockAmt;
   const useInp = document.getElementById("useAmt");
@@ -1121,33 +1222,72 @@ function persist(){
 }
 function hydrate(){
   try { const r = localStorage.getItem(SK); if(r){ const p = JSON.parse(r); if(p && p.strains) D = p; } } catch(e){}
-  if(!D.priceRef) D.priceRef = PRICE_REF_DEFAULTS.map(r => ({...r}));
+  // Migrate: copy global priceRef into products that lack one, add unitCfg to old products
+  const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
+  Object.values(D.strains).forEach(s => {
+    if(!s.priceRef) s.priceRef = globalRef.map(r => ({...r}));
+    if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
+  });
+  delete D.priceRef;
   syncPricesFromRef();
 }
 function isReady(){ return D.cur && D.strains[D.cur]; }
 
 // ── SETUP ──
+let _ssUnitType = "weight";
+function ssSetUnit(type, btn){
+  _ssUnitType = type;
+  document.querySelectorAll(".utype-btn[id^='ss-']").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  const wrap = document.getElementById("ss-unitname-wrap");
+  const lbl  = document.getElementById("ss-stock-lbl");
+  wrap.style.display = type === "count" ? "block" : "none";
+  lbl.textContent = type === "count" ? "Starting Stock (units)" : "Starting Stock (grams)";
+}
 function doSetup(){
   const name  = document.getElementById("ss-name").value.trim() || "Product 1";
   const stock = parseFloat(document.getElementById("ss-stock").value) || 0;
   const exp   = parseFloat(document.getElementById("ss-exp").value)   || 0;
-  if(!D.strains[name]) D.strains[name] = fresh(stock, exp);
+  let unitCfg = { type:"weight" };
+  if(_ssUnitType === "count"){
+    const raw = document.getElementById("ss-unitname").value.trim() || "units";
+    unitCfg = { type:"count", plural: raw, singular: raw.endsWith("s") ? raw.slice(0,-1) : raw };
+  }
+  if(!D.strains[name]) D.strains[name] = fresh(stock, exp, unitCfg);
   D.cur = name;
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
-  syncUnitDefaults();
+  syncUnitDefaults(); syncPricesFromRef();
   persist(); renderAll(); updateSaleModal();
 }
 
 // ── STRAIN MANAGEMENT ──
+let _nsUnitType = "weight";
+function nsSetUnit(type, btn){
+  _nsUnitType = type;
+  document.querySelectorAll(".utype-btn[id^='ns-']").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  document.getElementById("ns-unitname-wrap").style.display = type === "count" ? "block" : "none";
+}
 function switchStrain(n){
-  if(D.strains[n]){ D.cur = n; syncUnitDefaults(); persist(); renderAll(); }
+  if(D.strains[n]){ D.cur = n; syncUnitDefaults(); syncPricesFromRef(); persist(); renderAll(); }
 }
 function addStrain(){
   const inp = document.getElementById("nsInput");
   const n = inp.value.trim(); if(!n) return;
   if(D.strains[n]){ showToast("Already exists!", "err"); return; }
-  D.strains[n] = fresh(0, 0); inp.value = "";
+  let unitCfg = { type:"weight" };
+  if(_nsUnitType === "count"){
+    const raw = (document.getElementById("nsUnitName").value.trim()) || "units";
+    unitCfg = { type:"count", plural: raw, singular: raw.endsWith("s") ? raw.slice(0,-1) : raw };
+  }
+  D.strains[n] = fresh(0, 0, unitCfg); inp.value = "";
+  // Reset add-product form
+  _nsUnitType = "weight";
+  document.getElementById("ns-wbtn").classList.add("on");
+  document.getElementById("ns-cbtn").classList.remove("on");
+  document.getElementById("ns-unitname-wrap").style.display = "none";
+  document.getElementById("nsUnitName").value = "";
   persist(); renderStrainSel(); renderStrainMgr();
   showToast("Product added", "ok");
 }
@@ -1179,13 +1319,13 @@ function renderStrainMgr(){
 // ── CONTROLS ──
 function adjRestock(dir){
   const inp  = document.getElementById("restockAmt");
-  const step = UNIT_STEPS[getUnit()] || 1;
+  const step = isWeight() ? (UNIT_STEPS[getUnit()]||1) : 1;
   restockAmt = Math.round(Math.min(9999, Math.max(step, (parseFloat(inp.value)||restockAmt) + dir * step)) * 1000) / 1000;
   inp.value  = restockAmt;
 }
 function adjUse(dir){
-  const inp = document.getElementById("useAmt");
-  const step = USE_STEPS[getUnit()] || 0.5;
+  const inp  = document.getElementById("useAmt");
+  const step = isWeight() ? (USE_STEPS[getUnit()]||0.5) : 1;
   useAmt = Math.round(Math.min(9999, Math.max(step, (parseFloat(inp.value)||useAmt) + dir * step)) * 1000) / 1000;
   inp.value = useAmt;
 }
@@ -1197,7 +1337,29 @@ function setPack(t, btn){
   document.querySelectorAll(".pbtn").forEach(b => b.classList.remove("on"));
   btn.classList.add("on"); updateSaleModal();
 }
+function setPackCustom(idx, btn){
+  const s = cur(); if(!s) return;
+  const r = (s.priceRef||[])[idx]; if(!r) return;
+  saleType = r.label; salePrice = r.hi; saleQty = 1;
+  document.querySelectorAll(".pbtn").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on"); updateSaleModal();
+}
+function renderPackBtns(){
+  const s = cur(); if(!s) return;
+  const c = document.getElementById("packBtns"); if(!c) return;
+  if(isWeight(s)){
+    c.innerHTML = Object.keys(PRICES).map(k =>
+      `<button class="pbtn${saleType===k?" on":""}" onclick="setPack('${k}',this)">${k}</button>`
+    ).join("");
+  } else {
+    const pks = s.priceRef || [];
+    c.innerHTML = pks.map((r,i) =>
+      `<button class="pbtn${saleType===r.label?" on":""}" onclick="setPackCustom(${i},this)">${r.label}</button>`
+    ).join("");
+  }
+}
 function updateSaleModal(){
+  const s = cur(); if(!s) return;
   document.getElementById("qtyN").textContent = saleQty;
   document.getElementById("qtyHint").textContent = "= " + (PRICES[saleType].w * saleQty).toFixed(1) + "g";
   document.getElementById("priceN").textContent = fmtDollar(salePrice);
@@ -1219,6 +1381,7 @@ function openModal(id){
 function closeModal(id){ document.getElementById("modal-"+id).classList.remove("open"); }
 function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
+  const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleType = "14g"; salePrice = midPrice("14g");
   document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
@@ -1242,13 +1405,13 @@ function doRestock(){
   const inputVal = Math.round(Math.min(9999, Math.max(0.001, parseFloat(document.getElementById("restockAmt").value)||0)) * 1000) / 1000;
   if(!inputVal){ showToast("Enter an amount first", "err"); return; }
   restockAmt = inputVal;
-  const addGrams = fromDisp(restockAmt);
-  const ns = round(s.stock + addGrams);
+  const addAmt = isWeight(s) ? fromDisp(restockAmt) : restockAmt;
+  const ns = round(s.stock + addAmt);
   s.stock = ns;
-  s.startStock    = Math.max(s.startStock||0, ns);
-  s.restockTotal  = round((s.restockTotal||0) + addGrams);
-  s.logs.unshift({ id:Date.now(), type:"restock", w:addGrams, date:now(), after:ns });
-  showToast("+" + restockAmt + unitAbbr() + " added", "ok");
+  s.startStock   = Math.max(s.startStock||0, ns);
+  s.restockTotal = round((s.restockTotal||0) + addAmt);
+  s.logs.unshift({ id:Date.now(), type:"restock", w:addAmt, date:now(), after:ns });
+  showToast("+" + restockAmt + " " + unitSingular(s) + " added", "ok");
   persist(); renderAll();
 }
 function doUse(){
@@ -1256,18 +1419,24 @@ function doUse(){
   const inputVal = Math.round(Math.min(9999, Math.max(0.001, parseFloat(document.getElementById("useAmt").value)||0)) * 1000) / 1000;
   if(!inputVal){ showToast("Enter an amount first", "err"); return; }
   useAmt = inputVal;
-  const useGrams = fromDisp(useAmt);
-  if(useGrams > s.stock){ showToast("Not enough stock!", "err"); return; }
-  const ns = round(s.stock - useGrams);
+  const useAmt_ = isWeight(s) ? fromDisp(useAmt) : useAmt;
+  if(useAmt_ > s.stock){ showToast("Not enough stock!", "err"); return; }
+  const ns = round(s.stock - useAmt_);
   s.stock = ns;
-  s.useTotal = round((s.useTotal||0) + useGrams);
-  s.logs.unshift({ id:Date.now(), type:"use", w:useGrams, date:now(), after:ns });
-  showToast(useAmt + unitAbbr() + " logged");
+  s.useTotal = round((s.useTotal||0) + useAmt_);
+  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns });
+  showToast(useAmt + " " + unitSingular(s) + " logged");
   persist(); renderAll();
 }
 function confirmSale(){
   const s = cur(); if(!s) return;
-  const tw = round(PRICES[saleType].w * saleQty);
+  let tw;
+  if(isWeight(s)){
+    tw = round(PRICES[saleType].w * saleQty);
+  } else {
+    const r = (s.priceRef||[]).find(r => r.label === saleType);
+    tw = round((r ? packW(r) : 1) * saleQty);
+  }
   if(tw > s.stock){ showToast("Not enough stock!", "err"); return; }
   const earned = salePrice * saleQty;
   const ns = round(s.stock - tw);
@@ -1319,6 +1488,24 @@ function deleteLog(id){
   showToast("Entry removed"); persist(); renderAll();
 }
 
+// ── EDIT NOTE ──
+function openEditNote(id){
+  const s = cur(); if(!s) return;
+  const l = s.logs.find(l => l.id === id); if(!l) return;
+  editNoteId = id;
+  document.getElementById("editNoteInput").value = l.note || "";
+  openModal("editNote");
+  setTimeout(() => document.getElementById("editNoteInput").focus(), 150);
+}
+function saveEditNote(){
+  const s = cur(); if(!s) return;
+  const l = s.logs.find(l => l.id === editNoteId); if(!l) return;
+  l.note = document.getElementById("editNoteInput").value.trim();
+  closeModal("editNote");
+  showToast("Note updated", "ok");
+  persist(); renderLog();
+}
+
 // ── AI ──
 const AI_MODELS = ["openai","mistral","llama","openai-large"];
 async function fetchWithRetry(prompt, statusEl){
@@ -1362,26 +1549,78 @@ async function getAI(){
   btn.innerHTML = '✦ Analyzing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
   body.className = "ai-body loading"; body.textContent = "Reading your inventory data...";
 
-  const strainData = Object.entries(D.strains).map(([n,s]) => {
-    const salesByPack = {};
-    (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
-    return { name:n, stock:s.stock, expenses:s.expenses||0, earned:s.earned||0, profit:(s.earned||0)-(s.expenses||0), personalUse:s.useTotal||0, totalSales:(s.logs||[]).filter(l=>l.type==="sale").length, salesByPack };
+  // Build rich per-product data objects
+  const products = Object.entries(D.strains).map(([n, st]) => {
+    const logs      = st.logs || [];
+    const saleLogs  = logs.filter(l => l.type === "sale");
+    const earned    = st.earned    || 0;
+    const exp       = st.expenses  || 0;
+    const profit    = earned - exp;
+    const use       = st.useTotal  || 0;
+    const useLost   = Math.round(use / 3.5 * 27.5);
+    const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
+    const expCovPct = exp   > 0 ? Math.min(100, Math.round((earned / exp) * 100)) : (earned > 0 ? 100 : 0);
+    const avgSale   = saleLogs.length ? Math.round(saleLogs.reduce((a,l) => a+l.total, 0) / saleLogs.length) : 0;
+    const byPack    = {};
+    saleLogs.forEach(l => {
+      if(!byPack[l.pack]) byPack[l.pack] = { qty:0, rev:0 };
+      byPack[l.pack].qty += l.qty; byPack[l.pack].rev += l.total;
+    });
+    const topPack     = Object.entries(byPack).sort((a,b) => b[1].rev - a[1].rev)[0];
+    const recentSales = saleLogs.slice(0,5).map(l => `${l.qty}×${l.pack} $${l.total}${l.note?" ("+l.note+")":""}`).join(", ") || "none";
+    return { name:n, isCurrent:n===D.cur, stock:st.stock||0, earned, exp, profit, marginPct, expCovPct, salesCount:saleLogs.length, byPack, topPack, avgSale, use, useLost, recentSales };
   });
-  const totalEarned = strainData.reduce((a,s) => a+s.earned, 0);
-  const totalExp    = strainData.reduce((a,s) => a+s.expenses, 0);
+
+  const focus       = products.find(p => p.isCurrent);
+  const others      = products.filter(p => !p.isCurrent);
+  const totalEarned = products.reduce((a,p) => a+p.earned, 0);
+  const totalExp    = products.reduce((a,p) => a+p.exp,    0);
   const totalProfit = totalEarned - totalExp;
-  const as = strainData.find(s => s.name === D.cur);
 
-  const prompt = `You are a cannabis business advisor. Give 5 actionable tips. Start each with an emoji. 2-3 sentences each. Blank line between tips. Plain text only — no bold, no headers.
+  const packLines = Object.entries(focus.byPack)
+    .sort((a,b) => b[1].rev - a[1].rev)
+    .map(([p,v]) => `    ${p}: ${v.qty} sold — $${v.rev} revenue`)
+    .join("\n") || "    no sales yet";
 
-PRODUCT: ${D.cur} | Stock: ${as.stock}g | Earned: $${as.earned} | Expenses: $${as.expenses} | Profit: ${as.profit>=0?'+':''}$${as.profit} | Personal use: ${as.personalUse}g | Sales: ${as.totalSales} | By pack: ${JSON.stringify(as.salesByPack)}
-ALL PRODUCTS: Earned $${totalEarned.toFixed(0)} / Expenses $${totalExp.toFixed(0)} / Net ${totalProfit>=0?'+':''}$${totalProfit.toFixed(0)}
+  const otherLines = others.length
+    ? others.map(p => { const st=D.strains[p.name]; return `  ${p.name}: $${p.earned.toFixed(0)} earned / ${p.profit>=0?"+":""}$${p.profit.toFixed(0)} profit / ${p.stock.toFixed(1)} ${unitPlural(st)} left`; }).join("\n")
+    : "  none";
 
-Cover: best pack to push and why, personal use dollar cost, expense coverage status, one specific move to make right now, honest overall outlook.`;
+  const focusUnitPlural = unitPlural(D.strains[focus.name]);
+  const prompt =
+`You are a sharp, number-driven business advisor. Analyze the real data below and give exactly 5 specific, actionable tips. Each tip must start with an emoji and be 2-3 sentences. Reference the actual numbers — no generic advice. Blank line between tips. Plain text only, no bold, no headers.
+
+FOCUS PRODUCT: ${focus.name}
+  Stock remaining : ${focus.stock.toFixed(1)} ${focusUnitPlural}
+  Total earned    : $${focus.earned.toFixed(0)}
+  Total expenses  : $${focus.exp.toFixed(0)}
+  Net profit      : ${focus.profit>=0?"+":""}$${focus.profit.toFixed(0)}  (${focus.marginPct}% margin)
+  Expenses covered: ${focus.expCovPct}%
+  Transactions    : ${focus.salesCount} sales  |  avg sale $${focus.avgSale}
+  Best pack       : ${focus.topPack ? focus.topPack[0]+" ("+focus.topPack[1].qty+" sold, $"+focus.topPack[1].rev+" rev)" : "none yet"}
+  Revenue by pack :
+${packLines}
+  Personal use    : ${focus.use.toFixed(1)} ${focusUnitPlural}  (~$${focus.useLost} in lost revenue)
+  Recent sales    : ${focus.recentSales}
+
+${others.length ? "OTHER PRODUCTS:\n"+otherLines+"\n\n" : ""}PORTFOLIO TOTAL: $${totalEarned.toFixed(0)} earned  /  $${totalExp.toFixed(0)} expenses  /  ${totalProfit>=0?"+":""}$${totalProfit.toFixed(0)} net
+
+Address exactly these 5 areas using the numbers above:
+1. Which pack size is the real money-maker and what to do with the slower sizes
+2. Whether personal use is meaningfully hurting margins (give the dollar impact)
+3. Expense coverage status and what the margin % means for the next restock decision
+4. One specific pricing or promo move to execute this week to increase revenue
+5. Honest product outlook — is this worth scaling, maintaining, or cutting relative to the portfolio`;
 
   try {
     const txt = await fetchWithRetry(prompt, body);
     body.className = "ai-body"; body.textContent = txt;
+    const cs2 = cur(); if(cs2){ cs2.aiTips = txt; cs2.aiChat = []; }
+    persist();
+    // Show chat input now that advice is ready
+    const chatSec = document.getElementById("chatSection");
+    if(chatSec) chatSec.style.display = "block";
+    renderChat();
   } catch(e){
     body.className = "ai-body idle";
     body.textContent = "⚠️ " + (e.message || "Unknown error");
@@ -1389,14 +1628,144 @@ Cover: best pack to push and why, personal use dollar cost, expense coverage sta
   aiLoading = false; btn.disabled = false; btn.innerHTML = "✦ Refresh AI Advice";
 }
 
+// ── AI CHAT ──
+function escHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderChat(){
+  const s = cur(); if(!s) return;
+  const box = document.getElementById("chatMsgs"); if(!box) return;
+  const msgs = s.aiChat || [];
+  if(!msgs.length){ box.innerHTML = ""; return; }
+  box.innerHTML = msgs.map(m => {
+    if(m.role === "user")
+      return `<div class="cm cm-u">${escHtml(m.content)}</div>`;
+    const isLoading = m.content === null;
+    return `<div class="cm cm-a">${isLoading
+      ? '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>'
+      : escHtml(m.content)}</div>`;
+  }).join("");
+  // Auto-scroll to latest message
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearChat(){
+  const s = cur(); if(!s) return;
+  s.aiChat = []; persist(); renderChat();
+}
+
+async function sendChatMsg(){
+  if(chatLoading) return;
+  const s = cur(); if(!s || !s.aiTips) return;
+
+  const input   = document.getElementById("chatInput");
+  const sendBtn = document.getElementById("chatSend");
+  const question = input.value.trim();
+  if(!question) return;
+
+  if(!s.aiChat) s.aiChat = [];
+  s.aiChat.push({ role:"user",      content: question });
+  s.aiChat.push({ role:"assistant", content: null });
+  input.value = "";
+  chatLoading  = true;
+  sendBtn.disabled = true;
+  input.disabled   = true;
+  renderChat();
+
+  // ── Rich context for this product ──
+  const earned   = s.earned    || 0;
+  const exp      = s.expenses  || 0;
+  const profit   = earned - exp;
+  const use      = s.useTotal  || 0;
+  const useLost  = Math.round(use / 3.5 * 27.5);
+  const marginPct = earned > 0 ? Math.round((profit / earned) * 100) : 0;
+  const saleLogs  = (s.logs||[]).filter(l => l.type === "sale");
+
+  const byPack = {};
+  saleLogs.forEach(l => {
+    if(!byPack[l.pack]) byPack[l.pack] = { qty:0, rev:0 };
+    byPack[l.pack].qty += l.qty; byPack[l.pack].rev += l.total;
+  });
+  const packSummary = Object.entries(byPack)
+    .sort((a,b) => b[1].rev - a[1].rev)
+    .map(([p,v]) => `${p}: ${v.qty} sold / $${v.rev} rev`)
+    .join(", ") || "no sales yet";
+
+  // ── All-products snapshot so AI can compare ──
+  const allProducts = Object.entries(D.strains)
+    .map(([n, st]) => {
+      const e = st.earned||0, x = st.expenses||0, p = e-x;
+      return `  ${n}${n===D.cur?" (active)":""}: $${e.toFixed(0)} earned / ${p>=0?"+":""}$${p.toFixed(0)} profit / ${(st.stock||0).toFixed(1)} ${unitPlural(st)} left`;
+    }).join("\n");
+
+  // ── Conversation history — last 6 messages, simple linear format ──
+  const history = s.aiChat.slice(0, -2).slice(-6);
+  const convoStr = history.length
+    ? "\nCHAT HISTORY:\n" + history.map(m => `${m.role==="user"?"User":"Advisor"}: ${m.content}`).join("\n")
+    : "";
+
+  const prompt =
+`You are a knowledgeable cannabis business advisor with full access to this seller's data. Answer the question directly, using the specific numbers. Be concise (2-4 sentences). Plain text only, no markdown.
+
+ACTIVE PRODUCT: ${D.cur}
+  Stock: ${(s.stock||0).toFixed(1)}g | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
+  Sales by pack: ${packSummary}
+  Personal use: ${use.toFixed(1)} ${unitPlural(s)} (~$${useLost} lost revenue)
+
+ALL PRODUCTS:
+${allProducts}
+
+ORIGINAL ADVICE:
+${s.aiTips}
+${convoStr}
+
+USER QUESTION: ${question}`;
+
+  let response = null;
+  for(let i = 0; i < AI_MODELS.length; i++){
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 30000);
+    try {
+      const url = "https://text.pollinations.ai/" + encodeURIComponent(prompt)
+        + "?model=" + AI_MODELS[i] + "&seed=" + Math.floor(Math.random() * 99999);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if(res.status === 429) continue;
+      if(!res.ok) throw new Error("Status " + res.status);
+      const txt = await res.text();
+      if(txt && txt.trim()){ response = txt.trim(); break; }
+    } catch(e){
+      clearTimeout(timer);
+      if(e.name === "AbortError"){ if(i < AI_MODELS.length-1) continue; break; }
+      if(i < AI_MODELS.length-1) continue;
+    }
+  }
+
+  s.aiChat[s.aiChat.length - 1] = {
+    role: "assistant",
+    content: response || "⚠️ Couldn't reach the AI — please try again."
+  };
+
+  chatLoading = false;
+  sendBtn.disabled = false;
+  input.disabled   = false;
+  persist();
+  renderChat();
+  input.focus();
+}
+
 // ── PRICE REFERENCE ──
 function syncPricesFromRef(){
-  (D.priceRef||[]).forEach(r => {
+  const s = cur(); if(!s) return;
+  if(!isWeight(s)) return; // non-weight products don't use global PRICES
+  (s.priceRef||[]).forEach(r => {
     const pk = PRICE_REF_PACK_MAP[r.label];
     if(pk && PRICES[pk]){ PRICES[pk].lo = r.lo; PRICES[pk].hi = r.hi; }
   });
 }
 function renderPriceRef(){
+  const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
   el.innerHTML = (D.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
     const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
@@ -1406,14 +1775,15 @@ function renderPriceRef(){
     return `<div class="pref-row">
       <span class="pref-sz">${r.label}</span>
       <span>${priceStr}</span>
-      <span class="pref-pg">${perG}</span>
+      <span class="pref-pg">${perUnit}</span>
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
     </div>`;
   }).join("");
 }
 function openEditPriceModal(i){
+  const s = cur(); if(!s) return;
   editingPriceIdx = i;
-  const r = D.priceRef[i];
+  const r = s.priceRef[i];
   document.getElementById("editPriceMTitle").textContent = "Edit — " + r.label;
   document.getElementById("editPriceLo").value = r.lo;
   document.getElementById("editPriceHi").value = r.hi;
@@ -1421,10 +1791,11 @@ function openEditPriceModal(i){
   setTimeout(() => document.getElementById("editPriceLo").focus(), 150);
 }
 function confirmEditPrice(){
+  const s = cur(); if(!s) return;
   const lo = Math.max(0, parseFloat(document.getElementById("editPriceLo").value)||0);
   const hi = Math.max(lo, parseFloat(document.getElementById("editPriceHi").value)||lo);
-  D.priceRef[editingPriceIdx].lo = lo;
-  D.priceRef[editingPriceIdx].hi = hi;
+  s.priceRef[editingPriceIdx].lo = lo;
+  s.priceRef[editingPriceIdx].hi = hi;
   closeModal("editPrice");
   syncPricesFromRef();
   persist(); renderPriceRef(); renderAll();
@@ -1450,11 +1821,22 @@ function renderAll(){
   const s = cur(); if(!s) return;
   renderStrainSel();
 
-  // Unit bar
+  // Unit bar — weight products show unit buttons; count products show static label
   const u = getUnit();
-  document.querySelectorAll(".uBtn").forEach(b => b.classList.toggle("on", b.dataset.unit === u));
-  document.getElementById("restockUnitLbl").textContent = unitLabel();
-  document.getElementById("useUnitLbl").textContent = unitLabel();
+  const unitBtns = document.getElementById("unitBtns");
+  const unitStaticLbl = document.getElementById("unitStaticLbl");
+  if(isWeight(s)){
+    if(unitBtns) unitBtns.style.display = "";
+    if(unitStaticLbl) unitStaticLbl.style.display = "none";
+    document.querySelectorAll(".uBtn").forEach(b => b.classList.toggle("on", b.dataset.unit === u));
+    document.getElementById("restockUnitLbl").textContent = unitLabel();
+    document.getElementById("useUnitLbl").textContent = unitLabel();
+  } else {
+    if(unitBtns) unitBtns.style.display = "none";
+    if(unitStaticLbl){ unitStaticLbl.style.display = ""; unitStaticLbl.textContent = unitPlural(s); }
+    document.getElementById("restockUnitLbl").textContent = unitPlural(s);
+    document.getElementById("useUnitLbl").textContent = unitPlural(s);
+  }
   const useInp = document.getElementById("useAmt");
   if(useInp) useInp.value = useAmt;
 
@@ -1559,15 +1941,15 @@ function renderLog(){
   }).join("");
 }
 
-// ── QUICK STATS + SUGGESTIONS ──
+// ── QUICK STATS + SUGGESTIONS (per product) ──
 function renderQS(){
-  const all = Object.values(D.strains);
-  const te  = all.reduce((a,s) => a+(s.earned||0), 0);
-  const tx  = all.reduce((a,s) => a+(s.expenses||0), 0);
-  const tp  = te - tx;
-  const ts  = all.reduce((a,s) => a+(s.stock||0), 0);
-  const tu  = all.reduce((a,s) => a+(s.useTotal||0), 0);
-  const tsl = all.reduce((a,s) => a+(s.logs||[]).filter(l=>l.type==="sale").length, 0);
+  const s = cur(); if(!s) return;
+  const earned = s.earned   || 0;
+  const exp    = s.expenses || 0;
+  const profit = earned - exp;
+  const stock  = s.stock    || 0;
+  const use    = s.useTotal || 0;
+  const sales  = (s.logs||[]).filter(l => l.type==="sale");
 
   document.getElementById("qsGrid").innerHTML = [
     { l:"All Products Earned", v:fmtDollar(te),                                                        c:"#4caf7a" },
@@ -1578,15 +1960,14 @@ function renderQS(){
     { l:"Products Tracked",    v:Object.keys(D.strains).length,                                        c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
-  const tips = [], s = cur();
-  if(s){
-    if(tp < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
-    else if(tx>0 && te>=tx && tp<tx*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
-    else if(tp>=tx*0.5 && tx>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
-    else if(tx===0 && te>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
+  const tips = [];
+  if(profit < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
+  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on smaller packs for better $/g.");
+  else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
+  else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
 
-    if(ts===0) tips.push("🚨 Out of stock — restock before you lose customers.");
-    else if(ts<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
+  if(stock===0) tips.push("🚨 Out of stock — restock before you lose customers.");
+  else if(stock<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round((tu/3.5)*27.5);
@@ -1603,10 +1984,46 @@ function renderQS(){
       tips.push(`⭐ ${best} is your top earner — prioritize keeping it stocked.`);
     }
   }
+
+  const salesByPack = {};
+  sales.forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
+  const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
+  if(top) tips.push(`🔥 ${top[0]} packs are your fastest seller — always keep that size available.`);
+
+  const strainKeys = Object.keys(D.strains);
+  if(strainKeys.length > 1){
+    const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
+    if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
+  }
+
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
     : '<div class="qs-tip" style="color:#555568;font-style:italic;">Log some sales to unlock smart suggestions.</div>';
+
+  // Restore stored AI tips + chat for this product
+  const aiBody = document.getElementById("aiBody");
+  const aiBtn  = document.getElementById("aiBtn");
+  if(aiBody && !aiLoading){
+    if(s.aiTips){
+      aiBody.className = "ai-body";
+      aiBody.textContent = s.aiTips;
+    } else {
+      aiBody.className = "ai-body idle";
+      aiBody.textContent = "Tap below to get a live AI analysis of your real data...";
+    }
+    if(aiBtn) aiBtn.innerHTML = s.aiTips ? "✦ Refresh AI Advice" : "✦ Get AI Advice";
+  }
+
+  // Show/hide chat section based on whether advice has been loaded
+  const chatSection = document.getElementById("chatSection");
+  if(chatSection) chatSection.style.display = s.aiTips ? "block" : "none";
+  renderChat();
+
+  // Update Quick Stats label with product name
+  const qsLbl = document.getElementById("qsLbl");
+  if(qsLbl) qsLbl.textContent = `Quick Stats — ${D.cur}`;
+
   renderPriceRef();
 }
 
@@ -1680,6 +2097,21 @@ function renderSettings(){
     `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
   ).join("");
   renderPINSettings();
+}
+
+// ── WHAT'S NEW ──
+function checkVersion(){
+  try {
+    if(localStorage.getItem(VER_KEY) !== VERSION){
+      const el = document.getElementById("wnVersion");
+      if(el) el.textContent = "Version " + VERSION;
+      setTimeout(() => document.getElementById("modal-whatsNew").classList.add("open"), 700);
+    }
+  } catch(e){}
+}
+function dismissWhatsNew(){
+  try { localStorage.setItem(VER_KEY, VERSION); } catch(e){}
+  document.getElementById("modal-whatsNew").classList.remove("open");
 }
 
 // ── TAB SWITCHING ──
