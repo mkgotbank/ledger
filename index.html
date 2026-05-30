@@ -1332,6 +1332,20 @@ function isWeight(s){ s=s||cur(); return !s||!s.unitCfg||s.unitCfg.type==="weigh
 function packW(r){ return r.qty!==undefined ? r.qty : (r.grams||1); }
 function unitSingular(s){ s=s||cur(); if(isWeight(s)) return unitAbbr(); const p=s.unitCfg.plural||"units"; return s.unitCfg.singular||(p.endsWith("s")?p.slice(0,-1):p); }
 function unitPlural(s){ s=s||cur(); return isWeight(s) ? unitLabel() : (s.unitCfg.plural||"units"); }
+// fmtQty: format any stock/quantity respecting weight vs count unit
+function fmtQty(qty, s){
+  s=s||cur();
+  if(isWeight(s)) return fmtDisp(qty);
+  const n = Math.round(qty);
+  return n + " " + (n===1 ? unitSingular(s) : unitPlural(s));
+}
+// avgUnitPrice: used to estimate lost revenue for internal use on count products
+function avgUnitPrice(s){
+  s=s||cur(); if(!s) return 0;
+  if(isWeight(s)) return 27.5/3.5;
+  const ref = (s.priceRef||[])[0]; if(!ref) return 0;
+  return ref.hi / Math.max(1, packW(ref));
+}
 function cur(){ return D.strains[D.cur] || null; }
 
 // ── UNIT HELPERS ──
@@ -1531,7 +1545,14 @@ function renderPackBtns(){
 function updateSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("qtyN").textContent = saleQty;
-  document.getElementById("qtyHint").textContent = "= " + (PRICES[saleType].w * saleQty).toFixed(1) + "g";
+  if(isWeight(s)){
+    const pw = PRICES[saleType] ? PRICES[saleType].w : 1;
+    document.getElementById("qtyHint").textContent = "= " + (pw * saleQty).toFixed(1) + "g";
+  } else {
+    const r = (s.priceRef||[]).find(r=>r.label===saleType);
+    const total = (r ? packW(r) : 1) * saleQty;
+    document.getElementById("qtyHint").textContent = "= " + total + " " + unitPlural(s);
+  }
   document.getElementById("priceN").textContent = fmtDollar(salePrice);
   document.getElementById("priceTot").textContent = "= " + fmtDollar(salePrice * saleQty) + " total";
   document.getElementById("saleConfirm").textContent = "Confirm — " + fmtDollar(salePrice * saleQty);
@@ -1553,9 +1574,17 @@ function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
-  saleQty = 1; saleType = "14g"; salePrice = midPrice("14g");
-  document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.textContent === "14g"));
-  updateSaleModal(); openModal("sale");
+  saleQty = 1;
+  if(isWeight(s)){
+    saleType = "14g"; salePrice = midPrice("14g");
+  } else {
+    const first = (s.priceRef||COUNT_PACK_DEFAULTS)[0];
+    saleType = first ? first.label : "Single";
+    salePrice = first ? first.hi : 5;
+  }
+  renderPackBtns();
+  updateSaleModal();
+  openModal("sale");
 }
 function openExpModal(mode){
   expMode = mode;
@@ -1937,15 +1966,24 @@ function syncPricesFromRef(){
 function renderPriceRef(){
   const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
-  el.innerHTML = (D.priceRef||PRICE_REF_DEFAULTS).map((r,i) => {
+  const ref = isWeight(s) ? (D.priceRef||PRICE_REF_DEFAULTS) : (s.priceRef||COUNT_PACK_DEFAULTS);
+  el.innerHTML = ref.map((r,i) => {
     const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
-    const perG = r.lo===r.hi
-      ? fmtDollar(r.lo/r.grams,2)+"/g"
-      : fmtDollar(r.lo/r.grams,2)+"–"+fmtDollar(r.hi/r.grams,2)+"/g";
+    let perUnit;
+    if(isWeight(s)){
+      perUnit = r.lo===r.hi
+        ? fmtDollar(r.lo/r.grams,2)+"/g"
+        : fmtDollar(r.lo/r.grams,2)+"–"+fmtDollar(r.hi/r.grams,2)+"/g";
+    } else {
+      const qty = packW(r);
+      perUnit = qty > 1
+        ? fmtDollar(r.hi/qty,2)+"/"+unitSingular(s)
+        : fmtDollar(r.hi,2)+"/"+unitSingular(s);
+    }
     return `<div class="pref-row">
       <span class="pref-sz">${r.label}</span>
       <span>${priceStr}</span>
-      <span class="pref-pg">${perG}</span>
+      <span class="pref-pg">${perUnit}</span>
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
     </div>`;
   }).join("");
@@ -1953,7 +1991,8 @@ function renderPriceRef(){
 function openEditPriceModal(i){
   const s = cur(); if(!s) return;
   editingPriceIdx = i;
-  const r = s.priceRef[i];
+  const ref = isWeight(s) ? (D.priceRef||PRICE_REF_DEFAULTS) : (s.priceRef||COUNT_PACK_DEFAULTS);
+  const r = ref[i];
   document.getElementById("editPriceMTitle").textContent = "Edit — " + r.label;
   document.getElementById("editPriceLo").value = r.lo;
   document.getElementById("editPriceHi").value = r.hi;
@@ -1964,10 +2003,15 @@ function confirmEditPrice(){
   const s = cur(); if(!s) return;
   const lo = Math.max(0, parseFloat(document.getElementById("editPriceLo").value)||0);
   const hi = Math.max(lo, parseFloat(document.getElementById("editPriceHi").value)||lo);
-  s.priceRef[editingPriceIdx].lo = lo;
-  s.priceRef[editingPriceIdx].hi = hi;
+  if(isWeight(s)){
+    D.priceRef[editingPriceIdx].lo = lo;
+    D.priceRef[editingPriceIdx].hi = hi;
+    syncPricesFromRef();
+  } else {
+    s.priceRef[editingPriceIdx].lo = lo;
+    s.priceRef[editingPriceIdx].hi = hi;
+  }
   closeModal("editPrice");
-  syncPricesFromRef();
   persist(); renderPriceRef(); renderAll();
 }
 
@@ -2012,7 +2056,9 @@ function renderAll(){
 
   // Header stock
   const sv = document.getElementById("hdrStock");
-  sv.innerHTML = toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>';
+  sv.innerHTML = isWeight(s)
+    ? toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>'
+    : Math.round(s.stock) + '<span class="hdr-stock-unit">' + unitPlural(s) + '</span>';
   const startG = s.startStock || 0;
   let stockCls = "ok";
   if(startG > 0){
@@ -2025,8 +2071,8 @@ function renderAll(){
   const pct  = Math.min(100, (s.stock/base)*100);
   const movedG = Math.max(0, round(base - s.stock));
   document.getElementById("progFill").style.width = pct.toFixed(1) + "%";
-  document.getElementById("progL").textContent = fmtDisp(s.stock) + " LEFT · " + pct.toFixed(0) + "%";
-  document.getElementById("progR").textContent = fmtDisp(movedG) + " MOVED";
+  document.getElementById("progL").textContent = fmtQty(s.stock,s) + " LEFT · " + pct.toFixed(0) + "%";
+  document.getElementById("progR").textContent = fmtQty(movedG,s) + " MOVED";
 
   const earned = s.earned||0, exp = s.expenses||0, profit = earned-exp;
   document.getElementById("s-earned").textContent = fmtDollar(earned);
@@ -2046,34 +2092,48 @@ function renderAll(){
   const rsEl = document.getElementById("restockSum");
   if(rt > 0){
     rsEl.style.display = "block";
-    document.getElementById("restockTot").textContent = u==="g" ? fmtDisp(rt) : fmtDisp(rt)+" ("+rt+"g)";
+    document.getElementById("restockTot").textContent = fmtQty(rt,s);
   } else { rsEl.style.display = "none"; }
 
   const ut = s.useTotal||0;
   const usEl = document.getElementById("useSum");
   if(ut > 0){
     usEl.style.display = "block";
-    document.getElementById("useTotG").textContent    = u==="g" ? fmtDisp(ut) : fmtDisp(ut)+" ("+ut+"g)";
-    document.getElementById("useTotLost").textContent = fmtDollar((ut/3.5)*27.5);
+    document.getElementById("useTotG").textContent    = fmtQty(ut,s);
+    document.getElementById("useTotLost").textContent = fmtDollar(ut * avgUnitPrice(s));
   } else { usEl.style.display = "none"; }
 
-  let bestPack = null, bestRatio = -1;
-  packOrder.forEach(k => {
-    const p = PRICES[k];
-    const ratio = p.hi / p.w;
-    if(ratio > bestRatio){ bestRatio = ratio; bestPack = k; }
-  });
-  document.getElementById("packBreak").innerHTML = packOrder.map(k => {
-    const p = PRICES[k];
-    const c = Math.floor(s.stock / p.w);
-    const pr = p.lo===p.hi ? fmtDollar(p.lo) : fmtDollar(p.lo)+"–"+fmtDollar(p.hi);
-    const empty = c === 0;
-    const best = k === bestPack;
-    return `<div class="pack-row${empty?" empty":""}${best?" best":""}">
-      <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span>${best?'<span class="pack-best-tag">Best $/g</span>':''}</div>
-      <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
-    </div>`;
-  }).join("");
+  if(isWeight(s)){
+    let bestPack = null, bestRatio = -1;
+    packOrder.forEach(k => {
+      const p = PRICES[k];
+      const ratio = p.hi / p.w;
+      if(ratio > bestRatio){ bestRatio = ratio; bestPack = k; }
+    });
+    document.getElementById("packBreak").innerHTML = packOrder.map(k => {
+      const p = PRICES[k];
+      const c = Math.floor(s.stock / p.w);
+      const pr = p.lo===p.hi ? fmtDollar(p.lo) : fmtDollar(p.lo)+"–"+fmtDollar(p.hi);
+      const empty = c === 0;
+      const best = k === bestPack;
+      return `<div class="pack-row${empty?" empty":""}${best?" best":""}">
+        <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span>${best?'<span class="pack-best-tag">Best $/g</span>':''}</div>
+        <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
+      </div>`;
+    }).join("");
+  } else {
+    const packs = s.priceRef || COUNT_PACK_DEFAULTS;
+    document.getElementById("packBreak").innerHTML = packs.map(r => {
+      const qty = packW(r);
+      const c = Math.floor(s.stock / qty);
+      const pr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
+      const empty = c === 0;
+      return `<div class="pack-row${empty?" empty":""}">
+        <div><span class="pack-nm">${r.label}</span><span class="pack-pr">${pr}</span></div>
+        <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*r.hi)}</span>`}</div>
+      </div>`;
+    }).join("");
+  }
 
   renderLog(); renderQS();
   const tipsPanel = document.getElementById("panel-tips");
@@ -2097,8 +2157,8 @@ function renderLog(){
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
     const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`;
-    const wD     = fmtDisp(l.w, u);
-    const afterD = l.after != null ? fmtDisp(l.after, u) : "";
+    const wD     = fmtQty(l.w, s);
+    const afterD = l.after != null ? fmtQty(l.after, s) : "";
     if(l.type==="sale")
       return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="restock")
@@ -2130,13 +2190,14 @@ function renderQS(){
   const tu  = all.reduce((a,x) => a+(x.useTotal||0), 0);
   const tsl = all.reduce((a,x) => a+(x.logs||[]).filter(l=>l.type==="sale").length, 0);
 
+  const allWeight = all.every(x=>isWeight(x));
   document.getElementById("qsGrid").innerHTML = [
-    { l:"All Products Earned", v:fmtDollar(te),                                       c:"#4caf7a" },
-    { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),             c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Total Stock Left",    v:ts.toFixed(1)+"g",                                   c:"#c9a040" },
-    { l:"Sales Logged",        v:tsl,                                                 c:"#e8e4d9" },
-    { l:"Internal Use (All)",  v:tu+"g",                                              c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                       c:"#c9a040" },
+    { l:"All Products Earned", v:fmtDollar(te),                                                         c:"#4caf7a" },
+    { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                               c:tp>=0?"#4caf7a":"#c05050" },
+    { l:"Current Stock",       v:fmtQty(stock,s),                                                       c:"#c9a040" },
+    { l:"Sales Logged",        v:tsl,                                                                   c:"#e8e4d9" },
+    { l:"Internal Use (All)",  v:allWeight ? tu.toFixed(1)+"g" : tu.toFixed(0)+" "+unitPlural(s),       c:"#c05050" },
+    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"#c9a040" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [];
@@ -2145,11 +2206,12 @@ function renderQS(){
   else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
   else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
 
+  const lowThreshold = isWeight(s) ? 14 : 3;
   if(stock===0) tips.push("🚨 Out of stock — restock before you lose customers.");
-  else if(stock<14) tips.push("📦 Stock is getting low — plan your next re-up soon.");
+  else if(stock<lowThreshold) tips.push(`📦 Stock is getting low — plan your next re-up soon.`);
 
     if(tu>0 && tsl>0){
-      const lostVal = Math.round((tu/3.5)*27.5);
+      const lostVal = Math.round(tu * avgUnitPrice(s));
       if(lostVal>20) tips.push(`💨 Internal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`);
     }
     const salesByPack = {};
