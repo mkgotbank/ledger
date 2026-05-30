@@ -1,21 +1,20 @@
 /* The Ledger — Service Worker
-   Strategy: Network First → cache on success → fall back to cache offline.
-   iOS Add-to-Home-Screen bypasses HTTP cache, so this SW is what guarantees
-   the user always gets fresh content when online. */
+   HTML: Cache-First (app JS handles updates via checkForUpdate, writes new HTML into cache)
+   Assets: Network-First with offline fallback
+   This ensures home screen / PWA always serves from cache (fast) and
+   updates are applied explicitly by the app, not the CDN. */
 
-const CACHE = 'ledger-v1';
-const SHELL = ['/ledger/', '/ledger/index.html'];
+const CACHE = 'ledger-v2';
+const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/icon.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE).then(cache => cache.addAll(SHELL))
   );
-  // Take over immediately — no waiting for old tabs to close
   self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
-  // Delete any old caches from previous SW versions
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
@@ -26,21 +25,56 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Only handle same-origin GET requests
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache a fresh copy
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, clone));
-        }
-        return response;
+  const isShell = url.pathname === '/ledger/' ||
+                  url.pathname === '/ledger/index.html' ||
+                  url.pathname === '/ledger';
+
+  if (isShell) {
+    // Cache-First for HTML shell — app JS explicitly updates the cache when
+    // a new version is found, then reloads so SW serves the fresh cached HTML
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        // First visit — no cache yet, fetch from network
+        return fetch(event.request).then(response => {
+          if (response.ok) {
+            caches.open(CACHE).then(c => c.put(event.request, response.clone()));
+          }
+          return response;
+        });
       })
-      .catch(() => caches.match(event.request))
-  );
+    );
+  } else {
+    // Network-First for everything else (manifest, icons, etc.)
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            caches.open(CACHE).then(c => c.put(event.request, response.clone()));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  }
+});
+
+// App can message the SW to update the cached HTML directly
+self.addEventListener('message', event => {
+  if (event.data?.type === 'CACHE_UPDATE' && event.data.html) {
+    caches.open(CACHE).then(cache => {
+      const r = new Response(event.data.html, {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+      Promise.all([
+        cache.put('/ledger/', r.clone()),
+        cache.put('/ledger/index.html', r.clone())
+      ]);
+    });
+  }
 });

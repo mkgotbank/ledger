@@ -700,7 +700,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 </div>
 
 <!-- WHAT'S NEW MODAL -->
-<div class="overlay" id="modal-whatsNew" onclick="if(event.target.id==='modal-whatsNew')dismissWhatsNew()">
+<div class="overlay" id="modal-whatsNew">
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title">✦ What's New</div>
@@ -954,7 +954,10 @@ const VERSION    = APP_VER;
 const VER_KEY    = "ledger_seen_ver";
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
 
-// ── AUTO UPDATE — silent, auto-apply; What's New shows automatically on reload ──
+// ── AUTO UPDATE ──
+// Fetches latest from GitHub raw (bypasses CDN — always current).
+// When newer: writes new HTML into the SW cache directly so home screen
+// PWA gets it on next launch, then reloads the page cleanly.
 async function checkForUpdate(){
   try {
     const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
@@ -964,13 +967,30 @@ async function checkForUpdate(){
     if(!m) return;
     const remote = m[1].split(".").map(Number);
     const local  = APP_VER.split(".").map(Number);
+    let isNewer = false;
     for(let i=0;i<3;i++){
-      if((remote[i]||0) > (local[i]||0)){
-        document.open(); document.write(html); document.close();
-        return;
-      }
-      if((remote[i]||0) < (local[i]||0)) return;
+      if((remote[i]||0) > (local[i]||0)){ isNewer=true; break; }
+      if((remote[i]||0) < (local[i]||0)) break;
     }
+    if(!isNewer) return;
+
+    // 1. Push new HTML into SW cache so home screen PWA gets it on next cold launch
+    try {
+      if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+        navigator.serviceWorker.controller.postMessage({ type:'CACHE_UPDATE', html });
+      }
+      // Also write directly via Cache API as a belt-and-suspenders fallback
+      const cache = await caches.open('ledger-v2');
+      const blob  = new Blob([html], {type:'text/html;charset=utf-8'});
+      const resp  = new Response(blob, {status:200, headers:{'Content-Type':'text/html;charset=utf-8'}});
+      await Promise.all([
+        cache.put('/ledger/',            resp.clone()),
+        cache.put('/ledger/index.html',  resp.clone())
+      ]);
+    } catch(e){}
+
+    // 2. Rewrite current page — SW will serve cached (new) version on next reload
+    document.open(); document.write(html); document.close();
   } catch(e){}
 }
 
@@ -2216,16 +2236,21 @@ function renderSettings(){
 // ── WHAT'S NEW ──
 function checkVersion(){
   try {
-    if(localStorage.getItem(VER_KEY) !== VERSION){
-      const el = document.getElementById("wnVersion");
-      if(el) el.textContent = "Version " + VERSION;
-      setTimeout(() => document.getElementById("modal-whatsNew").classList.add("open"), 700);
-    }
+    const seen = localStorage.getItem(VER_KEY);
+    if(seen === VERSION) return; // already seen this version
+    const el = document.getElementById("wnVersion");
+    if(el) el.textContent = "Version " + VERSION;
+    // Small delay so the app finishes rendering before modal appears
+    setTimeout(() => {
+      const modal = document.getElementById("modal-whatsNew");
+      if(modal) modal.classList.add("open");
+    }, 900);
   } catch(e){}
 }
 function dismissWhatsNew(){
   try { localStorage.setItem(VER_KEY, VERSION); } catch(e){}
-  document.getElementById("modal-whatsNew").classList.remove("open");
+  const modal = document.getElementById("modal-whatsNew");
+  if(modal) modal.classList.remove("open");
 }
 
 // ── TAB SWITCHING ──
