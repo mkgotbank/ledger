@@ -951,7 +951,7 @@ const SK = "ledger_v4";
 const PIN_SK = "ledger_pin";
 const APP_VER    = "2.1.0";
 const VERSION    = APP_VER;
-const VER_KEY    = "ledger_seen_ver";
+const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
 
 // ── AUTO UPDATE ──
@@ -2234,21 +2234,22 @@ function renderSettings(){
 }
 
 // ── WHAT'S NEW ──
+// VER_KEY is version-specific ("ledger_wn_2.1.0") so no existing stored value
+// can ever match — every new release gets its own key.
 function checkVersion(){
   try {
-    const seen = localStorage.getItem(VER_KEY);
-    if(seen === VERSION) return; // already seen this version
-    const el = document.getElementById("wnVersion");
-    if(el) el.textContent = "Version " + VERSION;
-    // Small delay so the app finishes rendering before modal appears
+    if(localStorage.getItem(VER_KEY)) return; // already dismissed for this version
+    // Update the badge text then open the modal
+    const badge = document.getElementById("wnVersion");
+    if(badge) badge.textContent = "Version " + VERSION;
     setTimeout(() => {
       const modal = document.getElementById("modal-whatsNew");
       if(modal) modal.classList.add("open");
-    }, 900);
+    }, 800);
   } catch(e){}
 }
 function dismissWhatsNew(){
-  try { localStorage.setItem(VER_KEY, VERSION); } catch(e){}
+  try { localStorage.setItem(VER_KEY, "1"); } catch(e){}
   const modal = document.getElementById("modal-whatsNew");
   if(modal) modal.classList.remove("open");
 }
