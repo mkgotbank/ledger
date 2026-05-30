@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" id="ati" href="icon.svg"/>
 <link rel="icon" type="image/svg+xml" href="icon.svg"/>
 <script>
-// Generate pixel-perfect canvas icon for iOS apple-touch-icon
+// iOS apple-touch-icon — canvas-rendered to match the SVG icon exactly
 (function(){
   function rr(ctx,x,y,w,h,r){
     ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
@@ -23,28 +23,39 @@
   function makeIcon(sz){
     const c=document.createElement('canvas'); c.width=c.height=sz;
     const ctx=c.getContext('2d'); const r=sz*0.188;
-    // Background gradient
-    const g=ctx.createLinearGradient(0,0,sz*0.6,sz);
-    g.addColorStop(0,'#1c1c2e'); g.addColorStop(1,'#0d0d1a');
+    // Dark background gradient
+    const g=ctx.createLinearGradient(sz*.5,0,sz*.5,sz);
+    g.addColorStop(0,'#141428'); g.addColorStop(1,'#080814');
     rr(ctx,0,0,sz,sz,r); ctx.fillStyle=g; ctx.fill();
-    // Subtle inner fill
-    rr(ctx,sz*.031,sz*.031,sz*.938,sz*.938,r*.87);
-    ctx.fillStyle='rgba(201,160,64,0.05)'; ctx.fill();
-    // Outer gold border
-    rr(ctx,sz*.02,sz*.02,sz*.96,sz*.96,r*.94);
-    ctx.strokeStyle='rgba(201,160,64,0.65)'; ctx.lineWidth=sz*.017; ctx.stroke();
-    // Inner faint border
-    rr(ctx,sz*.043,sz*.043,sz*.914,sz*.914,r*.82);
-    ctx.strokeStyle='rgba(201,160,64,0.2)'; ctx.lineWidth=sz*.004; ctx.stroke();
-    // Gold "L" — vertical stroke
-    const lx=sz*.27,ty=sz*.21,sw=sz*.172,lh=sz*.582,bh=sz*.172,lw=sz*.465;
+    // Border glow bloom
+    ctx.save();
+    ctx.shadowColor='rgba(201,160,64,0.65)';
+    ctx.shadowBlur=sz*0.09;
+    ctx.strokeStyle='#c9a040'; ctx.lineWidth=sz*0.025;
+    rr(ctx,sz*.027,sz*.027,sz*.946,sz*.946,r*.88); ctx.stroke();
+    ctx.restore();
+    // Main border (crisp)
+    ctx.strokeStyle='rgba(201,160,64,0.9)'; ctx.lineWidth=sz*0.025;
+    rr(ctx,sz*.027,sz*.027,sz*.946,sz*.946,r*.88); ctx.stroke();
+    // Inner soft accent line
+    ctx.strokeStyle='rgba(255,215,100,0.2)'; ctx.lineWidth=sz*0.003;
+    rr(ctx,sz*.055,sz*.055,sz*.89,sz*.89,r*.78); ctx.stroke();
+    // Serif "L" — glow pass
+    const fs=Math.round(sz*0.531);
+    const ty=sz*0.727;
+    ctx.save();
+    ctx.shadowColor='rgba(201,160,64,0.55)';
+    ctx.shadowBlur=sz*0.045;
     ctx.fillStyle='#c9a040';
-    rr(ctx,lx,ty,sw,lh,sz*.016); ctx.fill();
-    // Gold "L" — horizontal stroke
-    rr(ctx,lx,ty+lh-bh,lw,bh,sz*.016); ctx.fill();
-    // Shimmer highlight on vertical stroke
-    ctx.fillStyle='rgba(255,220,120,0.22)';
-    rr(ctx,lx,ty,sw*.45,lh*.55,sz*.01); ctx.fill();
+    ctx.font=`bold ${fs}px Georgia,'Times New Roman',serif`;
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillText('L',sz*0.504,ty);
+    ctx.restore();
+    // Crisp letter pass
+    ctx.fillStyle='#c9a040';
+    ctx.font=`bold ${fs}px Georgia,'Times New Roman',serif`;
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillText('L',sz*0.504,ty);
     return c.toDataURL('image/png');
   }
   try{
@@ -78,10 +89,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #toast.ok{border-color:rgba(76,175,122,0.4);color:#4caf7a;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
-.setup-logo{display:flex;justify-content:center;margin-bottom:16px;}
-.setup-mark{width:54px;height:54px;border:2px solid var(--acc);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:var(--acc);line-height:1;box-shadow:0 4px 22px var(--acc-glow);}
+.setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
+.setup-logo svg{filter:drop-shadow(0 12px 44px rgba(201,160,64,0.38)) drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
 .setup-title{font-size:26px;font-weight:700;color:var(--txt-b);text-align:center;letter-spacing:-1px;}
-.setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:36px;}
+.setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:32px;}
 .setup-field{margin-bottom:16px;}
 .setup-label{font-size:9px;letter-spacing:3px;color:#8888a0;margin-bottom:7px;text-transform:uppercase;display:block;}
 .setup-input{width:100%;background:var(--card);border:1px solid var(--acc-bdr);border-radius:14px;padding:14px 16px;color:var(--txt);font-size:18px;font-weight:700;outline:none;text-align:center;transition:border-color 0.2s;}
@@ -396,6 +407,28 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <!-- PIN SCREEN -->
 <div id="pinScreen" style="display:none">
+  <div class="setup-logo" style="margin-bottom:16px">
+    <svg width="72" height="72" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <defs>
+        <linearGradient id="plbg" x1=".5" y1="0" x2=".5" y2="1">
+          <stop offset="0%" stop-color="#141428"/>
+          <stop offset="100%" stop-color="#080814"/>
+        </linearGradient>
+        <filter id="pborderglow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
+        </filter>
+        <filter id="pletterglow" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="512" height="512" rx="96" fill="url(#plbg)"/>
+      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="20" stroke-opacity=".55" filter="url(#pborderglow)"/>
+      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="13" stroke-opacity=".9"/>
+      <rect x="28" y="28" width="456" height="456" rx="72" fill="none" stroke="rgba(255,215,100,.22)" stroke-width="1.5"/>
+      <text x="258" y="372" text-anchor="middle" font-family="Georgia,'Times New Roman',Palatino,serif" font-size="272" font-weight="bold" fill="#c9a040" filter="url(#pletterglow)">L</text>
+    </svg>
+  </div>
   <div class="pin-brand">The Ledger</div>
   <div class="pin-title" id="pinTitle">Enter PIN</div>
   <div class="pin-sub" id="pinSub">Locked · Enter your PIN to continue</div>
@@ -424,7 +457,28 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 </div>
 
 <div id="setupScreen">
-  <div class="setup-logo"><div class="setup-mark">L</div></div>
+  <div class="setup-logo">
+    <svg width="120" height="120" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <defs>
+        <linearGradient id="slbg" x1=".5" y1="0" x2=".5" y2="1">
+          <stop offset="0%" stop-color="#141428"/>
+          <stop offset="100%" stop-color="#080814"/>
+        </linearGradient>
+        <filter id="sborderglow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
+        </filter>
+        <filter id="sletterglow" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="512" height="512" rx="96" fill="url(#slbg)"/>
+      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="20" stroke-opacity=".55" filter="url(#sborderglow)"/>
+      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="13" stroke-opacity=".9"/>
+      <rect x="28" y="28" width="456" height="456" rx="72" fill="none" stroke="rgba(255,215,100,.22)" stroke-width="1.5"/>
+      <text x="258" y="372" text-anchor="middle" font-family="Georgia,'Times New Roman',Palatino,serif" font-size="272" font-weight="bold" fill="#c9a040" filter="url(#sletterglow)">L</text>
+    </svg>
+  </div>
   <div class="setup-title">The Ledger</div>
   <div class="setup-sub">Set up your first product</div>
   <div class="setup-field">
