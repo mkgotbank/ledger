@@ -724,27 +724,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.2.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.3.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">Data Never Lost on Update</div>
-          <div class="wn-desc">Updates now reload the page safely instead of rewriting it — your inventory, logs and earnings are always preserved. A backup copy is also saved automatically every time you make a change.</div>
+          <div class="wn-title">Data Protection — Complete Overhaul</div>
+          <div class="wn-desc">Updates no longer force-reload the page. A "tap to apply" banner appears instead, so you choose when to refresh. Three independent safety layers ensure your logs, stock and earnings can never be lost during an update.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">📦</div>
         <div>
           <div class="wn-title">Units Fixed Everywhere</div>
-          <div class="wn-desc">Count products (bottles, pieces, etc.) now show the correct unit in every screen — edit log modal, product manager, sale hints and AI analysis all respect your chosen unit.</div>
+          <div class="wn-desc">Count products (bottles, pieces, etc.) now show your chosen unit across every screen — stock header, logs, edit modals, sale hints and AI analysis.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">✦</div>
         <div>
-          <div class="wn-title">AI Advisor Improved</div>
-          <div class="wn-desc">The AI Advisor and chat now send data more reliably, fixing failures that happened when product notes were long. Should be faster and more consistent.</div>
+          <div class="wn-title">AI Advisor More Reliable</div>
+          <div class="wn-desc">Switched to POST requests so long product histories no longer cause silent failures. The advisor and chat follow-up should work consistently now.</div>
         </div>
       </div>
     </div>
@@ -951,15 +951,16 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.2.0";
+const APP_VER    = "2.3.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
 
 // ── AUTO UPDATE ──
-// Fetches latest from GitHub raw (bypasses CDN — always current).
-// When newer: writes new HTML into the SW cache directly so home screen
-// PWA gets it on next launch, then reloads the page cleanly.
+// Downloads new HTML, writes it into the SW cache, then shows a tap-to-apply
+// banner. Never auto-reloads — that caused transient iOS localStorage failures
+// which made hydrate() return empty, triggering the setup screen and data loss.
+let _updateBannerActive = false;
 async function checkForUpdate(){
   try {
     const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
@@ -976,25 +977,36 @@ async function checkForUpdate(){
     }
     if(!isNewer) return;
 
-    // 1. Push new HTML into SW cache so home screen PWA gets it on next cold launch
+    // Write new HTML into SW cache — SW serves it on next navigation
     try {
       if('serviceWorker' in navigator && navigator.serviceWorker.controller){
         navigator.serviceWorker.controller.postMessage({ type:'CACHE_UPDATE', html });
       }
-      // Also write directly via Cache API as a belt-and-suspenders fallback
       const cache = await caches.open('ledger-v2');
       const blob  = new Blob([html], {type:'text/html;charset=utf-8'});
       const resp  = new Response(blob, {status:200, headers:{'Content-Type':'text/html;charset=utf-8'}});
       await Promise.all([
-        cache.put('/ledger/',            resp.clone()),
-        cache.put('/ledger/index.html',  resp.clone())
+        cache.put('/ledger/',           resp.clone()),
+        cache.put('/ledger/index.html', resp.clone())
       ]);
     } catch(e){}
 
-    // 2. Safe reload — data stays in localStorage, SW serves the new cached version
-    showToast("✓ Update ready — reloading…");
-    sessionStorage.setItem('_swr', '1'); // prevent double-reload from SW_UPDATED handler
-    setTimeout(() => location.reload(), 1500);
+    // Show a persistent tap-to-apply banner — never force-reload automatically
+    if(_updateBannerActive) return;
+    _updateBannerActive = true;
+    const t = document.getElementById("toast");
+    if(!t) return;
+    clearTimeout(_toastTimer);
+    t.innerHTML = "✓ Update ready &nbsp;·&nbsp; <u>tap to apply</u>";
+    t.className = "show ok";
+    t.style.cursor = "pointer";
+    t.onclick = () => {
+      t.onclick = null; t.style.cursor = "";
+      t.textContent = "Reloading…";
+      // Persist latest data before reload so iOS has it freshly written
+      try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
+      setTimeout(() => location.reload(), 600);
+    };
   } catch(e){}
 }
 
@@ -1423,6 +1435,36 @@ function ssSetUnit(type, btn){
   lbl.textContent = type === "count" ? "Starting Stock (units)" : "Starting Stock (grams)";
 }
 function doSetup(){
+  // Safety net: if existing data is in localStorage but wasn't loaded (e.g. iOS
+  // transient read failure), recover it now instead of overwriting it.
+  if(Object.keys(D.strains).length === 0){
+    try {
+      const raw = localStorage.getItem(SK) || localStorage.getItem(SK_BAK);
+      if(raw){
+        const p = JSON.parse(raw);
+        if(p && p.strains && Object.keys(p.strains).length > 0){
+          D = p;
+          Object.values(D.strains).forEach(s => {
+            if(!s.priceRef) s.priceRef = PRICE_REF_DEFAULTS.map(r=>({...r}));
+            if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
+          });
+          syncPricesFromRef();
+          document.getElementById("setupScreen").style.display = "none";
+          document.getElementById("mainApp").style.display = "block";
+          syncUnitDefaults();
+          if(hasPIN()){
+            showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue");
+          } else {
+            try { renderAll(); updateSaleModal(); } catch(e){}
+            checkVersion();
+          }
+          showToast("Your data has been restored.", "ok");
+          return;
+        }
+      }
+    } catch(e){}
+  }
+  // Genuinely new user — create their first product
   const name  = document.getElementById("ss-name").value.trim() || "Product 1";
   const stock = parseFloat(document.getElementById("ss-stock").value) || 0;
   const exp   = parseFloat(document.getElementById("ss-exp").value)   || 0;
@@ -2378,14 +2420,40 @@ if(isReady()){
     checkVersion();
   }
 } else {
-  // If saved data exists but failed to parse, retry once before showing setup
-  // (guards against transient read errors during update reloads)
-  const _hasSavedData = !!(localStorage.getItem(SK) || localStorage.getItem(SK_BAK));
-  if(_hasSavedData && !sessionStorage.getItem('_hydrate_retry')){
-    sessionStorage.setItem('_hydrate_retry', '1');
-    setTimeout(() => location.reload(), 400);
+  // hydrate() returned empty D.
+  // On iOS PWA, localStorage can be transiently unreadable immediately after a
+  // page load. Wait 200ms and try reading directly — no reload needed.
+  const _rawData = localStorage.getItem(SK) || localStorage.getItem(SK_BAK);
+  if(_rawData){
+    // Data exists but wasn't loaded — retry asynchronously (no reload)
+    setTimeout(() => {
+      try {
+        const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || _rawData);
+        if(p && p.strains && Object.keys(p.strains).length > 0){
+          D = p;
+          Object.values(D.strains).forEach(s => {
+            if(!s.priceRef) s.priceRef = PRICE_REF_DEFAULTS.map(r=>({...r}));
+            if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
+          });
+          syncPricesFromRef();
+          document.getElementById("setupScreen").style.display = "none";
+          document.getElementById("mainApp").style.display = "block";
+          if(hasPIN()){
+            showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue");
+          } else {
+            syncUnitDefaults();
+            try { renderAll(); updateSaleModal(); } catch(e){}
+            checkVersion();
+          }
+          return;
+        }
+      } catch(e){}
+      // Still nothing — genuinely new user
+      document.getElementById("setupScreen").style.display = "flex";
+      document.getElementById("mainApp").style.display = "none";
+    }, 200);
   } else {
-    sessionStorage.removeItem('_hydrate_retry');
+    // No data anywhere — genuinely new user, show setup immediately
     document.getElementById("setupScreen").style.display = "flex";
     document.getElementById("mainApp").style.display = "none";
   }
