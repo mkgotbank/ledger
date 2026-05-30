@@ -5,8 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Ledger"/>
 <meta name="theme-color" content="#111120"/>
 <link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" id="ati" href="icon.svg"/>
+<link rel="icon" type="image/svg+xml" href="icon.svg"/>
+<script>
+// Generate pixel-perfect canvas icon for iOS apple-touch-icon
+(function(){
+  function rr(ctx,x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+  }
+  function makeIcon(sz){
+    const c=document.createElement('canvas'); c.width=c.height=sz;
+    const ctx=c.getContext('2d'); const r=sz*0.188;
+    // Background gradient
+    const g=ctx.createLinearGradient(0,0,sz*0.6,sz);
+    g.addColorStop(0,'#1c1c2e'); g.addColorStop(1,'#0d0d1a');
+    rr(ctx,0,0,sz,sz,r); ctx.fillStyle=g; ctx.fill();
+    // Subtle inner fill
+    rr(ctx,sz*.031,sz*.031,sz*.938,sz*.938,r*.87);
+    ctx.fillStyle='rgba(201,160,64,0.05)'; ctx.fill();
+    // Outer gold border
+    rr(ctx,sz*.02,sz*.02,sz*.96,sz*.96,r*.94);
+    ctx.strokeStyle='rgba(201,160,64,0.65)'; ctx.lineWidth=sz*.017; ctx.stroke();
+    // Inner faint border
+    rr(ctx,sz*.043,sz*.043,sz*.914,sz*.914,r*.82);
+    ctx.strokeStyle='rgba(201,160,64,0.2)'; ctx.lineWidth=sz*.004; ctx.stroke();
+    // Gold "L" — vertical stroke
+    const lx=sz*.27,ty=sz*.21,sw=sz*.172,lh=sz*.582,bh=sz*.172,lw=sz*.465;
+    ctx.fillStyle='#c9a040';
+    rr(ctx,lx,ty,sw,lh,sz*.016); ctx.fill();
+    // Gold "L" — horizontal stroke
+    rr(ctx,lx,ty+lh-bh,lw,bh,sz*.016); ctx.fill();
+    // Shimmer highlight on vertical stroke
+    ctx.fillStyle='rgba(255,220,120,0.22)';
+    rr(ctx,lx,ty,sw*.45,lh*.55,sz*.01); ctx.fill();
+    return c.toDataURL('image/png');
+  }
+  try{
+    const ico=makeIcon(180);
+    document.getElementById('ati').href=ico;
+    const lk=document.createElement('link');
+    lk.rel='apple-touch-icon'; lk.sizes='180x180'; lk.href=ico;
+    document.head.appendChild(lk);
+  }catch(e){}
+})();
+</script>
 <title>The Ledger</title>
 <style>
 :root{
