@@ -21,6 +21,11 @@ self.addEventListener('activate', event => {
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type:'window', includeUncontrolled:true }))
+      .then(clients => {
+        // Tell every open tab/window to reload so they get the new cached HTML
+        clients.forEach(c => c.postMessage({ type:'SW_UPDATED' }));
+      })
   );
 });
 

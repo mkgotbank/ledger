@@ -67,6 +67,24 @@
   }catch(e){}
 })();
 </script>
+<script>
+// Service worker registration — in its own script tag so it always runs,
+// even if the main app script crashes on an old broken cached version.
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/ledger/sw.js').then(reg=>{
+    reg.update(); // proactively check for a new SW on every load
+  }).catch(()=>{});
+
+  // When the new SW activates and sends SW_UPDATED, reload once so
+  // the new cached HTML is served immediately (no extra manual refresh needed)
+  navigator.serviceWorker.addEventListener('message', event=>{
+    if(event.data?.type==='SW_UPDATED' && !sessionStorage.getItem('_swr')){
+      sessionStorage.setItem('_swr','1');
+      window.location.reload();
+    }
+  });
+}
+</script>
 <title>The Ledger</title>
 <style>
 :root{
