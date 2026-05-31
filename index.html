@@ -425,6 +425,43 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 /* ── EDIT LOG MODAL ── */
 .el-type-badge{font-size:7px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:5px;padding:2px 8px;margin-left:8px;vertical-align:middle;}
+
+/* ── CURRENCY BUTTONS ── */
+.curr-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.curr-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);color:#7070a8;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.curr-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
+.curr-custom-row{display:flex;gap:8px;align-items:center;margin-top:6px;}
+.curr-custom-in{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:8px;padding:7px 10px;color:var(--txt);font-size:14px;width:72px;text-align:center;outline:none;font-family:var(--font);transition:border-color 0.2s;}
+.curr-custom-in:focus{border-color:rgba(255,255,255,0.3);}
+
+/* ── EXPENSE CATEGORY BUTTONS ── */
+.cat-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);color:#7070a8;border-radius:8px;padding:7px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
+.cat-btn.on{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.35);color:#e05c5c;}
+
+/* ── SALE TAG BUTTONS ── */
+.tag-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);color:#7070a8;border-radius:8px;padding:7px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
+.tag-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
+.log-badge{display:inline-block;font-size:7px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
+.log-badge-tag{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);}
+.log-badge-cat{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:#c05050;}
+
+/* ── LOW STOCK BANNER ── */
+.low-stock-banner{background:linear-gradient(90deg,rgba(224,92,92,0.18),rgba(200,80,60,0.12));border-bottom:1px solid rgba(224,92,92,0.3);color:#e07070;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 18px;text-align:center;position:sticky;top:0;z-index:99;}
+
+/* ── PERFORMANCE DASHBOARD ── */
+.perf-wrap{margin-bottom:14px;}
+.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.perf-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 12px;box-shadow:0 1px 8px rgba(0,0,0,0.25);}
+.perf-val{font-size:18px;font-weight:700;line-height:1.2;}
+.perf-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:3px;}
+
+/* ── PROFIT MARGIN COLUMN ── */
+.pref-margin{font-size:9px;color:#4caf7a;text-align:right;}
+
+/* ── DATA & SYNC ── */
+.sync-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);border-radius:10px;padding:10px;color:var(--txt-d);font-size:9px;font-family:var(--font);outline:none;resize:none;margin-top:8px;transition:border-color 0.2s;}
+.sync-textarea:focus{border-color:rgba(255,255,255,0.2);}
+.hidden-file{display:none;}
 </style>
 </head>
 <body>
@@ -569,6 +606,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     </div>
   </div>
 
+  <div id="lowStockBanner" class="low-stock-banner" style="display:none"></div>
+
   <div class="tabs">
     <button class="tab on" onclick="switchTab('stock',this)">📦 Stock</button>
     <button class="tab" onclick="switchTab('log',this)">📋 Log</button>
@@ -678,6 +717,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
 
+    <div class="sec-lbl">Performance</div>
+    <div class="perf-wrap" id="perfWrap"></div>
+
     <div class="sec-lbl" id="qsLbl">Quick Stats</div>
     <div class="qs-grid" id="qsGrid"></div>
 
@@ -694,6 +736,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Security · Data</div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">Currency</div>
+      <div id="currencySettings"></div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Theme</div>
       <div class="theme-grid" id="themeGrid"></div>
     </div>
@@ -702,8 +748,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="font-row" id="fontBtns"></div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">Low Stock Alert</div>
+      <div id="lowStockSettings"></div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Security</div>
       <div class="settings-card" id="pinSettings"></div>
+    </div>
+    <div class="settings-sec">
+      <div class="settings-sec-title">Data &amp; Sync</div>
+      <div id="dataSyncSettings"></div>
     </div>
     <div class="settings-sec">
       <div class="settings-sec-title">Danger Zone</div>
@@ -731,27 +785,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.5.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.6.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">✦</div>
+        <div class="wn-icon">💱</div>
         <div>
-          <div class="wn-title">AI Advisor Fixed & Upgraded</div>
-          <div class="wn-desc">Fixed the "Server error 404" crash. Switched to the correct API endpoint and added a system prompt so advice is sharper and more specific. Chat follow-up now keeps 10 messages of context instead of 6.</div>
+          <div class="wn-title">Currency, Sale Tags & Expense Categories</div>
+          <div class="wn-desc">Set any currency symbol ($, €, £, ¥, ₹ or custom) in Settings. Tag sales as Regular, Bulk, New, or Referral. Categorize expenses as Re-up, Supplies, Transport, or Other — badges show in the log and smart suggestions surface your top category.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🐛</div>
+        <div class="wn-icon">🏆</div>
         <div>
-          <div class="wn-title">Edit Log Crash Fixed</div>
-          <div class="wn-desc">Editing a sale entry on count products (bottles, pieces, etc.) no longer crashes the app. Pack buttons now show the correct options for your product type.</div>
+          <div class="wn-title">Performance Dashboard</div>
+          <div class="wn-desc">New performance cards in the Tips panel show your current sales streak, all-time longest streak, best single day, and best week. Plus a Restock Planner tip tells you how many days of stock you have left at your current pace.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🔄</div>
+        <div class="wn-icon">📤</div>
         <div>
-          <div class="wn-title">Reset Product Keeps Unit Type</div>
-          <div class="wn-desc">Resetting a count product (bottles, pieces) no longer converts it back to grams. Full data wipe also properly clears all backups now.</div>
+          <div class="wn-title">Data Export, Import & Sync Code</div>
+          <div class="wn-desc">Back up your data as a JSON file, import it back, or generate a Sync Code to transfer your entire ledger between devices manually — no account required. Find it in Settings under Data &amp; Sync.</div>
         </div>
       </div>
     </div>
@@ -792,6 +846,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <span class="m-lbl">Note (optional)</span>
       <input class="m-input" id="saleNote" placeholder="e.g. regular, cash..."/>
     </div>
+    <div class="m-sec" id="saleTagWrap">
+      <span class="m-lbl">Tag (optional)</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="tag-btn" onclick="setSaleTag('Regular',this)">Regular</button>
+        <button class="tag-btn" onclick="setSaleTag('Bulk',this)">Bulk</button>
+        <button class="tag-btn" onclick="setSaleTag('New',this)">New</button>
+        <button class="tag-btn" onclick="setSaleTag('Referral',this)">Referral</button>
+        <button class="tag-btn" onclick="setSaleTag('',this)" style="color:#505070">None</button>
+      </div>
+    </div>
     <button class="btn-confirm" id="saleConfirm" onclick="confirmSale()">Confirm — $90</button>
   </div>
 </div>
@@ -826,6 +890,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="modal-hdr">
       <div class="m-title" id="expMTitle">Add Expense</div>
       <button class="modal-close" onclick="closeModal('exp')">✕</button>
+    </div>
+    <div class="m-sec" id="expCatWrap">
+      <span class="m-lbl">Category</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="cat-btn on" onclick="setExpCat('Re-up',this)">Re-up</button>
+        <button class="cat-btn" onclick="setExpCat('Supplies',this)">Supplies</button>
+        <button class="cat-btn" onclick="setExpCat('Transport',this)">Transport</button>
+        <button class="cat-btn" onclick="setExpCat('Other',this)">Other</button>
+      </div>
     </div>
     <span class="m-lbl" id="expMLabel">Amount ($)</span>
     <input class="m-input-lg" id="expMInput" type="number" placeholder="0" inputmode="decimal"/>
@@ -934,6 +1007,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- HIDDEN FILE INPUT FOR IMPORT -->
+<input type="file" class="hidden-file" id="importFileInput" accept=".json" onchange="handleImportFile(event)"/>
+
 <!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
@@ -958,7 +1034,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.5.0";
+const APP_VER    = "2.6.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1001,13 +1077,20 @@ async function checkForUpdate(){
   } catch(e){}
 }
 
+// ── CURRENCY ──
+function getCurrency(){ return localStorage.getItem("ledger_currency") || "$"; }
+function setCurrency(sym){
+  try{ localStorage.setItem("ledger_currency", sym); }catch(e){}
+  renderAll(); renderSettings();
+}
+
 // ── FORMAT ──
 function fmtDollar(n, dec=0){
   const abs = Math.abs(+n||0);
   const fixed = abs.toFixed(dec);
   const [int, frac] = fixed.split('.');
   const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return '$' + (dec > 0 && frac !== undefined ? intFmt + '.' + frac : intFmt);
+  return getCurrency() + (dec > 0 && frac !== undefined ? intFmt + '.' + frac : intFmt);
 }
 
 // ── PIN SYSTEM ──
@@ -1341,6 +1424,8 @@ const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005
 let D = { strains:{}, cur:"" };
 let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 let _renamingStrain = null;
+let expCategory = "Re-up";
+let saleTag = "";
 
 function fresh(stock, expenses, unitCfg){
   const isW = !unitCfg || unitCfg.type === "weight";
@@ -1682,7 +1767,9 @@ function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
-  saleQty = 1;
+  saleQty = 1; saleTag = "";
+  // Reset tag buttons
+  document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("on"));
   if(isWeight(s)){
     saleType = "14g"; salePrice = midPrice("14g");
   } else {
@@ -1694,6 +1781,12 @@ function openSaleModal(){
   updateSaleModal();
   openModal("sale");
 }
+function setSaleTag(t, btn){
+  if(t === "" || saleTag === t){ saleTag = ""; document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on")); return; }
+  saleTag = t;
+  document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+}
 function openExpModal(mode){
   expMode = mode;
   const s = cur();
@@ -1703,7 +1796,18 @@ function openExpModal(mode){
   document.getElementById("expMInput").value  = mode==="edit" ? (s ? s.expenses : 0) : "";
   document.getElementById("expMNote").value   = "";
   document.getElementById("expNoteWrap").style.display = mode==="edit" ? "none" : "block";
+  const catWrap = document.getElementById("expCatWrap");
+  if(catWrap) catWrap.style.display = mode==="edit" ? "none" : "block";
+  expCategory = "Re-up";
+  document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("on"));
+  const firstCat = document.querySelector(".cat-btn");
+  if(firstCat) firstCat.classList.add("on");
   document.getElementById("modal-exp").classList.add("open");
+}
+function setExpCat(cat, btn){
+  expCategory = cat;
+  document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
 }
 
 // ── ACTIONS ──
@@ -1749,7 +1853,9 @@ function confirmSale(){
   const ns = round(s.stock - tw);
   s.stock = ns; s.earned = (s.earned||0) + earned;
   const note = document.getElementById("saleNote").value.trim();
-  s.logs.unshift({ id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns });
+  const entry = { id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns };
+  if(saleTag) entry.tag = saleTag;
+  s.logs.unshift(entry);
   closeModal("sale");
   saleQty = 1;
   if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
@@ -1767,7 +1873,7 @@ function confirmExp(){
     s.expenses = val; showToast("Expenses updated");
   } else {
     s.expenses = (s.expenses||0) + val;
-    s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, date:now() });
+    s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, category:expCategory, date:now() });
     showToast(fmtDollar(val) + " expense logged");
   }
   closeModal("exp"); persist(); renderAll();
@@ -1781,7 +1887,7 @@ function doReset(){
 }
 function doResetAll(){
   try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); } catch(e){}
-  try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); } catch(e){}
+  try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); } catch(e){}
   location.reload();
 }
 function deleteLog(id){
@@ -2095,6 +2201,7 @@ function renderPriceRef(){
   const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
   const ref = isWeight(s) ? (D.priceRef||PRICE_REF_DEFAULTS) : (s.priceRef||COUNT_PACK_DEFAULTS);
+  const costPerUnit = s.expenses > 0 ? s.expenses / (s.restockTotal || 1) : 0;
   el.innerHTML = ref.map((r,i) => {
     const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
     let perUnit;
@@ -2108,10 +2215,22 @@ function renderPriceRef(){
         ? fmtDollar(r.hi/qty,2)+"/"+unitSingular(s)
         : fmtDollar(r.hi,2)+"/"+unitSingular(s);
     }
-    return `<div class="pref-row">
+    const avgPrice = (r.lo + r.hi) / 2;
+    let marginHtml = "";
+    if(s.expenses > 0 && costPerUnit > 0){
+      const packUnits = isWeight(s) ? (r.grams||1) : packW(r);
+      const packCost = costPerUnit * packUnits;
+      const packProfit = avgPrice - packCost;
+      const marginPct = avgPrice > 0 ? Math.round(packProfit / avgPrice * 100) : 0;
+      const profitStr = (packProfit >= 0 ? "+" : "") + fmtDollar(packProfit) + " (" + marginPct + "%)";
+      marginHtml = `<span class="pref-margin" style="color:${packProfit>=0?'#4caf7a':'#e05c5c'};font-size:8px">${profitStr}</span>`;
+    } else {
+      marginHtml = `<span class="pref-margin" style="color:#505065">—</span>`;
+    }
+    return `<div class="pref-row" style="grid-template-columns:1fr auto auto 28px;gap:6px">
       <span class="pref-sz">${r.label}</span>
-      <span>${priceStr}</span>
-      <span class="pref-pg">${perUnit}</span>
+      <span style="font-size:10px">${priceStr}</span>
+      ${marginHtml}
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
     </div>`;
   }).join("");
@@ -2266,6 +2385,7 @@ function renderAll(){
   renderLog(); renderQS();
   const tipsPanel = document.getElementById("panel-tips");
   if(tipsPanel && tipsPanel.classList.contains("on")) renderChart();
+  renderLowStockBanner();
 }
 
 // ── RENDER LOG ──
@@ -2287,14 +2407,16 @@ function renderLog(){
     const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
+    const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
+    const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
     if(l.type==="sale")
-      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="restock")
       return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="use")
       return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     if(l.type==="expense")
-      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
+      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     return "";
   }).join("");
 }
@@ -2353,6 +2475,39 @@ function renderQS(){
       if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
     }
 
+    // Restock planner
+    const daysLeft = calcDaysRemaining(s);
+    if(daysLeft !== null){
+      const dl = typeof daysLeft === "number" ? daysLeft : 999;
+      const cutoff14 = Date.now() - 14*86400000;
+      const g14 = (s.logs||[]).filter(l=>l.type==="sale"&&l.id>=cutoff14).reduce((a,l)=>a+(l.w||0),0);
+      const perDay = g14 / 14;
+      const suggested = Math.round(perDay * 14);
+      if(dl < 7){
+        tips.push(`📅 At your current pace, you'll sell out in ~${daysLeft} days — plan your next re-up now. Suggested restock: ${fmtQty(suggested,s)}.`);
+      } else {
+        tips.push(`📅 Stock should last ~${daysLeft} more days at current velocity. Suggested 2-week buffer: ${fmtQty(suggested,s)}.`);
+      }
+    }
+
+    // Expense category breakdown
+    const expLogs = (s.logs||[]).filter(l=>l.type==="expense"&&l.category);
+    if(expLogs.length > 0){
+      const catTotals = {};
+      expLogs.forEach(l=>{ catTotals[l.category]=(catTotals[l.category]||0)+(l.amount||0); });
+      const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+      if(topCat) tips.push(`💰 Your biggest expense category is ${topCat[0]} at ${fmtDollar(topCat[1])}.`);
+    }
+
+    // Top tag
+    const taggedSales = (s.logs||[]).filter(l=>l.type==="sale"&&l.tag);
+    if(taggedSales.length > 0){
+      const tagCounts = {};
+      taggedSales.forEach(l=>{ tagCounts[l.tag]=(tagCounts[l.tag]||0)+l.total; });
+      const topTag = Object.entries(tagCounts).sort((a,b)=>b[1]-a[1])[0];
+      if(topTag) tips.push(`🏷️ Top Tag: ${topTag[0]} — ${fmtDollar(topTag[1])} in tagged sales.`);
+    }
+
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
@@ -2381,7 +2536,125 @@ function renderQS(){
   const qsLbl = document.getElementById("qsLbl");
   if(qsLbl) qsLbl.textContent = `Quick Stats — ${D.cur}`;
 
+  renderPerf();
   renderPriceRef();
+}
+
+// ── LOW STOCK BANNER ──
+function renderLowStockBanner(){
+  const el = document.getElementById("lowStockBanner"); if(!el) return;
+  let worst = null, worstName = "", worstLeft = Infinity;
+  Object.entries(D.strains).forEach(([n,s]) => {
+    const thresh = s.alertThreshold;
+    if(thresh != null && thresh > 0 && s.stock < thresh){
+      if(s.stock < worstLeft){ worstLeft = s.stock; worst = s; worstName = n; }
+    }
+  });
+  if(worst){
+    el.style.display = "block";
+    el.textContent = "⚠️ " + worstName + " stock is low (" + fmtQty(worst.stock, worst) + " left)";
+  } else {
+    el.style.display = "none";
+  }
+}
+
+// ── PERFORMANCE DASHBOARD ──
+function calcPerformance(s){
+  const logs = s ? (s.logs||[]) : [];
+  const saleLogs = logs.filter(l => l.type === "sale");
+  // Group by date string (day key)
+  const dayMap = {};
+  saleLogs.forEach(l => {
+    const d = new Date(l.id);
+    const key = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(!dayMap[key]) dayMap[key] = 0;
+    dayMap[key] += l.total;
+  });
+  // Current streak: consecutive days from today backwards
+  let currentStreak = 0;
+  const today = new Date();
+  for(let i=0; i<365; i++){
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()-i);
+    const key = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(dayMap[key] > 0) currentStreak++;
+    else if(i > 0) break; // allow today to be 0 (we check yesterday's streak starting at i=1)
+    else if(i === 0 && !dayMap[key]){
+      // today has no sales — check if yesterday does (don't break the streak)
+      continue;
+    }
+  }
+  // Actually, recalculate strictly: count from most recent sale day backwards
+  const sortedDays = Object.keys(dayMap).filter(k=>dayMap[k]>0).sort().reverse();
+  currentStreak = 0;
+  if(sortedDays.length > 0){
+    let expected = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    // allow gap of 1 day (today might not have sales yet)
+    const mostRecentDay = new Date(sortedDays[0]);
+    const diffMs = expected - mostRecentDay;
+    const diffDays = Math.floor(diffMs / 86400000);
+    if(diffDays <= 1){
+      currentStreak = 1;
+      for(let i=1; i<sortedDays.length; i++){
+        const prev = new Date(sortedDays[i-1]);
+        const curr = new Date(sortedDays[i]);
+        const gap  = Math.floor((prev - curr) / 86400000);
+        if(gap === 1) currentStreak++;
+        else break;
+      }
+    }
+  }
+  // Longest streak
+  let longestStreak = 0, run = 0;
+  for(let i=0; i<sortedDays.length; i++){
+    if(i===0){ run=1; } else {
+      const prev=new Date(sortedDays[i-1]), curr=new Date(sortedDays[i]);
+      const gap=Math.floor((prev-curr)/86400000);
+      if(gap===1) run++;
+      else run=1;
+    }
+    if(run>longestStreak) longestStreak=run;
+  }
+  // Best day
+  const bestDay = Math.max(0, ...Object.values(dayMap));
+  // Best 7-day rolling window
+  let bestWeek = 0;
+  const allDays = Object.keys(dayMap).sort();
+  for(let i=0; i<allDays.length; i++){
+    const start = new Date(allDays[i]);
+    const end   = new Date(start.getTime() + 7*86400000);
+    let weekTotal = 0;
+    allDays.forEach(k => {
+      const d = new Date(k);
+      if(d >= start && d < end) weekTotal += dayMap[k];
+    });
+    if(weekTotal > bestWeek) bestWeek = weekTotal;
+  }
+  // Lifetime sales count across all products
+  const lifetimeSales = Object.values(D.strains).reduce((a,st)=>a+(st.logs||[]).filter(l=>l.type==="sale").length, 0);
+  return { currentStreak, longestStreak, bestDay, bestWeek, lifetimeSales };
+}
+function renderPerf(){
+  const el = document.getElementById("perfWrap"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML=""; return; }
+  const p = calcPerformance(s);
+  el.innerHTML = `<div class="perf-grid">
+    <div class="perf-card">
+      <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? "🔥 "+p.currentStreak : "—"}</div>
+      <div class="perf-lbl">Day Streak${p.longestStreak>1?" · Best "+p.longestStreak:""}</div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestDay)}</div>
+      <div class="perf-lbl">Best Day</div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestWeek)}</div>
+      <div class="perf-lbl">Best Week</div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-val" style="color:var(--txt-b)">${p.lifetimeSales}</div>
+      <div class="perf-lbl">All-Time Sales</div>
+    </div>
+  </div>`;
 }
 
 // ── THEMES ──
@@ -2448,6 +2721,23 @@ function applyFont(id){
 
 function renderSettings(){
   const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
+
+  // Currency
+  const curEl = document.getElementById("currencySettings");
+  if(curEl){
+    const cur_ = getCurrency();
+    const syms = ["$","€","£","¥","₹"];
+    const isCustom = !syms.includes(cur_);
+    curEl.innerHTML = `<div class="curr-btns">${syms.map(s=>
+      `<button class="curr-btn${s===cur_?" on":""}" onclick="setCurrency('${s}');renderSettings()">${s}</button>`
+    ).join("")}</div>
+    <div class="curr-custom-row">
+      <input class="curr-custom-in" id="currCustomIn" placeholder="?" maxlength="3" value="${isCustom?cur_:""}" />
+      <button class="btn-sm-acc" onclick="doSetCustomCurrency()">Set</button>
+      ${isCustom?`<span style="font-size:9px;color:var(--acc);margin-left:4px">Active: ${cur_}</span>`:""}
+    </div>`;
+  }
+
   const tg = document.getElementById("themeGrid"); if(!tg) return;
   const curT = localStorage.getItem("ledger_theme") || D.theme || "midnight-gold";
   tg.innerHTML = THEMES.map(t =>
@@ -2461,7 +2751,141 @@ function renderSettings(){
   fb.innerHTML = FONTS.map(f =>
     `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
   ).join("");
+
+  // Low stock alert
+  const lsEl = document.getElementById("lowStockSettings");
+  if(lsEl){
+    const s = cur();
+    const thresh = s ? (s.alertThreshold || "") : "";
+    lsEl.innerHTML = `<div class="settings-card"><div class="settings-row">
+      <span class="settings-row-lbl">${D.cur || "Product"} alert threshold</span>
+      <div class="btn-sm-row">
+        <input type="number" id="lsThreshInp" placeholder="e.g. 14" value="${thresh}" style="background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;color:var(--txt);font-size:11px;width:72px;text-align:center;outline:none;font-family:var(--font);" inputmode="decimal"/>
+        <button class="btn-sm-acc" onclick="saveLowStockThresh()">Save</button>
+        <button class="btn-sm-danger" onclick="saveLowStockThresh(true)">Off</button>
+      </div>
+    </div>${thresh?`<div style="font-size:9px;color:var(--txt-d);padding:8px 0 4px">Alert when stock drops below ${thresh} ${s?unitPlural(s):"units"}.</div>`:""}
+    </div>`;
+  }
+
+  // Data & Sync
+  const dsEl = document.getElementById("dataSyncSettings");
+  if(dsEl){
+    dsEl.innerHTML = `<div class="settings-card">
+      <div class="settings-row">
+        <span class="settings-row-lbl">Export all data as JSON</span>
+        <button class="btn-sm-acc" onclick="exportJSON()">Export</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-lbl">Import from JSON file</span>
+        <button class="btn-sm-acc" onclick="document.getElementById('importFileInput').click()">Import</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-lbl">Copy Sync Code</span>
+        <button class="btn-sm-acc" onclick="copySyncCode()">Copy Code</button>
+      </div>
+      <div id="syncCodeOutWrap" style="display:none;padding:8px 0 4px">
+        <textarea class="sync-textarea" id="syncCodeOut" rows="3" readonly placeholder="Sync code will appear here..."></textarea>
+      </div>
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px;padding-bottom:10px">
+        <span class="settings-row-lbl">Load Sync Code</span>
+        <textarea class="sync-textarea" id="syncCodeIn" rows="3" placeholder="Paste sync code here..."></textarea>
+        <button class="btn-sm-acc" onclick="loadSyncCode()" style="margin-top:4px">Import Sync Code</button>
+      </div>
+    </div>`;
+  }
+
   renderPINSettings();
+}
+
+function doSetCustomCurrency(){
+  const inp = document.getElementById("currCustomIn");
+  if(!inp) return;
+  const v = inp.value.trim();
+  if(!v){ showToast("Enter a currency symbol","err"); return; }
+  setCurrency(v); renderSettings();
+}
+function saveLowStockThresh(clear=false){
+  const s = cur(); if(!s) return;
+  if(clear){ s.alertThreshold = null; showToast("Alert disabled"); }
+  else {
+    const inp = document.getElementById("lsThreshInp");
+    const v = parseFloat(inp ? inp.value : 0);
+    if(!v || v <= 0){ showToast("Enter a valid threshold","err"); return; }
+    s.alertThreshold = v;
+    showToast("Alert set at " + v + " " + unitPlural(s), "ok");
+  }
+  persist(); renderLowStockBanner(); renderSettings();
+}
+
+// ── EXPORT / IMPORT / SYNC ──
+function exportJSON(){
+  try{
+    const json = JSON.stringify(D, null, 2);
+    const date = new Date().toISOString().slice(0,10);
+    const fname = "ledger-backup-" + date + ".json";
+    if(navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      const file = new File([json], fname, {type:"application/json"});
+      navigator.share({ files:[file], title:"Ledger Backup" }).catch(()=>{ _copyToClipboard(json, "Data copied to clipboard"); });
+    } else {
+      const blob = new Blob([json],{type:"application/json"});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href = url; a.download = fname; a.click();
+      URL.revokeObjectURL(url);
+      showToast("Export saved", "ok");
+    }
+  }catch(e){ showToast("Export failed","err"); }
+}
+function handleImportFile(evt){
+  const file = evt.target.files && evt.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed || !parsed.strains){ showToast("Invalid backup file","err"); return; }
+      if(!confirm("Import this backup? This will overwrite all current data.")) return;
+      D = parsed;
+      Object.values(D.strains).forEach(s=>{ if(!s.priceRef) s.priceRef=PRICE_REF_DEFAULTS.map(r=>({...r})); if(!s.unitCfg) s.unitCfg={type:"weight"}; });
+      syncPricesFromRef();
+      persist(); renderAll(); renderSettings();
+      showToast("Data imported", "ok");
+    }catch(ex){ showToast("Failed to parse file","err"); }
+  };
+  reader.readAsText(file);
+  evt.target.value = "";
+}
+function _copyToClipboard(text, msg){
+  try{
+    navigator.clipboard.writeText(text).then(()=>showToast(msg||"Copied","ok")).catch(()=>{
+      const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast(msg||"Copied","ok");
+    });
+  }catch(e){ showToast("Copy failed","err"); }
+}
+function copySyncCode(){
+  try{
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(D))));
+    _copyToClipboard(code, "Sync code copied!");
+    const wrap = document.getElementById("syncCodeOutWrap");
+    const ta   = document.getElementById("syncCodeOut");
+    if(wrap && ta){ wrap.style.display="block"; ta.value=code; }
+  }catch(e){ showToast("Failed to generate sync code","err"); }
+}
+function loadSyncCode(){
+  const ta = document.getElementById("syncCodeIn"); if(!ta) return;
+  const code = ta.value.trim();
+  if(!code){ showToast("Paste a sync code first","err"); return; }
+  try{
+    const parsed = JSON.parse(decodeURIComponent(escape(atob(code))));
+    if(!parsed || !parsed.strains){ showToast("Invalid sync code","err"); return; }
+    if(!confirm("Load sync code? This will replace all current data.")) return;
+    D = parsed;
+    Object.values(D.strains).forEach(s=>{ if(!s.priceRef) s.priceRef=PRICE_REF_DEFAULTS.map(r=>({...r})); if(!s.unitCfg) s.unitCfg={type:"weight"}; });
+    syncPricesFromRef();
+    persist(); renderAll(); renderSettings();
+    showToast("Sync loaded", "ok");
+    ta.value="";
+  }catch(e){ showToast("Invalid or corrupted sync code","err"); }
 }
 
 // ── WHAT'S NEW ──
@@ -2507,6 +2931,7 @@ function switchTab(name, btn){
 // Apply theme and font FIRST from independent keys — they survive data resets
 try{ _applyThemeVars(localStorage.getItem("ledger_theme")); }catch(e){}
 try{ _applyFontVar(localStorage.getItem("ledger_font")); }catch(e){}
+// Currency is read at runtime via getCurrency() — no explicit apply needed
 
 hydrate();
 
