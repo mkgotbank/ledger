@@ -841,27 +841,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.7.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.8.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔍</div>
+        <div class="wn-icon">↩️</div>
         <div>
-          <div class="wn-title">Log Search & Swipe to Delete</div>
-          <div class="wn-desc">Search your log by note, pack, tag, or category with the new search bar. On mobile, swipe any log entry left past the threshold to instantly delete it — no confirmation needed.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">📦</div>
-        <div>
-          <div class="wn-title">Custom Pack Sizes & Bulk Sale Mode</div>
-          <div class="wn-desc">Add, edit, and delete pack size rows in the Price Reference. In the sale modal, tap "+ Add Another Pack" to queue multiple packs in a single session — all logged individually with a shared batch ID.</div>
+          <div class="wn-title">Undo Delete</div>
+          <div class="wn-desc">Removed a log entry by mistake? A toast now pops up after every delete with a 4-second window to tap Undo and restore the entry — along with its stock, earnings, and totals.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">🎨</div>
         <div>
-          <div class="wn-title">4 New Themes & 7 New Fonts</div>
-          <div class="wn-desc">Rose, Cobalt, Arctic, and Mint join the theme roster. Baskerville, Futura, Helvetica, Georgia, Rounded, Optima, and Trebuchet are now available in Font Style — pick your vibe in Settings.</div>
+          <div class="wn-title">Theme & Font Pickers in a Grid</div>
+          <div class="wn-desc">The Theme and Font Style pages now lay out in two columns instead of a long single-column list, so you can see far more options at once with much less scrolling.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">✨</div>
+        <div>
+          <div class="wn-title">Brighter Record Sale Button</div>
+          <div class="wn-desc">The Record Sale button now uses a brighter accent gradient with a stronger glow, making the primary action stand out clearly across every theme.</div>
         </div>
       </div>
     </div>
@@ -1099,7 +1099,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.7.0";
+const APP_VER    = "2.8.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
