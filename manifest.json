@@ -4,8 +4,8 @@
   "description": "Inventory & business manager",
   "start_url": "/ledger/",
   "display": "standalone",
-  "background_color": "#111120",
-  "theme_color": "#111120",
+  "background_color": "#eef6ff",
+  "theme_color": "#eef6ff",
   "orientation": "portrait",
   "icons": [
     {
