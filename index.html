@@ -876,7 +876,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.9.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.9.4</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🤖</div>
@@ -1134,7 +1134,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.9.3";
+const APP_VER    = "2.9.4";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3282,7 +3282,17 @@ function renderSettings(){
           <button class="btn-sm-acc" onclick="saveGroqKey()">Save</button>
           ${hasKey?'<button class="btn-sm-danger" onclick="clearGroqKey()">Clear</button>':''}
         </div>
-        <div style="font-size:9px;color:var(--txt-d);line-height:1.6">Optional. Adding a free key from <span style="color:var(--acc)">console.groq.com</span> makes the AI Advisor fast and reliable. Without one, it uses a free service that can be intermittent. Your key is stored only on this device.</div>
+        ${hasKey
+          ? '<div style="font-size:9px;color:var(--txt-d);line-height:1.6">✓ Connected to Groq — the AI Advisor now uses fast, reliable responses. Your key is stored only on this device.</div>'
+          : `<div style="font-size:9px;color:var(--txt-d);line-height:1.75;width:100%">
+              <div style="margin-bottom:7px"><b style="color:var(--txt)">What's this?</b> The AI Advisor runs on a free shared service that can be slow or unavailable. Connecting your own free Groq key makes it fast and reliable. It's free, takes a minute, and no card is required.</div>
+              <div style="font-weight:700;color:var(--acc);letter-spacing:1px;text-transform:uppercase;font-size:8px;margin-bottom:5px">How to connect</div>
+              <div style="margin-bottom:3px">1. Open <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" style="color:var(--acc);font-weight:700;text-decoration:none">console.groq.com/keys ↗</a></div>
+              <div style="margin-bottom:3px">2. Sign in (free) and tap <b style="color:var(--txt)">Create API Key</b></div>
+              <div style="margin-bottom:3px">3. Copy the key — it starts with <b style="color:var(--txt)">gsk_</b></div>
+              <div>4. Paste it in the box above and tap <b style="color:var(--txt)">Save</b></div>
+              <div style="margin-top:7px;opacity:0.85">Your key is stored only on this device and is never shared.</div>
+            </div>`}
       </div>
     </div>`;
   }
