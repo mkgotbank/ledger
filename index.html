@@ -734,12 +734,22 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Preferences · Security · Data</div>
     </div>
     <div class="settings-sec">
-      <div class="settings-sec-title">Theme</div>
-      <div class="theme-grid" id="themeGrid"></div>
-    </div>
-    <div class="settings-sec">
-      <div class="settings-sec-title">Font Style</div>
-      <div class="font-row" id="fontBtns"></div>
+      <div class="settings-card">
+        <div class="settings-row" onclick="openPickerPage('theme')" style="cursor:pointer">
+          <span class="settings-row-lbl">Theme</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="themeCurrentName" style="font-size:10px;color:var(--acc)"></span>
+            <span style="color:var(--txt-d);font-size:14px">›</span>
+          </div>
+        </div>
+        <div class="settings-row" onclick="openPickerPage('font')" style="cursor:pointer">
+          <span class="settings-row-lbl">Font Style</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="fontCurrentName" style="font-size:10px;color:var(--acc)"></span>
+            <span style="color:var(--txt-d);font-size:14px">›</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="settings-sec">
       <div class="settings-sec-title">Preferences</div>
@@ -771,6 +781,24 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger · v<span id="appVerLbl"></span></div>
     </div>
   </div>
+</div>
+
+<!-- THEME PICKER PAGE -->
+<div id="themePickerPage" style="display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;">
+  <div style="position:sticky;top:0;z-index:1;background:var(--hdr-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:16px 16px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px">
+    <button onclick="closePickerPage('theme')" style="background:rgba(255,255,255,0.07);border:1px solid var(--bdr);color:var(--txt);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font)">← Back</button>
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase">Theme</div>
+  </div>
+  <div style="padding:20px 16px 40px" id="themePickerGrid"></div>
+</div>
+
+<!-- FONT PICKER PAGE -->
+<div id="fontPickerPage" style="display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;">
+  <div style="position:sticky;top:0;z-index:1;background:var(--hdr-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:16px 16px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px">
+    <button onclick="closePickerPage('font')" style="background:rgba(255,255,255,0.07);border:1px solid var(--bdr);color:var(--txt);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font)">← Back</button>
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase">Font Style</div>
+  </div>
+  <div style="padding:20px 16px 40px" id="fontPickerList"></div>
 </div>
 
 <!-- WHAT'S NEW MODAL -->
@@ -2718,14 +2746,58 @@ function _applyFontVar(id){
   document.documentElement.style.setProperty("--font", f.font);
 }
 function applyTheme(id){
-  D.theme = id; // keep in D for backward compat
+  D.theme = id;
   try{ localStorage.setItem("ledger_theme", id); }catch(e){}
   _applyThemeVars(id); persist(); renderSettings();
+  renderThemePickerPage(); // keep picker in sync if open
 }
 function applyFont(id){
   D.font = id;
   try{ localStorage.setItem("ledger_font", id); }catch(e){}
   _applyFontVar(id); persist(); renderSettings();
+  renderFontPickerPage();
+}
+
+// ── PICKER PAGES ──
+function openPickerPage(type){
+  const page = document.getElementById(type === "theme" ? "themePickerPage" : "fontPickerPage");
+  if(!page) return;
+  if(type === "theme") renderThemePickerPage();
+  else renderFontPickerPage();
+  page.style.display = "block";
+  page.scrollTop = 0;
+}
+function closePickerPage(type){
+  const page = document.getElementById(type === "theme" ? "themePickerPage" : "fontPickerPage");
+  if(page) page.style.display = "none";
+}
+function renderThemePickerPage(){
+  const grid = document.getElementById("themePickerGrid"); if(!grid) return;
+  const curT = localStorage.getItem("ledger_theme") || D.theme || "midnight-gold";
+  grid.innerHTML = THEMES.map(t => {
+    const active = t.id === curT;
+    return `<div onclick="applyTheme('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:16px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:5px">${t.dots.map(c=>`<div style="width:16px;height:16px;border-radius:50%;background:${c}"></div>`).join("")}</div>
+        <div style="font-size:13px;font-weight:700;color:${active?"var(--acc)":"var(--txt-b)"};">${t.name}</div>
+      </div>
+      ${active ? `<div style="font-size:16px;color:var(--acc)">✓</div>` : ""}
+    </div>`;
+  }).join("");
+}
+function renderFontPickerPage(){
+  const list = document.getElementById("fontPickerList"); if(!list) return;
+  const cf = localStorage.getItem("ledger_font") || D.font || "terminal";
+  list.innerHTML = FONTS.map(f => {
+    const active = f.id === cf;
+    return `<div onclick="applyFont('${f.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:18px 16px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:16px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
+      <div>
+        <div style="font-size:22px;font-family:${f.font};color:${active?"var(--acc)":"var(--txt-b)"};line-height:1.1">Aa Bb 123</div>
+        <div style="font-size:10px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:5px">${f.name}</div>
+      </div>
+      ${active ? `<div style="font-size:16px;color:var(--acc)">✓</div>` : ""}
+    </div>`;
+  }).join("");
 }
 
 function renderSettings(){
@@ -2748,19 +2820,13 @@ function renderSettings(){
     </div>`;
   }
 
-  const tg = document.getElementById("themeGrid"); if(!tg) return;
+  // Update the nav row labels with current selection names
   const curT = localStorage.getItem("ledger_theme") || D.theme || "midnight-gold";
-  tg.innerHTML = THEMES.map(t =>
-    `<div class="theme-card${t.id===curT?" on":""}" onclick="applyTheme('${t.id}')">
-      <div class="theme-swatches">${t.dots.map(c=>`<div class="theme-dot" style="background:${c}"></div>`).join("")}</div>
-      <div class="theme-name">${t.name}</div>
-    </div>`
-  ).join("");
-  const fb = document.getElementById("fontBtns"); if(!fb) return;
-  const cf = localStorage.getItem("ledger_font") || D.font || "terminal";
-  fb.innerHTML = FONTS.map(f =>
-    `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
-  ).join("");
+  const cf   = localStorage.getItem("ledger_font")   || D.font  || "terminal";
+  const tNameEl = document.getElementById("themeCurrentName");
+  const fNameEl = document.getElementById("fontCurrentName");
+  if(tNameEl){ const t = THEMES.find(t=>t.id===curT)||THEMES[0]; tNameEl.textContent = t.name; }
+  if(fNameEl){ const f = FONTS.find(f=>f.id===cf)||FONTS[0];     fNameEl.textContent = f.name; }
 
   // Low stock alert (inside merged Preferences section)
   const lsEl = document.getElementById("lowStockSettings");
