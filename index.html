@@ -841,13 +841,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.8.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.8.4</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">↩️</div>
         <div>
-          <div class="wn-title">Undo Delete — Now Working</div>
-          <div class="wn-desc">Deleting a log entry now shows an Undo button in the toast for 10 minutes. Tap it to fully restore the entry along with its stock, earnings, and totals.</div>
+          <div class="wn-title">Undo the Last 3 Deletes</div>
+          <div class="wn-desc">The Undo button now remembers your last 3 deleted entries for 10 minutes. Tap it repeatedly to restore them one at a time — newest first — each with its stock, earnings, and totals.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1099,7 +1099,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.8.3";
+const APP_VER    = "2.8.4";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1608,32 +1608,46 @@ function showToast(msg, type=""){
 }
 
 // ── UNDO DELETE ──
-let _undoState = null, _undoTimer = null;
+// Stack of up to the last 3 deletes (newest first). Undo pops the most recent,
+// which keeps stored indexes/totals valid since we always restore in LIFO order.
+const UNDO_MAX = 3;
+let _undoStack = [], _undoTimer = null;
+function _pushUndo(snap){
+  _undoStack.unshift(snap);
+  if(_undoStack.length > UNDO_MAX) _undoStack.length = UNDO_MAX;
+}
 function _showUndoToast(){
   const t = document.getElementById("toast");
   clearTimeout(_toastTimer); clearTimeout(_undoTimer);
-  t.innerHTML = `Entry removed <button class="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
+  const n = _undoStack.length;
+  const label = n > 1 ? `Entry removed (${n})` : "Entry removed";
+  t.innerHTML = `${label} <button class="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
   t.className = "show interactive";
-  // After 10 min, commit the delete permanently and hide toast
-  _undoTimer = setTimeout(() => { _undoState = null; t.className = ""; }, 600000);
+  // After 10 min, commit the deletes permanently and hide toast
+  _undoTimer = setTimeout(() => { _undoStack = []; t.className = ""; }, 600000);
 }
 function undoDelete(){
-  if(!_undoState) return;
-  clearTimeout(_undoTimer);
-  const snap = _undoState;
-  _undoState = null;
-  const s = D.strains[snap.strainKey]; if(!s) return;
-  // Restore the exact pre-delete stats from the snapshot
-  s.stock        = snap.stock;
-  s.earned       = snap.earned;
-  s.expenses     = snap.expenses;
-  s.useTotal     = snap.useTotal;
-  s.restockTotal = snap.restockTotal;
-  s.startStock   = snap.startStock;
-  // Re-insert the entry at its original position
-  s.logs.splice(snap.idx, 0, snap.entry);
-  showToast("Restored", "ok");
+  const snap = _undoStack.shift();
+  if(!snap){ document.getElementById("toast").className = ""; return; }
+  const s = D.strains[snap.strainKey];
+  if(s){
+    // Restore the exact pre-delete stats from the snapshot
+    s.stock        = snap.stock;
+    s.earned       = snap.earned;
+    s.expenses     = snap.expenses;
+    s.useTotal     = snap.useTotal;
+    s.restockTotal = snap.restockTotal;
+    s.startStock   = snap.startStock;
+    // Re-insert the entry at its original position
+    s.logs.splice(snap.idx, 0, snap.entry);
+  }
   persist(); renderAll();
+  if(_undoStack.length > 0){
+    _showUndoToast(); // keep toast up for the remaining entries
+  } else {
+    clearTimeout(_undoTimer);
+    showToast("Restored", "ok");
+  }
 }
 
 // ── STORAGE ──
@@ -2134,7 +2148,7 @@ function deleteLog(id){
   s.logs.splice(idx, 1);
   const highs = s.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
-  _undoState = snap;
+  _pushUndo(snap);
   persist(); renderAll();
   _showUndoToast();
 }
