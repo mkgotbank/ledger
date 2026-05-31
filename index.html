@@ -932,7 +932,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.14.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.14.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -1276,7 +1276,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.14.0";
+const APP_VER    = "2.14.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1352,6 +1352,15 @@ function fmtDollar(n, dec=0){
   const [int, frac] = fixed.split('.');
   const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return getCurrency() + (dec > 0 && frac !== undefined ? intFmt + '.' + frac : intFmt);
+}
+// Clean log timestamp display ("May 30 · 10:21 AM"); falls back to raw if unparseable
+function fmtLogDate(str){
+  if(!str) return "";
+  const d = new Date(str);
+  if(isNaN(d.getTime())) return str;
+  const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+  let h = d.getHours(); const m = d.getMinutes(); const ap = h>=12?"PM":"AM"; h = h%12||12;
+  return mo + " " + d.getDate() + " · " + h + ":" + (m<10?"0"+m:m) + " " + ap;
 }
 
 // ── PIN SYSTEM ──
@@ -3126,13 +3135,13 @@ function renderLog(){
     const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
-      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="restock")
-      inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
-      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="expense")
-      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
+      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
     return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
   }).join("");
