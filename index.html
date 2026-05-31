@@ -432,6 +432,17 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 /* ── LOG DATE FILTER ── */
 .ldf-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:20px;padding:5px 13px;font-size:8px;letter-spacing:2px;white-space:nowrap;cursor:pointer;text-transform:uppercase;transition:all 0.2s;font-family:var(--font);}
 .ldf-btn.on{background:var(--fill-2);border-color:var(--acc-bdr);color:var(--txt-b);}
+.log-summary{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px 13px;margin-bottom:11px;box-shadow:0 4px 18px var(--shadow);}
+.ls-range{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:9px;}
+.ls-stats{display:flex;}
+.ls-stat{flex:1;border-left:1px solid var(--hairline);padding-left:11px;}
+.ls-stat:first-child{border-left:none;padding-left:0;}
+.ls-v{font-size:17px;font-weight:700;letter-spacing:-0.5px;}
+.ls-v.g{color:#4caf7a;}
+.ls-v.r{color:#c05050;}
+.ls-l{font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:2px;}
+.ls-best{margin-top:10px;padding-top:9px;border-top:1px solid var(--hairline);font-size:9px;color:var(--txt-d);letter-spacing:0.5px;}
+.ls-best b{color:var(--acc);font-weight:700;}
 
 /* ── LOG ACTIONS ── */
 .log-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:6px;}
@@ -742,6 +753,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="ldf-btn" onclick="setDateFilter('week',this)">This Week</button>
       <button class="ldf-btn" onclick="setDateFilter('month',this)">This Month</button>
     </div>
+    <div id="logSummary"></div>
     <div class="sec-lbl" id="logCount">0 Entries</div>
     <div id="logList"></div>
   </div>
@@ -894,8 +906,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.12.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.13.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">📈</div>
+        <div>
+          <div class="wn-title">Sales Reports + CSV Export</div>
+          <div class="wn-desc">The Log tab now shows a summary for whatever range you pick — revenue, expenses, net, number of sales, and your top seller. And you can export your full sales log as a CSV (Settings → Data &amp; Sync) for spreadsheets, taxes, or your accountant.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">⏳</div>
         <div>
@@ -1180,7 +1199,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.12.1";
+const APP_VER    = "2.13.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2882,6 +2901,7 @@ function renderLog(){
   document.getElementById("logCount").textContent = filtered
     ? logs.length + " of " + allLogs.length + " entries"
     : logs.length + " Entries";
+  renderLogSummary(logs);
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
     const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
@@ -2902,6 +2922,53 @@ function renderLog(){
     return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
   }).join("");
   attachSwipeHandlers();
+}
+
+// Range summary for the currently-filtered log set (revenue, expenses, net, top seller)
+function renderLogSummary(logs){
+  const el = document.getElementById("logSummary"); if(!el) return;
+  const sales = logs.filter(l => l.type==="sale");
+  const expenses = logs.filter(l => l.type==="expense").reduce((a,l)=>a+(+l.amount||0),0);
+  const revenue = sales.reduce((a,l)=>a+(+l.total||0),0);
+  if(!sales.length && expenses<=0){ el.innerHTML = ""; return; }
+  const net = revenue - expenses;
+  const byPack = {};
+  sales.forEach(l => { const k=l.pack||"?"; if(!byPack[k]) byPack[k]={qty:0,rev:0}; byPack[k].qty+=(+l.qty||1); byPack[k].rev+=(+l.total||0); });
+  const best = Object.entries(byPack).sort((a,b)=>b[1].rev-a[1].rev)[0];
+  const rangeLbl = {all:"All Time",today:"Today",week:"This Week",month:"This Month"}[logDateFilter] || "Summary";
+  el.innerHTML = `<div class="log-summary">
+    <div class="ls-range">${rangeLbl} · Summary</div>
+    <div class="ls-stats">
+      <div class="ls-stat"><div class="ls-v g">${fmtDollar(revenue)}</div><div class="ls-l">Revenue</div></div>
+      <div class="ls-stat"><div class="ls-v r">${expenses>0?"−"+fmtDollar(expenses):fmtDollar(0)}</div><div class="ls-l">Expenses</div></div>
+      <div class="ls-stat"><div class="ls-v ${net>=0?"g":"r"}">${net>=0?"+":"−"}${fmtDollar(Math.abs(net))}</div><div class="ls-l">Net</div></div>
+      <div class="ls-stat"><div class="ls-v">${sales.length}</div><div class="ls-l">Sales</div></div>
+    </div>
+    ${best ? `<div class="ls-best">Top seller: <b>${best[0]}</b> · ${best[1].qty} sold · ${fmtDollar(best[1].rev)}</div>` : ""}
+  </div>`;
+}
+
+// Export the full sales/activity log as CSV (opens in Excel/Sheets)
+function exportCSV(){
+  try{
+    const rows = [["Product","Date","Type","Pack","Qty","Units","Amount","Note","Tag","Category","Payment","Customer"]];
+    Object.entries(D.strains||{}).forEach(([name,s])=>{
+      (s.logs||[]).slice().sort((a,b)=>(a.id||0)-(b.id||0)).forEach(l=>{
+        const amount = l.type==="expense" ? -(+l.amount||0) : (l.type==="sale" ? (+l.total||0) : "");
+        rows.push([name, l.date||"", l.type||"", l.pack||"", l.qty!=null?l.qty:"", l.w!=null?l.w:"", amount, l.note||"", l.tag||"", l.category||"", l.payment||"", l.customer||""]);
+      });
+    });
+    const csv = rows.map(r => r.map(c => { const v=String(c); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(",")).join("\n");
+    const date = new Date().toISOString().slice(0,10), fname = "ledger-sales-"+date+".csv";
+    if(navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      const file = new File([csv], fname, {type:"text/csv"});
+      navigator.share({ files:[file], title:"Ledger CSV" }).catch(()=>_copyToClipboard(csv,"CSV copied to clipboard"));
+    } else {
+      const blob = new Blob([csv],{type:"text/csv"}); const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href=url; a.download=fname; a.click(); URL.revokeObjectURL(url);
+      showToast("CSV exported", "ok");
+    }
+  }catch(e){ showToast("CSV export failed","err"); }
 }
 
 function attachSwipeHandlers(){
@@ -3428,6 +3495,10 @@ function renderSettings(){
       <div class="settings-row">
         <span class="settings-row-lbl">Export all data as JSON</span>
         <button class="btn-sm-acc" onclick="exportJSON()">Export</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-lbl">Export sales as CSV (spreadsheet)</span>
+        <button class="btn-sm-acc" onclick="exportCSV()">CSV</button>
       </div>
       <div class="settings-row">
         <span class="settings-row-lbl">Import from JSON file</span>
