@@ -4,8 +4,9 @@
    This ensures home screen / PWA always serves from cache (fast) and
    updates are applied explicitly by the app, not the CDN. */
 
-const CACHE = 'ledger-v2';
-const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/icon.svg'];
+const CACHE = 'ledger-v3';
+const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/icon.svg',
+               '/ledger/icon-monogram.svg', '/ledger/icon-book.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(

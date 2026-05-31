@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="fieldB" x1=".5" y1="0" x2=".5" y2="1">
+      <stop offset="0" stop-color="#3cb4ef"/>
+      <stop offset="55%" stop-color="#1a8fd6"/>
+      <stop offset="100%" stop-color="#0a66ac"/>
+    </linearGradient>
+    <radialGradient id="sheenB" cx=".5" cy="-.1" r="1">
+      <stop offset="0" stop-color="#bfe8ff" stop-opacity=".7"/>
+      <stop offset="55%" stop-color="#3cb4ef" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metalB" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#fff7d8"/>
+      <stop offset="22%" stop-color="#f4dc8a"/>
+      <stop offset="46%" stop-color="#e4ba4c"/>
+      <stop offset="60%" stop-color="#c39a32"/>
+      <stop offset="80%" stop-color="#ecce6f"/>
+      <stop offset="100%" stop-color="#a47b22"/>
+    </linearGradient>
+    <linearGradient id="pageL" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#eaf4fd"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="pageR" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#eaf4fd"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="bookShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#053a64" flood-opacity=".5"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#fieldB)"/>
+  <rect width="512" height="512" rx="112" fill="url(#sheenB)"/>
+
+  <!-- Rounded white frame -->
+  <rect x="26" y="26" width="460" height="460" rx="92" fill="none" stroke="#ffffff" stroke-width="12" stroke-opacity=".92"/>
+  <rect x="42" y="42" width="428" height="428" rx="78" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity=".32"/>
+
+  <!-- Gilt edges -->
+  <path d="M256,222 C198,202 150,198 92,216 L86,344 L100,338 L96,222 C152,206 200,210 256,230 Z" fill="url(#metalB)"/>
+  <path d="M256,222 C314,202 362,198 420,216 L426,344 L412,338 L416,222 C360,206 312,210 256,230 Z" fill="url(#metalB)"/>
+
+  <!-- Bookmark ribbon -->
+  <path d="M244,150 h24 v126 l-12,-15 -12,15 z" fill="url(#metalB)"/>
+  <path d="M256,150 v111" stroke="#8a6915" stroke-width="1.5" stroke-opacity=".45"/>
+
+  <!-- Pages -->
+  <g filter="url(#bookShadow)">
+    <path d="M256,218 C200,198 150,194 94,212 L88,338 C150,328 206,336 256,358 Z" fill="url(#pageL)"/>
+    <path d="M256,218 C312,198 362,194 418,212 L424,338 C362,328 306,336 256,358 Z" fill="url(#pageR)"/>
+  </g>
+
+  <!-- Subtle inner page shadow near spine -->
+  <path d="M256,218 C247,300 247,300 256,358" fill="none" stroke="#a7c6e4" stroke-width="3" stroke-opacity=".4"/>
+
+  <!-- Gold ruled lines (left) -->
+  <path d="M124,242 C166,236 206,240 236,248" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M118,270 C162,264 204,268 236,276" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+  <path d="M114,298 C160,292 202,296 236,304" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round" opacity=".68"/>
+  <!-- Gold ruled lines (right) -->
+  <path d="M388,242 C346,236 306,240 276,248" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M394,270 C350,264 308,268 276,276" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+  <path d="M398,298 C352,292 310,296 276,304" fill="none" stroke="url(#metalB)" stroke-width="6" stroke-linecap="round" opacity=".68"/>
+
+  <!-- Spine -->
+  <path d="M256,214 L256,360" fill="none" stroke="url(#metalB)" stroke-width="7" stroke-linecap="round"/>
+</svg>

@@ -11,60 +11,61 @@
 <link rel="apple-touch-icon" id="ati" href="icon.svg"/>
 <link rel="icon" type="image/svg+xml" href="icon.svg"/>
 <script>
-// iOS apple-touch-icon — canvas-rendered to match the SVG icon exactly
+// ── APP ICON SYSTEM ──
+// Two selectable home-screen icons. Favicon uses the SVG directly; the
+// apple-touch-icon is rasterized to PNG (iOS requires PNG); the manifest is
+// swapped to a blob so fresh installs pick up the chosen icon. Applied at load
+// from the saved preference, and live from Settings → App Icon.
 (function(){
-  function rr(ctx,x,y,w,h,r){
-    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
-    ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
-    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
-    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
-    ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+  var ICONS = {
+    monogram: { name:"Monogram", file:"icon-monogram.svg" },
+    book:     { name:"Ledger Book", file:"icon-book.svg" }
+  };
+  function getId(){
+    try{ var v=localStorage.getItem("ledger_icon"); if(v && ICONS[v]) return v; }catch(e){}
+    return "monogram";
   }
-  function makeIcon(sz){
-    const c=document.createElement('canvas'); c.width=c.height=sz;
-    const ctx=c.getContext('2d'); const r=sz*0.188;
-    // Dark background gradient
-    const g=ctx.createLinearGradient(sz*.5,0,sz*.5,sz);
-    g.addColorStop(0,'#141428'); g.addColorStop(1,'#080814');
-    rr(ctx,0,0,sz,sz,r); ctx.fillStyle=g; ctx.fill();
-    // Border glow bloom
-    ctx.save();
-    ctx.shadowColor='rgba(201,160,64,0.65)';
-    ctx.shadowBlur=sz*0.09;
-    ctx.strokeStyle='#c9a040'; ctx.lineWidth=sz*0.025;
-    rr(ctx,sz*.027,sz*.027,sz*.946,sz*.946,r*.88); ctx.stroke();
-    ctx.restore();
-    // Main border (crisp)
-    ctx.strokeStyle='rgba(201,160,64,0.9)'; ctx.lineWidth=sz*0.025;
-    rr(ctx,sz*.027,sz*.027,sz*.946,sz*.946,r*.88); ctx.stroke();
-    // Inner soft accent line
-    ctx.strokeStyle='rgba(255,215,100,0.2)'; ctx.lineWidth=sz*0.003;
-    rr(ctx,sz*.055,sz*.055,sz*.89,sz*.89,r*.78); ctx.stroke();
-    // Serif "L" — glow pass
-    const fs=Math.round(sz*0.531);
-    const ty=sz*0.727;
-    ctx.save();
-    ctx.shadowColor='rgba(201,160,64,0.55)';
-    ctx.shadowBlur=sz*0.045;
-    ctx.fillStyle='#c9a040';
-    ctx.font=`bold ${fs}px Georgia,'Times New Roman',serif`;
-    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
-    ctx.fillText('L',sz*0.504,ty);
-    ctx.restore();
-    // Crisp letter pass
-    ctx.fillStyle='#c9a040';
-    ctx.font=`bold ${fs}px Georgia,'Times New Roman',serif`;
-    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
-    ctx.fillText('L',sz*0.504,ty);
-    return c.toDataURL('image/png');
+  function rasterize(file, sz, cb){
+    try{
+      var img=new Image();
+      img.onload=function(){
+        try{ var c=document.createElement('canvas'); c.width=c.height=sz;
+             var x=c.getContext('2d'); x.drawImage(img,0,0,sz,sz);
+             cb(c.toDataURL('image/png')); }catch(e){ cb(null); }
+      };
+      img.onerror=function(){ cb(null); };
+      img.src=file;
+    }catch(e){ cb(null); }
   }
-  try{
-    const ico=makeIcon(180);
-    document.getElementById('ati').href=ico;
-    const lk=document.createElement('link');
-    lk.rel='apple-touch-icon'; lk.sizes='180x180'; lk.href=ico;
-    document.head.appendChild(lk);
-  }catch(e){}
+  function apply(id, persist){
+    if(!ICONS[id]) id="monogram";
+    if(persist){ try{ localStorage.setItem("ledger_icon", id); }catch(e){} }
+    var file=ICONS[id].file;
+    // Favicon (SVG)
+    var fav=document.querySelector('link[rel="icon"]'); if(fav) fav.setAttribute('href', file);
+    // apple-touch-icon (PNG for iOS); fall back to the SVG if canvas fails
+    rasterize(file, 180, function(png){
+      var ati=document.getElementById('ati');
+      if(ati){ ati.setAttribute('href', png || file); if(png) ati.removeAttribute('type'); }
+    });
+    // Manifest (best-effort dynamic swap for Android/Chrome installs)
+    rasterize(file, 512, function(png){
+      if(!png) return;
+      try{
+        var m={name:"The Ledger",short_name:"Ledger",description:"Inventory & business manager",
+               start_url:"/ledger/",display:"standalone",background_color:"#eef6ff",
+               theme_color:"#eef6ff",orientation:"portrait",
+               icons:[{src:png,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+        var url=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+        var link=document.querySelector('link[rel="manifest"]'); if(link) link.setAttribute('href', url);
+      }catch(e){}
+    });
+    // In-app brand logos
+    try{ Array.prototype.forEach.call(document.querySelectorAll('img[data-app-icon]'),
+         function(el){ el.setAttribute('src', file); }); }catch(e){}
+  }
+  window.LedgerIcon={ list:ICONS, getId:getId, apply:apply };
+  apply(getId(), false);
 })();
 </script>
 <script>
@@ -111,7 +112,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
-.setup-logo svg{filter:drop-shadow(0 12px 44px rgba(201,160,64,0.38)) drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
+.setup-logo svg,.setup-logo img{filter:drop-shadow(0 12px 40px rgba(58,180,239,0.4)) drop-shadow(0 2px 8px rgba(0,0,0,0.45));}
 .setup-title{font-size:26px;font-weight:700;color:var(--txt-b);text-align:center;letter-spacing:-1px;}
 .setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:32px;}
 .setup-field{margin-bottom:16px;}
@@ -528,26 +529,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <!-- PIN SCREEN -->
 <div id="pinScreen" style="display:none">
   <div class="setup-logo" style="margin-bottom:16px">
-    <svg width="72" height="72" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="display:block">
-      <defs>
-        <linearGradient id="plbg" x1=".5" y1="0" x2=".5" y2="1">
-          <stop offset="0%" stop-color="#141428"/>
-          <stop offset="100%" stop-color="#080814"/>
-        </linearGradient>
-        <filter id="pborderglow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
-        </filter>
-        <filter id="pletterglow" x="-25%" y="-25%" width="150%" height="150%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <rect width="512" height="512" rx="96" fill="url(#plbg)"/>
-      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="20" stroke-opacity=".55" filter="url(#pborderglow)"/>
-      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="13" stroke-opacity=".9"/>
-      <rect x="28" y="28" width="456" height="456" rx="72" fill="none" stroke="rgba(255,215,100,.22)" stroke-width="1.5"/>
-      <text x="258" y="372" text-anchor="middle" font-family="Georgia,'Times New Roman',Palatino,serif" font-size="272" font-weight="bold" fill="#c9a040" filter="url(#pletterglow)">L</text>
-    </svg>
+    <img data-app-icon src="icon.svg" width="72" height="72" alt="The Ledger" style="display:block;border-radius:17px"/>
   </div>
   <div class="pin-brand">The Ledger</div>
   <div class="pin-title" id="pinTitle">Enter PIN</div>
@@ -578,26 +560,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <div id="setupScreen">
   <div class="setup-logo">
-    <svg width="120" height="120" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="display:block">
-      <defs>
-        <linearGradient id="slbg" x1=".5" y1="0" x2=".5" y2="1">
-          <stop offset="0%" stop-color="#141428"/>
-          <stop offset="100%" stop-color="#080814"/>
-        </linearGradient>
-        <filter id="sborderglow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
-        </filter>
-        <filter id="sletterglow" x="-25%" y="-25%" width="150%" height="150%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <rect width="512" height="512" rx="96" fill="url(#slbg)"/>
-      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="20" stroke-opacity=".55" filter="url(#sborderglow)"/>
-      <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#c9a040" stroke-width="13" stroke-opacity=".9"/>
-      <rect x="28" y="28" width="456" height="456" rx="72" fill="none" stroke="rgba(255,215,100,.22)" stroke-width="1.5"/>
-      <text x="258" y="372" text-anchor="middle" font-family="Georgia,'Times New Roman',Palatino,serif" font-size="272" font-weight="bold" fill="#c9a040" filter="url(#sletterglow)">L</text>
-    </svg>
+    <img data-app-icon src="icon.svg" width="120" height="120" alt="The Ledger" style="display:block;border-radius:28px"/>
   </div>
   <div class="setup-title">The Ledger</div>
   <div class="setup-sub">Set up your first product</div>
@@ -813,6 +776,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
             <span style="color:var(--txt-d);font-size:14px">›</span>
           </div>
         </div>
+        <div class="settings-row" onclick="openPickerPage('icon')" style="cursor:pointer">
+          <span class="settings-row-lbl">App Icon</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="iconCurrentName" style="font-size:10px;color:var(--acc)"></span>
+            <span style="color:var(--txt-d);font-size:14px">›</span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="settings-sec">
@@ -869,6 +839,26 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   <div style="padding:20px 16px 40px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="fontPickerList"></div>
 </div>
 
+<!-- APP ICON PICKER PAGE -->
+<div id="iconPickerPage" style="display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;">
+  <div style="position:sticky;top:0;z-index:1;background:var(--hdr-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:16px 16px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px">
+    <button onclick="closePickerPage('icon')" style="background:rgba(255,255,255,0.07);border:1px solid var(--bdr);color:var(--txt);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font)">← Back</button>
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase">App Icon</div>
+  </div>
+  <div style="padding:20px 16px 8px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="iconPickerGrid"></div>
+  <div style="padding:6px 16px 44px">
+    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px;font-size:10px;color:var(--txt-d);line-height:1.7">
+      <div style="font-weight:700;color:var(--acc);letter-spacing:1px;text-transform:uppercase;font-size:8px;margin-bottom:6px">To show it on your home screen</div>
+      Your pick updates inside the app right away. Phones lock the home-screen icon when you add the app, so to change it there:
+      <div style="margin-top:7px">1. Tap <b style="color:var(--txt)">Back up now</b> below (safe on every device).</div>
+      <div>2. Remove The Ledger from your home screen, then re-add it.</div>
+      <div>3. Reopen and tap <b style="color:var(--txt)">Settings → Data &amp; Sync → Load Sync Code</b> if anything looks empty.</div>
+      <button class="btn-sm-acc" style="margin-top:11px" onclick="backupBeforeReadd()">Back up now</button>
+      <span id="iconBackupNote" style="font-size:9px;color:var(--acc);margin-left:8px"></span>
+    </div>
+  </div>
+</div>
+
 <!-- WHAT'S NEW MODAL -->
 <div class="overlay" id="modal-whatsNew">
   <div class="mbox">
@@ -876,8 +866,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.9.6</div>
+    <div class="wn-badge" id="wnVersion">Version 2.10.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">🎯</div>
+        <div>
+          <div class="wn-title">Choose Your App Icon</div>
+          <div class="wn-desc">New in Settings → App Icon: pick between the gold Monogram or the Ledger Book. It restyles the app instantly. To change the icon on your home screen, the picker walks you through a quick back-up-and-re-add (so your data stays safe).</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">🧊</div>
         <div>
@@ -1141,7 +1138,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.9.6";
+const APP_VER    = "2.10.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1186,7 +1183,7 @@ async function checkForUpdate(){
       if('serviceWorker' in navigator && navigator.serviceWorker.controller){
         navigator.serviceWorker.controller.postMessage({ type:'CACHE_UPDATE', html });
       }
-      const cache = await caches.open('ledger-v2');
+      const cache = await caches.open('ledger-v3');
       const blob  = new Blob([html], {type:'text/html;charset=utf-8'});
       const resp  = new Response(blob, {status:200, headers:{'Content-Type':'text/html;charset=utf-8'}});
       await Promise.all([
@@ -2170,7 +2167,7 @@ function doReset(){
 }
 function doResetAll(){
   try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); } catch(e){}
-  try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); } catch(e){}
+  try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   location.reload();
 }
 function deleteLog(id){
@@ -3197,16 +3194,18 @@ function applyFont(id){
 }
 
 // ── PICKER PAGES ──
+const _PICKER_PAGES = { theme:"themePickerPage", font:"fontPickerPage", icon:"iconPickerPage" };
 function openPickerPage(type){
-  const page = document.getElementById(type === "theme" ? "themePickerPage" : "fontPickerPage");
+  const page = document.getElementById(_PICKER_PAGES[type]);
   if(!page) return;
   if(type === "theme") renderThemePickerPage();
-  else renderFontPickerPage();
+  else if(type === "font") renderFontPickerPage();
+  else if(type === "icon") renderIconPickerPage();
   page.style.display = "block";
   page.scrollTop = 0;
 }
 function closePickerPage(type){
-  const page = document.getElementById(type === "theme" ? "themePickerPage" : "fontPickerPage");
+  const page = document.getElementById(_PICKER_PAGES[type]);
   if(page) page.style.display = "none";
 }
 function renderThemePickerPage(){
@@ -3237,6 +3236,44 @@ function renderFontPickerPage(){
     </div>`;
   }).join("");
 }
+function renderIconPickerPage(){
+  const grid = document.getElementById("iconPickerGrid"); if(!grid) return;
+  const cur = (window.LedgerIcon ? window.LedgerIcon.getId() : "monogram");
+  const icons = window.LedgerIcon ? window.LedgerIcon.list : {};
+  grid.innerHTML = Object.keys(icons).map(id => {
+    const ic = icons[id];
+    const active = id === cur;
+    return `<div onclick="applyAppIcon('${id}')" style="display:flex;flex-direction:column;align-items:center;gap:11px;padding:18px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:16px;cursor:pointer;transition:border-color 0.2s">
+      <img src="${ic.file}" width="92" height="92" alt="${ic.name}" style="display:block;border-radius:21px;box-shadow:0 6px 18px rgba(0,0,0,0.35)"/>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="font-size:11px;font-weight:700;color:${active?"var(--acc)":"var(--txt-b)"}">${ic.name}</div>
+        ${active ? `<div style="font-size:14px;color:var(--acc);line-height:1">✓</div>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+function applyAppIcon(id){
+  if(window.LedgerIcon) window.LedgerIcon.apply(id, true);
+  renderIconPickerPage();
+  renderSettings();
+  showToast("App icon updated", "ok");
+}
+function backupBeforeReadd(){
+  try {
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(D))));
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(
+        () => { const n=document.getElementById("iconBackupNote"); if(n) n.textContent="✓ Backup code copied"; },
+        () => _backupFallback(code)
+      );
+    } else { _backupFallback(code); }
+  } catch(e){ showToast("Backup failed — use Data & Sync", "err"); }
+}
+function _backupFallback(code){
+  try { localStorage.setItem("ledger_v4_bak", JSON.stringify(D)); } catch(e){}
+  const n=document.getElementById("iconBackupNote");
+  if(n) n.textContent="✓ Saved on device — also use Data & Sync to be safe";
+}
 
 function renderSettings(){
   const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
@@ -3265,6 +3302,8 @@ function renderSettings(){
   const fNameEl = document.getElementById("fontCurrentName");
   if(tNameEl){ const t = THEMES.find(t=>t.id===curT)||THEMES[0]; tNameEl.textContent = t.name; }
   if(fNameEl){ const f = FONTS.find(f=>f.id===cf)||FONTS[0];     fNameEl.textContent = f.name; }
+  const iNameEl = document.getElementById("iconCurrentName");
+  if(iNameEl && window.LedgerIcon){ const ic = window.LedgerIcon.list[window.LedgerIcon.getId()]; if(ic) iNameEl.textContent = ic.name; }
 
   // Low stock alert (inside merged Preferences section)
   const lsEl = document.getElementById("lowStockSettings");
