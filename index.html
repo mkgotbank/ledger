@@ -477,6 +477,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .disc-type{width:38px;background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:9px;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
 .disc-type.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .disc-clear{background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:4px 6px;}
+.unpaid-btn{width:100%;margin-top:8px;background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:9px;padding:9px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.unpaid-btn.on{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.4);color:#e07070;}
+/* Owed (credit) summary card on the Stock panel */
+.owed-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid rgba(224,92,92,0.28);border-left:3px solid #e05c5c;border-radius:14px;padding:11px 13px;margin-bottom:13px;cursor:pointer;box-shadow:0 4px 18px var(--shadow);transition:transform 0.18s var(--ease);}
+.owed-card:active{transform:scale(0.99);}
+.owed-card-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#e07070;}
+.owed-card-v{font-size:19px;font-weight:700;color:#e05c5c;letter-spacing:-0.5px;margin-top:2px;}
+.owed-card-sub{font-size:9px;color:var(--txt-d);margin-top:1px;}
+.cust-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;background:var(--fill-1);border:1px solid var(--bdr);border-radius:12px;margin-bottom:7px;}
+.cust-name{font-size:12px;font-weight:700;color:var(--txt-b);}
+.cust-sub{font-size:9px;color:var(--txt-d);margin-top:2px;}
+.cust-owed{font-size:15px;font-weight:700;color:#e05c5c;text-align:right;}
+.cust-paid-btn{background:rgba(76,175,122,0.14);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:8px;padding:7px 12px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);flex-shrink:0;transition:background 0.15s;}
+.cust-paid-btn:active{background:rgba(76,175,122,0.25);}
 .tag-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .log-badge{display:inline-block;font-size:7px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
 .log-badge-tag{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);}
@@ -692,6 +706,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="scard"><div class="scard-lbl">Expenses</div><div class="scard-val" id="s-exp" style="color:#c05050">$0</div></div>
       <div class="scard"><div class="scard-lbl">Est. Value</div><div class="scard-val" id="s-est" style="color:#c9a040">$0</div></div>
     </div>
+
+    <div id="owedCard"></div>
 
     <div class="exp-card">
       <div class="exp-top">Expenses Covered <span id="expFrac">$0 / $0</span></div>
@@ -916,8 +932,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.13.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.14.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">👥</div>
+        <div>
+          <div class="wn-title">Customers &amp; Credit — Who Owes You</div>
+          <div class="wn-desc">Add a customer name to any sale and mark it unpaid (on credit). A red "Owed to you" card appears on the Stock tab showing your total outstanding; tap it to see each person's balance and tap "Mark paid" once they settle up. Works across all your products.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">🏷️</div>
         <div>
@@ -986,6 +1009,17 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- CUSTOMERS / CREDIT MODAL -->
+<div class="overlay" id="modal-customers" onclick="overlayClose(event,'customers')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">Who Owes You</div>
+      <button class="modal-close" onclick="closeModal('customers')">✕</button>
+    </div>
+    <div id="customersList"></div>
+  </div>
+</div>
+
 <!-- SALE MODAL -->
 <div class="overlay" id="modal-sale" onclick="overlayClose(event,'modal-sale')">
   <div class="mbox">
@@ -1036,6 +1070,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
           <button class="disc-type" id="discTypePct" onclick="setDiscType('pct')">%</button>
           <button class="disc-clear" onclick="clearDiscount()">Clear</button>
         </div>
+      </div>
+    </div>
+    <div id="saleCustWrap" style="margin-bottom:12px">
+      <button id="saleCustToggle" onclick="toggleCustPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleCustToggleIcon">＋</span> Add customer</button>
+      <div id="saleCustPanel" style="display:none;margin-top:8px">
+        <input class="m-input" id="saleCustIn" placeholder="Customer name" autocomplete="off" oninput="onCustInput()"/>
+        <button class="unpaid-btn" id="saleUnpaidBtn" onclick="toggleUnpaid()">Mark unpaid · they owe this</button>
       </div>
     </div>
     <div id="saleTagWrap" style="margin-bottom:12px">
@@ -1235,7 +1276,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.13.1";
+const APP_VER    = "2.14.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1663,6 +1704,7 @@ let _renamingStrain = null;
 let expCategory = "Re-up";
 let saleTag = "";
 let salePayment = "Cash", saleDiscount = 0, saleDiscountType = "amt"; // amt | pct
+let saleCustomer = "", saleUnpaid = false;
 let logSearch = "";
 let bulkCart = [];
 // Apply the current discount to a base line total
@@ -2077,6 +2119,12 @@ function openSaleModal(){
   const dt = document.getElementById("discTypeAmt"); if(dt) dt.classList.add("on");
   const dtp = document.getElementById("discTypePct"); if(dtp) dtp.classList.remove("on");
   clearDiscount();
+  // Reset customer / credit
+  saleCustomer = ""; saleUnpaid = false;
+  const cp = document.getElementById("saleCustPanel"); if(cp) cp.style.display = "none";
+  const ci = document.getElementById("saleCustToggleIcon"); if(ci) ci.textContent = "＋";
+  const cin = document.getElementById("saleCustIn"); if(cin) cin.value = "";
+  const ub = document.getElementById("saleUnpaidBtn"); if(ub){ ub.classList.remove("on"); ub.textContent = "Mark unpaid · they owe this"; }
   // Hide bulk section
   const bi = document.getElementById("bulkItems");
   const bcw = document.getElementById("bulkClearWrap");
@@ -2137,6 +2185,75 @@ function clearDiscount(){
   const inp = document.getElementById("saleDiscIn"); if(inp) inp.value = "";
   updateSaleModal();
 }
+function toggleCustPanel(){
+  const p = document.getElementById("saleCustPanel");
+  const i = document.getElementById("saleCustToggleIcon");
+  if(!p) return;
+  const open = p.style.display !== "none";
+  p.style.display = open ? "none" : "block";
+  if(i) i.textContent = open ? "＋" : "−";
+  if(open){ saleCustomer=""; saleUnpaid=false; const inp=document.getElementById("saleCustIn"); if(inp) inp.value=""; document.getElementById("saleUnpaidBtn").classList.remove("on"); }
+}
+function onCustInput(){ saleCustomer = document.getElementById("saleCustIn").value.trim(); }
+function toggleUnpaid(){
+  saleUnpaid = !saleUnpaid;
+  const b = document.getElementById("saleUnpaidBtn");
+  if(b){ b.classList.toggle("on", saleUnpaid); b.textContent = saleUnpaid ? "✓ Unpaid · added to what they owe" : "Mark unpaid · they owe this"; }
+}
+
+// ── CUSTOMERS / CREDIT (across all products) ──
+function owedByCustomer(){
+  const map = {};
+  Object.entries(D.strains||{}).forEach(([prod,s])=>{
+    (s.logs||[]).forEach(l=>{
+      if(l.type==="sale" && l.paid===false){
+        const name = (l.customer||"").trim() || "Unknown";
+        if(!map[name]) map[name] = { owed:0, count:0 };
+        map[name].owed += (+l.total||0);
+        map[name].count++;
+      }
+    });
+  });
+  return map;
+}
+function totalOwed(){ return Object.values(owedByCustomer()).reduce((a,c)=>a+c.owed,0); }
+function renderOwedCard(){
+  const el = document.getElementById("owedCard"); if(!el) return;
+  const map = owedByCustomer();
+  const total = Object.values(map).reduce((a,c)=>a+c.owed,0);
+  const n = Object.keys(map).length;
+  if(total <= 0){ el.innerHTML = ""; return; }
+  el.innerHTML = `<div class="owed-card" onclick="openCustomers()">
+    <div><div class="owed-card-l">Owed to you</div><div class="owed-card-v">${fmtDollar(total)}</div><div class="owed-card-sub">${n} customer${n===1?"":"s"} on credit · tap to view</div></div>
+    <div style="color:var(--txt-d);font-size:16px">›</div>
+  </div>`;
+}
+function openCustomers(){ renderCustomers(); openModal("customers"); }
+function renderCustomers(){
+  const el = document.getElementById("customersList"); if(!el) return;
+  const map = owedByCustomer();
+  const entries = Object.entries(map).sort((a,b)=>b[1].owed-a[1].owed);
+  if(!entries.length){ el.innerHTML = `<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:30px 0">No one owes you 🎉</div>`; return; }
+  const total = entries.reduce((a,[,c])=>a+c.owed,0);
+  el.innerHTML = `<div class="ls-range" style="margin-bottom:11px">Total outstanding · ${fmtDollar(total)}</div>` +
+    entries.map(([name,c])=>`<div class="cust-row">
+      <div style="min-width:0"><div class="cust-name">${escHtml(name)}</div><div class="cust-sub">${c.count} unpaid sale${c.count===1?"":"s"}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <div class="cust-owed">${fmtDollar(c.owed)}</div>
+        <button class="cust-paid-btn" onclick="markCustomerPaid('${escAttr(name)}')">Mark paid</button>
+      </div>
+    </div>`).join("");
+}
+function markCustomerPaid(name){
+  let count = 0;
+  Object.values(D.strains||{}).forEach(s=>{
+    (s.logs||[]).forEach(l=>{
+      if(l.type==="sale" && l.paid===false && ((l.customer||"").trim()||"Unknown")===name){ l.paid = true; l.paidDate = now(); count++; }
+    });
+  });
+  if(count){ persist(); renderAll(); renderCustomers(); showToast(name + " marked paid", "ok"); }
+}
+function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
 function openExpModal(mode){
   expMode = mode;
   const s = cur();
@@ -2212,6 +2329,8 @@ function confirmSale(){
       const entry = { id:batchId + i, type:"sale", pack:item.type, qty:item.qty, price:item.price, total:earned, w:item.w, note, date:now(), after:s.stock, batchId, payment:salePayment };
       if(saleTag) entry.tag = saleTag;
       if(item.disc) entry.discount = item.disc;
+      if(saleCustomer) entry.customer = saleCustomer;
+      if(saleUnpaid) entry.paid = false;
       s.logs.unshift(entry);
     });
     bulkCart = []; saleDiscount = 0;
@@ -2240,6 +2359,8 @@ function confirmSale(){
   const entry = { id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns, payment:salePayment };
   if(saleTag) entry.tag = saleTag;
   if(saleDiscount>0) entry.discount = { amt:saleDiscount, type:saleDiscountType };
+  if(saleCustomer) entry.customer = saleCustomer;
+  if(saleUnpaid) entry.paid = false;
   s.logs.unshift(entry);
   saleDiscount = 0;
   closeModal("sale");
@@ -2970,7 +3091,7 @@ function renderAll(){
     }).join("");
   }
 
-  renderLog(); renderQS();
+  renderLog(); renderQS(); renderOwedCard();
   const tipsPanel = document.getElementById("panel-tips");
   if(tipsPanel && tipsPanel.classList.contains("on")) renderChart();
   renderLowStockBanner();
@@ -2986,7 +3107,7 @@ function renderLog(){
   const allLogs = s.logs||[];
   let logs = allLogs.filter(l => logFilter==="all" || l.type===logFilter);
   if(cutoff>0) logs = logs.filter(l => l.id>=cutoff);
-  if(logSearch){ const q=logSearch; logs=logs.filter(l => (l.note||"").toLowerCase().includes(q)||(l.pack||"").toLowerCase().includes(q)||(l.tag||"").toLowerCase().includes(q)||(l.category||"").toLowerCase().includes(q)||(l.amount||"").toString().includes(q)); }
+  if(logSearch){ const q=logSearch; logs=logs.filter(l => (l.note||"").toLowerCase().includes(q)||(l.pack||"").toLowerCase().includes(q)||(l.tag||"").toLowerCase().includes(q)||(l.category||"").toLowerCase().includes(q)||(l.customer||"").toLowerCase().includes(q)||(l.amount||"").toString().includes(q)); }
   const filtered = logFilter!=="all" || logDateFilter!=="all" || !!logSearch;
   document.getElementById("logCount").textContent = filtered
     ? logs.length + " of " + allLogs.length + " entries"
@@ -3000,10 +3121,12 @@ function renderLog(){
     const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
     const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
     const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
+    const unpaidBadge = (l.type==="sale" && l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
+    const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(l.total):""}</div>` : "";
     const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
-      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${discNote}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="restock")
       inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
@@ -3043,11 +3166,12 @@ function renderLogSummary(logs){
 // Export the full sales/activity log as CSV (opens in Excel/Sheets)
 function exportCSV(){
   try{
-    const rows = [["Product","Date","Type","Pack","Qty","Units","Amount","Note","Tag","Category","Payment","Customer"]];
+    const rows = [["Product","Date","Type","Pack","Qty","Units","Amount","Note","Tag","Category","Payment","Customer","Paid"]];
     Object.entries(D.strains||{}).forEach(([name,s])=>{
       (s.logs||[]).slice().sort((a,b)=>(a.id||0)-(b.id||0)).forEach(l=>{
         const amount = l.type==="expense" ? -(+l.amount||0) : (l.type==="sale" ? (+l.total||0) : "");
-        rows.push([name, l.date||"", l.type||"", l.pack||"", l.qty!=null?l.qty:"", l.w!=null?l.w:"", amount, l.note||"", l.tag||"", l.category||"", l.payment||"", l.customer||""]);
+        const paid = l.type==="sale" ? (l.paid===false ? "No" : "Yes") : "";
+        rows.push([name, l.date||"", l.type||"", l.pack||"", l.qty!=null?l.qty:"", l.w!=null?l.w:"", amount, l.note||"", l.tag||"", l.category||"", l.payment||"", l.customer||"", paid]);
       });
     });
     const csv = rows.map(r => r.map(c => { const v=String(c); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(",")).join("\n");
