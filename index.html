@@ -96,17 +96,18 @@ if('serviceWorker' in navigator){
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow-x:hidden;}
-body{background:var(--bg);color:var(--txt);font-family:var(--font);min-height:100vh;}
+body{background:var(--bg);background-image:radial-gradient(135% 90% at 50% -20%, var(--acc-dim), transparent 55%);background-attachment:fixed;color:var(--txt);font-family:var(--font);min-height:100vh;}
 button,input,select,textarea{font-family:var(--font);}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
-#toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:rgba(28,28,46,0.96);border:1px solid rgba(255,255,255,0.14);color:var(--txt);padding:11px 22px;border-radius:14px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-#toast.show{opacity:1;}
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(16px) scale(0.96);background:linear-gradient(180deg,rgba(42,42,64,0.96),rgba(22,22,38,0.97));border:1px solid rgba(255,255,255,0.13);color:#f1eee4;padding:12px 18px;border-radius:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.32s cubic-bezier(0.2,0.8,0.2,1),transform 0.32s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 44px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
 #toast.interactive{pointer-events:auto;}
-#toast.err{border-color:rgba(224,92,92,0.4);color:#e05c5c;}
-#toast.ok{border-color:rgba(76,175,122,0.4);color:#4caf7a;}
-.toast-undo-btn{background:none;border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:6px;padding:3px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:10px;font-family:var(--font);vertical-align:middle;}
+#toast.err{border-color:rgba(224,92,92,0.45);color:#f08080;}
+#toast.ok{border-color:rgba(76,175,122,0.45);color:#6fd49a;}
+.toast-undo-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:10px;padding:5px 14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:11px;font-family:var(--font);vertical-align:middle;box-shadow:0 2px 12px var(--acc-glow),inset 0 1px 0 rgba(255,255,255,0.25);transition:transform 0.15s ease,box-shadow 0.2s ease;}
+.toast-undo-btn:active{transform:scale(0.92);box-shadow:0 1px 6px var(--acc-glow);}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
@@ -123,7 +124,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #mainApp{display:none;max-width:480px;margin:0 auto;padding-bottom:110px;}
 
 /* Sticky frosted-glass header */
-.hdr{padding:22px 18px 0;border-bottom:1px solid var(--acc-bdr);position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+.hdr{padding:22px 18px 0;border-bottom:1px solid var(--acc-bdr);position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 10px 30px -16px rgba(0,0,0,0.55);}
 .hdr-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .hdr-lbl{font-size:9px;letter-spacing:5px;color:var(--acc);text-transform:uppercase;margin-bottom:2px;}
 .hdr-title{font-size:22px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px;}
@@ -133,7 +134,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .hdr-stock{text-align:right;}
 .hdr-stock-lbl{font-size:8px;color:#9090a8;letter-spacing:3px;}
 .hdr-stock-val{font-size:32px;font-weight:700;line-height:1.1;}
-.hdr-stock-val.ok{color:var(--acc-hi);}
+.hdr-stock-val.ok{color:var(--acc-hi);text-shadow:0 0 26px var(--acc-glow);}
 .hdr-stock-val.amber{color:#e0a84a;}
 .hdr-stock-val.low{color:#e05c5c;}
 .hdr-stock-unit{font-size:12px;color:#9090a8;margin-left:2px;}
@@ -489,6 +490,29 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .bulk-total{text-align:right;font-size:11px;color:#4caf7a;font-weight:700;margin-top:6px;}
 .btn-add-another{width:100%;background:none;border:1px dashed rgba(255,255,255,0.15);color:var(--txt-d);border-radius:10px;padding:9px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);margin-top:8px;margin-bottom:8px;}
 .btn-add-another:active{background:rgba(255,255,255,0.06);}
+
+/* ── OPUS 4.8 POLISH ── refined depth, light & motion (all theme-safe) ── */
+/* Lit top edge + richer layered shadow on every surface card */
+.scard,.exp-card,.acard,.qs-card,.chart-wrap,.settings-card,.pref,.perf-card,.qs-tip,.ai-box,.add-pack-form{
+  box-shadow:0 6px 26px -6px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+/* Tactile press on primary actions */
+.btn-sale,.btn-confirm,.setup-btn,.btn-confirm-red,.btn-yes-red,.btn-ai{
+  transition:transform 0.18s cubic-bezier(0.2,0.8,0.2,1),opacity 0.2s ease,box-shadow 0.25s ease;
+}
+.btn-sale:active,.btn-confirm:active,.setup-btn:active,.btn-confirm-red:active,.btn-yes-red:active{transform:scale(0.975);}
+.scard:active,.qs-card:active,.perf-card:active{transform:scale(0.99);}
+.tab,.pbtn,.lf-btn,.uBtn,.tag-btn,.cat-btn,.curr-btn{transition:all 0.22s cubic-bezier(0.2,0.8,0.2,1);}
+/* Soft entrance when switching tab panels */
+.panel.on{animation:panelIn 0.34s cubic-bezier(0.2,0.8,0.2,1);}
+@keyframes panelIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+/* Premium iOS-style sheet rise for modals */
+.overlay.open .mbox{animation:sheetUp 0.4s cubic-bezier(0.2,0.85,0.25,1);}
+@keyframes sheetUp{from{transform:translateY(44px);opacity:0.4;}to{transform:none;opacity:1;}}
+@media (prefers-reduced-motion:reduce){
+  .panel.on,.overlay.open .mbox{animation:none;}
+  .btn-sale:active,.btn-confirm:active,.setup-btn:active,.btn-confirm-red:active,.btn-yes-red:active,.scard:active,.qs-card:active,.perf-card:active{transform:none;}
+}
 </style>
 </head>
 <body>
@@ -841,13 +865,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.8.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.9.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">✨</div>
+        <div>
+          <div class="wn-title">A Refined New Look</div>
+          <div class="wn-desc">A full visual makeover for a more premium feel — ambient depth behind the header, lit-edge cards with richer shadows, a glowing stock readout, buttons that respond to your touch, and smooth slide-up sheets. Looks great in every theme.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">↩️</div>
         <div>
-          <div class="wn-title">Undo the Last 3 Deletes</div>
-          <div class="wn-desc">The Undo button now remembers your last 3 deleted entries for 10 minutes. Tap it repeatedly to restore them one at a time — newest first — each with its stock, earnings, and totals.</div>
+          <div class="wn-title">Premium Undo — Last 3 Deletes</div>
+          <div class="wn-desc">The redesigned gold Undo button remembers your last 3 deleted entries for 10 minutes. Tap it to restore them one at a time — newest first — each with its stock, earnings, and totals.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -855,13 +886,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         <div>
           <div class="wn-title">Faster Updates</div>
           <div class="wn-desc">New versions now arrive much sooner — the app checks the moment you reopen it and periodically while it's open, instead of only once at launch.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✨</div>
-        <div>
-          <div class="wn-title">Brighter Buttons</div>
-          <div class="wn-desc">Record Sale, Got It, and all confirm buttons now share the same bright accent gradient and glow, making the primary action stand out across every theme.</div>
         </div>
       </div>
     </div>
@@ -1099,7 +1123,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.8.4";
+const APP_VER    = "2.9.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
