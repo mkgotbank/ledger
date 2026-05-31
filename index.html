@@ -717,10 +717,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
 
-    <div class="sec-lbl">Performance</div>
-    <div class="perf-wrap" id="perfWrap"></div>
-
     <div class="sec-lbl" id="qsLbl">Quick Stats</div>
+    <div class="perf-wrap" id="perfWrap"></div>
     <div class="qs-grid" id="qsGrid"></div>
 
     <div class="sec-lbl">Smart Suggestions</div>
@@ -733,11 +731,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   <div class="panel" id="panel-settings">
     <div style="margin-bottom:20px">
       <div style="font-size:18px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px">Settings</div>
-      <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Security · Data</div>
-    </div>
-    <div class="settings-sec">
-      <div class="settings-sec-title">Currency</div>
-      <div id="currencySettings"></div>
+      <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Preferences · Security · Data</div>
     </div>
     <div class="settings-sec">
       <div class="settings-sec-title">Theme</div>
@@ -748,7 +742,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="font-row" id="fontBtns"></div>
     </div>
     <div class="settings-sec">
-      <div class="settings-sec-title">Low Stock Alert</div>
+      <div class="settings-sec-title">Preferences</div>
+      <div id="currencySettings" style="margin-bottom:14px"></div>
       <div id="lowStockSettings"></div>
     </div>
     <div class="settings-sec">
@@ -846,14 +841,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <span class="m-lbl">Note (optional)</span>
       <input class="m-input" id="saleNote" placeholder="e.g. regular, cash..."/>
     </div>
-    <div class="m-sec" id="saleTagWrap">
-      <span class="m-lbl">Tag (optional)</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="tag-btn" onclick="setSaleTag('Regular',this)">Regular</button>
-        <button class="tag-btn" onclick="setSaleTag('Bulk',this)">Bulk</button>
-        <button class="tag-btn" onclick="setSaleTag('New',this)">New</button>
-        <button class="tag-btn" onclick="setSaleTag('Referral',this)">Referral</button>
-        <button class="tag-btn" onclick="setSaleTag('',this)" style="color:#505070">None</button>
+    <div id="saleTagWrap" style="margin-bottom:12px">
+      <button id="saleTagToggle" onclick="toggleSaleTagPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleTagToggleIcon">＋</span> Add tag</button>
+      <div id="saleTagPanel" style="display:none;margin-top:8px;display:none">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="tag-btn" onclick="setSaleTag('Regular',this)">Regular</button>
+          <button class="tag-btn" onclick="setSaleTag('Bulk',this)">Bulk</button>
+          <button class="tag-btn" onclick="setSaleTag('New',this)">New</button>
+          <button class="tag-btn" onclick="setSaleTag('Referral',this)">Referral</button>
+        </div>
       </div>
     </div>
     <button class="btn-confirm" id="saleConfirm" onclick="confirmSale()">Confirm — $90</button>
@@ -1768,8 +1764,12 @@ function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleTag = "";
-  // Reset tag buttons
   document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("on"));
+  // Collapse tag panel back to toggle link
+  const tp = document.getElementById("saleTagPanel");
+  const ti = document.getElementById("saleTagToggleIcon");
+  if(tp){ tp.style.display = "none"; }
+  if(ti){ ti.textContent = "＋"; }
   if(isWeight(s)){
     saleType = "14g"; salePrice = midPrice("14g");
   } else {
@@ -1781,8 +1781,17 @@ function openSaleModal(){
   updateSaleModal();
   openModal("sale");
 }
+function toggleSaleTagPanel(){
+  const tp = document.getElementById("saleTagPanel");
+  const ti = document.getElementById("saleTagToggleIcon");
+  if(!tp) return;
+  const open = tp.style.display !== "none";
+  tp.style.display = open ? "none" : "block";
+  if(ti) ti.textContent = open ? "＋" : "−";
+  if(open){ saleTag = ""; document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on")); }
+}
 function setSaleTag(t, btn){
-  if(t === "" || saleTag === t){ saleTag = ""; document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on")); return; }
+  if(saleTag === t){ saleTag = ""; document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on")); return; }
   saleTag = t;
   document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on"));
   btn.classList.add("on");
@@ -2722,13 +2731,14 @@ function applyFont(id){
 function renderSettings(){
   const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
 
-  // Currency
+  // Currency (inside merged Preferences section)
   const curEl = document.getElementById("currencySettings");
   if(curEl){
     const cur_ = getCurrency();
     const syms = ["$","€","£","¥","₹"];
     const isCustom = !syms.includes(cur_);
-    curEl.innerHTML = `<div class="curr-btns">${syms.map(s=>
+    curEl.innerHTML = `<div style="font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-bottom:7px">Currency Symbol</div>
+    <div class="curr-btns">${syms.map(s=>
       `<button class="curr-btn${s===cur_?" on":""}" onclick="setCurrency('${s}');renderSettings()">${s}</button>`
     ).join("")}</div>
     <div class="curr-custom-row">
@@ -2752,12 +2762,13 @@ function renderSettings(){
     `<button class="font-btn${f.id===cf?" on":""}" onclick="applyFont('${f.id}')" style="font-family:${f.font}">${f.name}<span class="fb-sample">Aa</span></button>`
   ).join("");
 
-  // Low stock alert
+  // Low stock alert (inside merged Preferences section)
   const lsEl = document.getElementById("lowStockSettings");
   if(lsEl){
     const s = cur();
     const thresh = s ? (s.alertThreshold || "") : "";
-    lsEl.innerHTML = `<div class="settings-card"><div class="settings-row">
+    lsEl.innerHTML = `<div style="font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-bottom:7px;margin-top:2px">Low Stock Alert</div>
+    <div class="settings-card"><div class="settings-row">
       <span class="settings-row-lbl">${D.cur || "Product"} alert threshold</span>
       <div class="btn-sm-row">
         <input type="number" id="lsThreshInp" placeholder="e.g. 14" value="${thresh}" style="background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;color:var(--txt);font-size:11px;width:72px;text-align:center;outline:none;font-family:var(--font);" inputmode="decimal"/>
