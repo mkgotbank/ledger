@@ -103,8 +103,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 #toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:rgba(28,28,46,0.96);border:1px solid rgba(255,255,255,0.14);color:var(--txt);padding:11px 22px;border-radius:14px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
 #toast.show{opacity:1;}
+#toast.interactive{pointer-events:auto;}
 #toast.err{border-color:rgba(224,92,92,0.4);color:#e05c5c;}
 #toast.ok{border-color:rgba(76,175,122,0.4);color:#4caf7a;}
+.toast-undo-btn{background:none;border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:6px;padding:3px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:10px;font-family:var(--font);vertical-align:middle;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
@@ -199,7 +201,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-act{border-radius:10px;padding:10px 14px;font-size:9px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border:1px solid;white-space:nowrap;transition:opacity 0.15s;}
 .btn-act.g{background:rgba(76,175,122,0.12);border-color:rgba(76,175,122,0.28);color:#4caf7a;}
 .btn-act.r{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.28);color:#e05c5c;}
-.btn-sale{width:100%;background:linear-gradient(135deg,var(--acc-a),var(--acc-b));border:none;border-radius:14px;padding:15px;color:#0a0a0f;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;box-shadow:0 4px 22px var(--acc-glow);margin-bottom:12px;cursor:pointer;transition:opacity 0.2s;}
+.btn-sale{width:100%;background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:14px;padding:15px;color:#0a0a0f;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;box-shadow:0 4px 28px var(--acc-glow),0 0 0 1px var(--acc-hi) inset;margin-bottom:12px;cursor:pointer;transition:opacity 0.2s;}
 .btn-sale:active{opacity:0.85;}
 .btn-rst{margin-top:6px;width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--bdr);color:#7070a0;border-radius:10px;padding:10px;font-size:8px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
 .btn-rst:active{background:rgba(255,255,255,0.06);}
@@ -820,7 +822,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <button onclick="closePickerPage('theme')" style="background:rgba(255,255,255,0.07);border:1px solid var(--bdr);color:var(--txt);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font)">← Back</button>
     <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase">Theme</div>
   </div>
-  <div style="padding:20px 16px 40px" id="themePickerGrid"></div>
+  <div style="padding:20px 16px 40px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="themePickerGrid"></div>
 </div>
 
 <!-- FONT PICKER PAGE -->
@@ -829,7 +831,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <button onclick="closePickerPage('font')" style="background:rgba(255,255,255,0.07);border:1px solid var(--bdr);color:var(--txt);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font)">← Back</button>
     <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase">Font Style</div>
   </div>
-  <div style="padding:20px 16px 40px" id="fontPickerList"></div>
+  <div style="padding:20px 16px 40px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="fontPickerList"></div>
 </div>
 
 <!-- WHAT'S NEW MODAL -->
@@ -1585,6 +1587,35 @@ function showToast(msg, type=""){
   t.textContent = msg; t.className = "show" + (type ? " "+type : "");
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.className = "", 2500);
+}
+
+// ── UNDO DELETE ──
+let _undoState = null, _undoTimer = null;
+function _showUndoToast(){
+  const t = document.getElementById("toast");
+  clearTimeout(_toastTimer); clearTimeout(_undoTimer);
+  t.innerHTML = `Entry removed <button class="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
+  t.className = "show interactive";
+  // After 4s, commit the delete permanently and hide toast
+  _undoTimer = setTimeout(() => { _undoState = null; t.className = ""; }, 4000);
+}
+function undoDelete(){
+  if(!_undoState) return;
+  clearTimeout(_undoTimer);
+  const { strainKey, entry, idx, stockDelta, earnedDelta, expDelta, useDelta, restockDelta, prevStartStock } = _undoState;
+  _undoState = null;
+  const s = D.strains[strainKey]; if(!s) return;
+  // Reverse the stat changes
+  s.stock       = round(s.stock       + stockDelta);
+  s.earned      = Math.max(0, (s.earned   || 0) + earnedDelta);
+  s.expenses    = Math.max(0, (s.expenses || 0) + expDelta);
+  s.useTotal    = Math.max(0, (s.useTotal || 0) + useDelta);
+  s.restockTotal= Math.max(0, (s.restockTotal||0) + restockDelta);
+  s.startStock  = prevStartStock;
+  // Re-insert the entry at its original position
+  s.logs.splice(idx, 0, entry);
+  showToast("Restored", "ok");
+  persist(); renderAll();
 }
 
 // ── STORAGE ──
@@ -3017,12 +3048,12 @@ function renderThemePickerPage(){
   const curT = localStorage.getItem("ledger_theme") || D.theme || "midnight-gold";
   grid.innerHTML = THEMES.map(t => {
     const active = t.id === curT;
-    return `<div onclick="applyTheme('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:16px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="display:flex;gap:5px">${t.dots.map(c=>`<div style="width:16px;height:16px;border-radius:50%;background:${c}"></div>`).join("")}</div>
+    return `<div onclick="applyTheme('${t.id}')" style="display:flex;flex-direction:column;align-items:flex-start;gap:11px;padding:14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:14px;cursor:pointer;transition:border-color 0.2s">
+      <div style="display:flex;gap:5px">${t.dots.map(c=>`<div style="width:16px;height:16px;border-radius:50%;background:${c}"></div>`).join("")}</div>
+      <div style="display:flex;align-items:center;gap:6px">
         <div style="font-size:13px;font-weight:700;color:${active?"var(--acc)":"var(--txt-b)"};">${t.name}</div>
+        ${active ? `<div style="font-size:15px;color:var(--acc);line-height:1">✓</div>` : ""}
       </div>
-      ${active ? `<div style="font-size:16px;color:var(--acc)">✓</div>` : ""}
     </div>`;
   }).join("");
 }
@@ -3031,12 +3062,12 @@ function renderFontPickerPage(){
   const cf = localStorage.getItem("ledger_font") || D.font || "terminal";
   list.innerHTML = FONTS.map(f => {
     const active = f.id === cf;
-    return `<div onclick="applyFont('${f.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:18px 16px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:16px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
-      <div>
-        <div style="font-size:22px;font-family:${f.font};color:${active?"var(--acc)":"var(--txt-b)"};line-height:1.1">Aa Bb 123</div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:5px">${f.name}</div>
+    return `<div onclick="applyFont('${f.id}')" style="display:flex;flex-direction:column;gap:7px;padding:16px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:14px;cursor:pointer;transition:border-color 0.2s">
+      <div style="font-size:22px;font-family:${f.font};color:${active?"var(--acc)":"var(--txt-b)"};line-height:1.1">Aa Bb 123</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">${f.name}</div>
+        ${active ? `<div style="font-size:14px;color:var(--acc);line-height:1">✓</div>` : ""}
       </div>
-      ${active ? `<div style="font-size:16px;color:var(--acc)">✓</div>` : ""}
     </div>`;
   }).join("");
 }
