@@ -841,13 +841,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.8.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.8.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">↩️</div>
         <div>
           <div class="wn-title">Undo Delete — Now Working</div>
-          <div class="wn-desc">Deleting a log entry now shows an Undo button in the toast for 4 seconds. Tap it to fully restore the entry along with its stock, earnings, and totals.</div>
+          <div class="wn-desc">Deleting a log entry now shows an Undo button in the toast for 10 minutes. Tap it to fully restore the entry along with its stock, earnings, and totals.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1099,7 +1099,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.8.2";
+const APP_VER    = "2.8.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1614,8 +1614,8 @@ function _showUndoToast(){
   clearTimeout(_toastTimer); clearTimeout(_undoTimer);
   t.innerHTML = `Entry removed <button class="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
   t.className = "show interactive";
-  // After 4s, commit the delete permanently and hide toast
-  _undoTimer = setTimeout(() => { _undoState = null; t.className = ""; }, 4000);
+  // After 10 min, commit the delete permanently and hide toast
+  _undoTimer = setTimeout(() => { _undoState = null; t.className = ""; }, 600000);
 }
 function undoDelete(){
   if(!_undoState) return;
