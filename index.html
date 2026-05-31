@@ -468,9 +468,19 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 /* ── SALE TAG BUTTONS ── */
 .tag-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;padding:7px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
+.pay-btns{display:flex;gap:6px;}
+.pay-btn{flex:1;background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:10px;padding:9px 6px;font-size:10px;font-weight:700;letter-spacing:0.5px;cursor:pointer;font-family:var(--font);transition:all 0.2s var(--ease);}
+.pay-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
+.disc-row{display:flex;gap:7px;align-items:center;}
+.disc-in{flex:1;min-width:0;background:var(--fill-1);border:1px solid var(--bdr);border-radius:9px;padding:9px 12px;color:var(--txt);font-size:14px;font-weight:700;outline:none;font-family:var(--font);transition:border-color 0.2s;}
+.disc-in:focus{border-color:var(--acc-bdr);}
+.disc-type{width:38px;background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:9px;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.disc-type.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
+.disc-clear{background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:4px 6px;}
 .tag-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .log-badge{display:inline-block;font-size:7px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
 .log-badge-tag{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);}
+.log-badge-pay{background:var(--fill-2);border:1px solid var(--bdr);color:var(--txt-d);}
 .log-badge-cat{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:#c05050;}
 
 /* ── LOW STOCK BANNER ── */
@@ -906,8 +916,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.13.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.13.1</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">🏷️</div>
+        <div>
+          <div class="wn-title">Discounts &amp; Payment Methods</div>
+          <div class="wn-desc">When recording a sale you can now mark the payment method (Cash / Card / Other) and apply a discount by amount or percent — the total updates live, and both show on the sale in your log.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">📈</div>
         <div>
@@ -999,8 +1016,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <div class="m-sec">
+      <span class="m-lbl">Payment</span>
+      <div class="pay-btns" id="payBtns">
+        <button class="pay-btn on" onclick="setPayment('Cash',this)">💵 Cash</button>
+        <button class="pay-btn" onclick="setPayment('Card',this)">💳 Card</button>
+        <button class="pay-btn" onclick="setPayment('Other',this)">⋯ Other</button>
+      </div>
+    </div>
+    <div class="m-sec">
       <span class="m-lbl">Note (optional)</span>
       <input class="m-input" id="saleNote" placeholder="e.g. regular, cash..."/>
+    </div>
+    <div id="saleDiscWrap" style="margin-bottom:12px">
+      <button id="saleDiscToggle" onclick="toggleDiscPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleDiscToggleIcon">＋</span> Add discount</button>
+      <div id="saleDiscPanel" style="display:none;margin-top:8px">
+        <div class="disc-row">
+          <input class="disc-in" id="saleDiscIn" type="number" inputmode="decimal" placeholder="0" oninput="onDiscInput()"/>
+          <button class="disc-type on" id="discTypeAmt" onclick="setDiscType('amt')">$</button>
+          <button class="disc-type" id="discTypePct" onclick="setDiscType('pct')">%</button>
+          <button class="disc-clear" onclick="clearDiscount()">Clear</button>
+        </div>
+      </div>
     </div>
     <div id="saleTagWrap" style="margin-bottom:12px">
       <button id="saleTagToggle" onclick="toggleSaleTagPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleTagToggleIcon">＋</span> Add tag</button>
@@ -1199,7 +1235,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.13.0";
+const APP_VER    = "2.13.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1626,8 +1662,16 @@ let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, 
 let _renamingStrain = null;
 let expCategory = "Re-up";
 let saleTag = "";
+let salePayment = "Cash", saleDiscount = 0, saleDiscountType = "amt"; // amt | pct
 let logSearch = "";
 let bulkCart = [];
+// Apply the current discount to a base line total
+function discTotal(base){
+  if(!saleDiscount || saleDiscount<=0) return base;
+  const out = saleDiscountType==="pct" ? base*(1 - saleDiscount/100) : base - saleDiscount;
+  return Math.max(0, round(out));
+}
+function _discRec(){ return saleDiscount>0 ? { amt:saleDiscount, type:saleDiscountType } : null; }
 
 function fresh(stock, expenses, unitCfg){
   const isW = !unitCfg || unitCfg.type === "weight";
@@ -1992,8 +2036,13 @@ function updateSaleModal(){
     document.getElementById("qtyHint").textContent = "= " + total + " " + unitPlural(s);
   }
   document.getElementById("priceN").textContent = fmtDollar(salePrice);
-  document.getElementById("priceTot").textContent = "= " + fmtDollar(salePrice * saleQty) + " total";
-  document.getElementById("saleConfirm").textContent = "Confirm — " + fmtDollar(salePrice * saleQty);
+  const base = salePrice * saleQty;
+  const fin  = discTotal(base);
+  const hasDisc = fin !== base;
+  document.getElementById("priceTot").textContent = hasDisc
+    ? "= " + fmtDollar(fin) + " (was " + fmtDollar(base) + ")"
+    : "= " + fmtDollar(base) + " total";
+  document.getElementById("saleConfirm").textContent = "Confirm — " + fmtDollar(fin);
 }
 function setFilter(f, btn){
   logFilter = f;
@@ -2020,6 +2069,14 @@ function openSaleModal(){
   const ti = document.getElementById("saleTagToggleIcon");
   if(tp){ tp.style.display = "none"; }
   if(ti){ ti.textContent = "＋"; }
+  // Reset payment + discount
+  salePayment = "Cash"; saleDiscountType = "amt";
+  document.querySelectorAll(".pay-btn").forEach((b,i)=>b.classList.toggle("on", i===0));
+  const dp = document.getElementById("saleDiscPanel"); if(dp) dp.style.display = "none";
+  const di = document.getElementById("saleDiscToggleIcon"); if(di) di.textContent = "＋";
+  const dt = document.getElementById("discTypeAmt"); if(dt) dt.classList.add("on");
+  const dtp = document.getElementById("discTypePct"); if(dtp) dtp.classList.remove("on");
+  clearDiscount();
   // Hide bulk section
   const bi = document.getElementById("bulkItems");
   const bcw = document.getElementById("bulkClearWrap");
@@ -2050,6 +2107,35 @@ function setSaleTag(t, btn){
   saleTag = t;
   document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("on"));
   btn.classList.add("on");
+}
+function setPayment(p, btn){
+  salePayment = p;
+  document.querySelectorAll(".pay-btn").forEach(b=>b.classList.remove("on"));
+  if(btn) btn.classList.add("on");
+}
+function toggleDiscPanel(){
+  const p = document.getElementById("saleDiscPanel");
+  const i = document.getElementById("saleDiscToggleIcon");
+  if(!p) return;
+  const open = p.style.display !== "none";
+  p.style.display = open ? "none" : "block";
+  if(i) i.textContent = open ? "＋" : "−";
+  if(open) clearDiscount();
+}
+function setDiscType(t){
+  saleDiscountType = t;
+  document.getElementById("discTypeAmt").classList.toggle("on", t==="amt");
+  document.getElementById("discTypePct").classList.toggle("on", t==="pct");
+  updateSaleModal();
+}
+function onDiscInput(){
+  saleDiscount = Math.max(0, parseFloat(document.getElementById("saleDiscIn").value) || 0);
+  updateSaleModal();
+}
+function clearDiscount(){
+  saleDiscount = 0;
+  const inp = document.getElementById("saleDiscIn"); if(inp) inp.value = "";
+  updateSaleModal();
 }
 function openExpModal(mode){
   expMode = mode;
@@ -2111,23 +2197,24 @@ function confirmSale(){
     let curTw;
     if(isWeight(s)){ curTw = round(PRICES[saleType].w * saleQty); }
     else { const r=(s.priceRef||[]).find(r=>r.label===saleType); curTw=round((r?packW(r):1)*saleQty); }
-    bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:curTw });
+    bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:curTw, total:discTotal(salePrice*saleQty), disc:_discRec() });
     // Validate total stock
     const totalW = bulkCart.reduce((a,item)=>a+item.w, 0);
     if(totalW > s.stock){ showToast("Not enough stock for cart!", "err"); bulkCart.pop(); return; }
     const batchId = Date.now();
     let totalEarned = 0;
     bulkCart.forEach((item, i) => {
-      const earned = item.price * item.qty;
+      const earned = item.total != null ? item.total : item.price * item.qty;
       totalEarned += earned;
       s.stock = round(s.stock - item.w);
       s.earned = (s.earned||0) + earned;
       const note = i === bulkCart.length-1 ? document.getElementById("saleNote").value.trim() : "";
-      const entry = { id:batchId + i, type:"sale", pack:item.type, qty:item.qty, price:item.price, total:earned, w:item.w, note, date:now(), after:s.stock, batchId };
+      const entry = { id:batchId + i, type:"sale", pack:item.type, qty:item.qty, price:item.price, total:earned, w:item.w, note, date:now(), after:s.stock, batchId, payment:salePayment };
       if(saleTag) entry.tag = saleTag;
+      if(item.disc) entry.discount = item.disc;
       s.logs.unshift(entry);
     });
-    bulkCart = [];
+    bulkCart = []; saleDiscount = 0;
     closeModal("sale");
     saleQty = 1;
     if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
@@ -2146,13 +2233,15 @@ function confirmSale(){
     tw = round((r ? packW(r) : 1) * saleQty);
   }
   if(tw > s.stock){ showToast("Not enough stock!", "err"); return; }
-  const earned = salePrice * saleQty;
+  const earned = discTotal(salePrice * saleQty);
   const ns = round(s.stock - tw);
   s.stock = ns; s.earned = (s.earned||0) + earned;
   const note = document.getElementById("saleNote").value.trim();
-  const entry = { id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns };
+  const entry = { id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns, payment:salePayment };
   if(saleTag) entry.tag = saleTag;
+  if(saleDiscount>0) entry.discount = { amt:saleDiscount, type:saleDiscountType };
   s.logs.unshift(entry);
+  saleDiscount = 0;
   closeModal("sale");
   saleQty = 1;
   if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
@@ -2168,9 +2257,9 @@ function addToBulkCart(){
   if(isWeight(s)){ tw = round(PRICES[saleType].w * saleQty); }
   else { const r=(s.priceRef||[]).find(r=>r.label===saleType); tw=round((r?packW(r):1)*saleQty); }
   if(tw <= 0){ showToast("Select a pack first","err"); return; }
-  bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:tw });
-  // Reset current selection
-  saleQty = 1;
+  bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:tw, total:discTotal(salePrice*saleQty), disc:_discRec() });
+  // Reset current selection + per-line discount
+  saleQty = 1; clearDiscount();
   if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
   else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
   renderPackBtns(); updateSaleModal();
@@ -2198,9 +2287,10 @@ function renderBulkCart(){
   }
   bi.style.display = "block";
   if(bcw) bcw.style.display = "block";
-  const total = bulkCart.reduce((a,item)=>a+(item.price*item.qty),0);
+  const lineTot = item => item.total != null ? item.total : item.price*item.qty;
+  const total = bulkCart.reduce((a,item)=>a+lineTot(item),0);
   bl.innerHTML = bulkCart.map((item,i)=>
-    `<div class="bulk-item"><span>${item.qty}× ${item.type} — ${fmtDollar(item.price*item.qty)}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`
+    `<div class="bulk-item"><span>${item.qty}× ${item.type} — ${fmtDollar(lineTot(item))}${item.disc?" 🏷️":""}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`
   ).join("");
   bt.textContent = "Cart total: " + fmtDollar(total);
 }
@@ -2909,9 +2999,11 @@ function renderLog(){
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
     const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
     const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
+    const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
+    const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
-      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${discNote}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="restock")
       inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
