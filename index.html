@@ -825,6 +825,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="settings-card" id="pinSettings"></div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">AI Advisor</div>
+      <div id="aiSettings"></div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Data &amp; Sync</div>
       <div id="dataSyncSettings"></div>
     </div>
@@ -872,13 +876,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.9.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.9.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🤖</div>
         <div>
-          <div class="wn-title">Smarter, Faster AI Advisor</div>
-          <div class="wn-desc">The advisor now streams its answer live as it writes, recovers more reliably when a model is busy, and gives sharper, currency-aware advice that leads with your highest-impact move. It also matches your chosen theme.</div>
+          <div class="wn-title">AI Advisor Fixed + More Reliable</div>
+          <div class="wn-desc">The free AI service had an outage — the advisor now uses a more dependable connection and recovers gracefully. For fast, rock-solid responses you can add a free Groq API key in Settings → AI Advisor (optional; stored only on your device).</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1130,7 +1134,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.9.2";
+const APP_VER    = "2.9.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2204,77 +2208,132 @@ function saveEditNote(){
 }
 
 // ── AI ──
-const AI_MODELS = ["openai","openai-large","mistral","llama"];
-const AI_URL = "https://text.pollinations.ai/openai/chat/completions";
+const AI_REFERRER = "ledger-app";
+// Optional Groq key (stored on-device) → fast, reliable, real streaming.
+const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODELS = ["llama-3.3-70b-versatile","llama-3.1-8b-instant"];
+// Free keyless fallback. The POST routes are deprecated/broken (ENOSPC); the
+// GET prompt route still serves anonymous requests, so we use that.
+const POLLI_GET    = "https://text.pollinations.ai/";
+const POLLI_MODELS = ["openai","openai-fast","mistral"];
 
-// Streaming, multi-model, fault-tolerant request. Streams tokens live via
-// onToken(fullTextSoFar); rolls over to the next model on failure/rate-limit;
-// falls back to non-streamed JSON or raw text if a model ignores stream mode.
-// Uses an idle-based timeout so a slow-but-progressing stream is never killed.
-async function streamAI({ messages, max_tokens = 900, onToken, statusEl }){
-  let lastErr = null;
-  for(let i = 0; i < AI_MODELS.length; i++){
-    if(statusEl) statusEl.textContent = i === 0 ? "Analyzing your data…" : `Trying ${AI_MODELS[i]}…`;
-    if(i > 0) await new Promise(r => setTimeout(r, 600));
-    const ctrl = new AbortController();
-    let timer = null;
-    const arm = () => { if(timer) clearTimeout(timer); timer = setTimeout(() => ctrl.abort(), 15000); };
-    arm();
-    try {
-      const res = await fetch(AI_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model:AI_MODELS[i], messages, max_tokens, temperature:0.55, stream:true, seed:Math.floor(Math.random()*99999) }),
-        signal: ctrl.signal
-      });
-      if(res.status === 429){ if(timer) clearTimeout(timer); lastErr = new Error("rate-limited"); continue; }
-      if(!res.ok || !res.body){ if(timer) clearTimeout(timer); lastErr = new Error("Server " + res.status); continue; }
+function getGroqKey(){ try { return (localStorage.getItem("ledger_groq_key") || "").trim(); } catch(e){ return ""; } }
+function saveGroqKey(){
+  const inp = document.getElementById("groqKeyIn"); if(!inp) return;
+  const v = inp.value.trim();
+  if(!v){ showToast("Enter a key first", "err"); return; }
+  try { localStorage.setItem("ledger_groq_key", v); } catch(e){}
+  showToast("AI key saved", "ok"); renderSettings();
+}
+function clearGroqKey(){
+  try { localStorage.removeItem("ledger_groq_key"); } catch(e){}
+  showToast("AI key removed"); renderSettings();
+}
 
-      const ctype = (res.headers.get("content-type") || "").toLowerCase();
-      // Model returned a normal (non-streamed) body — read once, parse JSON or text
-      if(!ctype.includes("event-stream")){
-        const raw = await res.text();
-        if(timer) clearTimeout(timer);
-        let txt = raw;
-        try { const j = JSON.parse(raw); txt = j.choices?.[0]?.message?.content ?? raw; } catch(_){}
-        txt = (txt || "").trim();
-        if(txt){ if(onToken) onToken(txt); return txt; }
-        lastErr = new Error("empty response"); continue;
-      }
-
-      // Server-Sent Events stream
-      const reader = res.body.getReader();
-      const dec = new TextDecoder();
-      let buf = "", full = "";
-      while(true){
-        const { done, value } = await reader.read();
-        if(done) break;
-        arm(); // received data — extend the idle timeout
-        buf += dec.decode(value, { stream:true });
-        let nl;
-        while((nl = buf.indexOf("\n")) >= 0){
-          const line = buf.slice(0, nl).trim();
-          buf = buf.slice(nl + 1);
-          if(!line.startsWith("data:")) continue;
-          const payload = line.slice(5).trim();
-          if(payload === "[DONE]"){ buf = ""; break; }
-          try {
-            const j = JSON.parse(payload);
-            const piece = j.choices?.[0]?.delta?.content ?? j.choices?.[0]?.message?.content ?? "";
-            if(piece){ full += piece; if(onToken) onToken(full); }
-          } catch(_){}
-        }
-      }
-      if(timer) clearTimeout(timer);
-      full = full.trim();
-      if(full) return full;
-      lastErr = new Error("empty stream");
-    } catch(e){
-      if(timer) clearTimeout(timer);
-      lastErr = e;
+// Read an OpenAI-style SSE stream, calling onToken(fullSoFar). Returns full text.
+async function _readSSE(res, onToken, arm){
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "", full = "";
+  while(true){
+    const { done, value } = await reader.read();
+    if(done) break;
+    if(arm) arm(); // received data — extend the idle timeout
+    buf += dec.decode(value, { stream:true });
+    let nl;
+    while((nl = buf.indexOf("\n")) >= 0){
+      const line = buf.slice(0, nl).trim();
+      buf = buf.slice(nl + 1);
+      if(!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if(payload === "[DONE]"){ buf = ""; break; }
+      try {
+        const j = JSON.parse(payload);
+        const piece = j.choices?.[0]?.delta?.content ?? j.choices?.[0]?.message?.content ?? "";
+        if(piece){ full += piece; if(onToken) onToken(full); }
+      } catch(_){}
     }
   }
-  throw lastErr || new Error("AI service is busy — please try again.");
+  return full.trim();
+}
+
+// Groq — OpenAI-compatible streaming, with model fallback.
+async function _groq({ key, messages, max_tokens, onToken, statusEl }){
+  let lastErr = null;
+  for(const model of GROQ_MODELS){
+    if(statusEl) statusEl.textContent = "Analyzing your data…";
+    const ctrl = new AbortController();
+    let timer = null;
+    const arm = () => { if(timer) clearTimeout(timer); timer = setTimeout(() => ctrl.abort(), 18000); };
+    arm();
+    try {
+      const res = await fetch(GROQ_URL, {
+        method: "POST",
+        headers: { "Content-Type":"application/json", "Authorization":"Bearer "+key },
+        body: JSON.stringify({ model, messages, max_tokens, temperature:0.55, stream:true }),
+        signal: ctrl.signal
+      });
+      if(res.status === 401){ if(timer) clearTimeout(timer); const e = new Error("Invalid Groq API key"); e.fatal = true; throw e; }
+      if(!res.ok || !res.body){ if(timer) clearTimeout(timer); lastErr = new Error("Groq " + res.status); continue; }
+      const full = await _readSSE(res, onToken, arm);
+      if(timer) clearTimeout(timer);
+      if(full) return full;
+      lastErr = new Error("empty");
+    } catch(e){ if(timer) clearTimeout(timer); if(e.fatal) throw e; lastErr = e; }
+  }
+  throw lastErr || new Error("Groq unavailable");
+}
+
+// Flatten chat messages into a single prompt for the GET route.
+function _flatten(messages){
+  const sys = messages.find(m => m.role === "system")?.content || "";
+  const convo = messages.filter(m => m.role !== "system");
+  let prompt;
+  if(convo.length <= 1){ prompt = convo.map(m => m.content).join("\n"); }
+  else { prompt = convo.map(m => `${m.role === "user" ? "User" : "Advisor"}: ${m.content}`).join("\n\n") + "\n\nAdvisor:"; }
+  return { sys, prompt };
+}
+
+// Pollinations GET fallback — keyless. Non-streamed; intermittent, so retried.
+async function _polli({ messages, onToken, statusEl }){
+  const { sys, prompt } = _flatten(messages);
+  let lastErr = null;
+  for(let i = 0; i < POLLI_MODELS.length; i++){
+    const model = POLLI_MODELS[i];
+    for(let t = 0; t < 2; t++){
+      if(statusEl) statusEl.textContent = (i === 0 && t === 0) ? "Analyzing your data…" : `Retrying (${model})…`;
+      if(i > 0 || t > 0) await new Promise(r => setTimeout(r, 500));
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 22000);
+      try {
+        const url = POLLI_GET + encodeURIComponent(prompt) +
+          "?model=" + encodeURIComponent(model) +
+          (sys ? "&system=" + encodeURIComponent(sys) : "") +
+          "&referrer=" + AI_REFERRER + "&seed=" + Math.floor(Math.random()*99999);
+        const res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(timer);
+        if(!res.ok){ lastErr = new Error("Server " + res.status); continue; }
+        const txt = (await res.text()).trim();
+        if(txt && !txt.startsWith('{"error"')){ if(onToken) onToken(txt); return txt; }
+        lastErr = new Error("empty");
+      } catch(e){ clearTimeout(timer); lastErr = e; }
+    }
+  }
+  console.warn("Pollinations failed:", lastErr);
+  throw new Error("The AI service is briefly unavailable — please try again in a moment.");
+}
+
+// Entry point: prefer Groq (if a key is set), else fall back to the free service.
+async function streamAI({ messages, max_tokens = 900, onToken, statusEl }){
+  const key = getGroqKey();
+  if(key){
+    try { return await _groq({ key, messages, max_tokens, onToken, statusEl }); }
+    catch(e){
+      if(e.fatal){ throw e; } // bad key — tell the user instead of silently falling back
+      if(statusEl) statusEl.textContent = "Switching to backup…";
+    }
+  }
+  return await _polli({ messages, onToken, statusEl });
 }
 async function getAI(){
   if(aiLoading) return;
@@ -3208,6 +3267,23 @@ function renderSettings(){
         <button class="btn-sm-danger" onclick="saveLowStockThresh(true)">Off</button>
       </div>
     </div>${thresh?`<div style="font-size:9px;color:var(--txt-d);padding:8px 0 4px">Alert when stock drops below ${thresh} ${s?unitPlural(s):"units"}.</div>`:""}
+    </div>`;
+  }
+
+  // AI Advisor — optional Groq API key for reliable, fast responses
+  const aiEl = document.getElementById("aiSettings");
+  if(aiEl){
+    const hasKey = !!getGroqKey();
+    aiEl.innerHTML = `<div class="settings-card">
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:7px;padding-bottom:11px">
+        <span class="settings-row-lbl">Groq API key ${hasKey?'<span style="color:var(--acc)">· active</span>':'<span style="color:var(--txt-d)">· optional</span>'}</span>
+        <div style="display:flex;gap:8px;width:100%">
+          <input type="password" id="groqKeyIn" placeholder="${hasKey?'•••••••••• saved':'gsk_…'}" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:8px;padding:8px 11px;color:var(--txt);font-size:11px;outline:none;font-family:var(--font)"/>
+          <button class="btn-sm-acc" onclick="saveGroqKey()">Save</button>
+          ${hasKey?'<button class="btn-sm-danger" onclick="clearGroqKey()">Clear</button>':''}
+        </div>
+        <div style="font-size:9px;color:var(--txt-d);line-height:1.6">Optional. Adding a free key from <span style="color:var(--acc)">console.groq.com</span> makes the AI Advisor fast and reliable. Without one, it uses a free service that can be intermittent. Your key is stored only on this device.</div>
+      </div>
     </div>`;
   }
 
