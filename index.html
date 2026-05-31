@@ -841,27 +841,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.8.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.8.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">↩️</div>
         <div>
-          <div class="wn-title">Undo Delete</div>
-          <div class="wn-desc">Removed a log entry by mistake? A toast now pops up after every delete with a 4-second window to tap Undo and restore the entry — along with its stock, earnings, and totals.</div>
+          <div class="wn-title">Undo Delete — Now Working</div>
+          <div class="wn-desc">Deleting a log entry now shows an Undo button in the toast for 4 seconds. Tap it to fully restore the entry along with its stock, earnings, and totals.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🎨</div>
+        <div class="wn-icon">⚡</div>
         <div>
-          <div class="wn-title">Theme & Font Pickers in a Grid</div>
-          <div class="wn-desc">The Theme and Font Style pages now lay out in two columns instead of a long single-column list, so you can see far more options at once with much less scrolling.</div>
+          <div class="wn-title">Faster Updates</div>
+          <div class="wn-desc">New versions now arrive much sooner — the app checks the moment you reopen it and periodically while it's open, instead of only once at launch.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">✨</div>
         <div>
-          <div class="wn-title">Brighter Record Sale Button</div>
-          <div class="wn-desc">The Record Sale button now uses a brighter accent gradient with a stronger glow, making the primary action stand out clearly across every theme.</div>
+          <div class="wn-title">Brighter Buttons</div>
+          <div class="wn-desc">Record Sale, Got It, and all confirm buttons now share the same bright accent gradient and glow, making the primary action stand out across every theme.</div>
         </div>
       </div>
     </div>
@@ -1099,17 +1099,35 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.8.1";
+const APP_VER    = "2.8.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
-const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
+const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
+const API_URL    = "https://api.github.com/repos/mkgotbank/ledger/contents/index.html?ref=main";
 
 // ── AUTO UPDATE ──
-async function checkForUpdate(){
+let _checkingUpdate = false;
+async function _fetchLatestHTML(){
+  // api.github.com reflects new commits within seconds; the raw CDN caches for
+  // ~5 min and ignores query busters. Try the API first, fall back to raw.
   try {
-    const res = await fetch(UPDATE_URL + "?t=" + Date.now(), { cache:"no-store" });
-    if(!res.ok) return;
-    const html = await res.text();
+    const r = await fetch(API_URL + "&t=" + Date.now(), {
+      cache:"no-store", headers:{ "Accept":"application/vnd.github.raw" }
+    });
+    if(r.ok) return await r.text();
+  } catch(e){}
+  try {
+    const r = await fetch(RAW_URL + "?t=" + Date.now(), { cache:"no-store" });
+    if(r.ok) return await r.text();
+  } catch(e){}
+  return null;
+}
+async function checkForUpdate(){
+  if(_checkingUpdate) return;
+  _checkingUpdate = true;
+  try {
+    const html = await _fetchLatestHTML();
+    if(!html) return;
     const m = html.match(/const APP_VER\s*=\s*"([^"]+)"/);
     if(!m) return;
     const remote = m[1].split(".").map(Number);
@@ -1139,7 +1157,7 @@ async function checkForUpdate(){
     try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
     showToast("Updating app…");
     setTimeout(() => location.reload(), 1200);
-  } catch(e){}
+  } catch(e){} finally { _checkingUpdate = false; }
 }
 
 // ── CURRENCY ──
@@ -1602,18 +1620,18 @@ function _showUndoToast(){
 function undoDelete(){
   if(!_undoState) return;
   clearTimeout(_undoTimer);
-  const { strainKey, entry, idx, stockDelta, earnedDelta, expDelta, useDelta, restockDelta, prevStartStock } = _undoState;
+  const snap = _undoState;
   _undoState = null;
-  const s = D.strains[strainKey]; if(!s) return;
-  // Reverse the stat changes
-  s.stock       = round(s.stock       + stockDelta);
-  s.earned      = Math.max(0, (s.earned   || 0) + earnedDelta);
-  s.expenses    = Math.max(0, (s.expenses || 0) + expDelta);
-  s.useTotal    = Math.max(0, (s.useTotal || 0) + useDelta);
-  s.restockTotal= Math.max(0, (s.restockTotal||0) + restockDelta);
-  s.startStock  = prevStartStock;
+  const s = D.strains[snap.strainKey]; if(!s) return;
+  // Restore the exact pre-delete stats from the snapshot
+  s.stock        = snap.stock;
+  s.earned       = snap.earned;
+  s.expenses     = snap.expenses;
+  s.useTotal     = snap.useTotal;
+  s.restockTotal = snap.restockTotal;
+  s.startStock   = snap.startStock;
   // Re-insert the entry at its original position
-  s.logs.splice(idx, 0, entry);
+  s.logs.splice(snap.idx, 0, snap.entry);
   showToast("Restored", "ok");
   persist(); renderAll();
 }
@@ -2103,6 +2121,12 @@ function deleteLog(id){
   const idx = s.logs.findIndex(l => l.id === id);
   if(idx === -1) return;
   const l = s.logs[idx];
+  // Snapshot pre-delete state so the change can be undone
+  const snap = {
+    strainKey: D.cur, idx, entry: l,
+    stock: s.stock, earned: s.earned||0, expenses: s.expenses||0,
+    useTotal: s.useTotal||0, restockTotal: s.restockTotal||0, startStock: s.startStock
+  };
   if(l.type==="sale"){ s.stock = round(s.stock + l.w); s.earned = Math.max(0, (s.earned||0) - l.total); }
   else if(l.type==="restock"){ s.stock = round(Math.max(0, s.stock - l.w)); s.restockTotal = round(Math.max(0, (s.restockTotal||0) - l.w)); }
   else if(l.type==="use"){ s.stock = round(s.stock + l.w); s.useTotal = round(Math.max(0, (s.useTotal||0) - l.w)); }
@@ -2110,7 +2134,9 @@ function deleteLog(id){
   s.logs.splice(idx, 1);
   const highs = s.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
-  showToast("Entry removed"); persist(); renderAll();
+  _undoState = snap;
+  persist(); renderAll();
+  _showUndoToast();
 }
 
 // ── EDIT NOTE ──
@@ -3303,7 +3329,14 @@ if(isReady()){
 
 // checkVersion retries on its own if isReady() is briefly false
 setTimeout(checkVersion,   300);
-setTimeout(checkForUpdate, 4000);
+setTimeout(checkForUpdate, 1500);
+// Re-check when the app is brought back to the foreground, and periodically while
+// open — so updates land without needing a full quit-and-relaunch.
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible") checkForUpdate();
+});
+window.addEventListener("focus", checkForUpdate);
+setInterval(checkForUpdate, 120000);
 </script>
 </body>
 </html>
