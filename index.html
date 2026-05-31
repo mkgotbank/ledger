@@ -464,6 +464,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 /* ── LOW STOCK BANNER ── */
 .low-stock-banner{background:linear-gradient(90deg,rgba(224,92,92,0.18),rgba(200,80,60,0.12));border-bottom:1px solid rgba(224,92,92,0.3);color:#e07070;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 18px;text-align:center;position:sticky;top:0;z-index:99;}
+.backup-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,var(--acc-dim),transparent);border-bottom:1px solid var(--acc-bdr);padding:7px 14px 7px 16px;}
+.backup-banner-txt{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);font-weight:700;}
+.backup-banner-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.backup-banner-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:8px;padding:5px 12px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px var(--acc-glow);transition:transform 0.15s var(--ease);}
+.backup-banner-btn:active{transform:scale(0.94);}
+.backup-banner-x{background:none;border:none;color:var(--acc);opacity:0.65;font-size:12px;cursor:pointer;padding:2px 4px;line-height:1;font-family:var(--font);}
+.backup-banner-x:active{opacity:1;}
 
 /* ── PERFORMANCE DASHBOARD ── */
 .perf-wrap{margin-bottom:14px;}
@@ -641,6 +648,14 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div id="lowStockBanner" class="low-stock-banner" style="display:none"></div>
+
+  <div id="backupBanner" class="backup-banner" style="display:none">
+    <span class="backup-banner-txt" id="backupBannerTxt">⚠ Back up your data</span>
+    <span class="backup-banner-actions">
+      <button class="backup-banner-btn" onclick="doQuickBackup()">Back up now</button>
+      <button class="backup-banner-x" onclick="snoozeBackup()" aria-label="Dismiss">✕</button>
+    </span>
+  </div>
 
   <div class="tabs">
     <button class="tab on" onclick="switchTab('stock',this)">📦 Stock</button>
@@ -879,13 +894,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.11.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.12.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">🛡️</div>
+        <div>
+          <div class="wn-title">Never Lose Your Data</div>
+          <div class="wn-desc">The app now watches your backups for you. If it's been over a week since your last one, a gentle reminder appears with a one-tap "Back up now." You can always see your backup status in Settings → Data &amp; Sync. (Especially important on iPhone, where removing the app can erase its data.)</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">💎</div>
         <div>
           <div class="wn-title">A More Refined, Efficient Interface</div>
-          <div class="wn-desc">A careful design pass throughout: an elegant serif wordmark, ledger-aligned figures, and a tighter, denser layout so more is visible at a glance with less scrolling. Your key stats now live in one unified dashboard block, and every surface looks crisp in the light themes too — not just the dark ones.</div>
+          <div class="wn-desc">A careful design pass throughout: an elegant serif wordmark, ledger-aligned figures, and a tighter, denser layout — your key stats now live in one unified dashboard block, crisp in every theme.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1151,7 +1173,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.11.1";
+const APP_VER    = "2.12.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3371,6 +3393,10 @@ function renderSettings(){
   if(dsEl){
     dsEl.innerHTML = `<div class="settings-card">
       <div class="settings-row">
+        <span class="settings-row-lbl" id="backupStatus" style="color:${daysSinceBackup()!==null&&daysSinceBackup()<=7?'var(--acc)':'var(--txt-d)'}">${backupStatusText()}</span>
+        <span style="font-size:7px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase">Backup status</span>
+      </div>
+      <div class="settings-row">
         <span class="settings-row-lbl">Export all data as JSON</span>
         <button class="btn-sm-acc" onclick="exportJSON()">Export</button>
       </div>
@@ -3424,7 +3450,7 @@ function exportJSON(){
     const fname = "ledger-backup-" + date + ".json";
     if(navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)){
       const file = new File([json], fname, {type:"application/json"});
-      navigator.share({ files:[file], title:"Ledger Backup" }).catch(()=>{ _copyToClipboard(json, "Data copied to clipboard"); });
+      navigator.share({ files:[file], title:"Ledger Backup" }).then(_markBackedUp).catch(()=>{ _copyToClipboard(json, "Data copied to clipboard"); _markBackedUp(); });
     } else {
       const blob = new Blob([json],{type:"application/json"});
       const url  = URL.createObjectURL(blob);
@@ -3432,6 +3458,7 @@ function exportJSON(){
       a.href = url; a.download = fname; a.click();
       URL.revokeObjectURL(url);
       showToast("Export saved", "ok");
+      _markBackedUp();
     }
   }catch(e){ showToast("Export failed","err"); }
 }
@@ -3467,7 +3494,53 @@ function copySyncCode(){
     const wrap = document.getElementById("syncCodeOutWrap");
     const ta   = document.getElementById("syncCodeOut");
     if(wrap && ta){ wrap.style.display="block"; ta.value=code; }
+    _markBackedUp();
   }catch(e){ showToast("Failed to generate sync code","err"); }
+}
+
+// ── AUTO-BACKUP SAFETY NET ──
+const BACKUP_KEY = "ledger_last_backup", BACKUP_SNOOZE = "ledger_backup_snooze";
+const BACKUP_INTERVAL = 7*86400000; // remind if no backup in 7 days
+function _markBackedUp(){
+  try{ localStorage.setItem(BACKUP_KEY, String(Date.now())); localStorage.removeItem(BACKUP_SNOOZE); }catch(e){}
+  hideBackupBanner();
+  const el = document.getElementById("backupStatus"); if(el) el.textContent = backupStatusText();
+}
+function _lastBackup(){ return +localStorage.getItem(BACKUP_KEY) || 0; }
+function daysSinceBackup(){ const v=_lastBackup(); return v ? Math.floor((Date.now()-v)/86400000) : null; }
+function backupStatusText(){
+  const d = daysSinceBackup();
+  if(d===null) return "Never backed up";
+  if(d===0) return "Backed up today";
+  return "Last backup " + d + (d===1?" day ago":" days ago");
+}
+function _hasBackupWorthyData(){
+  const ss = Object.values(D.strains||{});
+  const logs = ss.reduce((n,s)=>n+((s.logs&&s.logs.length)||0),0);
+  const earned = ss.reduce((n,s)=>n+(s.earned||0),0);
+  return logs >= 5 || earned > 0;
+}
+function checkBackupReminder(){
+  try{
+    if(!_hasBackupWorthyData()) return;
+    if(Date.now() < (+localStorage.getItem(BACKUP_SNOOZE)||0)) return; // snoozed
+    const last = _lastBackup();
+    const overdue = !last || (Date.now()-last) > BACKUP_INTERVAL;
+    if(overdue) showBackupBanner();
+  }catch(e){}
+}
+function showBackupBanner(){
+  const b = document.getElementById("backupBanner"); if(!b) return;
+  const t = document.getElementById("backupBannerTxt");
+  const d = daysSinceBackup();
+  if(t) t.textContent = d===null ? "⚠ Protect your data — back up" : ("⚠ Back up — last saved " + d + (d===1?" day ago":" days ago"));
+  b.style.display = "flex";
+}
+function hideBackupBanner(){ const b=document.getElementById("backupBanner"); if(b) b.style.display="none"; }
+function doQuickBackup(){ exportJSON(); } // exportJSON marks backed up + hides banner on success
+function snoozeBackup(){
+  try{ localStorage.setItem(BACKUP_SNOOZE, String(Date.now() + 3*86400000)); }catch(e){}
+  hideBackupBanner();
 }
 function loadSyncCode(){
   const ta = document.getElementById("syncCodeIn"); if(!ta) return;
@@ -3553,6 +3626,7 @@ if(isReady()){
 // checkVersion retries on its own if isReady() is briefly false
 setTimeout(checkVersion,   300);
 setTimeout(checkForUpdate, 1500);
+setTimeout(checkBackupReminder, 2200);
 // Re-check when the app is brought back to the foreground, and periodically while
 // open — so updates land without needing a full quit-and-relaunch.
 document.addEventListener("visibilitychange", () => {
