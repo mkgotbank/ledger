@@ -462,6 +462,31 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .sync-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);border-radius:10px;padding:10px;color:var(--txt-d);font-size:9px;font-family:var(--font);outline:none;resize:none;margin-top:8px;transition:border-color 0.2s;}
 .sync-textarea:focus{border-color:rgba(255,255,255,0.2);}
 .hidden-file{display:none;}
+
+/* ── LOG SEARCH ── */
+.log-search-wrap{position:relative;margin-bottom:10px;}
+.log-search-in{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--bdr);border-radius:12px;padding:10px 36px 10px 13px;color:var(--txt);font-size:12px;outline:none;font-family:var(--font);transition:border-color 0.2s;}
+.log-search-in:focus{border-color:rgba(255,255,255,0.22);}
+.log-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt-d);font-size:14px;cursor:pointer;padding:4px;}
+
+/* ── CUSTOM PACK SIZES ── */
+.pref-del-btn{background:none;border:none;color:#505070;font-size:13px;cursor:pointer;padding:2px 4px;transition:color 0.15s;}
+.pref-del-btn:active{color:#e05c5c;}
+.btn-add-pack{width:100%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.15);color:var(--txt-d);border-radius:12px;padding:11px;font-size:9px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;margin-top:8px;font-family:var(--font);transition:all 0.2s;}
+.btn-add-pack:active{background:rgba(255,255,255,0.08);}
+.add-pack-form{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px;margin-top:8px;}
+
+/* ── SWIPE TO DELETE ── */
+.log-swipe-wrap{position:relative;overflow:hidden;border-radius:12px;margin-bottom:8px;}
+.log-swipe-bg{position:absolute;inset:0;background:rgba(192,57,43,0.85);display:flex;align-items:center;justify-content:flex-end;padding-right:20px;font-size:18px;border-radius:12px;}
+.log-entry{position:relative;will-change:transform;transition:transform 0.18s ease;margin-bottom:0!important;border-radius:12px;}
+
+/* ── BULK SALE ── */
+.bulk-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:5px;font-size:10px;}
+.bulk-item-rm{background:none;border:none;color:#505070;cursor:pointer;font-size:12px;padding:0 2px;}
+.bulk-total{text-align:right;font-size:11px;color:#4caf7a;font-weight:700;margin-top:6px;}
+.btn-add-another{width:100%;background:none;border:1px dashed rgba(255,255,255,0.15);color:var(--txt-d);border-radius:10px;padding:9px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);margin-top:8px;margin-bottom:8px;}
+.btn-add-another:active{background:rgba(255,255,255,0.06);}
 </style>
 </head>
 <body>
@@ -676,6 +701,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div class="panel" id="panel-log">
+    <div class="log-search-wrap">
+      <input class="log-search-in" id="logSearch" placeholder="Search notes, packs, tags…" autocomplete="off" oninput="onLogSearch(this.value)"/>
+      <button class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" style="display:none">✕</button>
+    </div>
     <div class="log-filters">
       <button class="lf-btn on" onclick="setFilter('all',this)">All</button>
       <button class="lf-btn" onclick="setFilter('sale',this)">Sales</button>
@@ -726,6 +755,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
     <div class="sec-lbl" style="margin-top:4px">Price Reference <span style="color:#505065;font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
     <div class="pref" id="priceRef"></div>
+    <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Pack Size</button>
+    <div id="addPackForm" style="display:none"></div>
   </div>
 
   <div class="panel" id="panel-settings">
@@ -808,27 +839,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.6.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.7.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">💱</div>
+        <div class="wn-icon">🔍</div>
         <div>
-          <div class="wn-title">Currency, Sale Tags & Expense Categories</div>
-          <div class="wn-desc">Set any currency symbol ($, €, £, ¥, ₹ or custom) in Settings. Tag sales as Regular, Bulk, New, or Referral. Categorize expenses as Re-up, Supplies, Transport, or Other — badges show in the log and smart suggestions surface your top category.</div>
+          <div class="wn-title">Log Search & Swipe to Delete</div>
+          <div class="wn-desc">Search your log by note, pack, tag, or category with the new search bar. On mobile, swipe any log entry left past the threshold to instantly delete it — no confirmation needed.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🏆</div>
+        <div class="wn-icon">📦</div>
         <div>
-          <div class="wn-title">Performance Dashboard</div>
-          <div class="wn-desc">New performance cards in the Tips panel show your current sales streak, all-time longest streak, best single day, and best week. Plus a Restock Planner tip tells you how many days of stock you have left at your current pace.</div>
+          <div class="wn-title">Custom Pack Sizes & Bulk Sale Mode</div>
+          <div class="wn-desc">Add, edit, and delete pack size rows in the Price Reference. In the sale modal, tap "+ Add Another Pack" to queue multiple packs in a single session — all logged individually with a shared batch ID.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📤</div>
+        <div class="wn-icon">🎨</div>
         <div>
-          <div class="wn-title">Data Export, Import & Sync Code</div>
-          <div class="wn-desc">Back up your data as a JSON file, import it back, or generate a Sync Code to transfer your entire ledger between devices manually — no account required. Find it in Settings under Data &amp; Sync.</div>
+          <div class="wn-title">4 New Themes & 7 New Fonts</div>
+          <div class="wn-desc">Rose, Cobalt, Arctic, and Citrus join the theme roster. Baskerville, Futura, Helvetica, Georgia, Typewriter, Gill Sans, and Trebuchet are now available in Font Style — pick your vibe in Settings.</div>
         </div>
       </div>
     </div>
@@ -880,7 +911,15 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         </div>
       </div>
     </div>
+    <div id="bulkItems" style="display:none;margin-bottom:4px">
+      <div id="bulkItemsList"></div>
+      <div class="bulk-total" id="bulkTotal"></div>
+    </div>
     <button class="btn-confirm" id="saleConfirm" onclick="confirmSale()">Confirm — $90</button>
+    <button class="btn-add-another" id="btnAddAnother" onclick="addToBulkCart()">＋ Add Another Pack</button>
+    <div id="bulkClearWrap" style="display:none;text-align:center;margin-bottom:4px">
+      <button onclick="clearBulkCart()" style="background:none;border:none;color:#505070;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:var(--font)">Clear Cart</button>
+    </div>
   </div>
 </div>
 
@@ -1058,7 +1097,7 @@ const PIN_SK = "ledger_pin";
 // 2. Update What's New modal content  (search: id="modal-whatsNew")
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.6.0";
+const APP_VER    = "2.7.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const UPDATE_URL = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1280,6 +1319,22 @@ function setDateFilter(f, btn){
   renderLog();
 }
 
+// ── LOG SEARCH ──
+function onLogSearch(v){
+  logSearch = v.trim().toLowerCase();
+  const cl = document.getElementById("logSearchClear");
+  if(cl) cl.style.display = v ? "block" : "none";
+  renderLog();
+}
+function clearLogSearch(){
+  logSearch = "";
+  const el = document.getElementById("logSearch");
+  if(el) el.value = "";
+  const cl = document.getElementById("logSearchClear");
+  if(cl) cl.style.display = "none";
+  renderLog();
+}
+
 // ── LOG EDITING ──
 let editingLogId = null, editSaleType="14g", editSaleQty=1, editSalePrice=90;
 
@@ -1450,6 +1505,8 @@ let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, 
 let _renamingStrain = null;
 let expCategory = "Re-up";
 let saleTag = "";
+let logSearch = "";
+let bulkCart = [];
 
 function fresh(stock, expenses, unitCfg){
   const isW = !unitCfg || unitCfg.type === "weight";
@@ -1792,12 +1849,18 @@ function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleTag = "";
+  bulkCart = [];
   document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("on"));
   // Collapse tag panel back to toggle link
   const tp = document.getElementById("saleTagPanel");
   const ti = document.getElementById("saleTagToggleIcon");
   if(tp){ tp.style.display = "none"; }
   if(ti){ ti.textContent = "＋"; }
+  // Hide bulk section
+  const bi = document.getElementById("bulkItems");
+  const bcw = document.getElementById("bulkClearWrap");
+  if(bi) bi.style.display = "none";
+  if(bcw) bcw.style.display = "none";
   if(isWeight(s)){
     saleType = "14g"; salePrice = midPrice("14g");
   } else {
@@ -1878,6 +1941,39 @@ function doUse(){
 }
 function confirmSale(){
   const s = cur(); if(!s) return;
+  // If bulk cart has items, add current item to cart then log all
+  if(bulkCart.length > 0){
+    // Add current selection to cart first
+    let curTw;
+    if(isWeight(s)){ curTw = round(PRICES[saleType].w * saleQty); }
+    else { const r=(s.priceRef||[]).find(r=>r.label===saleType); curTw=round((r?packW(r):1)*saleQty); }
+    bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:curTw });
+    // Validate total stock
+    const totalW = bulkCart.reduce((a,item)=>a+item.w, 0);
+    if(totalW > s.stock){ showToast("Not enough stock for cart!", "err"); bulkCart.pop(); return; }
+    const batchId = Date.now();
+    let totalEarned = 0;
+    bulkCart.forEach((item, i) => {
+      const earned = item.price * item.qty;
+      totalEarned += earned;
+      s.stock = round(s.stock - item.w);
+      s.earned = (s.earned||0) + earned;
+      const note = i === bulkCart.length-1 ? document.getElementById("saleNote").value.trim() : "";
+      const entry = { id:batchId + i, type:"sale", pack:item.type, qty:item.qty, price:item.price, total:earned, w:item.w, note, date:now(), after:s.stock, batchId };
+      if(saleTag) entry.tag = saleTag;
+      s.logs.unshift(entry);
+    });
+    bulkCart = [];
+    closeModal("sale");
+    saleQty = 1;
+    if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
+    else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
+    renderPackBtns(); updateSaleModal();
+    showToast("Bulk sale — " + fmtDollar(totalEarned), "ok");
+    persist(); renderAll();
+    return;
+  }
+  // Normal single sale
   let tw;
   if(isWeight(s)){
     tw = round(PRICES[saleType].w * saleQty);
@@ -1901,6 +1997,50 @@ function confirmSale(){
   showToast("Sale recorded — " + fmtDollar(earned), "ok");
   persist(); renderAll();
 }
+// ── BULK CART ──
+function addToBulkCart(){
+  const s = cur(); if(!s) return;
+  let tw;
+  if(isWeight(s)){ tw = round(PRICES[saleType].w * saleQty); }
+  else { const r=(s.priceRef||[]).find(r=>r.label===saleType); tw=round((r?packW(r):1)*saleQty); }
+  if(tw <= 0){ showToast("Select a pack first","err"); return; }
+  bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:tw });
+  // Reset current selection
+  saleQty = 1;
+  if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
+  else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
+  renderPackBtns(); updateSaleModal();
+  renderBulkCart();
+  showToast("Added to cart","ok");
+}
+function clearBulkCart(){
+  bulkCart = [];
+  renderBulkCart();
+}
+function removeBulkItem(idx){
+  bulkCart.splice(idx,1);
+  renderBulkCart();
+}
+function renderBulkCart(){
+  const bi = document.getElementById("bulkItems");
+  const bl = document.getElementById("bulkItemsList");
+  const bt = document.getElementById("bulkTotal");
+  const bcw = document.getElementById("bulkClearWrap");
+  if(!bi || !bl || !bt) return;
+  if(bulkCart.length === 0){
+    bi.style.display = "none";
+    if(bcw) bcw.style.display = "none";
+    return;
+  }
+  bi.style.display = "block";
+  if(bcw) bcw.style.display = "block";
+  const total = bulkCart.reduce((a,item)=>a+(item.price*item.qty),0);
+  bl.innerHTML = bulkCart.map((item,i)=>
+    `<div class="bulk-item"><span>${item.qty}× ${item.type} — ${fmtDollar(item.price*item.qty)}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`
+  ).join("");
+  bt.textContent = "Cart total: " + fmtDollar(total);
+}
+
 function confirmExp(){
   const s = cur(); if(!s) return;
   const val = parseFloat(document.getElementById("expMInput").value) || 0;
@@ -2229,7 +2369,8 @@ USER QUESTION: ${question}`;
 function syncPricesFromRef(){
   const s = cur(); if(!s) return;
   if(!isWeight(s)) return; // non-weight products don't use global PRICES
-  (s.priceRef||[]).forEach(r => {
+  const ref = s.priceRef || PRICE_REF_DEFAULTS;
+  ref.forEach(r => {
     const pk = PRICE_REF_PACK_MAP[r.label];
     if(pk && PRICES[pk]){ PRICES[pk].lo = r.lo; PRICES[pk].hi = r.hi; }
   });
@@ -2237,8 +2378,9 @@ function syncPricesFromRef(){
 function renderPriceRef(){
   const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
-  const ref = isWeight(s) ? (D.priceRef||PRICE_REF_DEFAULTS) : (s.priceRef||COUNT_PACK_DEFAULTS);
+  const ref = s.priceRef || (isWeight(s) ? PRICE_REF_DEFAULTS : COUNT_PACK_DEFAULTS);
   const costPerUnit = s.expenses > 0 ? s.expenses / (s.restockTotal || 1) : 0;
+  const canDel = ref.length > 1;
   el.innerHTML = ref.map((r,i) => {
     const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
     let perUnit;
@@ -2264,18 +2406,70 @@ function renderPriceRef(){
     } else {
       marginHtml = `<span class="pref-margin" style="color:#505065">—</span>`;
     }
-    return `<div class="pref-row" style="grid-template-columns:1fr auto auto 28px;gap:6px">
+    const delBtn = canDel ? `<button class="pref-del-btn" onclick="deletePackRow(${i})" title="Delete row">✕</button>` : `<span style="width:24px;display:inline-block"></span>`;
+    return `<div class="pref-row" style="grid-template-columns:1fr auto auto 28px 24px;gap:6px">
       <span class="pref-sz">${r.label}</span>
       <span style="font-size:10px">${priceStr}</span>
       ${marginHtml}
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
+      ${delBtn}
     </div>`;
   }).join("");
+  // Show Add Pack button
+  const addBtn = document.getElementById("btnAddPack");
+  if(addBtn) addBtn.style.display = "";
+}
+function deletePackRow(idx){
+  const s = cur(); if(!s) return;
+  if(!s.priceRef || s.priceRef.length <= 1){ showToast("Need at least one pack row","err"); return; }
+  s.priceRef.splice(idx, 1);
+  syncPricesFromRef(); persist(); renderPriceRef(); renderAll();
+  showToast("Pack row deleted");
+}
+function showAddPackForm(){
+  const s = cur(); if(!s) return;
+  const el = document.getElementById("addPackForm"); if(!el) return;
+  const sizeLabel = isWeight(s) ? "Grams" : "Qty per pack";
+  el.style.display = "block";
+  el.innerHTML = `<div class="add-pack-form">
+    <div style="font-size:8px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-bottom:10px">New Pack Size</div>
+    <div style="margin-bottom:8px"><span class="m-lbl">Label (e.g. 5g)</span><input class="m-input" id="apLabel" placeholder="e.g. 5g" autocomplete="off"/></div>
+    <div style="margin-bottom:8px"><span class="m-lbl">${sizeLabel}</span><input class="m-input" id="apGrams" type="number" placeholder="e.g. 5" inputmode="decimal"/></div>
+    <div style="margin-bottom:8px"><span class="m-lbl">Low Price</span><input class="m-input" id="apLo" type="number" placeholder="0" inputmode="decimal"/></div>
+    <div style="margin-bottom:12px"><span class="m-lbl">High Price</span><input class="m-input" id="apHi" type="number" placeholder="0" inputmode="decimal"/></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-confirm" style="flex:1;padding:11px" onclick="confirmAddPack()">Save</button>
+      <button class="btn-no" style="flex:1;padding:11px" onclick="hideAddPackForm()">Cancel</button>
+    </div>
+  </div>`;
+  document.getElementById("btnAddPack").style.display = "none";
+  setTimeout(()=>{ const el=document.getElementById("apLabel"); if(el) el.focus(); }, 100);
+}
+function hideAddPackForm(){
+  const el = document.getElementById("addPackForm"); if(el) el.style.display = "none";
+  const btn = document.getElementById("btnAddPack"); if(btn) btn.style.display = "";
+}
+function confirmAddPack(){
+  const s = cur(); if(!s) return;
+  const label = (document.getElementById("apLabel").value||"").trim();
+  const grams = parseFloat(document.getElementById("apGrams").value)||0;
+  const lo    = parseFloat(document.getElementById("apLo").value)||0;
+  const hi    = parseFloat(document.getElementById("apHi").value)||lo;
+  if(!label){ showToast("Enter a label","err"); return; }
+  if(grams <= 0){ showToast("Enter a valid size","err"); return; }
+  if(!s.priceRef) s.priceRef = [];
+  if(isWeight(s)){
+    s.priceRef.push({ label, grams, lo, hi });
+  } else {
+    s.priceRef.push({ label, qty:grams, lo, hi });
+  }
+  syncPricesFromRef(); persist(); renderPriceRef(); renderAll();
+  showToast("Pack size added","ok");
 }
 function openEditPriceModal(i){
   const s = cur(); if(!s) return;
   editingPriceIdx = i;
-  const ref = isWeight(s) ? (D.priceRef||PRICE_REF_DEFAULTS) : (s.priceRef||COUNT_PACK_DEFAULTS);
+  const ref = s.priceRef || (isWeight(s) ? PRICE_REF_DEFAULTS : COUNT_PACK_DEFAULTS);
   const r = ref[i];
   document.getElementById("editPriceMTitle").textContent = "Edit — " + r.label;
   document.getElementById("editPriceLo").value = r.lo;
@@ -2287,14 +2481,10 @@ function confirmEditPrice(){
   const s = cur(); if(!s) return;
   const lo = Math.max(0, parseFloat(document.getElementById("editPriceLo").value)||0);
   const hi = Math.max(lo, parseFloat(document.getElementById("editPriceHi").value)||lo);
-  if(isWeight(s)){
-    D.priceRef[editingPriceIdx].lo = lo;
-    D.priceRef[editingPriceIdx].hi = hi;
-    syncPricesFromRef();
-  } else {
-    s.priceRef[editingPriceIdx].lo = lo;
-    s.priceRef[editingPriceIdx].hi = hi;
-  }
+  if(!s.priceRef) s.priceRef = isWeight(s) ? PRICE_REF_DEFAULTS.map(r=>({...r})) : COUNT_PACK_DEFAULTS.map(r=>({...r}));
+  s.priceRef[editingPriceIdx].lo = lo;
+  s.priceRef[editingPriceIdx].hi = hi;
+  if(isWeight(s)) syncPricesFromRef();
   closeModal("editPrice");
   persist(); renderPriceRef(); renderAll();
 }
@@ -2435,27 +2625,53 @@ function renderLog(){
   const allLogs = s.logs||[];
   let logs = allLogs.filter(l => logFilter==="all" || l.type===logFilter);
   if(cutoff>0) logs = logs.filter(l => l.id>=cutoff);
-  const filtered = logFilter!=="all" || logDateFilter!=="all";
+  if(logSearch){ const q=logSearch; logs=logs.filter(l => (l.note||"").toLowerCase().includes(q)||(l.pack||"").toLowerCase().includes(q)||(l.tag||"").toLowerCase().includes(q)||(l.category||"").toLowerCase().includes(q)||(l.amount||"").toString().includes(q)); }
+  const filtered = logFilter!=="all" || logDateFilter!=="all" || !!logSearch;
   document.getElementById("logCount").textContent = filtered
     ? logs.length + " of " + allLogs.length + " entries"
     : logs.length + " Entries";
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
-    const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`;
+    const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
     const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
     const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
+    let inner = "";
     if(l.type==="sale")
-      return `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
-    if(l.type==="restock")
-      return `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
-    if(l.type==="use")
-      return `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
-    if(l.type==="expense")
-      return `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
-    return "";
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+    else if(l.type==="restock")
+      inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
+    else if(l.type==="use")
+      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+    else if(l.type==="expense")
+      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${l.date}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
+    if(!inner) return "";
+    return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
   }).join("");
+  attachSwipeHandlers();
+}
+
+function attachSwipeHandlers(){
+  document.querySelectorAll(".log-swipe-wrap").forEach(wrap => {
+    const inner = wrap.querySelector(".log-entry");
+    const delId = parseInt(wrap.dataset.id);
+    if(!inner || isNaN(delId)) return;
+    let sx=0, dx=0, active=false;
+    inner.addEventListener("touchstart", e=>{ sx=e.touches[0].clientX; dx=0; active=true; inner.style.transition="none"; },{passive:true});
+    inner.addEventListener("touchmove", e=>{
+      if(!active) return;
+      dx = e.touches[0].clientX - sx;
+      if(dx < 0) inner.style.transform = `translateX(${Math.max(dx,-110)}px)`;
+    },{passive:true});
+    inner.addEventListener("touchend", ()=>{
+      active=false;
+      inner.style.transition="transform 0.18s ease";
+      if(dx < -80){ inner.style.transform="translateX(-110%)"; setTimeout(()=>deleteLog(delId),180); }
+      else inner.style.transform="translateX(0)";
+      dx=0;
+    });
+  });
 }
 
 // ── QUICK STATS + SUGGESTIONS (per product) ──
@@ -2727,11 +2943,36 @@ const THEMES = [
           "--acc":"#c84a10","--acc-hi":"#e06020","--acc-a":"#e06020","--acc-b":"#a83008",
           "--acc-glow":"rgba(224,96,32,0.3)","--acc-bdr":"rgba(224,96,32,0.35)","--acc-dim":"rgba(224,96,32,0.12)",
           "--txt":"#1a100a","--txt-b":"#1a100a","--txt-d":"#706050","--bdr":"rgba(0,0,0,0.12)"} },
+  { id:"rose",    name:"Rose",    dots:["#1a0d12","#e05878","#2a1520"],
+    vars:{"--bg":"#1a0d12","--card":"#2a1520","--modal":"#221018","--hdr-bg":"rgba(26,13,18,0.9)",
+          "--acc":"#e05878","--acc-hi":"#f07090","--acc-a":"#c03858","--acc-b":"#801830",
+          "--acc-glow":"rgba(192,56,88,0.4)","--acc-bdr":"rgba(192,56,88,0.35)","--acc-dim":"rgba(192,56,88,0.18)"} },
+  { id:"cobalt",  name:"Cobalt",  dots:["#0a0e1e","#3a7ff0","#141a2e"],
+    vars:{"--bg":"#0a0e1e","--card":"#141a2e","--modal":"#101828","--hdr-bg":"rgba(10,14,30,0.92)",
+          "--acc":"#3a7ff0","--acc-hi":"#5a9fff","--acc-a":"#2860c8","--acc-b":"#1840a0",
+          "--acc-glow":"rgba(58,127,240,0.4)","--acc-bdr":"rgba(58,127,240,0.35)","--acc-dim":"rgba(58,127,240,0.18)"} },
+  { id:"arctic",  name:"Arctic",  dots:["#eef6ff","#0088cc","#ffffff"],
+    vars:{"--bg":"#eef6ff","--card":"#ffffff","--modal":"#f4f9ff","--hdr-bg":"rgba(238,246,255,0.94)",
+          "--acc":"#0088cc","--acc-hi":"#00aaee","--acc-a":"#0077bb","--acc-b":"#005588",
+          "--acc-glow":"rgba(0,136,204,0.28)","--acc-bdr":"rgba(0,136,204,0.35)","--acc-dim":"rgba(0,136,204,0.12)",
+          "--txt":"#1a2a3a","--txt-b":"#0a1828","--txt-d":"#4a6880","--bdr":"rgba(0,0,0,0.09)"} },
+  { id:"citrus",  name:"Citrus",  dots:["#f6fce6","#5a9e00","#ffffff"],
+    vars:{"--bg":"#f6fce6","--card":"#ffffff","--modal":"#f2f8e0","--hdr-bg":"rgba(246,252,230,0.95)",
+          "--acc":"#5a9e00","--acc-hi":"#78c000","--acc-a":"#4a8800","--acc-b":"#2c5400",
+          "--acc-glow":"rgba(90,158,0,0.28)","--acc-bdr":"rgba(90,158,0,0.35)","--acc-dim":"rgba(90,158,0,0.12)",
+          "--txt":"#182800","--txt-b":"#0a1600","--txt-d":"#4a7010","--bdr":"rgba(0,0,0,0.08)"} },
 ];
 const FONTS = [
   { id:"terminal", name:"Terminal", font:"'Courier New',monospace" },
   { id:"clean",    name:"Clean",    font:"system-ui,-apple-system,sans-serif" },
   { id:"sharp",    name:"Sharp",    font:"'SF Mono','Menlo','Monaco',monospace" },
+  { id:"baskerville", name:"Baskerville",  font:"Baskerville,'Times New Roman',serif" },
+  { id:"futura",      name:"Futura",       font:"Futura,'Century Gothic',sans-serif" },
+  { id:"helvetica",   name:"Helvetica",    font:"'Helvetica Neue',Helvetica,Arial,sans-serif" },
+  { id:"georgia",     name:"Georgia",      font:"Georgia,Palatino,serif" },
+  { id:"typewriter",  name:"Typewriter",   font:"'American Typewriter','Courier New',monospace" },
+  { id:"gillsans",    name:"Gill Sans",    font:"'Gill Sans','Gill Sans MT',Calibri,sans-serif" },
+  { id:"trebuchet",   name:"Trebuchet",    font:"'Trebuchet MS',Tahoma,Verdana,sans-serif" },
 ];
 const ALL_VARS = ["--bg","--card","--modal","--hdr-bg","--acc","--acc-hi","--acc-a","--acc-b","--acc-glow","--acc-bdr","--acc-dim","--txt","--txt-b","--txt-d","--bdr"];
 
