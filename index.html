@@ -2989,6 +2989,13 @@ function daysOfStockLeft(s){
   return Math.max(1, Math.round(s.stock / rate));
 }
 
+// Null-safe DOM write helpers — let renderAll keep working even after markup is
+// relocated to sub-pages (elements that don't currently exist are simply skipped).
+function _el(id){ return document.getElementById(id); }
+function _txt(id, t){ const e = _el(id); if(e) e.textContent = t; }
+function _html(id, h){ const e = _el(id); if(e) e.innerHTML = h; }
+function _w(id, w){ const e = _el(id); if(e) e.style.width = w; }
+
 // ── RENDER ALL ──
 function renderAll(){
   const s = cur(); if(!s) return;
@@ -2996,77 +3003,84 @@ function renderAll(){
 
   // Unit bar — weight products show unit buttons; count products show static label
   const u = getUnit();
-  const unitBtns = document.getElementById("unitBtns");
-  const unitStaticLbl = document.getElementById("unitStaticLbl");
+  const unitBtns = _el("unitBtns");
+  const unitStaticLbl = _el("unitStaticLbl");
+  const rul = _el("restockUnitLbl"), uul = _el("useUnitLbl");
   if(isWeight(s)){
     if(unitBtns) unitBtns.style.display = "";
     if(unitStaticLbl) unitStaticLbl.style.display = "none";
     document.querySelectorAll(".uBtn").forEach(b => b.classList.toggle("on", b.dataset.unit === u));
-    document.getElementById("restockUnitLbl").textContent = unitLabel();
-    document.getElementById("useUnitLbl").textContent = unitLabel();
+    if(rul) rul.textContent = unitLabel();
+    if(uul) uul.textContent = unitLabel();
   } else {
     if(unitBtns) unitBtns.style.display = "none";
     if(unitStaticLbl){ unitStaticLbl.style.display = ""; unitStaticLbl.textContent = unitPlural(s); }
-    document.getElementById("restockUnitLbl").textContent = unitPlural(s);
-    document.getElementById("useUnitLbl").textContent = unitPlural(s);
+    if(rul) rul.textContent = unitPlural(s);
+    if(uul) uul.textContent = unitPlural(s);
   }
-  const useInp = document.getElementById("useAmt");
+  const useInp = _el("useAmt");
   if(useInp) useInp.value = useAmt;
 
   // Header stock
-  const sv = document.getElementById("hdrStock");
-  sv.innerHTML = isWeight(s)
-    ? toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>'
-    : Math.round(s.stock) + '<span class="hdr-stock-unit">' + unitPlural(s) + '</span>';
-  const startG = s.startStock || 0;
-  let stockCls = "ok";
-  if(startG > 0){
-    if(s.stock < startG*0.10) stockCls = "low";
-    else if(s.stock < startG*0.20) stockCls = "amber";
+  const sv = _el("hdrStock");
+  if(sv){
+    sv.innerHTML = isWeight(s)
+      ? toDisp(s.stock) + '<span class="hdr-stock-unit">' + unitAbbr() + '</span>'
+      : Math.round(s.stock) + '<span class="hdr-stock-unit">' + unitPlural(s) + '</span>';
+    const startG = s.startStock || 0;
+    let stockCls = "ok";
+    if(startG > 0){
+      if(s.stock < startG*0.10) stockCls = "low";
+      else if(s.stock < startG*0.20) stockCls = "amber";
+    }
+    sv.className = "hdr-stock-val " + stockCls;
   }
-  sv.className = "hdr-stock-val " + stockCls;
 
   const base = Math.max(s.startStock||1, s.stock, 1);
   const pct  = Math.min(100, (s.stock/base)*100);
   const movedG = Math.max(0, round(base - s.stock));
-  document.getElementById("progFill").style.width = pct.toFixed(1) + "%";
+  _w("progFill", pct.toFixed(1) + "%");
   // Stock-left label shows predicted days-of-stock-left (falls back to % when no recent pace)
   let leftLbl = fmtQty(s.stock,s) + " LEFT";
   const dleft = daysOfStockLeft(s);
   if(s.stock <= 0) leftLbl += " · OUT";
   else if(dleft != null) leftLbl += " · ~" + dleft + (dleft===1 ? " DAY" : " DAYS");
   else leftLbl += " · " + pct.toFixed(0) + "%";
-  document.getElementById("progL").textContent = leftLbl;
-  document.getElementById("progR").textContent = fmtQty(movedG,s) + " MOVED";
+  _txt("progL", leftLbl);
+  _txt("progR", fmtQty(movedG,s) + " MOVED");
 
   const earned = s.earned||0, exp = s.expenses||0, profit = earned-exp;
-  document.getElementById("s-earned").textContent = fmtDollar(earned);
-  const pe = document.getElementById("s-profit");
-  pe.textContent = (profit>=0?"+":"-") + fmtDollar(Math.abs(profit));
-  pe.style.color = profit >= 0 ? "#4caf7a" : "#c05050";
-  document.getElementById("s-exp").textContent = fmtDollar(exp);
-  document.getElementById("s-est").textContent = fmtDollar(estVal(s.stock));
+  _txt("s-earned", fmtDollar(earned));
+  const pe = _el("s-profit");
+  if(pe){
+    pe.textContent = (profit>=0?"+":"-") + fmtDollar(Math.abs(profit));
+    pe.style.color = profit >= 0 ? "#4caf7a" : "#c05050";
+  }
+  _txt("s-exp", fmtDollar(exp));
+  _txt("s-est", fmtDollar(estVal(s.stock)));
 
   const ep = exp > 0 ? Math.min(100, (earned/exp)*100) : 0;
-  document.getElementById("expBar").style.width = ep.toFixed(1) + "%";
-  document.getElementById("expFrac").textContent = exp > 0
+  _w("expBar", ep.toFixed(1) + "%");
+  _txt("expFrac", exp > 0
     ? fmtDollar(Math.min(earned,exp)) + " / " + fmtDollar(exp)
-    : "No expenses logged";
+    : "No expenses logged");
 
   const rt = s.restockTotal||0;
-  const rsEl = document.getElementById("restockSum");
-  if(rt > 0){
-    rsEl.style.display = "block";
-    document.getElementById("restockTot").textContent = fmtQty(rt,s);
-  } else { rsEl.style.display = "none"; }
+  const rsEl = _el("restockSum");
+  if(rsEl){
+    if(rt > 0){ rsEl.style.display = "block"; _txt("restockTot", fmtQty(rt,s)); }
+    else { rsEl.style.display = "none"; }
+  }
 
   const ut = s.useTotal||0;
-  const usEl = document.getElementById("useSum");
-  if(ut > 0){
-    usEl.style.display = "block";
-    document.getElementById("useTotG").textContent    = fmtQty(ut,s);
-    document.getElementById("useTotLost").textContent = fmtDollar(ut * avgUnitPrice(s));
-  } else { usEl.style.display = "none"; }
+  const usEl = _el("useSum");
+  if(usEl){
+    if(ut > 0){
+      usEl.style.display = "block";
+      _txt("useTotG", fmtQty(ut,s));
+      _txt("useTotLost", fmtDollar(ut * avgUnitPrice(s)));
+    } else { usEl.style.display = "none"; }
+  }
 
   if(isWeight(s)){
     let bestPack = null, bestRatio = -1;
@@ -3075,7 +3089,7 @@ function renderAll(){
       const ratio = p.hi / p.w;
       if(ratio > bestRatio){ bestRatio = ratio; bestPack = k; }
     });
-    document.getElementById("packBreak").innerHTML = packOrder.map(k => {
+    _html("packBreak", packOrder.map(k => {
       const p = PRICES[k];
       const c = Math.floor(s.stock / p.w);
       const pr = p.lo===p.hi ? fmtDollar(p.lo) : fmtDollar(p.lo)+"–"+fmtDollar(p.hi);
@@ -3085,10 +3099,10 @@ function renderAll(){
         <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span>${best?'<span class="pack-best-tag">Best $/g</span>':''}</div>
         <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
       </div>`;
-    }).join("");
+    }).join(""));
   } else {
     const packs = s.priceRef || COUNT_PACK_DEFAULTS;
-    document.getElementById("packBreak").innerHTML = packs.map(r => {
+    _html("packBreak", packs.map(r => {
       const qty = packW(r);
       const c = Math.floor(s.stock / qty);
       const pr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
@@ -3097,7 +3111,7 @@ function renderAll(){
         <div><span class="pack-nm">${r.label}</span><span class="pack-pr">${pr}</span></div>
         <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*r.hi)}</span>`}</div>
       </div>`;
-    }).join("");
+    }).join(""));
   }
 
   renderLog(); renderQS(); renderOwedCard();
