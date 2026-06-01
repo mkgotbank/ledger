@@ -587,6 +587,19 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .nav-chev{color:var(--txt-d);font-size:16px;opacity:0.6;flex-shrink:0;line-height:1;}
 .nav-group{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);text-transform:uppercase;margin:14px 2px 7px;}
 .nav-group:first-child{margin-top:2px;}
+/* ── GUIDED WALKTHROUGH ── spotlight + tooltip */
+#tourOverlay{position:fixed;inset:0;z-index:9990;}
+#tourSpot{position:absolute;border-radius:14px;border:2px solid var(--acc-hi);box-shadow:0 0 0 9999px rgba(6,10,20,0.74),0 0 22px var(--acc-glow);transition:top 0.34s cubic-bezier(0.2,0.8,0.2,1),left 0.34s cubic-bezier(0.2,0.8,0.2,1),width 0.34s cubic-bezier(0.2,0.8,0.2,1),height 0.34s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;}
+.tour-card{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,400px);background:var(--modal);border:1px solid var(--acc-bdr);border-radius:18px;padding:18px 18px 16px;box-shadow:0 20px 54px rgba(0,0,0,0.55);z-index:9991;animation:tourCardIn 0.3s cubic-bezier(0.2,0.8,0.2,1);}
+@keyframes tourCardIn{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;}}
+.tour-step{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:7px;}
+.tour-title{font-family:var(--display);font-size:22px;font-weight:600;color:var(--txt-b);margin-bottom:7px;line-height:1.08;}
+.tour-body{font-size:12px;color:var(--txt-d);line-height:1.7;margin-bottom:16px;}
+.tour-actions{display:flex;align-items:center;gap:9px;}
+.tour-skip{background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:6px 2px;}
+.tour-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:11px;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 2px 12px var(--acc-glow);transition:transform 0.15s var(--ease);}
+.tour-btn:active{transform:scale(0.94);}
+.tour-btn-ghost{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt);border-radius:11px;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);}
 /* Activity: collapsible filters bar with active-filter chip */
 .filters-bar{margin-bottom:11px;}
 .filters-toggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 13px;cursor:pointer;font-family:var(--font);box-shadow:0 2px 10px var(--shadow);}
@@ -805,8 +818,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
   <div class="panel" id="panel-settings">
     <div style="margin-bottom:20px">
-      <div style="font-size:18px;font-weight:700;color:var(--txt-b);letter-spacing:-0.5px">Settings</div>
-      <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:3px">Theme · Font · Preferences · Security · Data</div>
+      <div style="font-family:var(--display);font-size:26px;font-weight:600;color:var(--txt-b);line-height:1">More</div>
+      <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:4px">Appearance · Preferences · Data · Help</div>
+    </div>
+    <div class="settings-sec">
+      <div class="settings-card">
+        <div class="settings-row" onclick="replayTour()" style="cursor:pointer">
+          <span class="settings-row-lbl">📘 Replay walkthrough</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+      </div>
     </div>
     <div class="settings-sec">
       <div class="settings-card">
@@ -1038,6 +1059,22 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="pref" id="priceRef"></div>
     <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Pack Size</button>
     <div id="addPackForm" style="display:none"></div>
+  </div>
+</div>
+
+<!-- GUIDED WALKTHROUGH (first-time tour) -->
+<div id="tourOverlay" style="display:none">
+  <div id="tourSpot"></div>
+  <div id="tourCard" class="tour-card">
+    <div class="tour-step" id="tourStepNum"></div>
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-body" id="tourBody"></div>
+    <div class="tour-actions">
+      <button class="tour-skip" onclick="endTour()">Skip</button>
+      <div style="flex:1"></div>
+      <button class="tour-btn-ghost" id="tourBack" onclick="tourPrev()">Back</button>
+      <button class="tour-btn" id="tourNext" onclick="tourNext()">Next</button>
+    </div>
   </div>
 </div>
 
@@ -2069,6 +2106,8 @@ function doSetup(){
   document.getElementById("mainApp").style.display = "block";
   syncUnitDefaults(); syncPricesFromRef();
   persist(); renderAll(); updateSaleModal();
+  try { localStorage.setItem(VER_KEY, "1"); } catch(e){} // new users get the tour, not "What's New"
+  maybeStartTour();
 }
 
 // ── STRAIN MANAGEMENT ──
@@ -4145,6 +4184,63 @@ function switchTab(name, btn){
   document.getElementById("panel-"+name).classList.add("on");
   btn.classList.add("on");
   if(name==="settings") renderSettings();
+}
+
+// ── GUIDED WALKTHROUGH ── first-time coach-mark tour of the new layout
+const TOUR_KEY = "ledger_tour_done";
+const TOUR_STEPS = [
+  { sel:null, title:"Welcome to The Ledger", body:"A quick 30-second tour so you know where everything lives. You can skip anytime." },
+  { sel:".strain-bar", title:"Your products & stock", body:"Switch between products here, and add more with the gear. Up top you always see how much stock is left and roughly how many days it will last." },
+  { sel:".sgrid", title:"Your money at a glance", body:"Earned, net profit, expenses, and your estimated stock value — always front and centre on the Home screen." },
+  { sel:"#healthStrip", title:"Today at a glance", body:"A quick pulse of today's revenue, number of sales, and your top-selling pack." },
+  { sel:".qa-strip", title:"Your two daily actions", body:"Tap Record Sale to log a sale — with packs, discounts, payment type, even selling on credit. Tap Restock to add inventory." },
+  { sel:"#manageGroups", title:"Everything else, organized", body:"Expenses, who owes you, internal use, pack breakdowns, reports, the AI advisor, and price reference — each on its own clean page, one tap away." },
+  { sel:".tabs", title:"Getting around", body:"Home is your dashboard. Activity is your full history log with search and filters. More holds settings, themes, your app icon, backups, and the AI key." },
+  { sel:null, title:"You're all set", body:"That's it! You can replay this walkthrough anytime from More → Replay walkthrough. Happy selling." },
+];
+let _tourI = 0;
+function startTour(){
+  const ov = _el("tourOverlay"); if(!ov) return;
+  try { const homeTab = document.querySelector(".tabs .tab"); if(homeTab && !document.getElementById("panel-stock").classList.contains("on")) switchTab("stock", homeTab); } catch(e){}
+  // close any open sub-page so targets are visible
+  document.querySelectorAll(".subpage.open").forEach(p => p.classList.remove("open"));
+  _tourI = 0;
+  ov.style.display = "block";
+  tourShow();
+}
+function tourShow(){
+  const step = TOUR_STEPS[_tourI];
+  const spot = _el("tourSpot"), card = _el("tourCard");
+  _txt("tourStepNum", "Step " + (_tourI+1) + " of " + TOUR_STEPS.length);
+  _txt("tourTitle", step.title);
+  _txt("tourBody", step.body);
+  const back = _el("tourBack"); if(back) back.style.visibility = _tourI===0 ? "hidden" : "visible";
+  _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? "Got it" : "Next");
+  const target = step.sel ? document.querySelector(step.sel) : null;
+  if(target){
+    target.scrollIntoView({ block:"center", behavior:"auto" });
+    setTimeout(() => {
+      const r = target.getBoundingClientRect(), pad = 7;
+      spot.style.display = "block";
+      spot.style.top = (r.top-pad)+"px"; spot.style.left = (r.left-pad)+"px";
+      spot.style.width = (r.width+pad*2)+"px"; spot.style.height = (r.height+pad*2)+"px";
+      card.style.transform = "translateX(-50%)";
+      if(r.top + r.height/2 < window.innerHeight*0.52){ card.style.top = ""; card.style.bottom = "26px"; }
+      else { card.style.bottom = ""; card.style.top = "26px"; }
+    }, 240);
+  } else {
+    spot.style.display = "none";
+    card.style.bottom = ""; card.style.top = "50%"; card.style.transform = "translate(-50%,-50%)";
+  }
+}
+function tourNext(){ if(_tourI >= TOUR_STEPS.length-1){ endTour(); return; } _tourI++; tourShow(); }
+function tourPrev(){ if(_tourI > 0){ _tourI--; tourShow(); } }
+function endTour(){ const ov=_el("tourOverlay"); if(ov) ov.style.display="none"; try{ localStorage.setItem(TOUR_KEY,"1"); }catch(e){} }
+function replayTour(){ startTour(); }
+function maybeStartTour(){
+  try{ if(localStorage.getItem(TOUR_KEY)) return; }catch(e){}
+  if(!isReady()) return;
+  setTimeout(() => { if(!document.querySelector(".overlay.open")) startTour(); }, 600);
 }
 
 // ── INIT ──
