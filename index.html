@@ -585,6 +585,21 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .nav-chev{color:var(--txt-d);font-size:16px;opacity:0.6;flex-shrink:0;line-height:1;}
 .nav-group{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);text-transform:uppercase;margin:14px 2px 7px;}
 .nav-group:first-child{margin-top:2px;}
+/* Home: Quick Actions strip (one loud primary + one fast secondary) */
+.qa-strip{display:flex;gap:9px;margin-bottom:6px;}
+.qa-sale{flex:1.7;margin-bottom:0;}
+.qa-restock{flex:1;background:var(--card);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:13px;padding:14px 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 4px 18px var(--shadow);transition:transform 0.18s var(--ease),background 0.15s;}
+.qa-restock span{font-size:13px;margin-right:2px;}
+.qa-restock:active{transform:scale(0.975);background:rgba(76,175,122,0.1);}
+/* Home: one-line "today" pulse */
+.health-strip{margin-bottom:11px;}
+.health-row{display:flex;background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:10px 4px;box-shadow:0 3px 14px var(--shadow);}
+.health-item{flex:1;text-align:center;border-left:1px solid var(--hairline);}
+.health-item:first-child{border-left:none;}
+.health-v{display:block;font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+.health-v.g{color:#4caf7a;}
+.health-l{display:block;font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:2px;}
+.health-empty{text-align:center;font-size:9px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;padding:11px;background:var(--card);border:1px solid var(--bdr);border-radius:13px;box-shadow:0 3px 14px var(--shadow);}
 /* Compact history rows for Expenses / Internal Use pages */
 .hist-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--card);border:1px solid var(--bdr);border-radius:11px;margin-bottom:6px;box-shadow:0 2px 10px var(--shadow);}
 .hist-t{font-size:10px;font-weight:700;letter-spacing:0.5px;}
@@ -721,10 +736,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div class="tabs">
-    <button class="tab on" onclick="switchTab('stock',this)">📦 Stock</button>
-    <button class="tab" onclick="switchTab('log',this)">📋 Log</button>
-    <button class="tab" onclick="switchTab('tips',this)">💡 Tips</button>
-    <button class="tab" onclick="switchTab('settings',this)">⚙ Settings</button>
+    <button class="tab on" onclick="switchTab('stock',this)">🏠 Home</button>
+    <button class="tab" onclick="switchTab('log',this)">📋 Activity</button>
+    <button class="tab" onclick="switchTab('settings',this)">⚙ More</button>
   </div>
 
   <div class="panel on" id="panel-stock">
@@ -735,30 +749,16 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="scard"><div class="scard-lbl">Est. Value</div><div class="scard-val" id="s-est" style="color:#c9a040">$0</div></div>
     </div>
 
+    <div id="healthStrip" class="health-strip"></div>
+
     <div id="owedCard"></div>
 
-    <div class="acard g">
-      <div class="acard-lbl g">+ Add / Restock Inventory</div>
-      <div class="acard-row">
-        <div class="acard-ctrl">
-          <button class="btn-pm" onclick="adjRestock(-1)">−</button>
-          <div class="acard-disp">
-            <input type="number" id="restockAmt" value="14" inputmode="decimal" class="restock-input"/>
-            <div class="sm" style="margin-top:3px;" id="restockUnitLbl">Grams</div>
-          </div>
-          <button class="btn-pm" onclick="adjRestock(1)">+</button>
-        </div>
-        <button class="btn-act g" onclick="doRestock()">Add Stock</button>
-      </div>
-      <div class="acard-sum" id="restockSum" style="display:none">
-        Total restocked: <span class="g" id="restockTot">0g</span>
-      </div>
+    <div class="qa-strip">
+      <button class="btn-sale qa-sale" onclick="openSaleModal()">+ Record Sale</button>
+      <button class="qa-restock" onclick="openModal('restock')"><span>↑</span> Restock</button>
     </div>
 
-    <button class="btn-sale" onclick="openSaleModal()">+ Record Sale</button>
-
-    <div class="sec-lbl">Manage</div>
-    <div class="nav-card" id="manageList"></div>
+    <div id="manageGroups"></div>
   </div>
 
   <div class="panel" id="panel-log">
@@ -784,13 +784,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div id="logList"></div>
   </div>
 
-  <div class="panel" id="panel-tips">
-    <div class="nav-card">
-      <div class="nav-row" onclick="openSubpage('reports')"><span class="nav-ic">📈</span><span class="nav-lbl">Reports</span><span class="nav-val" id="navReportsVal"></span><span class="nav-chev">›</span></div>
-      <div class="nav-row" onclick="openSubpage('ai')"><span class="nav-ic">✦</span><span class="nav-lbl">AI Advisor</span><span class="nav-chev">›</span></div>
-      <div class="nav-row" onclick="openSubpage('priceref')"><span class="nav-ic">🏷️</span><span class="nav-lbl">Price Reference</span><span class="nav-chev">›</span></div>
-    </div>
-  </div>
 
   <div class="panel" id="panel-settings">
     <div style="margin-bottom:20px">
@@ -1111,6 +1104,32 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <button class="btn-confirm" onclick="dismissWhatsNew()">Got It</button>
+  </div>
+</div>
+
+<!-- RESTOCK SHEET -->
+<div class="overlay" id="modal-restock" onclick="overlayClose(event,'restock')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">Add / Restock Inventory</div>
+      <button class="modal-close" onclick="closeModal('restock')">✕</button>
+    </div>
+    <div class="acard g" style="box-shadow:none;border:none;padding:0;margin:0">
+      <div class="acard-row">
+        <div class="acard-ctrl">
+          <button class="btn-pm" onclick="adjRestock(-1)">−</button>
+          <div class="acard-disp">
+            <input type="number" id="restockAmt" value="14" inputmode="decimal" class="restock-input"/>
+            <div class="sm" style="margin-top:3px;" id="restockUnitLbl">Grams</div>
+          </div>
+          <button class="btn-pm" onclick="adjRestock(1)">+</button>
+        </div>
+        <button class="btn-act g" onclick="doRestock()">Add Stock</button>
+      </div>
+      <div class="acard-sum" id="restockSum" style="display:none">
+        Total restocked: <span class="g" id="restockTot">0g</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2337,16 +2356,41 @@ function openCustomers(){ openSubpage("customers"); }
 function _navRow(ic, lbl, val, onclick){
   return `<div class="nav-row" onclick="${onclick}"><span class="nav-ic">${ic}</span><span class="nav-lbl">${lbl}</span>${val?`<span class="nav-val">${val}</span>`:""}<span class="nav-chev">›</span></div>`;
 }
-function renderManageList(){
-  const el = _el("manageList"); if(!el) return;
+function renderManageGroups(){
+  const el = _el("manageGroups"); if(!el) return;
   const s = cur(); if(!s){ el.innerHTML = ""; return; }
   const exp = s.expenses||0, ut = s.useTotal||0, owed = totalOwed();
-  const rows = [];
-  rows.push(_navRow("💸","Expenses", exp>0?fmtDollar(exp):"", "openSubpage('expenses')"));
-  if(owed>0) rows.push(_navRow("👥","Customers", fmtDollar(owed)+" owed", "openCustomers()"));
-  rows.push(_navRow("📉","Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"));
-  rows.push(_navRow("📦","Possible Packs", "", "openSubpage('packs')"));
-  el.innerHTML = rows.join("");
+  const money = [ _navRow("💸","Expenses", exp>0?fmtDollar(exp):"", "openSubpage('expenses')") ];
+  if(owed>0) money.push(_navRow("👥","Customers", fmtDollar(owed)+" owed", "openCustomers()"));
+  const inv = [
+    _navRow("📉","Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"),
+    _navRow("📦","Possible Packs", "", "openSubpage('packs')"),
+  ];
+  const analysis = [
+    _navRow("📈","Reports", "", "openSubpage('reports')"),
+    _navRow("✦","AI Advisor", "", "openSubpage('ai')"),
+    _navRow("🏷️","Price Reference", "", "openSubpage('priceref')"),
+  ];
+  el.innerHTML =
+    `<div class="nav-group">Money</div><div class="nav-card">${money.join("")}</div>` +
+    `<div class="nav-group">Inventory</div><div class="nav-card">${inv.join("")}</div>` +
+    `<div class="nav-group">Analysis</div><div class="nav-card">${analysis.join("")}</div>`;
+}
+// One-line "today" pulse on Home (graceful no-sales state so Home never reads as under-built)
+function renderHealthStrip(){
+  const el = _el("healthStrip"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML = ""; return; }
+  const t0 = new Date(); t0.setHours(0,0,0,0);
+  const sales = (s.logs||[]).filter(l => l.type==="sale" && l.id >= t0.getTime());
+  if(!sales.length){ el.innerHTML = `<div class="health-empty">No sales yet today</div>`; return; }
+  const rev = sales.reduce((a,l)=>a+(+l.total||0),0);
+  const byPack = {}; sales.forEach(l => { const k=l.pack||"?"; byPack[k]=(byPack[k]||0)+(+l.total||0); });
+  const top = Object.entries(byPack).sort((a,b)=>b[1]-a[1])[0];
+  el.innerHTML = `<div class="health-row">
+    <div class="health-item"><span class="health-v g">${fmtDollar(rev)}</span><span class="health-l">Today</span></div>
+    <div class="health-item"><span class="health-v">${sales.length}</span><span class="health-l">${sales.length===1?"Sale":"Sales"}</span></div>
+    <div class="health-item"><span class="health-v">${top?escHtml(top[0]):"—"}</span><span class="health-l">Top Pack</span></div>
+  </div>`;
 }
 function renderExpenseHistory(){
   const el = _el("expenseHistory"); if(!el) return;
@@ -2423,6 +2467,7 @@ function doRestock(){
   s.restockTotal = round((s.restockTotal||0) + addAmt);
   s.logs.unshift({ id:Date.now(), type:"restock", w:addAmt, date:now(), after:ns });
   showToast("+" + restockAmt + " " + unitSingular(s) + " added", "ok");
+  closeModal("restock");
   persist(); renderAll();
 }
 function doUse(){
@@ -3239,9 +3284,7 @@ function renderAll(){
   }
 
   renderLog(); renderQS(); renderOwedCard();
-  renderManageList(); renderExpenseHistory(); renderUseHistory();
-  const tipsPanel = document.getElementById("panel-tips");
-  if(tipsPanel && tipsPanel.classList.contains("on")) renderChart();
+  renderHealthStrip(); renderManageGroups(); renderExpenseHistory(); renderUseHistory();
   renderLowStockBanner();
 }
 
@@ -4070,7 +4113,6 @@ function switchTab(name, btn){
   document.querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
   document.getElementById("panel-"+name).classList.add("on");
   btn.classList.add("on");
-  if(name==="tips"){ renderQS(); renderChart(); }
   if(name==="settings") renderSettings();
 }
 
