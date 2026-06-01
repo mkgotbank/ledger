@@ -121,14 +121,14 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
-.setup-logo svg,.setup-logo img{filter:drop-shadow(0 12px 40px rgba(58,180,239,0.4)) drop-shadow(0 2px 8px rgba(0,0,0,0.45));}
+.setup-logo svg,.setup-logo img{filter:drop-shadow(0 7px 16px rgba(0,0,0,0.16)) brightness(1.07) saturate(1.05);}
 .setup-title{font-family:var(--display);font-size:34px;font-weight:600;color:var(--txt-b);text-align:center;letter-spacing:0;line-height:1;}
 .setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:32px;}
 .setup-field{margin-bottom:16px;}
 .setup-label{font-size:9px;letter-spacing:3px;color:var(--txt-d);margin-bottom:7px;text-transform:uppercase;display:block;}
 .setup-input{width:100%;background:var(--card);border:1px solid var(--acc-bdr);border-radius:14px;padding:14px 16px;color:var(--txt);font-size:18px;font-weight:700;outline:none;text-align:center;transition:border-color 0.2s;}
 .setup-input:focus{border-color:var(--acc);}
-.setup-btn{width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:16px;padding:17px;color:#0a0a0f;font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;margin-top:12px;box-shadow:0 4px 28px var(--acc-glow);cursor:pointer;transition:opacity 0.2s;}
+.setup-btn{width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:16px;padding:17px;color:#0a0a0f;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-top:12px;box-shadow:0 4px 28px var(--acc-glow);cursor:pointer;transition:opacity 0.2s;}
 .setup-note{font-size:10px;color:var(--txt-d);text-align:center;margin-top:14px;line-height:1.7;}
 
 #mainApp{display:none;max-width:480px;margin:0 auto;padding-bottom:110px;}
@@ -1085,20 +1085,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.15.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.15.3</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔆</div>
+        <div class="wn-icon">🔤</div>
         <div>
-          <div class="wn-title">Clearer, Brighter Buttons</div>
-          <div class="wn-desc">Record Sale, Confirm and the other action buttons are now brighter, bolder, and easier to read at a glance.</div>
+          <div class="wn-title">A Cleaner Default Look</div>
+          <div class="wn-desc">The app now uses a clean, modern font by default (change it anytime in More → Font Style), with a tidied-up, brighter welcome screen and clearer buttons.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">📘</div>
         <div>
-          <div class="wn-title">Walkthrough Covers Every Tab</div>
-          <div class="wn-desc">The first-time tour now walks you through all three tabs — Home, Activity, and More — so nothing's a mystery. Replay it anytime from More → Replay walkthrough.</div>
+          <div class="wn-title">Walkthrough: AI Key &amp; Backups</div>
+          <div class="wn-desc">The first-time tour now also shows you how to set up the optional (free) Groq AI key for faster advice, and how to back up your data. Replay it from More → Replay walkthrough.</div>
         </div>
       </div>
     </div>
@@ -1388,7 +1388,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.15.2";
+const APP_VER    = "2.15.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3792,7 +3792,7 @@ function renderThemePickerPage(){
 }
 function renderFontPickerPage(){
   const list = document.getElementById("fontPickerList"); if(!list) return;
-  const cf = localStorage.getItem("ledger_font") || D.font || "terminal";
+  const cf = localStorage.getItem("ledger_font") || D.font || "clean";
   list.innerHTML = FONTS.map(f => {
     const active = f.id === cf;
     return `<div onclick="applyFont('${f.id}')" style="display:flex;flex-direction:column;gap:7px;padding:16px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:14px;cursor:pointer;transition:border-color 0.2s">
@@ -3865,7 +3865,7 @@ function renderSettings(){
 
   // Update the nav row labels with current selection names
   const curT = localStorage.getItem("ledger_theme") || D.theme || "arctic";
-  const cf   = localStorage.getItem("ledger_font")   || D.font  || "terminal";
+  const cf   = localStorage.getItem("ledger_font")   || D.font  || "clean";
   const tNameEl = document.getElementById("themeCurrentName");
   const fNameEl = document.getElementById("fontCurrentName");
   if(tNameEl){ const t = THEMES.find(t=>t.id===curT)||THEMES[0]; tNameEl.textContent = t.name; }
@@ -4140,7 +4140,9 @@ const TOUR_STEPS = [
   { tab:"stock", sel:".qa-strip", title:"Your two daily actions", body:"Tap Record Sale to log a sale — with packs, discounts, payment type, even selling on credit. Tap Restock to add inventory." },
   { tab:"stock", sel:"#manageGroups", title:"Everything else, organized", body:"Expenses, who owes you, internal use, pack breakdowns, reports, the AI advisor, and price reference — each on its own clean page, one tap away." },
   { tab:"log", sel:null, title:"Activity \u2014 your full history", body:"This is the Activity tab. Every sale, restock, expense and internal use is logged here. Search it, filter by type or date with the Filters bar, and tap any entry to edit it \u2014 the summary up top totals whatever range you pick." },
-  { tab:"settings", sel:null, title:"More \u2014 settings & tools", body:"This is the More tab. It holds your themes, fonts and app icon, currency, low-stock alerts, a PIN lock, data backup & export, and the optional AI key \u2014 and you can replay this walkthrough from the top." },
+  { tab:"settings", sel:null, title:"More \u2014 settings & tools", body:"The More tab has your themes, fonts and app icon, currency, low-stock alerts, a PIN lock, and more. Two things worth setting up are coming next." },
+  { tab:"settings", sel:"#aiSettings", title:"Faster AI advice (optional)", body:"The AI Advisor works for free but can be slow. Paste a free Groq key here \u2014 grab one in about a minute at console.groq.com \u2014 to make its advice fast and reliable. The steps are right on this card. Totally optional." },
+  { tab:"settings", sel:"#dataSyncSettings", title:"Back up your data", body:"Important: your data lives only on this device. Tap Export to save a backup file, or Copy Sync Code to save it as text. The app also reminds you weekly \u2014 on iPhone especially, removing the app can erase its data, so keep a backup." },
   { tab:"stock", sel:null, title:"You're all set", body:"That's it \u2014 Home, Activity, and More. Tap Home anytime to get back to your dashboard. Happy selling!" },
 ];
 let _tourI = 0;
@@ -4196,7 +4198,7 @@ function maybeStartTour(){
 // ── INIT ──
 // Apply theme and font FIRST from independent keys — they survive data resets
 try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e){}
-try{ _applyFontVar(localStorage.getItem("ledger_font")); }catch(e){}
+try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
 // Currency is read at runtime via getCurrency() — no explicit apply needed
 
 hydrate();
