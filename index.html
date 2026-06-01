@@ -7,8 +7,24 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Ledger"/>
 <meta name="theme-color" content="#eef6ff"/>
+<meta name="description" content="The Ledger — a premium inventory & business manager. Track stock, record sales, monitor profit, and get AI advice."/>
+<!-- Link-preview / social cards (Open Graph + Twitter). Crawlers don't run JS or render SVG text, so the share image MUST be a static raster PNG at an absolute URL. -->
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="The Ledger"/>
+<meta property="og:title" content="The Ledger"/>
+<meta property="og:description" content="A premium inventory & business manager — track stock, record sales, monitor profit, and get AI advice."/>
+<meta property="og:url" content="https://mkgotbank.github.io/ledger/"/>
+<meta property="og:image" content="https://mkgotbank.github.io/ledger/icon-1024.png"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:width" content="1024"/>
+<meta property="og:image:height" content="1024"/>
+<meta property="og:image:alt" content="The Ledger app icon — gold L on a blue field"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="The Ledger"/>
+<meta name="twitter:description" content="A premium inventory & business manager — track stock, record sales, monitor profit, and get AI advice."/>
+<meta name="twitter:image" content="https://mkgotbank.github.io/ledger/icon-1024.png"/>
 <link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" id="ati" href="icon.svg"/>
+<link rel="apple-touch-icon" id="ati" href="icon-1024.png"/>
 <link rel="icon" type="image/svg+xml" href="icon.svg"/>
 <script>
 // ── APP ICON SYSTEM ──
@@ -1085,13 +1101,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.15.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.15.5</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🛠️</div>
+        <div class="wn-icon">🔗</div>
         <div>
-          <div class="wn-title">Walkthrough & Welcome Fixes</div>
-          <div class="wn-desc">Fixed the first-time tour getting stuck on step 2 — its Next button could land under your phone's toolbar, so it's now raised and taps reliably through every step. The welcome-screen logo is also cleaner and brighter (no more faded box around it).</div>
+          <div class="wn-title">Polished Share Previews</div>
+          <div class="wn-desc">When you share the app's link, it now shows the proper gold-L Ledger logo with a title and description — instead of a blank blue square. Cleaner, more professional link previews everywhere you paste it.</div>
         </div>
       </div>
     </div>
@@ -1381,7 +1397,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.15.4";
+const APP_VER    = "2.15.5";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
