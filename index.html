@@ -139,9 +139,11 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
 .setup-logo svg,.setup-logo img{filter:brightness(1.08) saturate(1.06);}
 .setup-title{font-family:var(--display);font-size:34px;font-weight:600;color:var(--txt-b);text-align:center;letter-spacing:0;line-height:1;}
-.setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:32px;}
+.setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:14px;}
+.setup-welcome{font-size:12px;color:var(--txt-d);text-align:center;line-height:1.6;margin:0 auto 28px;max-width:300px;}
 .setup-field{margin-bottom:16px;}
 .setup-label{font-size:9px;letter-spacing:3px;color:var(--txt-d);margin-bottom:7px;text-transform:uppercase;display:block;}
+.setup-hint{font-size:10.5px;color:var(--txt-d);text-align:center;line-height:1.5;margin-top:7px;opacity:0.9;}
 .setup-input{width:100%;background:var(--card);border:1px solid var(--acc-bdr);border-radius:14px;padding:14px 16px;color:var(--txt);font-size:18px;font-weight:700;outline:none;text-align:center;transition:border-color 0.2s;}
 .setup-input:focus{border-color:var(--acc);}
 .setup-btn{width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:16px;padding:17px;color:#0a0a0f;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-top:12px;box-shadow:0 4px 28px var(--acc-glow);cursor:pointer;transition:opacity 0.2s;}
@@ -699,10 +701,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <img data-app-icon src="icon.svg" width="120" height="120" alt="The Ledger" style="display:block;border-radius:28px"/>
   </div>
   <div class="setup-title">The Ledger</div>
-  <div class="setup-sub">Set up your first product</div>
+  <div class="setup-sub">Welcome</div>
+  <div class="setup-welcome">Let's set up your first product. It takes a minute, and you can change anything later.</div>
   <div class="setup-field">
     <label class="setup-label">Product Name</label>
     <input class="setup-input" id="ss-name" placeholder="e.g. Product 1" autocomplete="off"/>
+    <div class="setup-hint">What you're selling or tracking — add more anytime.</div>
   </div>
   <div class="setup-field">
     <label class="setup-label">Unit Type</label>
@@ -710,6 +714,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="utype-btn on" id="ss-wbtn" onclick="ssSetUnit('weight',this)">⚖️ Weight<br><span style="font-size:8px;font-weight:400">g / oz / lb</span></button>
       <button class="utype-btn" id="ss-cbtn" onclick="ssSetUnit('count',this)">📦 Count<br><span style="font-size:8px;font-weight:400">bottles, pieces…</span></button>
     </div>
+    <div class="setup-hint">Track by weight (g, oz, lb) or by count (bottles, pieces).</div>
   </div>
   <div class="setup-field" id="ss-unitname-wrap" style="display:none">
     <label class="setup-label">Unit Name (plural, e.g. bottles)</label>
@@ -718,10 +723,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   <div class="setup-field">
     <label class="setup-label" id="ss-stock-lbl">Starting Stock (grams)</label>
     <input class="setup-input" id="ss-stock" type="number" placeholder="0" inputmode="decimal"/>
+    <div class="setup-hint">How much you have on hand right now.</div>
   </div>
   <div class="setup-field">
     <label class="setup-label">Total Expenses ($)</label>
     <input class="setup-input" id="ss-exp" type="number" placeholder="0" inputmode="decimal"/>
+    <div class="setup-hint">What you spent to get it, so your profit stays accurate.</div>
   </div>
   <button class="setup-btn" onclick="doSetup()">Let's Go →</button>
   <div class="setup-note">You can add more products and edit everything inside the app at any time.</div>
@@ -1149,7 +1156,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🌍</div>
@@ -1454,7 +1461,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.1";
+const APP_VER    = "2.16.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
