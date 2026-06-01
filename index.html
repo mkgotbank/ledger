@@ -1156,7 +1156,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🌍</div>
@@ -1461,7 +1461,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.2";
+const APP_VER    = "2.16.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4364,15 +4364,25 @@ function tourShow(){
   _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? __("Got it") : __("Next"));
   const target = step.sel ? document.querySelector(step.sel) : null;
   if(target){
-    try { target.scrollIntoView({ block:"center", behavior:"auto" }); } catch(e){}
+    try { target.scrollIntoView({ block:"nearest", behavior:"auto" }); } catch(e){}
     const place = () => {
-      const r = target.getBoundingClientRect(), pad = 7;
+      const r = target.getBoundingClientRect(), pad = 7, gap = 14;
       spot.style.display = "block";
       spot.style.top = (r.top-pad)+"px"; spot.style.left = (r.left-pad)+"px";
       spot.style.width = (r.width+pad*2)+"px"; spot.style.height = (r.height+pad*2)+"px";
       card.style.transform = "translateX(-50%)";
-      if(r.top + r.height/2 < window.innerHeight*0.52){ card.style.top = ""; card.style.bottom = "calc(76px + env(safe-area-inset-bottom, 0px))"; }
-      else { card.style.bottom = ""; card.style.top = "calc(72px + env(safe-area-inset-top, 0px))"; }
+      // Always anchor with `top` and clamp into a safe band so the card (and its
+      // Next button) never lands under the iOS Safari toolbar / home indicator.
+      // Prefer just below the highlighted element, else just above it, else centred.
+      const vh = window.innerHeight;
+      const ch = card.offsetHeight || 210;
+      const topSafe = 64, botSafe = 116;
+      const below = r.bottom + gap;
+      const above = r.top - gap - ch;
+      let top = (below + ch <= vh - botSafe) ? below
+              : (above >= topSafe ? above : (vh - ch) / 2);
+      top = Math.max(topSafe, Math.min(top, vh - botSafe - ch));
+      card.style.bottom = ""; card.style.top = top + "px";
     };
     place();
     requestAnimationFrame(place);
