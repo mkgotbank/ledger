@@ -843,6 +843,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
           <span class="settings-row-lbl">📘 Replay walkthrough</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
+        <div class="settings-row" onclick="openSubpage('install')" style="cursor:pointer">
+          <span class="settings-row-lbl">📲 Install on your phone</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
       </div>
     </div>
     <div class="settings-sec">
@@ -865,6 +869,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
           <span class="settings-row-lbl">App Icon</span>
           <div style="display:flex;align-items:center;gap:8px">
             <span id="iconCurrentName" style="font-size:10px;color:var(--acc)"></span>
+            <span style="color:var(--txt-d);font-size:14px">›</span>
+          </div>
+        </div>
+        <div class="settings-row" onclick="openPickerPage('lang')" style="cursor:pointer">
+          <span class="settings-row-lbl">Language</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="langCurrentName" data-noi18n style="font-size:10px;color:var(--acc)"></span>
             <span style="color:var(--txt-d);font-size:14px">›</span>
           </div>
         </div>
@@ -942,6 +953,43 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <span id="iconBackupNote" style="font-size:9px;color:var(--acc);margin-left:8px"></span>
     </div>
   </div>
+</div>
+
+<!-- INSTALL / ADD TO HOME SCREEN PAGE -->
+<div id="installPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('install')">‹ Back</button>
+    <div class="subpage-title">Install the App</div>
+  </div>
+  <div class="subpage-body">
+    <div style="font-size:12px;color:var(--txt-d);line-height:1.65;margin-bottom:18px">Add The Ledger to your home screen — it opens full-screen and works completely offline, just like an app from the store. No download needed.</div>
+
+    <div class="sec-lbl" style="margin-top:0">📱 iPhone &amp; iPad — Safari</div>
+    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:15px 15px 7px;margin-bottom:18px">
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Open this page in Safari, then tap the Share button (the square with an up arrow) at the bottom of the screen.</span></div>
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Scroll down and tap “Add to Home Screen”.</span></div>
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>Tap “Add” in the top corner — the Ledger icon lands on your home screen.</span></div>
+    </div>
+
+    <div class="sec-lbl">🤖 Android — Chrome</div>
+    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:15px 15px 7px;margin-bottom:18px">
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Open this page in Chrome, then tap the menu (three dots) in the top-right corner.</span></div>
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Tap “Install app”, or “Add to Home screen” if you don’t see it.</span></div>
+      <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>Tap “Install” — the Ledger is added like any other app.</span></div>
+    </div>
+
+    <button class="btn-ai" style="margin-top:2px" onclick="shareAppLink()">✦ Share app link</button>
+    <div style="text-align:center;font-size:10px;color:var(--txt-d);margin-top:13px;line-height:1.6">App Store &amp; Google Play versions are coming soon.</div>
+  </div>
+</div>
+
+<!-- LANGUAGE PICKER PAGE -->
+<div id="langPickerPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closePickerPage('lang')">‹ Back</button>
+    <div class="subpage-title">Language</div>
+  </div>
+  <div class="subpage-body" style="display:grid;grid-template-columns:1fr;gap:10px" id="langPickerGrid"></div>
 </div>
 
 <!-- REPORTS PAGE -->
@@ -1101,13 +1149,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.15.5</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔗</div>
+        <div class="wn-icon">🌍</div>
         <div>
-          <div class="wn-title">Polished Share Previews</div>
-          <div class="wn-desc">When you share the app's link, it now shows the proper gold-L Ledger logo with a title and description — instead of a blank blue square. Cleaner, more professional link previews everywhere you paste it.</div>
+          <div class="wn-title">Speak Your Language</div>
+          <div class="wn-desc">The Ledger now speaks 10 languages — auto-matched to your phone, or pick your own under More → Language. English, Spanish, Chinese, Hindi, Arabic, French, Portuguese, Russian, German and Japanese, with full right-to-left support for Arabic.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">📲</div>
+        <div>
+          <div class="wn-title">Add It to Your Phone</div>
+          <div class="wn-desc">A new step-by-step guide shows how to install The Ledger on iPhone or Android, so it runs full-screen and offline like a real app — under More → Install on your phone.</div>
         </div>
       </div>
     </div>
@@ -1389,6 +1444,8 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- Translation dictionary (must load before the main script reads window.LEDGER_I18N) -->
+<script src="i18n.js"></script>
 <script>
 const SK = "ledger_v4";
 const PIN_SK = "ledger_pin";
@@ -1397,7 +1454,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.15.5";
+const APP_VER    = "2.16.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1919,6 +1976,7 @@ function syncUnitDefaults(){
 let _toastTimer;
 function showToast(msg, type=""){
   const t = document.getElementById("toast");
+  if(LANG !== "en" && I18N[msg] && I18N[msg][LANG]) msg = I18N[msg][LANG]; // translate fixed messages
   t.textContent = msg; t.className = "show" + (type ? " "+type : "");
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.className = "", 2500);
@@ -1937,8 +1995,8 @@ function _showUndoToast(){
   const t = document.getElementById("toast");
   clearTimeout(_toastTimer); clearTimeout(_undoTimer);
   const n = _undoStack.length;
-  const label = n > 1 ? `Entry removed (${n})` : "Entry removed";
-  t.innerHTML = `${label} <button class="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
+  const label = n > 1 ? `${__("Entry removed")} (${n})` : __("Entry removed");
+  t.innerHTML = `${label} <button class="toast-undo-btn" onclick="undoDelete()">${__("Undo")}</button>`;
   t.className = "show interactive";
   // After 10 min, commit the deletes permanently and hide toast
   _undoTimer = setTimeout(() => { _undoStack = []; t.className = ""; }, 600000);
@@ -3188,6 +3246,117 @@ function _txt(id, t){ const e = _el(id); if(e) e.textContent = t; }
 function _html(id, h){ const e = _el(id); if(e) e.innerHTML = h; }
 function _w(id, w){ const e = _el(id); if(e) e.style.width = w; }
 
+// ── i18n (multi-language) ───────────────────────────────────────────────
+// 10 languages. Static + dynamically-rendered UI text is translated by walking
+// the DOM and swapping EXACT English matches from I18N (keyed by the English
+// source string); interpolated JS strings use t(). User data, numbers and unit
+// abbreviations are never dictionary keys, so they are left untouched. Switching
+// always re-translates from each node's cached original English, so it is
+// reversible and order-independent.
+const LANGS = [
+  { code:"en", name:"English",    native:"English",    flag:"🇬🇧" },
+  { code:"es", name:"Spanish",    native:"Español",    flag:"🇪🇸" },
+  { code:"zh", name:"Chinese",    native:"简体中文",     flag:"🇨🇳" },
+  { code:"hi", name:"Hindi",      native:"हिन्दी",      flag:"🇮🇳" },
+  { code:"ar", name:"Arabic",     native:"العربية",    flag:"🇸🇦", rtl:true },
+  { code:"fr", name:"French",     native:"Français",   flag:"🇫🇷" },
+  { code:"pt", name:"Portuguese", native:"Português",  flag:"🇧🇷" },
+  { code:"ru", name:"Russian",    native:"Русский",    flag:"🇷🇺" },
+  { code:"de", name:"German",     native:"Deutsch",    flag:"🇩🇪" },
+  { code:"ja", name:"Japanese",   native:"日本語",       flag:"🇯🇵" },
+];
+const I18N = window.LEDGER_I18N || {};  // en → { es, zh, hi, ar, fr, pt, ru, de, ja }
+function _langObj(c){ return LANGS.find(l => l.code === c) || LANGS[0]; }
+function detectLang(){
+  try{
+    const saved = localStorage.getItem("ledger_lang");
+    if(saved && LANGS.some(l => l.code === saved)) return saved;
+    const nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    const base = nav.split("-")[0];
+    if(LANGS.some(l => l.code === base)) return base;
+  }catch(e){}
+  return "en";
+}
+let LANG = detectLang();
+// __("Some {0} text", x) → translated string with {0},{1}… filled from extra args.
+// Named __ (not t) because the codebase already uses `t` as a local variable.
+function __(s){
+  let out = (LANG !== "en" && I18N[s] && I18N[s][LANG]) ? I18N[s][LANG] : s;
+  for(let i = 1; i < arguments.length; i++) out = out.split("{"+(i-1)+"}").join(arguments[i]);
+  return out;
+}
+const _i18nNode = new WeakMap();   // text node → original English value
+function i18nApply(){
+  try{
+    const root = document.documentElement;
+    root.setAttribute("lang", LANG);
+    root.setAttribute("dir", _langObj(LANG).rtl ? "rtl" : "ltr");
+    if(!document.body) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        const p = n.parentNode; if(!p) return NodeFilter.FILTER_REJECT;
+        const tag = p.nodeName;
+        if(tag === "SCRIPT" || tag === "STYLE" || tag === "TEXTAREA") return NodeFilter.FILTER_REJECT;
+        if(p.closest && p.closest("[data-noi18n]")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = []; let n; while(n = walker.nextNode()) nodes.push(n);
+    for(const node of nodes){
+      let orig = _i18nNode.get(node);
+      if(orig === undefined){ orig = node.nodeValue; _i18nNode.set(node, orig); }
+      const key = (orig || "").trim();
+      if(!key) continue;
+      const tr = (LANG !== "en" && I18N[key]) ? I18N[key][LANG] : null;
+      const want = tr ? orig.replace(key, tr) : orig;
+      if(node.nodeValue !== want) node.nodeValue = want;
+    }
+    ["placeholder","aria-label","title","alt"].forEach(attr => {
+      document.querySelectorAll("[" + attr + "]").forEach(el => {
+        if(el.closest("[data-noi18n]")) return;
+        const dk = "i18n" + attr;
+        if(el.dataset[dk] === undefined) el.dataset[dk] = el.getAttribute(attr) || "";
+        const orig = el.dataset[dk], key = orig.trim();
+        const tr = (LANG !== "en" && I18N[key]) ? I18N[key][LANG] : null;
+        el.setAttribute(attr, tr || orig);
+      });
+    });
+  }catch(e){}
+}
+function setLang(code){
+  if(!LANGS.some(l => l.code === code)) return;
+  LANG = code;
+  try{ localStorage.setItem("ledger_lang", code); }catch(e){}
+  try{ renderAll(); }catch(e){}
+  try{ renderSettings(); }catch(e){}
+  try{ renderLangPickerPage(); }catch(e){}
+  i18nApply();
+}
+function shareAppLink(){
+  const url = "https://mkgotbank.github.io/ledger/";
+  const data = { title:"The Ledger", text:"Track inventory, sales & profit with The Ledger.", url };
+  if(navigator.share){ navigator.share(data).catch(()=>{}); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>showToast("Link copied","ok"), ()=>showToast(url));
+    return;
+  }
+  showToast(url);
+}
+function renderLangPickerPage(){
+  const grid = document.getElementById("langPickerGrid"); if(!grid) return;
+  grid.innerHTML = LANGS.map(l => {
+    const active = l.code === LANG;
+    return `<div onclick="setLang('${l.code}')" data-noi18n style="display:flex;align-items:center;gap:12px;padding:15px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:14px;cursor:pointer;transition:border-color 0.2s">
+      <div style="font-size:26px;line-height:1">${l.flag}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:${active?"var(--acc)":"var(--txt-b)"};line-height:1.15">${l.native}</div>
+        <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-top:2px">${l.name}</div>
+      </div>
+      ${active ? `<div style="font-size:15px;color:var(--acc);line-height:1">✓</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
 // ── RENDER ALL ──
 function renderAll(){
   const s = cur(); if(!s) return;
@@ -3309,6 +3478,7 @@ function renderAll(){
   renderLog(); renderQS(); renderOwedCard();
   renderHealthStrip(); renderManageGroups(); renderExpenseHistory(); renderUseHistory();
   renderLowStockBanner();
+  i18nApply();
 }
 
 // ── RENDER LOG ──
@@ -3324,8 +3494,8 @@ function renderLog(){
   if(logSearch){ const q=logSearch; logs=logs.filter(l => (l.note||"").toLowerCase().includes(q)||(l.pack||"").toLowerCase().includes(q)||(l.tag||"").toLowerCase().includes(q)||(l.category||"").toLowerCase().includes(q)||(l.customer||"").toLowerCase().includes(q)||(l.amount||"").toString().includes(q)); }
   const filtered = logFilter!=="all" || logDateFilter!=="all" || !!logSearch;
   document.getElementById("logCount").textContent = filtered
-    ? logs.length + " of " + allLogs.length + " entries"
-    : logs.length + " Entries";
+    ? logs.length + " " + __("of") + " " + allLogs.length + " " + __("entries")
+    : logs.length + " " + __("Entries");
   renderLogSummary(logs); updateFiltersChip();
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
   document.getElementById("logList").innerHTML = logs.map(l => {
@@ -3366,7 +3536,7 @@ function renderLogSummary(logs){
   const best = Object.entries(byPack).sort((a,b)=>b[1].rev-a[1].rev)[0];
   const rangeLbl = {all:"All Time",today:"Today",week:"This Week",month:"This Month"}[logDateFilter] || "Summary";
   el.innerHTML = `<div class="log-summary">
-    <div class="ls-range">${rangeLbl} · Summary</div>
+    <div class="ls-range">${__(rangeLbl)} · ${__("Summary")}</div>
     <div class="ls-stats">
       <div class="ls-stat"><div class="ls-v g">${fmtDollar(revenue)}</div><div class="ls-l">Revenue</div></div>
       <div class="ls-stat"><div class="ls-v r">${expenses>0?"−"+fmtDollar(expenses):fmtDollar(0)}</div><div class="ls-l">Expenses</div></div>
@@ -3536,7 +3706,7 @@ function renderQS(){
 
   // Update Quick Stats label with product name
   const qsLbl = document.getElementById("qsLbl");
-  if(qsLbl) qsLbl.textContent = `Quick Stats — ${D.cur}`;
+  if(qsLbl) qsLbl.textContent = `${__("Quick Stats")} — ${D.cur}`;
 
   renderPerf();
   renderPriceRef();
@@ -3642,7 +3812,7 @@ function renderPerf(){
   el.innerHTML = `<div class="perf-grid">
     <div class="perf-card">
       <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? "🔥 "+p.currentStreak : "—"}</div>
-      <div class="perf-lbl">Day Streak${p.longestStreak>1?" · Best "+p.longestStreak:""}</div>
+      <div class="perf-lbl">${__("Day Streak")}${p.longestStreak>1?" · Best "+p.longestStreak:""}</div>
     </div>
     <div class="perf-card">
       <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestDay)}</div>
@@ -3764,6 +3934,8 @@ const SUBPAGES = {
   theme:    { el:"themePickerPage", render: () => renderThemePickerPage() },
   font:     { el:"fontPickerPage",  render: () => renderFontPickerPage() },
   icon:     { el:"iconPickerPage",  render: () => renderIconPickerPage() },
+  lang:     { el:"langPickerPage",  render: () => renderLangPickerPage() },
+  install:  { el:"installPage",     render: () => {} },
   reports:     { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
   ai:          { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
   priceref:    { el:"priceRefPage",    render: () => renderPriceRef() },
@@ -3776,6 +3948,7 @@ function openPickerPage(id){
   const def = SUBPAGES[id]; if(!def) return;
   const page = document.getElementById(def.el); if(!page) return;
   try { if(def.render) def.render(); } catch(e){}
+  try { i18nApply(); } catch(e){}   // translate freshly-rendered sub-page content
   page.classList.add("open");
   page.scrollTop = 0;
 }
@@ -3881,6 +4054,8 @@ function renderSettings(){
   if(fNameEl){ const f = FONTS.find(f=>f.id===cf)||FONTS[0];     fNameEl.textContent = f.name; }
   const iNameEl = document.getElementById("iconCurrentName");
   if(iNameEl && window.LedgerIcon){ const ic = window.LedgerIcon.list[window.LedgerIcon.getId()]; if(ic) iNameEl.textContent = ic.name; }
+  const lNameEl = document.getElementById("langCurrentName");
+  if(lNameEl){ lNameEl.textContent = _langObj(LANG).native; }
 
   // Low stock alert (inside merged Preferences section)
   const lsEl = document.getElementById("lowStockSettings");
@@ -3962,6 +4137,7 @@ function renderSettings(){
   }
 
   renderPINSettings();
+  try { i18nApply(); } catch(e){}   // translate the freshly-rendered settings content
 }
 
 function doSetCustomCurrency(){
@@ -4172,11 +4348,11 @@ function tourShow(){
     const tabBtn = document.querySelectorAll(".tabs .tab")[idx];
     if(tabBtn && !document.getElementById("panel-"+step.tab).classList.contains("on")) switchTab(step.tab, tabBtn);
   }
-  _txt("tourStepNum", "Step " + (_tourI+1) + " of " + TOUR_STEPS.length);
-  _txt("tourTitle", step.title);
-  _txt("tourBody", step.body);
+  _txt("tourStepNum", __("Step {0} of {1}", _tourI+1, TOUR_STEPS.length));
+  _txt("tourTitle", __(step.title));
+  _txt("tourBody", __(step.body));
   const back = _el("tourBack"); if(back) back.style.visibility = _tourI===0 ? "hidden" : "visible";
-  _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? "Got it" : "Next");
+  _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? __("Got it") : __("Next"));
   const target = step.sel ? document.querySelector(step.sel) : null;
   if(target){
     try { target.scrollIntoView({ block:"center", behavior:"auto" }); } catch(e){}
@@ -4230,6 +4406,19 @@ if(isReady()){
   document.getElementById("setupScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
 }
+
+// Translate whichever screen is showing (setup / PIN / main) for the chosen language
+try{ i18nApply(); }catch(e){}
+// Safety net: any async DOM update (banners, late renders) gets translated too.
+// Debounced via rAF; i18nApply only rewrites nodes that differ, so it self-settles.
+try{
+  let _i18nQueued = false;
+  new MutationObserver(() => {
+    if(LANG === "en" || _i18nQueued) return;
+    _i18nQueued = true;
+    requestAnimationFrame(() => { _i18nQueued = false; i18nApply(); });
+  }).observe(document.body, { childList:true, subtree:true, characterData:true });
+}catch(e){}
 
 // checkVersion retries on its own if isReady() is briefly false
 setTimeout(checkVersion,   300);
