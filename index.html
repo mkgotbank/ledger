@@ -121,7 +121,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
-.setup-logo svg,.setup-logo img{filter:drop-shadow(0 7px 16px rgba(0,0,0,0.16)) brightness(1.07) saturate(1.05);}
+.setup-logo svg,.setup-logo img{filter:brightness(1.08) saturate(1.06);}
 .setup-title{font-family:var(--display);font-size:34px;font-weight:600;color:var(--txt-b);text-align:center;letter-spacing:0;line-height:1;}
 .setup-sub{font-size:10px;letter-spacing:4px;color:var(--acc);text-align:center;text-transform:uppercase;margin-bottom:32px;}
 .setup-field{margin-bottom:16px;}
@@ -1085,20 +1085,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.15.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.15.4</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔤</div>
+        <div class="wn-icon">🛠️</div>
         <div>
-          <div class="wn-title">A Cleaner Default Look</div>
-          <div class="wn-desc">The app now uses a clean, modern font by default (change it anytime in More → Font Style), with a tidied-up, brighter welcome screen and clearer buttons.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">📘</div>
-        <div>
-          <div class="wn-title">Walkthrough: AI Key &amp; Backups</div>
-          <div class="wn-desc">The first-time tour now also shows you how to set up the optional (free) Groq AI key for faster advice, and how to back up your data. Replay it from More → Replay walkthrough.</div>
+          <div class="wn-title">Walkthrough & Welcome Fixes</div>
+          <div class="wn-desc">Fixed the first-time tour getting stuck on step 2 — its Next button could land under your phone's toolbar, so it's now raised and taps reliably through every step. The welcome-screen logo is also cleaner and brighter (no more faded box around it).</div>
         </div>
       </div>
     </div>
@@ -1388,7 +1381,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.15.3";
+const APP_VER    = "2.15.4";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4170,16 +4163,18 @@ function tourShow(){
   _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? "Got it" : "Next");
   const target = step.sel ? document.querySelector(step.sel) : null;
   if(target){
-    target.scrollIntoView({ block:"center", behavior:"auto" });
-    setTimeout(() => {
+    try { target.scrollIntoView({ block:"center", behavior:"auto" }); } catch(e){}
+    const place = () => {
       const r = target.getBoundingClientRect(), pad = 7;
       spot.style.display = "block";
       spot.style.top = (r.top-pad)+"px"; spot.style.left = (r.left-pad)+"px";
       spot.style.width = (r.width+pad*2)+"px"; spot.style.height = (r.height+pad*2)+"px";
       card.style.transform = "translateX(-50%)";
-      if(r.top + r.height/2 < window.innerHeight*0.52){ card.style.top = ""; card.style.bottom = "26px"; }
-      else { card.style.bottom = ""; card.style.top = "26px"; }
-    }, 240);
+      if(r.top + r.height/2 < window.innerHeight*0.52){ card.style.top = ""; card.style.bottom = "calc(76px + env(safe-area-inset-bottom, 0px))"; }
+      else { card.style.bottom = ""; card.style.top = "calc(72px + env(safe-area-inset-top, 0px))"; }
+    };
+    place();
+    requestAnimationFrame(place);
   } else {
     spot.style.display = "none";
     card.style.bottom = ""; card.style.top = "50%"; card.style.transform = "translate(-50%,-50%)";
