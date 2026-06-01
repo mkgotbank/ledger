@@ -585,6 +585,14 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .nav-chev{color:var(--txt-d);font-size:16px;opacity:0.6;flex-shrink:0;line-height:1;}
 .nav-group{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);text-transform:uppercase;margin:14px 2px 7px;}
 .nav-group:first-child{margin-top:2px;}
+/* Compact history rows for Expenses / Internal Use pages */
+.hist-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--card);border:1px solid var(--bdr);border-radius:11px;margin-bottom:6px;box-shadow:0 2px 10px var(--shadow);}
+.hist-t{font-size:10px;font-weight:700;letter-spacing:0.5px;}
+.hist-t.r{color:#c05050;}
+.hist-n{font-size:9px;color:var(--txt-d);margin-top:2px;}
+.hist-d{font-size:8px;color:var(--txt-d);margin-top:3px;letter-spacing:0.3px;}
+.hist-a{font-size:14px;font-weight:700;white-space:nowrap;}
+.hist-a.r{color:#c05050;}
 @media (prefers-reduced-motion:reduce){
   .panel.on,.overlay.open .mbox,.subpage.open{animation:none;}
   .btn-sale:active,.btn-confirm:active,.setup-btn:active,.btn-confirm-red:active,.btn-yes-red:active,.qs-card:active,.perf-card:active{transform:none;}
@@ -729,15 +737,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
     <div id="owedCard"></div>
 
-    <div class="exp-card">
-      <div class="exp-top">Expenses Covered <span id="expFrac">$0 / $0</span></div>
-      <div class="prog-bg"><div class="prog-fill" id="expBar" style="width:0%;background:linear-gradient(90deg,#c05050,#b48c3c)"></div></div>
-      <div class="exp-btns">
-        <button class="exp-btn add" onclick="openExpModal('add')">+ Add Expense</button>
-        <button class="exp-btn edit" onclick="openExpModal('edit')">Edit Total</button>
-      </div>
-    </div>
-
     <div class="acard g">
       <div class="acard-lbl g">+ Add / Restock Inventory</div>
       <div class="acard-row">
@@ -756,29 +755,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
 
-    <div class="acard r">
-      <div class="acard-lbl r">Internal Use</div>
-      <div class="acard-row">
-        <div class="acard-ctrl">
-          <button class="btn-pm" onclick="adjUse(-1)">−</button>
-          <div class="acard-disp">
-            <input type="number" id="useAmt" value="2" inputmode="decimal" class="use-input"/>
-            <div class="sm" style="margin-top:3px;" id="useUnitLbl">Grams</div>
-          </div>
-          <button class="btn-pm" onclick="adjUse(1)">+</button>
-        </div>
-        <button class="btn-act r" onclick="doUse()">Log Internal</button>
-      </div>
-      <div class="acard-sum" id="useSum" style="display:none">
-        Internal use: <span class="r" id="useTotG">0g</span> · Est. lost: <span class="r" id="useTotLost">$0</span>
-      </div>
-    </div>
-
     <button class="btn-sale" onclick="openSaleModal()">+ Record Sale</button>
 
-    <div class="sec-lbl">Possible Packs — Current Stock</div>
-    <div id="packBreak"></div>
-
+    <div class="sec-lbl">Manage</div>
+    <div class="nav-card" id="manageList"></div>
   </div>
 
   <div class="panel" id="panel-log">
@@ -961,6 +941,81 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- EXPENSES PAGE -->
+<div id="expensesPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('expenses')">‹ Back</button>
+    <div class="subpage-title">Expenses</div>
+  </div>
+  <div class="subpage-body">
+    <div class="exp-card">
+      <div class="exp-top">Expenses Covered <span id="expFrac">$0 / $0</span></div>
+      <div class="prog-bg"><div class="prog-fill" id="expBar" style="width:0%;background:linear-gradient(90deg,#c05050,#b48c3c)"></div></div>
+      <div class="exp-btns">
+        <button class="exp-btn add" onclick="openExpModal('add')">+ Add Expense</button>
+        <button class="exp-btn edit" onclick="openExpModal('edit')">Edit Total</button>
+      </div>
+    </div>
+    <div class="sec-lbl">Recent Expenses</div>
+    <div id="expenseHistory"></div>
+  </div>
+</div>
+
+<!-- INTERNAL USE PAGE -->
+<div id="internalUsePage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('internaluse')">‹ Back</button>
+    <div class="subpage-title">Internal Use</div>
+  </div>
+  <div class="subpage-body">
+    <div class="acard r">
+      <div class="acard-lbl r">Log Internal Use</div>
+      <div class="acard-row">
+        <div class="acard-ctrl">
+          <button class="btn-pm" onclick="adjUse(-1)">−</button>
+          <div class="acard-disp">
+            <input type="number" id="useAmt" value="2" inputmode="decimal" class="use-input"/>
+            <div class="sm" style="margin-top:3px;" id="useUnitLbl">Grams</div>
+          </div>
+          <button class="btn-pm" onclick="adjUse(1)">+</button>
+        </div>
+        <button class="btn-act r" onclick="doUse()">Log Internal</button>
+      </div>
+      <div class="acard-sum" id="useSum" style="display:none">
+        Internal use: <span class="r" id="useTotG">0g</span> · Est. lost: <span class="r" id="useTotLost">$0</span>
+      </div>
+    </div>
+    <div class="sec-lbl">Recent Internal Use</div>
+    <div id="useHistory"></div>
+  </div>
+</div>
+
+<!-- POSSIBLE PACKS PAGE -->
+<div id="packsPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('packs')">‹ Back</button>
+    <div class="subpage-title">Possible Packs</div>
+  </div>
+  <div class="subpage-body">
+    <div class="sec-lbl" style="margin-top:0">Current Stock — what you can make</div>
+    <div id="packBreak"></div>
+    <div class="nav-card" style="margin-top:12px">
+      <div class="nav-row" onclick="closeSubpage('packs');openSubpage('priceref')"><span class="nav-ic">🏷️</span><span class="nav-lbl">Edit Price Reference</span><span class="nav-chev">›</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMERS PAGE -->
+<div id="customersPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('customers')">‹ Back</button>
+    <div class="subpage-title">Who Owes You</div>
+  </div>
+  <div class="subpage-body">
+    <div id="customersList"></div>
+  </div>
+</div>
+
 <!-- PRICE REFERENCE PAGE -->
 <div id="priceRefPage" class="subpage">
   <div class="subpage-hdr">
@@ -1056,17 +1111,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <button class="btn-confirm" onclick="dismissWhatsNew()">Got It</button>
-  </div>
-</div>
-
-<!-- CUSTOMERS / CREDIT MODAL -->
-<div class="overlay" id="modal-customers" onclick="overlayClose(event,'customers')">
-  <div class="mbox">
-    <div class="modal-hdr">
-      <div class="m-title">Who Owes You</div>
-      <button class="modal-close" onclick="closeModal('customers')">✕</button>
-    </div>
-    <div id="customersList"></div>
   </div>
 </div>
 
@@ -2287,7 +2331,37 @@ function renderOwedCard(){
     <div style="color:var(--txt-d);font-size:16px">›</div>
   </div>`;
 }
-function openCustomers(){ renderCustomers(); openModal("customers"); }
+function openCustomers(){ openSubpage("customers"); }
+
+// ── MANAGE INDEX + HISTORY (drill-down pages) ──
+function _navRow(ic, lbl, val, onclick){
+  return `<div class="nav-row" onclick="${onclick}"><span class="nav-ic">${ic}</span><span class="nav-lbl">${lbl}</span>${val?`<span class="nav-val">${val}</span>`:""}<span class="nav-chev">›</span></div>`;
+}
+function renderManageList(){
+  const el = _el("manageList"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML = ""; return; }
+  const exp = s.expenses||0, ut = s.useTotal||0, owed = totalOwed();
+  const rows = [];
+  rows.push(_navRow("💸","Expenses", exp>0?fmtDollar(exp):"", "openSubpage('expenses')"));
+  if(owed>0) rows.push(_navRow("👥","Customers", fmtDollar(owed)+" owed", "openCustomers()"));
+  rows.push(_navRow("📉","Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"));
+  rows.push(_navRow("📦","Possible Packs", "", "openSubpage('packs')"));
+  el.innerHTML = rows.join("");
+}
+function renderExpenseHistory(){
+  const el = _el("expenseHistory"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML = ""; return; }
+  const exps = (s.logs||[]).filter(l => l.type==="expense");
+  if(!exps.length){ el.innerHTML = `<div class="log-empty" style="padding:28px 0">No expenses logged yet</div>`; return; }
+  el.innerHTML = exps.map(l => `<div class="hist-row"><div style="min-width:0"><div class="hist-t r">Expense${l.category?` · ${escHtml(l.category)}`:""}</div>${l.note?`<div class="hist-n">${escHtml(l.note)}</div>`:""}<div class="hist-d">${fmtLogDate(l.date)}</div></div><div class="hist-a r">−${fmtDollar(l.amount)}</div></div>`).join("");
+}
+function renderUseHistory(){
+  const el = _el("useHistory"); if(!el) return;
+  const s = cur(); if(!s){ el.innerHTML = ""; return; }
+  const uses = (s.logs||[]).filter(l => l.type==="use");
+  if(!uses.length){ el.innerHTML = `<div class="log-empty" style="padding:28px 0">No internal use logged yet</div>`; return; }
+  el.innerHTML = uses.map(l => `<div class="hist-row"><div style="min-width:0"><div class="hist-t r">Internal Use</div><div class="hist-d">${fmtLogDate(l.date)}</div></div><div class="hist-a r">−${fmtQty(l.w,s)}</div></div>`).join("");
+}
 function renderCustomers(){
   const el = document.getElementById("customersList"); if(!el) return;
   const map = owedByCustomer();
@@ -3165,6 +3239,7 @@ function renderAll(){
   }
 
   renderLog(); renderQS(); renderOwedCard();
+  renderManageList(); renderExpenseHistory(); renderUseHistory();
   const tipsPanel = document.getElementById("panel-tips");
   if(tipsPanel && tipsPanel.classList.contains("on")) renderChart();
   renderLowStockBanner();
@@ -3623,9 +3698,13 @@ const SUBPAGES = {
   theme:    { el:"themePickerPage", render: () => renderThemePickerPage() },
   font:     { el:"fontPickerPage",  render: () => renderFontPickerPage() },
   icon:     { el:"iconPickerPage",  render: () => renderIconPickerPage() },
-  reports:  { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
-  ai:       { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
-  priceref: { el:"priceRefPage",    render: () => renderPriceRef() },
+  reports:     { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
+  ai:          { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
+  priceref:    { el:"priceRefPage",    render: () => renderPriceRef() },
+  expenses:    { el:"expensesPage",    render: () => renderExpenseHistory() },
+  internaluse: { el:"internalUsePage", render: () => renderUseHistory() },
+  packs:       { el:"packsPage",       render: () => {} },
+  customers:   { el:"customersPage",   render: () => renderCustomers() },
 };
 function openPickerPage(id){
   const def = SUBPAGES[id]; if(!def) return;
