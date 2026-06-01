@@ -1149,7 +1149,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🌍</div>
@@ -1454,7 +1454,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.0";
+const APP_VER    = "2.16.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2699,6 +2699,8 @@ function doReset(){
 function doResetAll(){
   try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
+  // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
+  try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
   location.reload();
 }
 function deleteLog(id){
@@ -4379,7 +4381,20 @@ function replayTour(){ startTour(); }
 function maybeStartTour(){
   try{ if(localStorage.getItem(TOUR_KEY)) return; }catch(e){}
   if(!isReady()) return;
-  setTimeout(() => { if(!document.querySelector(".overlay.open")) startTour(); }, 600);
+  // Reliably launch once the screen is clear: if a modal (e.g. What's New) is
+  // briefly open, wait for it to close rather than skipping the tour entirely.
+  let tries = 0;
+  const tryStart = () => {
+    try{ if(localStorage.getItem(TOUR_KEY)) return; }catch(e){}        // finished/skipped meanwhile
+    const ov = document.getElementById("tourOverlay");
+    if(ov && ov.style.display === "block") return;                     // already running
+    if(document.querySelector(".overlay.open")){                       // a modal is up — wait it out
+      if(tries++ < 40){ setTimeout(tryStart, 400); }
+      return;
+    }
+    startTour();
+  };
+  setTimeout(tryStart, 600);
 }
 
 // ── INIT ──
