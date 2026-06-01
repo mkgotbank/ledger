@@ -574,6 +574,17 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .subpage-back:active{background:var(--acc-dim);}
 .subpage-title{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase;}
 .subpage-body{max-width:480px;margin:0 auto;padding:18px 16px 64px;}
+/* ── REUSABLE NAV LIST ── grouped index rows (the "organized/expensive" signature) */
+.nav-card{background:var(--card);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;box-shadow:0 4px 18px var(--shadow);margin-bottom:12px;}
+.nav-row{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--hairline);transition:background 0.15s;}
+.nav-row:last-child{border-bottom:none;}
+.nav-row:active{background:var(--fill-1);}
+.nav-ic{font-size:15px;width:22px;text-align:center;flex-shrink:0;line-height:1;}
+.nav-lbl{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--txt-b);letter-spacing:0.2px;}
+.nav-val{font-size:11px;color:var(--txt-d);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.nav-chev{color:var(--txt-d);font-size:16px;opacity:0.6;flex-shrink:0;line-height:1;}
+.nav-group{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);text-transform:uppercase;margin:14px 2px 7px;}
+.nav-group:first-child{margin-top:2px;}
 @media (prefers-reduced-motion:reduce){
   .panel.on,.overlay.open .mbox,.subpage.open{animation:none;}
   .btn-sale:active,.btn-confirm:active,.setup-btn:active,.btn-confirm-red:active,.btn-yes-red:active,.qs-card:active,.perf-card:active{transform:none;}
@@ -794,40 +805,11 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 
   <div class="panel" id="panel-tips">
-    <div id="chartContainer"></div>
-    <div class="ai-box">
-      <div class="ai-hdr">
-        <span class="ai-title">✦ AI Advisor</span>
-        <span class="ai-badge">Live Analysis</span>
-      </div>
-      <div class="ai-body idle" id="aiBody">Tap below to get a live AI analysis of your real data...</div>
+    <div class="nav-card">
+      <div class="nav-row" onclick="openSubpage('reports')"><span class="nav-ic">📈</span><span class="nav-lbl">Reports</span><span class="nav-val" id="navReportsVal"></span><span class="nav-chev">›</span></div>
+      <div class="nav-row" onclick="openSubpage('ai')"><span class="nav-ic">✦</span><span class="nav-lbl">AI Advisor</span><span class="nav-chev">›</span></div>
+      <div class="nav-row" onclick="openSubpage('priceref')"><span class="nav-ic">🏷️</span><span class="nav-lbl">Price Reference</span><span class="nav-chev">›</span></div>
     </div>
-    <button class="btn-ai" id="aiBtn" onclick="getAI()">✦ Get AI Advice</button>
-
-    <!-- Chat follow-up — shown after advice loads -->
-    <div id="chatSection" style="display:none" class="chat-wrap">
-      <div class="chat-hdr">
-        <span class="chat-hdr-lbl">💬 Ask a Follow-Up</span>
-        <button class="chat-clear" onclick="clearChat()">Clear</button>
-      </div>
-      <div class="chat-msgs" id="chatMsgs"></div>
-      <div class="chat-row">
-        <input class="chat-in" id="chatInput" placeholder="Ask anything about your numbers..." maxlength="300" autocomplete="off"/>
-        <button class="chat-btn" id="chatSend" onclick="sendChatMsg()">↑</button>
-      </div>
-    </div>
-
-    <div class="sec-lbl" id="qsLbl">Quick Stats</div>
-    <div class="perf-wrap" id="perfWrap"></div>
-    <div class="qs-grid" id="qsGrid"></div>
-
-    <div class="sec-lbl">Smart Suggestions</div>
-    <div class="qs-tips" id="qsTips"></div>
-
-    <div class="sec-lbl" style="margin-top:4px">Price Reference <span style="color:var(--txt-d);font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
-    <div class="pref" id="priceRef"></div>
-    <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Pack Size</button>
-    <div id="addPackForm" style="display:none"></div>
   </div>
 
   <div class="panel" id="panel-settings">
@@ -931,6 +913,65 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="btn-sm-acc" style="margin-top:11px" onclick="backupBeforeReadd()">Back up now</button>
       <span id="iconBackupNote" style="font-size:9px;color:var(--acc);margin-left:8px"></span>
     </div>
+  </div>
+</div>
+
+<!-- REPORTS PAGE -->
+<div id="reportsPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('reports')">‹ Back</button>
+    <div class="subpage-title">Reports</div>
+  </div>
+  <div class="subpage-body">
+    <div id="chartContainer"></div>
+    <div class="sec-lbl" id="qsLbl">Quick Stats</div>
+    <div class="perf-wrap" id="perfWrap"></div>
+    <div class="qs-grid" id="qsGrid"></div>
+    <div class="sec-lbl">Smart Suggestions</div>
+    <div class="qs-tips" id="qsTips"></div>
+  </div>
+</div>
+
+<!-- AI ADVISOR PAGE -->
+<div id="aiPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('ai')">‹ Back</button>
+    <div class="subpage-title">AI Advisor</div>
+  </div>
+  <div class="subpage-body">
+    <div class="ai-box">
+      <div class="ai-hdr">
+        <span class="ai-title">✦ AI Advisor</span>
+        <span class="ai-badge">Live Analysis</span>
+      </div>
+      <div class="ai-body idle" id="aiBody">Tap below to get a live AI analysis of your real data...</div>
+    </div>
+    <button class="btn-ai" id="aiBtn" onclick="getAI()">✦ Get AI Advice</button>
+    <div id="chatSection" style="display:none" class="chat-wrap">
+      <div class="chat-hdr">
+        <span class="chat-hdr-lbl">💬 Ask a Follow-Up</span>
+        <button class="chat-clear" onclick="clearChat()">Clear</button>
+      </div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="chat-row">
+        <input class="chat-in" id="chatInput" placeholder="Ask anything about your numbers..." maxlength="300" autocomplete="off"/>
+        <button class="chat-btn" id="chatSend" onclick="sendChatMsg()">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICE REFERENCE PAGE -->
+<div id="priceRefPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('priceref')">‹ Back</button>
+    <div class="subpage-title">Price Reference</div>
+  </div>
+  <div class="subpage-body">
+    <div class="sec-lbl" style="margin-top:0">Pack pricing <span style="color:var(--txt-d);font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
+    <div class="pref" id="priceRef"></div>
+    <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Pack Size</button>
+    <div id="addPackForm" style="display:none"></div>
   </div>
 </div>
 
@@ -3579,9 +3620,12 @@ function applyFont(id){
 // ── SUB-PAGES ── one registry {id → {el, render}} powers every full-screen drill-down page.
 // Pages are permanent hidden markup (class="subpage"); open/close toggle .open (slide-in).
 const SUBPAGES = {
-  theme: { el:"themePickerPage", render: () => renderThemePickerPage() },
-  font:  { el:"fontPickerPage",  render: () => renderFontPickerPage() },
-  icon:  { el:"iconPickerPage",  render: () => renderIconPickerPage() },
+  theme:    { el:"themePickerPage", render: () => renderThemePickerPage() },
+  font:     { el:"fontPickerPage",  render: () => renderFontPickerPage() },
+  icon:     { el:"iconPickerPage",  render: () => renderIconPickerPage() },
+  reports:  { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
+  ai:       { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
+  priceref: { el:"priceRefPage",    render: () => renderPriceRef() },
 };
 function openPickerPage(id){
   const def = SUBPAGES[id]; if(!def) return;
