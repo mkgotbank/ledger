@@ -808,7 +808,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
   <div class="panel" id="panel-log">
     <div class="log-search-wrap">
-      <input class="log-search-in" id="logSearch" placeholder="Search notes, packs, tags…" autocomplete="off" oninput="onLogSearch(this.value)"/>
+      <input class="log-search-in" id="logSearch" placeholder="Search notes, bundles, tags…" autocomplete="off" oninput="onLogSearch(this.value)"/>
       <button class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" style="display:none">✕</button>
     </div>
     <div class="filters-bar">
@@ -1097,7 +1097,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <div id="packsPage" class="subpage">
   <div class="subpage-hdr">
     <button class="subpage-back" onclick="closeSubpage('packs')">‹ Back</button>
-    <div class="subpage-title">Possible Packs</div>
+    <div class="subpage-title">Deals</div>
   </div>
   <div class="subpage-body">
     <div class="sec-lbl" style="margin-top:0">Current Stock — what you can make</div>
@@ -1126,9 +1126,9 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="subpage-title">Price Reference</div>
   </div>
   <div class="subpage-body">
-    <div class="sec-lbl" style="margin-top:0">Pack pricing <span style="color:var(--txt-d);font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
+    <div class="sec-lbl" style="margin-top:0">Bundle pricing <span style="color:var(--txt-d);font-size:7px;letter-spacing:1px;text-transform:none">(tap row to edit)</span></div>
     <div class="pref" id="priceRef"></div>
-    <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Pack Size</button>
+    <button class="btn-add-pack" id="btnAddPack" onclick="showAddPackForm()" style="display:none">＋ Add Bundle</button>
     <div id="addPackForm" style="display:none"></div>
   </div>
 </div>
@@ -1156,7 +1156,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.5</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.6</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🌍</div>
@@ -1211,7 +1211,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <button class="modal-close" onclick="closeModal('sale')">✕</button>
     </div>
     <div class="m-sec">
-      <span class="m-lbl">Pack Size</span>
+      <span class="m-lbl">Bundle</span>
       <div class="pack-btns" id="packBtns"></div>
     </div>
     <div class="m-sec">
@@ -1224,7 +1224,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <div class="m-sec">
-      <span class="m-lbl">Price Per Pack</span>
+      <span class="m-lbl">Price Per Bundle</span>
       <div class="prow">
         <button class="btn-pm" onclick="adjPrice(-1)">−</button>
         <span class="price-n" id="priceN">$90</span>
@@ -1278,7 +1278,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="bulk-total" id="bulkTotal"></div>
     </div>
     <button class="btn-confirm" id="saleConfirm" onclick="confirmSale()">Confirm — $90</button>
-    <button class="btn-add-another" id="btnAddAnother" onclick="addToBulkCart()">＋ Add Another Pack</button>
+    <button class="btn-add-another" id="btnAddAnother" onclick="addToBulkCart()">＋ Add Another Bundle</button>
     <div id="bulkClearWrap" style="display:none;text-align:center;margin-bottom:4px">
       <button onclick="clearBulkCart()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:var(--font)">Clear Cart</button>
     </div>
@@ -1379,7 +1379,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     </div>
     <div id="el-sale-sec">
       <div class="m-sec">
-        <span class="m-lbl">Pack Size</span>
+        <span class="m-lbl">Bundle</span>
         <div class="pack-btns">
           <button class="pbtn el-pbtn" data-pack="28g" onclick="setEditPack('28g',this)">28g</button>
           <button class="pbtn el-pbtn" data-pack="14g" onclick="setEditPack('14g',this)">14g</button>
@@ -1398,7 +1398,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         </div>
       </div>
       <div class="m-sec">
-        <span class="m-lbl">Price Per Pack</span>
+        <span class="m-lbl">Price Per Bundle</span>
         <div class="prow">
           <button class="btn-pm" onclick="adjEditPrice(-1)">−</button>
           <span class="price-n" id="el-price-n">$90</span>
@@ -1461,7 +1461,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.5";
+const APP_VER    = "2.16.6";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1876,9 +1876,9 @@ const PRICE_REF_DEFAULTS = [
 const PRICE_REF_PACK_MAP = { "28g (1oz)":"28g", "14g (½oz)":"14g", "7g (¼oz)":"7g", "3.5g (⅛oz)":"3.5g", "1g":"1g" };
 const COUNT_PACK_DEFAULTS = [
   { label:"Single",  qty:1,  lo:5,  hi:5  },
-  { label:"3 Pack",  qty:3,  lo:12, hi:15 },
-  { label:"6 Pack",  qty:6,  lo:22, hi:25 },
-  { label:"12 Pack", qty:12, lo:40, hi:45 },
+  { label:"3",  qty:3,  lo:12, hi:15 },
+  { label:"6",  qty:6,  lo:22, hi:25 },
+  { label:"12", qty:12, lo:40, hi:45 },
 ];
 const UNITS = {
   g:     { abbr:"g",   label:"Grams",   grams:1   },
@@ -2452,7 +2452,7 @@ function renderManageGroups(){
   if(owed>0) money.push(_navRow("👥","Customers", fmtDollar(owed)+" owed", "openCustomers()"));
   const inv = [
     _navRow("📉","Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"),
-    _navRow("📦","Possible Packs", "", "openSubpage('packs')"),
+    _navRow("📦","Deals", "", "openSubpage('packs')"),
   ];
   const analysis = [
     _navRow("📈","Reports", "", "openSubpage('reports')"),
@@ -2477,7 +2477,7 @@ function renderHealthStrip(){
   el.innerHTML = `<div class="health-row">
     <div class="health-item"><span class="health-v g">${fmtDollar(rev)}</span><span class="health-l">Today</span></div>
     <div class="health-item"><span class="health-v">${sales.length}</span><span class="health-l">${sales.length===1?"Sale":"Sales"}</span></div>
-    <div class="health-item"><span class="health-v">${top?escHtml(top[0]):"—"}</span><span class="health-l">Top Pack</span></div>
+    <div class="health-item"><span class="health-v">${top?escHtml(top[0]):"—"}</span><span class="health-l">Top Seller</span></div>
   </div>`;
 }
 function renderExpenseHistory(){
@@ -2643,7 +2643,7 @@ function addToBulkCart(){
   let tw;
   if(isWeight(s)){ tw = round(PRICES[saleType].w * saleQty); }
   else { const r=(s.priceRef||[]).find(r=>r.label===saleType); tw=round((r?packW(r):1)*saleQty); }
-  if(tw <= 0){ showToast("Select a pack first","err"); return; }
+  if(tw <= 0){ showToast("Select a bundle first","err"); return; }
   bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:tw, total:discTotal(salePrice*saleQty), disc:_discRec() });
   // Reset current selection + per-line discount
   saleQty = 1; clearDiscount();
@@ -3154,19 +3154,19 @@ function renderPriceRef(){
 }
 function deletePackRow(idx){
   const s = cur(); if(!s) return;
-  if(!s.priceRef || s.priceRef.length <= 1){ showToast("Need at least one pack row","err"); return; }
+  if(!s.priceRef || s.priceRef.length <= 1){ showToast("Need at least one bundle","err"); return; }
   s.priceRef.splice(idx, 1);
   syncPricesFromRef(); persist(); renderPriceRef(); renderAll();
-  showToast("Pack row deleted");
+  showToast("Bundle deleted");
 }
 function showAddPackForm(){
   const s = cur(); if(!s) return;
   const el = document.getElementById("addPackForm"); if(!el) return;
-  const sizeLabel = isWeight(s) ? "Grams" : "Qty per pack";
+  const sizeLabel = isWeight(s) ? "Grams" : "Qty per bundle";
   el.style.display = "block";
   el.innerHTML = `<div class="add-pack-form">
-    <div style="font-size:8px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-bottom:10px">New Pack Size</div>
-    <div style="margin-bottom:8px"><span class="m-lbl">Label (e.g. 5g)</span><input class="m-input" id="apLabel" placeholder="e.g. 5g" autocomplete="off"/></div>
+    <div style="font-size:8px;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-bottom:10px">New Bundle</div>
+    <div style="margin-bottom:8px"><span class="m-lbl">Label (e.g. 5)</span><input class="m-input" id="apLabel" placeholder="e.g. 5" autocomplete="off"/></div>
     <div style="margin-bottom:8px"><span class="m-lbl">${sizeLabel}</span><input class="m-input" id="apGrams" type="number" placeholder="e.g. 5" inputmode="decimal"/></div>
     <div style="margin-bottom:8px"><span class="m-lbl">Low Price</span><input class="m-input" id="apLo" type="number" placeholder="0" inputmode="decimal"/></div>
     <div style="margin-bottom:12px"><span class="m-lbl">High Price</span><input class="m-input" id="apHi" type="number" placeholder="0" inputmode="decimal"/></div>
@@ -3197,7 +3197,7 @@ function confirmAddPack(){
     s.priceRef.push({ label, qty:grams, lo, hi });
   }
   syncPricesFromRef(); persist(); renderPriceRef(); renderAll();
-  showToast("Pack size added","ok");
+  showToast("Bundle added","ok");
 }
 function openEditPriceModal(i){
   const s = cur(); if(!s) return;
@@ -3480,7 +3480,7 @@ function renderAll(){
       const best = k === bestPack;
       return `<div class="pack-row${empty?" empty":""}${best?" best":""}">
         <div><span class="pack-nm">${k}</span><span class="pack-pr">${pr}</span>${best?'<span class="pack-best-tag">Best $/g</span>':''}</div>
-        <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
+        <div><span class="pack-ct">${empty?"—":c+" bundles"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*p.hi)}</span>`}</div>
       </div>`;
     }).join(""));
   } else {
@@ -3492,7 +3492,7 @@ function renderAll(){
       const empty = c === 0;
       return `<div class="pack-row${empty?" empty":""}">
         <div><span class="pack-nm">${r.label}</span><span class="pack-pr">${pr}</span></div>
-        <div><span class="pack-ct">${empty?"—":c+" packs"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*r.hi)}</span>`}</div>
+        <div><span class="pack-ct">${empty?"—":c+" bundles"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*r.hi)}</span>`}</div>
       </div>`;
     }).join(""));
   }
@@ -3661,7 +3661,7 @@ function renderQS(){
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
     const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
-    if(top) tips.push(`🔥 ${top[0]} packs are your fastest seller — always keep that size available.`);
+    if(top) tips.push(`🔥 ${top[0]} bundles are your fastest seller — always keep that size available.`);
 
     const strainKeys = Object.keys(D.strains);
     if(strainKeys.length > 1){
@@ -4343,9 +4343,9 @@ const TOUR_STEPS = [
   { tab:"stock", sel:null, title:"Welcome to The Ledger", body:"A quick tour of all three tabs so you know where everything lives. You can skip anytime." },
   { tab:"stock", sel:".strain-bar", title:"Your products & stock", body:"Switch between products here, and add more with the gear. Up top you always see how much stock is left and roughly how many days it will last." },
   { tab:"stock", sel:".sgrid", title:"Your money at a glance", body:"Earned, net profit, expenses, and your estimated stock value — always front and centre on the Home tab." },
-  { tab:"stock", sel:"#healthStrip", title:"Today at a glance", body:"A quick pulse of today's revenue, number of sales, and your top-selling pack." },
-  { tab:"stock", sel:".qa-strip", title:"Your two daily actions", body:"Tap Record Sale to log a sale — with packs, discounts, payment type, even selling on credit. Tap Restock to add inventory." },
-  { tab:"stock", sel:"#manageGroups", title:"Everything else, organized", body:"Expenses, who owes you, internal use, pack breakdowns, reports, the AI advisor, and price reference — each on its own clean page, one tap away." },
+  { tab:"stock", sel:"#healthStrip", title:"Today at a glance", body:"A quick pulse of today's revenue, number of sales, and your top seller." },
+  { tab:"stock", sel:".qa-strip", title:"Your two daily actions", body:"Tap Record Sale to log a sale — with bundles, discounts, payment type, even selling on credit. Tap Restock to add inventory." },
+  { tab:"stock", sel:"#manageGroups", title:"Everything else, organized", body:"Expenses, who owes you, internal use, deals, reports, the AI advisor, and price reference — each on its own clean page, one tap away." },
   { tab:"log", sel:null, title:"Activity \u2014 your full history", body:"This is the Activity tab. Every sale, restock, expense and internal use is logged here. Search it, filter by type or date with the Filters bar, and tap any entry to edit it \u2014 the summary up top totals whatever range you pick." },
   { tab:"settings", sel:null, title:"More \u2014 settings & tools", body:"The More tab has your themes, fonts and app icon, currency, low-stock alerts, a PIN lock, and more. A few things worth knowing are coming up next." },
   { tab:"settings", sel:"#installRow", title:"Add it to your phone", body:"Tap here for step-by-step instructions to add The Ledger to your home screen \u2014 it then opens full-screen and works offline, just like a real app, with no app store needed." },
