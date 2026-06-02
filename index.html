@@ -306,7 +306,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .pref-edit-btn:active{background:rgba(180,140,60,0.25);}
 
 /* Blurred modal overlay */
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;}
+.overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
 /* iOS sheet with drag handle */
 .mbox{width:100%;max-width:480px;background:var(--modal);border:1px solid var(--bdr);border-radius:24px 24px 0 0;padding:8px 18px 52px;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 40px rgba(0,0,0,0.6);}
@@ -1156,7 +1156,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.16.5</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🌍</div>
@@ -1461,7 +1461,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.4";
+const APP_VER    = "2.16.5";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3107,7 +3107,12 @@ function renderPriceRef(){
   const s = cur(); if(!s) return;
   const el = document.getElementById("priceRef"); if(!el) return;
   const ref = s.priceRef || (isWeight(s) ? PRICE_REF_DEFAULTS : COUNT_PACK_DEFAULTS);
-  const costPerUnit = (s.expenses > 0 && (s.restockTotal||0) > 0) ? s.expenses / s.restockTotal : 0;
+  // Cost per unit = total spend ÷ total stock ever acquired (what's left + what
+  // sold + what was used internally). Robust to restocks and works when a user
+  // only set a starting stock, so margins aren't stuck on "—".
+  const soldW = (s.logs||[]).filter(l => l.type==="sale").reduce((a,l) => a + (+l.w||0), 0);
+  const acquired = (s.stock||0) + soldW + (s.useTotal||0);
+  const costPerUnit = (s.expenses > 0 && acquired > 0) ? s.expenses / acquired : 0;
   const canDel = ref.length > 1;
   el.innerHTML = ref.map((r,i) => {
     const priceStr = r.lo===r.hi ? fmtDollar(r.lo) : fmtDollar(r.lo)+"–"+fmtDollar(r.hi);
@@ -3219,14 +3224,22 @@ function confirmEditPrice(){
 
 // ── HELPERS ──
 const packOrder = ["28g","14g","7g","3.5g","1g"];
-function estVal(g){
+// Estimate the value of `g` stock by greedily filling it into the product's own
+// price-list sizes (largest first, at the high price) — so edits and newly-added
+// sizes are reflected immediately, for weight and count products alike.
+function estVal(g, s){
+  s = s || cur(); if(!s) return 0;
+  const ref = (s.priceRef && s.priceRef.length) ? s.priceRef : (isWeight(s) ? PRICE_REF_DEFAULTS : COUNT_PACK_DEFAULTS);
+  const sizes = ref.map(r => ({ w: packW(r), hi: r.hi }))
+                   .filter(x => x.w > 0)
+                   .sort((a,b) => b.w - a.w);
   let rem = g, val = 0;
-  packOrder.forEach(k => {
-    const p = PRICES[k];
+  for(const p of sizes){
+    if(rem < p.w) continue;
     const n = Math.floor(rem / p.w);
     val += n * p.hi;
-    rem = rem - n * p.w;
-  });
+    rem -= n * p.w;
+  }
   return val;
 }
 function round(n){ return Math.round(n*10)/10; }
@@ -3427,7 +3440,7 @@ function renderAll(){
     pe.style.color = profit >= 0 ? "#4caf7a" : "#c05050";
   }
   _txt("s-exp", fmtDollar(exp));
-  _txt("s-est", fmtDollar(estVal(s.stock)));
+  _txt("s-est", fmtDollar(estVal(s.stock, s)));
 
   const ep = exp > 0 ? Math.min(100, (earned/exp)*100) : 0;
   _w("expBar", ep.toFixed(1) + "%");
