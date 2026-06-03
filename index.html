@@ -693,10 +693,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 /* invoice editor (themed) */
 .inv-edit-wrap{margin-top:22px;}
 .inv-frow{margin-bottom:10px;display:flex;flex-direction:column;}
-.inv-frow2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.inv-frow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .inv-frow2>div{display:flex;flex-direction:column;min-width:0;}
-.inv-ehead{display:grid;grid-template-columns:1fr 46px 60px 26px;gap:6px;font-size:8px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;padding:0 2px 4px;}
-.inv-erow{display:grid;grid-template-columns:1fr 46px 60px 26px;gap:6px;margin-bottom:6px;}
+.inv-erow2{margin-bottom:9px;}
+.inv-erow-b{display:grid;grid-template-columns:1fr 54px 1fr 26px;gap:6px;margin-top:5px;}
 .inv-ein{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px;color:var(--txt);font-size:12px;font-family:var(--font);outline:none;min-width:0;}
 .inv-ein.qty,.inv-ein.price{text-align:right;}
 .inv-erm{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;cursor:pointer;font-size:11px;}
@@ -1360,7 +1360,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.18.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.18.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -1669,7 +1669,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.18.0";
+const APP_VER    = "2.18.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2830,7 +2830,8 @@ function invMoney(n){ return getCurrency() + _round2(n).toFixed(2); }
 function invDateStr(){ try{ return new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return ""; } }
 function invTotals(inv){
   const sub = (inv.items||[]).reduce((a,it)=> a + (+it.qty||0)*(+it.price||0), 0);
-  const disc = Math.max(0, Math.min(+inv.discount||0, sub));
+  const rawDisc = inv.discountType==="pct" ? sub*((+inv.discount||0)/100) : (+inv.discount||0);
+  const disc = Math.max(0, Math.min(rawDisc, sub));
   const taxed = sub - disc;
   const tax = taxed * ((+inv.taxRate||0)/100);
   const total = _round2(taxed + tax);
@@ -2839,7 +2840,7 @@ function invTotals(inv){
 }
 function invStatus(inv){ const t=invTotals(inv); if(t.total>0 && t.balance<=0.001) return "paid"; if(t.paid>0.001) return "partial"; return "unpaid"; }
 function blankInvoiceObj(){
-  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", items:[], discount:0, taxRate:getBusiness().taxRate||0, note:"", paid:0, srcId:null };
+  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", items:[], discount:0, discountType:"amt", taxRate:getBusiness().taxRate||0, note:"", paid:0, srcId:null };
 }
 function _saleDesc(l){
   if(l.batchId && l.batchItems) return l.batchItems.map(it=>`${it.qty}× ${it.label}`).join(", ");
@@ -2857,9 +2858,9 @@ function invFromSale(saleId){
   inv.srcId = saleId;
   const multiProd = Object.keys(D.strains||{}).length > 1;
   if(entry.batchId && entry.batchItems){
-    inv.items = entry.batchItems.map(it=>({ desc: it.label + (multiProd?` (${it.strain})`:""), qty:+it.qty||1, price:_round2((+it.total||0)/(+it.qty||1)) }));
+    inv.items = entry.batchItems.map(it=>({ desc: it.label + (multiProd?` (${it.strain})`:""), qty:+it.qty||1, unit:"", price:_round2((+it.total||0)/(+it.qty||1)) }));
   } else {
-    inv.items = [{ desc: entry.pack||"Item", qty:+entry.qty||1, price:_round2((+entry.total||0)/(+entry.qty||1)) }];
+    inv.items = [{ desc: entry.pack||"Item", qty:+entry.qty||1, unit:"", price:_round2((+entry.total||0)/(+entry.qty||1)) }];
   }
   const total = invTotals(inv).total;
   inv.paid = _round2(total - entryOwed(entry)); // full unless it was a credit sale
@@ -2876,20 +2877,25 @@ function invFromCustomer(name){
     const nm=(l.customer||"").trim()||"Unknown"; if(nm!==name) return;
     if(l.batchId){ if(seen[l.batchId]) return; seen[l.batchId]=1; }
     const owed=entryOwed(l);
-    if(owed>0) items.push({ desc:_saleDesc(l), qty:1, price:_round2(owed) });
+    if(owed>0) items.push({ desc:_saleDesc(l), qty:1, unit:"", price:_round2(owed) });
   });});
-  inv.items = items.length ? items : [{ desc:"Balance due", qty:1, price:0 }];
+  inv.items = items.length ? items : [{ desc:"Balance due", qty:1, unit:"", price:0 }];
   openInvoiceEditor(inv);
 }
-function newBlankInvoice(){ const inv=blankInvoiceObj(); inv.items=[{desc:"",qty:1,price:0}]; openInvoiceEditor(inv); }
+function newBlankInvoice(){ const inv=blankInvoiceObj(); inv.items=[{desc:"",qty:1,unit:"",price:0}]; openInvoiceEditor(inv); }
 let _inv = null;
 function openInvoiceEditor(inv){ _inv = inv; openSubpage("invoice"); }
 function _invItemRows(){
-  return (_inv.items||[]).map((it,i)=>`<div class="inv-erow">
-    <input class="inv-ein desc" value="${escAttr(it.desc)}" placeholder="Description" oninput="invSetItem(${i},'desc',this.value)"/>
-    <input class="inv-ein qty" type="number" inputmode="decimal" value="${it.qty}" oninput="invSetItem(${i},'qty',this.value)"/>
-    <input class="inv-ein price" type="number" inputmode="decimal" value="${it.price}" oninput="invSetItem(${i},'price',this.value)"/>
-    <button class="inv-erm" onclick="invRemoveItem(${i})">✕</button>
+  // Works for any business: free-text description + qty + a flexible unit
+  // (hrs, sq ft, visits, ea, mo…) + price. Leave qty 1 / unit blank for a flat fee.
+  return (_inv.items||[]).map((it,i)=>`<div class="inv-erow2">
+    <input class="inv-ein" value="${escAttr(it.desc)}" placeholder="Service or item description" oninput="invSetItem(${i},'desc',this.value)"/>
+    <div class="inv-erow-b">
+      <input class="inv-ein qty" type="number" inputmode="decimal" value="${it.qty}" placeholder="Qty" oninput="invSetItem(${i},'qty',this.value)"/>
+      <input class="inv-ein unit" value="${escAttr(it.unit||'')}" placeholder="unit" oninput="invSetItem(${i},'unit',this.value)"/>
+      <input class="inv-ein price" type="number" inputmode="decimal" value="${it.price}" placeholder="Price" oninput="invSetItem(${i},'price',this.value)"/>
+      <button class="inv-erm" onclick="invRemoveItem(${i})">✕</button>
+    </div>
   </div>`).join("");
 }
 function renderInvoiceEditor(){
@@ -2901,26 +2907,32 @@ function renderInvoiceEditor(){
     <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
     <span class="m-lbl" style="margin-top:4px">Line items</span>
-    <div class="inv-ehead"><span>Description</span><span>Qty</span><span>Price</span><span></span></div>
     <div id="invItemRows">${_invItemRows()}</div>
     <button class="inv-add" onclick="invAddItem()">＋ Add line</button>
+    <div class="inv-frow"><span class="m-lbl">Discount</span>
+      <div class="disc-row">
+        <input class="disc-in" type="number" inputmode="decimal" value="${_inv.discount||0}" oninput="invSetField('discount',this.value)" style="flex:1"/>
+        <button class="disc-type${_inv.discountType!=='pct'?' on':''}" onclick="invSetDiscType('amt')">${getCurrency()}</button>
+        <button class="disc-type${_inv.discountType==='pct'?' on':''}" onclick="invSetDiscType('pct')">%</button>
+      </div>
+    </div>
     <div class="inv-frow2">
-      <div><span class="m-lbl">Discount</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.discount||0}" oninput="invSetField('discount',this.value)"/></div>
       <div><span class="m-lbl">Tax %</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.taxRate||0}" oninput="invSetField('taxRate',this.value)"/></div>
       <div><span class="m-lbl">Amount paid</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.paid||0}" oninput="invSetField('paid',this.value)"/></div>
     </div>
     <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / payment terms…" oninput="invSetField('note',this.value)"/></div>`;
 }
 function invSetField(k,v){ _inv[k] = (k==="customer"||k==="dueDate"||k==="note") ? v : (parseFloat(v)||0); if(k==="customer"||k==="dueDate"||k==="note"){ _inv[k]=v; } const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
-function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
-function invAddItem(){ _inv.items.push({desc:"",qty:1,price:0}); renderInvoiceEditor(); }
-function invRemoveItem(i){ _inv.items.splice(i,1); if(!_inv.items.length) _inv.items.push({desc:"",qty:1,price:0}); renderInvoiceEditor(); }
+function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+function invSetDiscType(t){ _inv.discountType = t; renderInvoiceEditor(); }
+function invAddItem(){ _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
+function invRemoveItem(i){ _inv.items.splice(i,1); if(!_inv.items.length) _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
 function renderInvoicePaper(inv){
   const b = getBusiness(), t = invTotals(inv), st = invStatus(inv), cur = getCurrency();
   const logo = b.logo ? `<img src="${b.logo}" alt="" class="inv-logo"/>` : "";
   const contact = [b.address,b.phone,b.email,b.taxId?(__("Tax ID")+": "+b.taxId):""].filter(Boolean).map(escHtml).join("<br>");
   const rows = (inv.items||[]).filter(it=>(it.desc||"").trim()||+it.qty||+it.price).map(it=>`<tr>
-    <td>${escHtml(it.desc||"—")}</td><td class="r">${(+it.qty||0)}</td><td class="r">${invMoney(it.price)}</td><td class="r">${invMoney((+it.qty||0)*(+it.price||0))}</td></tr>`).join("") || `<tr><td colspan="4" style="color:#999;text-align:center">No items</td></tr>`;
+    <td>${escHtml(it.desc||"—")}</td><td class="r">${(+it.qty||0)}${it.unit?(" "+escHtml(it.unit)):""}</td><td class="r">${invMoney(it.price)}</td><td class="r">${invMoney((+it.qty||0)*(+it.price||0))}</td></tr>`).join("") || `<tr><td colspan="4" style="color:#999;text-align:center">No items</td></tr>`;
   const stLabel = st==="paid"?"PAID":st==="partial"?"PARTIALLY PAID":"UNPAID";
   const stColor = st==="paid"?"#1a8f4c":st==="partial"?"#b8860b":"#c0392b";
   return `<div class="inv-doc">
@@ -2937,7 +2949,7 @@ function renderInvoicePaper(inv){
     <table class="inv-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="inv-totals">
       <div class="inv-trow"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
-      ${t.disc>0?`<div class="inv-trow"><span>Discount</span><span>−${invMoney(t.disc)}</span></div>`:""}
+      ${t.disc>0?`<div class="inv-trow"><span>${__("Discount")}${inv.discountType==="pct"?" ("+(+inv.discount||0)+"%)":""}</span><span>−${invMoney(t.disc)}</span></div>`:""}
       ${(+inv.taxRate>0)?`<div class="inv-trow"><span>${__("Tax")} (${(+inv.taxRate||0)}%)</span><span>${invMoney(t.tax)}</span></div>`:""}
       <div class="inv-trow inv-grand"><span>Total</span><span>${invMoney(t.total)}</span></div>
       ${t.paid>0?`<div class="inv-trow"><span>Amount paid</span><span>−${invMoney(t.paid)}</span></div>`:""}
