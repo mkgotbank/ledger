@@ -690,6 +690,11 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .inv-status{display:inline-block;margin-top:14px;padding:4px 12px;border:2px solid;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:2px;}
 .inv-note{margin-top:14px;font-size:11px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:10px;}
 .inv-foot{margin-top:18px;text-align:center;font-size:9.5px;color:#aaa;}
+.inv-title{font-size:13px;font-weight:700;color:#111;margin:2px 0 12px;line-height:1.45;}
+.inv-terms{margin-top:20px;border-top:1px solid #ddd;padding-top:13px;}
+.inv-terms-h{text-align:center;font-size:11px;font-weight:800;letter-spacing:4px;color:#333;margin-bottom:8px;}
+.inv-terms-b{font-size:10px;color:#555;line-height:1.65;white-space:pre-wrap;text-align:center;}
+.inv-ta{resize:vertical;min-height:58px;line-height:1.5;}
 /* invoice editor (themed) */
 .inv-edit-wrap{margin-top:22px;}
 .inv-frow{margin-bottom:10px;display:flex;flex-direction:column;}
@@ -1360,7 +1365,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.18.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.18.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -1669,7 +1674,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.18.1";
+const APP_VER    = "2.18.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2823,7 +2828,7 @@ function getBusiness(){
   const b = (D.business && typeof D.business==="object") ? D.business : (D.business = {});
   return { name:b.name||"", logo:b.logo||"", address:b.address||"", phone:b.phone||"",
            email:b.email||"", taxId:b.taxId||"", taxRate:+b.taxRate||0,
-           prefix:b.prefix||"INV-", next:+b.next||1 };
+           prefix:b.prefix||"INV-", next:+b.next||1, terms:b.terms||"" };
 }
 function _round2(n){ return Math.round((+n||0)*100)/100; }
 function invMoney(n){ return getCurrency() + _round2(n).toFixed(2); }
@@ -2840,7 +2845,7 @@ function invTotals(inv){
 }
 function invStatus(inv){ const t=invTotals(inv); if(t.total>0 && t.balance<=0.001) return "paid"; if(t.paid>0.001) return "partial"; return "unpaid"; }
 function blankInvoiceObj(){
-  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", items:[], discount:0, discountType:"amt", taxRate:getBusiness().taxRate||0, note:"", paid:0, srcId:null };
+  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", title:"", items:[], discount:0, discountType:"amt", taxRate:getBusiness().taxRate||0, note:"", terms:getBusiness().terms||"", paid:0, srcId:null };
 }
 function _saleDesc(l){
   if(l.batchId && l.batchItems) return l.batchItems.map(it=>`${it.qty}× ${it.label}`).join(", ");
@@ -2906,6 +2911,7 @@ function renderInvoiceEditor(){
   if(ed) ed.innerHTML = `
     <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Title (optional)</span><input class="m-input" value="${escAttr(_inv.title||'')}" placeholder="e.g. project, matter or job title" oninput="invSetField('title',this.value)"/></div>
     <span class="m-lbl" style="margin-top:4px">Line items</span>
     <div id="invItemRows">${_invItemRows()}</div>
     <button class="inv-add" onclick="invAddItem()">＋ Add line</button>
@@ -2920,9 +2926,10 @@ function renderInvoiceEditor(){
       <div><span class="m-lbl">Tax %</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.taxRate||0}" oninput="invSetField('taxRate',this.value)"/></div>
       <div><span class="m-lbl">Amount paid</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.paid||0}" oninput="invSetField('paid',this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / payment terms…" oninput="invSetField('note',this.value)"/></div>`;
+    <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / short note…" oninput="invSetField('note',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Terms (shown at the bottom)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="invSetField('terms',this.value)">${escHtml(_inv.terms||'')}</textarea></div>`;
 }
-function invSetField(k,v){ _inv[k] = (k==="customer"||k==="dueDate"||k==="note") ? v : (parseFloat(v)||0); if(k==="customer"||k==="dueDate"||k==="note"){ _inv[k]=v; } const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+function invSetField(k,v){ const txt=["customer","dueDate","note","title","terms"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
 function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
 function invSetDiscType(t){ _inv.discountType = t; renderInvoiceEditor(); }
 function invAddItem(){ _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
@@ -2946,6 +2953,7 @@ function renderInvoicePaper(inv){
       </div>
     </div>
     <div class="inv-billto"><span class="inv-lbl">BILL TO</span><div class="inv-cust">${escHtml(inv.customer||"—")}</div></div>
+    ${inv.title?`<div class="inv-title">${escHtml(inv.title)}</div>`:""}
     <table class="inv-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="inv-totals">
       <div class="inv-trow"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
@@ -2957,6 +2965,7 @@ function renderInvoicePaper(inv){
     </div>
     <div class="inv-status" style="color:${stColor};border-color:${stColor}">${stLabel}</div>
     ${inv.note?`<div class="inv-note">${escHtml(inv.note)}</div>`:""}
+    ${inv.terms?`<div class="inv-terms"><div class="inv-terms-h">${__("TERMS")}</div><div class="inv-terms-b">${escHtml(inv.terms)}</div></div>`:""}
     <div class="inv-foot">${escHtml(__("Thank you for your business") + (b.name?(" — "+b.name):""))}</div>
   </div>`;
 }
@@ -3039,7 +3048,8 @@ function renderBusinessPage(){
       <div><span class="m-lbl">Tax ID (optional)</span><input class="m-input" value="${escAttr(b.taxId)}" placeholder="Tax / VAT ID" oninput="saveBusinessField('taxId',this.value)"/></div>
       <div><span class="m-lbl">Default tax %</span><input class="m-input" type="number" inputmode="decimal" value="${b.taxRate||0}" oninput="saveBusinessField('taxRate',this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>`;
+    <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Default invoice terms</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="saveBusinessField('terms',this.value)">${escHtml(b.terms||'')}</textarea></div>`;
 }
 function openExpModal(mode){
   expMode = mode;
