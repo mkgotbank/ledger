@@ -660,40 +660,114 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-add-another:active{background:var(--fill-1);}
 
 /* ── INVOICING ── the paper is theme-independent (always a clean white document) so it prints well */
-#invoicePaper{background:#fff;border-radius:10px;padding:22px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.35);}
-.inv-doc{color:#1a1a1a;font-family:'Helvetica Neue',Arial,sans-serif;}
-.inv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:2px solid #1a1a1a;padding-bottom:14px;}
-.inv-biz{display:flex;gap:11px;align-items:flex-start;min-width:0;}
-.inv-logo{width:50px;height:50px;object-fit:contain;border-radius:8px;flex-shrink:0;}
-.inv-biz-name{font-size:17px;font-weight:800;color:#111;line-height:1.15;}
-.inv-biz-meta{font-size:9.5px;color:#555;line-height:1.6;margin-top:3px;}
-.inv-meta{text-align:right;flex-shrink:0;}
-.inv-h1{font-size:21px;font-weight:800;letter-spacing:3px;color:#111;}
-.inv-no{font-size:12px;color:#333;margin-top:3px;font-weight:700;}
-.inv-dt{font-size:10px;color:#666;margin-top:2px;}
-.inv-billto{margin:14px 0 10px;}
-.inv-lbl{font-size:8px;letter-spacing:2px;color:#999;}
-.inv-cust{font-size:14px;font-weight:700;color:#111;margin-top:2px;}
-.inv-table{width:100%;border-collapse:collapse;margin:4px 0;table-layout:fixed;}
-.inv-table th{font-size:8.5px;letter-spacing:1px;color:#999;text-transform:uppercase;text-align:left;border-bottom:1px solid #ddd;padding:6px 4px;}
-.inv-table td{font-size:12px;color:#222;padding:8px 4px;border-bottom:1px solid #eee;vertical-align:top;overflow-wrap:break-word;}
-.inv-table th:nth-child(2),.inv-table td:nth-child(2){width:34px;}
-.inv-table th:nth-child(3),.inv-table td:nth-child(3){width:58px;}
-.inv-table th:nth-child(4),.inv-table td:nth-child(4){width:64px;}
-.inv-table .r{text-align:right;}
-.inv-biz,.inv-meta{min-width:0;}
-.inv-biz-name,.inv-biz-meta{overflow-wrap:break-word;}
-.inv-totals{margin-top:12px;margin-left:auto;width:62%;max-width:280px;}
-.inv-trow{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#333;padding:4px 0;}
-.inv-grand{font-weight:800;color:#111;font-size:15px;border-top:2px solid #1a1a1a;margin-top:4px;padding-top:8px;}
-.inv-bal{font-weight:800;color:#c0392b;font-size:14px;}
-.inv-status{display:inline-block;margin-top:14px;padding:4px 12px;border:2px solid;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:2px;}
-.inv-note{margin-top:14px;font-size:11px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:10px;}
-.inv-foot{margin-top:18px;text-align:center;font-size:9.5px;color:#aaa;}
-.inv-title{font-size:13px;font-weight:700;color:#111;margin:2px 0 12px;line-height:1.45;}
-.inv-terms{margin-top:20px;border-top:1px solid #ddd;padding-top:13px;}
-.inv-terms-h{text-align:center;font-size:11px;font-weight:800;letter-spacing:4px;color:#333;margin-bottom:8px;}
-.inv-terms-b{font-size:10px;color:#555;line-height:1.65;white-space:pre-wrap;text-align:center;}
+#invoicePaper{background:#fff;border-radius:12px;padding:34px 28px;box-shadow:0 18px 54px rgba(0,0,0,0.28);}
+/* ===== invoice paper — shared base (premium) ===== */
+.inv-doc{--ink:#1a1613;--ink-soft:#473f39;--mut:#8a857d;--faint:#b4aea6;--hair:#ece8e1;--hair2:#ddd7cd;--charcoal:#23201d;--panel:#f6f4f0;
+  color:var(--ink);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.inv-doc .r{text-align:right;}
+.inv-doc .r,.inv-mv,.inv-trow span:last-child,.inv-table td.r{font-variant-numeric:tabular-nums;}
+/* header */
+.inv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;}
+.inv-head-biz{display:flex;gap:13px;align-items:flex-start;min-width:0;}
+.inv-logo{width:54px;height:54px;object-fit:contain;flex-shrink:0;border-radius:6px;}
+.inv-biz-block{min-width:0;}
+.inv-biz-name{font-size:17px;font-weight:700;letter-spacing:.2px;line-height:1.2;overflow-wrap:break-word;}
+.inv-biz-meta{font-size:9.5px;color:var(--mut);line-height:1.7;margin-top:5px;overflow-wrap:break-word;}
+.inv-head-doc{text-align:right;flex-shrink:0;min-width:0;}
+.inv-word{font-size:25px;font-weight:300;letter-spacing:5px;text-transform:uppercase;line-height:1;color:var(--ink);}
+.inv-meta{margin-top:13px;display:inline-block;text-align:left;}
+.inv-mrow{display:flex;justify-content:space-between;gap:16px;padding:2px 0;}
+.inv-mk{color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-size:8px;align-self:center;}
+.inv-mv{color:var(--ink);font-weight:600;font-size:10.5px;}
+/* parties */
+.inv-parties{display:flex;justify-content:space-between;gap:20px;margin-top:26px;}
+.inv-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);}
+.inv-cust{font-size:14px;font-weight:600;margin-top:4px;line-height:1.3;overflow-wrap:break-word;}
+.inv-cust-meta{font-size:9.5px;color:var(--mut);line-height:1.7;margin-top:5px;overflow-wrap:break-word;}
+.inv-subjwrap{text-align:right;max-width:54%;min-width:0;}
+.inv-subj{font-size:11.5px;font-weight:500;margin-top:4px;line-height:1.4;overflow-wrap:break-word;}
+/* table */
+.inv-table{width:100%;border-collapse:collapse;margin-top:24px;table-layout:fixed;}
+.inv-table th{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:600;padding:0 5px 9px;border-bottom:1.5px solid var(--ink);}
+.inv-table td{font-size:11.5px;padding:11px 5px;border-bottom:1px solid var(--hair);vertical-align:top;overflow-wrap:break-word;}
+.inv-table tbody tr:last-child td{border-bottom:none;}
+.inv-idesc{font-weight:500;color:var(--ink);}
+.inv-table th:nth-child(2),.inv-table td:nth-child(2){width:46px;}
+.inv-table th:nth-child(3),.inv-table td:nth-child(3){width:68px;}
+.inv-table th:nth-child(4),.inv-table td:nth-child(4){width:78px;}
+.inv-head-biz,.inv-head-doc{min-width:0;}
+/* totals */
+.inv-sumwrap{display:flex;justify-content:flex-end;margin-top:6px;}
+.inv-totals{width:64%;max-width:288px;min-width:0;}
+.inv-trow{display:flex;justify-content:space-between;gap:16px;font-size:11.5px;color:var(--ink-soft);padding:5px 0;}
+.inv-grand{font-weight:700;font-size:16px;color:var(--ink);border-top:2px solid var(--ink);margin-top:6px;padding-top:11px;}
+.inv-trow.inv-paid{color:var(--mut);}
+.inv-bal{font-weight:700;font-size:13px;color:#b23a2e;}
+/* status */
+.inv-statusrow{margin-top:24px;}
+.inv-status{display:inline-block;padding:5px 14px;border:1.5px solid;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:2px;}
+.inv-st-paid{color:#2e7d4f;border-color:#2e7d4f;}
+.inv-st-partial{color:#b8860b;border-color:#b8860b;}
+.inv-st-unpaid{color:#b23a2e;border-color:#b23a2e;}
+/* note / terms / foot */
+.inv-note{margin-top:20px;font-size:11px;color:var(--mut);line-height:1.7;border-top:1px solid var(--hair);padding-top:13px;}
+.inv-terms{margin-top:24px;border-top:1px solid var(--hair);padding-top:15px;}
+.inv-terms-h{font-size:8.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ink);margin-bottom:8px;}
+.inv-terms-b{font-size:10px;color:var(--mut);line-height:1.7;white-space:pre-wrap;}
+.inv-foot{margin-top:28px;padding-top:15px;border-top:1px solid var(--hair);text-align:center;font-size:9px;letter-spacing:.5px;color:var(--faint);}
+/* ===== CLASSIC — editorial black & white, ruled masthead ===== */
+.inv-classic .inv-head{border-bottom:2px solid var(--ink);padding-bottom:20px;}
+/* ===== MINIMAL — airy, hairline, light weights ===== */
+.inv-minimal .inv-biz-name{font-weight:600;font-size:15px;}
+.inv-minimal .inv-word{font-size:13px;font-weight:500;letter-spacing:3px;color:var(--mut);}
+.inv-minimal .inv-meta{margin-top:10px;}
+.inv-minimal .inv-parties{margin-top:30px;}
+.inv-minimal .inv-table{margin-top:26px;}
+.inv-minimal .inv-table th{border-bottom:1px solid var(--hair2);color:var(--faint);}
+.inv-minimal .inv-table td{border-bottom:none;padding:8px 5px;}
+.inv-minimal .inv-grand{border-top:1px solid var(--ink);font-weight:600;}
+.inv-minimal .inv-status{border:none;padding:5px 0;letter-spacing:2.5px;}
+.inv-minimal .inv-foot{border-top:none;}
+/* ===== BOLD — dark letterhead card + filled total ===== */
+.inv-bold .inv-head{background:var(--charcoal);color:#fff;padding:22px 22px;border-radius:11px;align-items:center;}
+.inv-bold .inv-logo{background:#fff;padding:4px;border-radius:7px;}
+.inv-bold .inv-biz-name{color:#fff;}
+.inv-bold .inv-biz-meta{color:rgba(255,255,255,.68);}
+.inv-bold .inv-word{color:#fff;font-weight:400;}
+.inv-bold .inv-mk{color:rgba(255,255,255,.55);}
+.inv-bold .inv-mv{color:#fff;}
+.inv-bold .inv-table th{border-bottom-color:var(--charcoal);}
+.inv-bold .inv-grand{background:var(--charcoal);color:#fff;border:none;border-radius:8px;padding:12px 15px;margin-top:9px;}
+/* ===== ELEGANT — centered luxury masthead, hairline-framed wordmark ===== */
+.inv-elegant .inv-head{flex-direction:column;align-items:center;text-align:center;gap:0;}
+.inv-elegant .inv-head-biz{flex-direction:column;align-items:center;text-align:center;gap:9px;}
+.inv-elegant .inv-logo{width:58px;height:58px;}
+.inv-elegant .inv-biz-name{font-size:21px;font-weight:500;letter-spacing:.6px;}
+.inv-elegant .inv-biz-meta{text-align:center;}
+.inv-elegant .inv-head-doc{text-align:center;width:100%;}
+.inv-elegant .inv-word{display:block;margin-top:17px;padding:10px 0;border-top:1px solid var(--hair2);border-bottom:1px solid var(--hair2);font-weight:300;letter-spacing:8px;}
+.inv-elegant .inv-meta{display:inline-flex;gap:30px;margin-top:15px;text-align:center;}
+.inv-elegant .inv-mrow{flex-direction:column;gap:2px;align-items:center;padding:0;}
+.inv-elegant .inv-grand{border-top-width:1px;font-weight:600;}
+/* ===== MODERN — soft gray panels, geometric, pill status ===== */
+.inv-modern .inv-head{border-bottom:3px solid var(--ink);padding-bottom:18px;}
+.inv-modern .inv-biz-name{font-weight:800;letter-spacing:-.3px;font-size:18px;}
+.inv-modern .inv-word{font-weight:800;letter-spacing:1px;}
+.inv-modern .inv-meta{background:var(--panel);border-radius:9px;padding:10px 13px;margin-top:12px;}
+.inv-modern .inv-table th{background:var(--panel);border-bottom:none;padding:9px 8px;}
+.inv-modern .inv-table th:first-child{border-radius:7px 0 0 7px;}
+.inv-modern .inv-table th:last-child{border-radius:0 7px 7px 0;}
+.inv-modern .inv-table td{padding:11px 5px;}
+.inv-modern .inv-totals{background:var(--panel);border-radius:12px;padding:15px 17px;}
+.inv-modern .inv-grand{border-top:2px solid var(--ink);}
+.inv-modern .inv-status{border-radius:20px;}
+/* invoice style/font picker bar */
+.inv-stylebar{display:flex;flex-direction:column;gap:11px;margin:14px 0 4px;padding:13px;background:var(--fill-1);border:1px solid var(--bdr);border-radius:12px;}
+.inv-sb-group{display:flex;flex-direction:column;gap:7px;}
+.inv-sb-lbl{font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);}
+.inv-sb-chips{display:flex;gap:7px;flex-wrap:wrap;}
+.inv-sb-chip{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:999px;padding:6px 13px;font-size:11px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;}
+.inv-sb-chip.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;}
 .inv-ta{resize:vertical;min-height:58px;line-height:1.5;}
 /* invoice editor (themed) */
 .inv-edit-wrap{margin-top:22px;}
@@ -714,11 +788,14 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #invoicePage .subpage-body{overflow-x:hidden;}
 #invoicePaper{max-width:100%;}
 #invoicePage .m-input,.inv-ein{min-width:0;max-width:100%;width:100%;}
+@page { margin:15mm; }
 @media print {
   html, body { background:#fff !important; }
   body * { visibility:hidden !important; }
   #invoicePaper, #invoicePaper * { visibility:visible !important; }
   #invoicePaper { position:fixed !important; left:0 !important; top:0 !important; width:100% !important; box-shadow:none !important; border-radius:0 !important; padding:0 !important; }
+  #invStyleBar { display:none !important; }
+  .inv-bold .inv-head, .inv-modern .inv-table th, .inv-modern .inv-meta, .inv-modern .inv-totals, .inv-bold .inv-grand { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
 /* ── OPUS 4.8 POLISH ── refined depth, light & motion (all theme-safe) ── */
@@ -1320,6 +1397,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
   <div class="subpage-body">
     <div id="invoicePaper"></div>
+    <div id="invStyleBar" class="inv-stylebar"></div>
     <button class="btn-confirm" style="margin-top:14px" onclick="printInvoice()">Print / Save as PDF</button>
     <div class="inv-edit-wrap">
       <div class="sec-lbl">Edit invoice</div>
@@ -1365,13 +1443,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.18.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.19.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🧾</div>
+        <div class="wn-icon">✦</div>
         <div>
-          <div class="wn-title">Professional Invoices</div>
-          <div class="wn-desc">Create clean, print-ready invoices — generate one from any sale, from a customer's balance in Who Owes You, or start blank. Add your logo and details in More → Business profile, then Print / Save as PDF to send. It tracks paid, partial and unpaid, and speaks all 10 languages.</div>
+          <div class="wn-title">A beautifully redesigned invoice</div>
+          <div class="wn-desc">Your invoice now has the premium, luxury look of a top studio — refined typography, generous spacing, a prominent total, and crisp printing.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">🎨</div>
+        <div>
+          <div class="wn-title">5 layouts &amp; 5 fonts to choose from</div>
+          <div class="wn-desc">Pick the style that fits your brand — Classic, Minimal, Bold, Elegant or Modern — and a font (Helvetica, Georgia, Didot, Avenir or Mono). Switch live right on the invoice, or set your default in More → Business profile.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">👤</div>
+        <div>
+          <div class="wn-title">Everything a real invoice needs</div>
+          <div class="wn-desc">Add full client details (address, phone, email, Tax/VAT ID), a Reference / PO number, and a Payment Details section — bank, IBAN or a payment link — so customers know exactly how to pay. Set defaults once in More → Business profile.</div>
         </div>
       </div>
     </div>
@@ -1674,7 +1766,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.18.2";
+const APP_VER    = "2.19.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2828,7 +2920,8 @@ function getBusiness(){
   const b = (D.business && typeof D.business==="object") ? D.business : (D.business = {});
   return { name:b.name||"", logo:b.logo||"", address:b.address||"", phone:b.phone||"",
            email:b.email||"", taxId:b.taxId||"", taxRate:+b.taxRate||0,
-           prefix:b.prefix||"INV-", next:+b.next||1, terms:b.terms||"" };
+           prefix:b.prefix||"INV-", next:+b.next||1, terms:b.terms||"", payInfo:b.payInfo||"",
+           invStyle:b.invStyle||"classic", invFont:b.invFont||"sans" };
 }
 function _round2(n){ return Math.round((+n||0)*100)/100; }
 function invMoney(n){ return getCurrency() + _round2(n).toFixed(2); }
@@ -2845,7 +2938,7 @@ function invTotals(inv){
 }
 function invStatus(inv){ const t=invTotals(inv); if(t.total>0 && t.balance<=0.001) return "paid"; if(t.paid>0.001) return "partial"; return "unpaid"; }
 function blankInvoiceObj(){
-  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", title:"", items:[], discount:0, discountType:"amt", taxRate:getBusiness().taxRate||0, note:"", terms:getBusiness().terms||"", paid:0, srcId:null };
+  return { num:null, no:null, date:invDateStr(), dueDate:"", poNumber:"", customer:"", customerAddress:"", customerPhone:"", customerEmail:"", customerTaxId:"", title:"", items:[], discount:0, discountType:"amt", taxRate:getBusiness().taxRate||0, note:"", terms:getBusiness().terms||"", payInfo:getBusiness().payInfo||"", paid:0, srcId:null };
 }
 function _saleDesc(l){
   if(l.batchId && l.batchItems) return l.batchItems.map(it=>`${it.qty}× ${it.label}`).join(", ");
@@ -2907,10 +3000,21 @@ function renderInvoiceEditor(){
   if(!_inv) return;
   const paper = document.getElementById("invoicePaper");
   if(paper) paper.innerHTML = renderInvoicePaper(_inv);
+  const sb = document.getElementById("invStyleBar");
+  if(sb) sb.innerHTML = invStyleBarHTML();
   const ed = document.getElementById("invEditFields");
   if(ed) ed.innerHTML = `
     <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
-    <div class="inv-frow"><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Customer address (optional)</span><input class="m-input" value="${escAttr(_inv.customerAddress||'')}" placeholder="Street, city" oninput="invSetField('customerAddress',this.value)"/></div>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Customer phone (optional)</span><input class="m-input" value="${escAttr(_inv.customerPhone||'')}" placeholder="Phone" oninput="invSetField('customerPhone',this.value)"/></div>
+      <div><span class="m-lbl">Customer email (optional)</span><input class="m-input" value="${escAttr(_inv.customerEmail||'')}" placeholder="Email" oninput="invSetField('customerEmail',this.value)"/></div>
+    </div>
+    <div class="inv-frow"><span class="m-lbl">Customer Tax/VAT ID (optional)</span><input class="m-input" value="${escAttr(_inv.customerTaxId||'')}" placeholder="Client tax / VAT ID" oninput="invSetField('customerTaxId',this.value)"/></div>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
+      <div><span class="m-lbl">Reference / PO (optional)</span><input class="m-input" value="${escAttr(_inv.poNumber||'')}" placeholder="PO or reference #" oninput="invSetField('poNumber',this.value)"/></div>
+    </div>
     <div class="inv-frow"><span class="m-lbl">Title (optional)</span><input class="m-input" value="${escAttr(_inv.title||'')}" placeholder="e.g. project, matter or job title" oninput="invSetField('title',this.value)"/></div>
     <span class="m-lbl" style="margin-top:4px">Line items</span>
     <div id="invItemRows">${_invItemRows()}</div>
@@ -2927,48 +3031,89 @@ function renderInvoiceEditor(){
       <div><span class="m-lbl">Amount paid</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.paid||0}" oninput="invSetField('paid',this.value)"/></div>
     </div>
     <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / short note…" oninput="invSetField('note',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Payment details (shown on invoice)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 …  ·  or a payment link" oninput="invSetField('payInfo',this.value)">${escHtml(_inv.payInfo||'')}</textarea></div>
     <div class="inv-frow"><span class="m-lbl">Terms (shown at the bottom)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="invSetField('terms',this.value)">${escHtml(_inv.terms||'')}</textarea></div>`;
 }
-function invSetField(k,v){ const txt=["customer","dueDate","note","title","terms"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+function invSetField(k,v){ const txt=["customer","customerAddress","customerPhone","customerEmail","customerTaxId","poNumber","dueDate","note","title","terms","payInfo"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
 function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
 function invSetDiscType(t){ _inv.discountType = t; renderInvoiceEditor(); }
 function invAddItem(){ _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
 function invRemoveItem(i){ _inv.items.splice(i,1); if(!_inv.items.length) _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
+const INV_STYLES = [
+  { id:"classic", name:"Classic" },
+  { id:"minimal", name:"Minimal" },
+  { id:"bold",    name:"Bold" },
+  { id:"elegant", name:"Elegant" },
+  { id:"modern",  name:"Modern" },
+];
+const INV_FONTS = [
+  { id:"sans",   name:"Helvetica", stack:"'Helvetica Neue',Helvetica,Arial,sans-serif" },
+  { id:"serif",  name:"Georgia",   stack:"Georgia,'Times New Roman',serif" },
+  { id:"didot",  name:"Didot",     stack:"'Didot','Bodoni 72','Hoefler Text',Garamond,'Times New Roman',serif" },
+  { id:"avenir", name:"Avenir",    stack:"'Avenir Next',Avenir,'Segoe UI',system-ui,sans-serif" },
+  { id:"mono",   name:"Mono",      stack:"'SF Mono','Menlo','Roboto Mono','Courier New',monospace" },
+];
 function renderInvoicePaper(inv){
-  const b = getBusiness(), t = invTotals(inv), st = invStatus(inv), cur = getCurrency();
+  const b = getBusiness(), t = invTotals(inv), st = invStatus(inv);
+  const style = INV_STYLES.some(s=>s.id===b.invStyle) ? b.invStyle : "classic";
+  const font  = INV_FONTS.find(f=>f.id===b.invFont) || INV_FONTS[0];
   const logo = b.logo ? `<img src="${b.logo}" alt="" class="inv-logo"/>` : "";
   const contact = [b.address,b.phone,b.email,b.taxId?(__("Tax ID")+": "+b.taxId):""].filter(Boolean).map(escHtml).join("<br>");
+  const custContact = [inv.customerAddress,inv.customerPhone,inv.customerEmail,inv.customerTaxId?(__("Tax ID")+": "+inv.customerTaxId):""].filter(Boolean).map(escHtml).join("<br>");
   const rows = (inv.items||[]).filter(it=>(it.desc||"").trim()||+it.qty||+it.price).map(it=>`<tr>
-    <td>${escHtml(it.desc||"—")}</td><td class="r">${(+it.qty||0)}${it.unit?(" "+escHtml(it.unit)):""}</td><td class="r">${invMoney(it.price)}</td><td class="r">${invMoney((+it.qty||0)*(+it.price||0))}</td></tr>`).join("") || `<tr><td colspan="4" style="color:#999;text-align:center">No items</td></tr>`;
+    <td class="inv-idesc">${escHtml(it.desc||"—")}</td><td class="r">${(+it.qty||0)}${it.unit?(" "+escHtml(it.unit)):""}</td><td class="r">${invMoney(it.price)}</td><td class="r">${invMoney((+it.qty||0)*(+it.price||0))}</td></tr>`).join("") || `<tr><td colspan="4" style="color:#b4aea6;text-align:center;padding:18px">No items</td></tr>`;
   const stLabel = st==="paid"?"PAID":st==="partial"?"PARTIALLY PAID":"UNPAID";
-  const stColor = st==="paid"?"#1a8f4c":st==="partial"?"#b8860b":"#c0392b";
-  return `<div class="inv-doc">
-    <div class="inv-top">
-      <div class="inv-biz">${logo}<div><div class="inv-biz-name">${escHtml(b.name||"Your Business")}</div><div class="inv-biz-meta">${contact}</div></div></div>
-      <div class="inv-meta">
-        <div class="inv-h1">INVOICE</div>
-        <div class="inv-no">${escHtml(inv.no || (b.prefix + String(b.next).padStart(4,"0")))}</div>
-        <div class="inv-dt">${escHtml(inv.date||"")}</div>
-        ${inv.dueDate?`<div class="inv-dt">${__("Due")}: ${escHtml(inv.dueDate)}</div>`:""}
+  return `<div class="inv-doc inv-${style}" style="font-family:${font.stack}">
+    <div class="inv-head">
+      <div class="inv-head-biz">${logo}<div class="inv-biz-block"><div class="inv-biz-name">${escHtml(b.name||"Your Business")}</div>${contact?`<div class="inv-biz-meta">${contact}</div>`:""}</div></div>
+      <div class="inv-head-doc">
+        <div class="inv-word">Invoice</div>
+        <div class="inv-meta">
+          <div class="inv-mrow"><span class="inv-mk">Invoice No.</span><span class="inv-mv">${escHtml(inv.no || (b.prefix + String(b.next).padStart(4,"0")))}</span></div>
+          ${inv.poNumber?`<div class="inv-mrow"><span class="inv-mk">Reference</span><span class="inv-mv">${escHtml(inv.poNumber)}</span></div>`:""}
+          <div class="inv-mrow"><span class="inv-mk">Date</span><span class="inv-mv">${escHtml(inv.date||"")}</span></div>
+          ${inv.dueDate?`<div class="inv-mrow"><span class="inv-mk">${__("Due")}</span><span class="inv-mv">${escHtml(inv.dueDate)}</span></div>`:""}
+        </div>
       </div>
     </div>
-    <div class="inv-billto"><span class="inv-lbl">BILL TO</span><div class="inv-cust">${escHtml(inv.customer||"—")}</div></div>
-    ${inv.title?`<div class="inv-title">${escHtml(inv.title)}</div>`:""}
-    <table class="inv-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="inv-totals">
+    <div class="inv-parties">
+      <div class="inv-billto"><div class="inv-lbl">Billed To</div><div class="inv-cust">${escHtml(inv.customer||"—")}</div>${custContact?`<div class="inv-cust-meta">${custContact}</div>`:""}</div>
+      ${inv.title?`<div class="inv-subjwrap"><div class="inv-lbl">Subject</div><div class="inv-subj">${escHtml(inv.title)}</div></div>`:""}
+    </div>
+    <table class="inv-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="inv-sumwrap"><div class="inv-totals">
       <div class="inv-trow"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
       ${t.disc>0?`<div class="inv-trow"><span>${__("Discount")}${inv.discountType==="pct"?" ("+(+inv.discount||0)+"%)":""}</span><span>−${invMoney(t.disc)}</span></div>`:""}
       ${(+inv.taxRate>0)?`<div class="inv-trow"><span>${__("Tax")} (${(+inv.taxRate||0)}%)</span><span>${invMoney(t.tax)}</span></div>`:""}
       <div class="inv-trow inv-grand"><span>Total</span><span>${invMoney(t.total)}</span></div>
-      ${t.paid>0?`<div class="inv-trow"><span>Amount paid</span><span>−${invMoney(t.paid)}</span></div>`:""}
+      ${t.paid>0?`<div class="inv-trow inv-paid"><span>Amount paid</span><span>−${invMoney(t.paid)}</span></div>`:""}
       ${t.balance>0?`<div class="inv-trow inv-bal"><span>Balance due</span><span>${invMoney(t.balance)}</span></div>`:""}
-    </div>
-    <div class="inv-status" style="color:${stColor};border-color:${stColor}">${stLabel}</div>
+    </div></div>
+    <div class="inv-statusrow"><span class="inv-status inv-st-${st}">${stLabel}</span></div>
     ${inv.note?`<div class="inv-note">${escHtml(inv.note)}</div>`:""}
+    ${inv.payInfo?`<div class="inv-terms inv-pay"><div class="inv-terms-h">${__("PAYMENT DETAILS")}</div><div class="inv-terms-b">${escHtml(inv.payInfo)}</div></div>`:""}
     ${inv.terms?`<div class="inv-terms"><div class="inv-terms-h">${__("TERMS")}</div><div class="inv-terms-b">${escHtml(inv.terms)}</div></div>`:""}
     <div class="inv-foot">${escHtml(__("Thank you for your business") + (b.name?(" — "+b.name):""))}</div>
   </div>`;
 }
+// invoice style + font picker (lives on the invoice editor page; also mirrored in Business profile)
+function invStyleBarHTML(){
+  const b = getBusiness();
+  const styleChips = INV_STYLES.map(s=>`<button class="inv-sb-chip${b.invStyle===s.id?' on':''}" onclick="setInvStyle('${s.id}')">${s.name}</button>`).join("");
+  const fontChips  = INV_FONTS.map(f=>`<button class="inv-sb-chip${b.invFont===f.id?' on':''}" style="font-family:${f.stack}" onclick="setInvFont('${f.id}')">${f.name}</button>`).join("");
+  return `<div class="inv-sb-group"><span class="inv-sb-lbl">Invoice style</span><div class="inv-sb-chips">${styleChips}</div></div>
+    <div class="inv-sb-group"><span class="inv-sb-lbl">Font</span><div class="inv-sb-chips">${fontChips}</div></div>`;
+}
+function _invSyncStyleUI(){
+  const paper = document.getElementById("invoicePaper");
+  if(paper && _inv) paper.innerHTML = renderInvoicePaper(_inv);
+  const bar = document.getElementById("invStyleBar");
+  if(bar) bar.innerHTML = invStyleBarHTML();
+  if(document.getElementById("businessFields")) renderBusinessPage();
+  if(typeof i18nApply === "function") i18nApply();
+}
+function setInvStyle(id){ if(!D.business||typeof D.business!=="object") D.business={}; D.business.invStyle=id; persist(); _invSyncStyleUI(); }
+function setInvFont(id){ if(!D.business||typeof D.business!=="object") D.business={}; D.business.invFont=id; persist(); _invSyncStyleUI(); }
 // Assign a number + save (once), then trigger the browser's print / Save-as-PDF.
 function printInvoice(){
   saveCurrentInvoice();
@@ -3049,7 +3194,10 @@ function renderBusinessPage(){
       <div><span class="m-lbl">Default tax %</span><input class="m-input" type="number" inputmode="decimal" value="${b.taxRate||0}" oninput="saveBusinessField('taxRate',this.value)"/></div>
     </div>
     <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>
-    <div class="inv-frow"><span class="m-lbl">Default invoice terms</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="saveBusinessField('terms',this.value)">${escHtml(b.terms||'')}</textarea></div>`;
+    <div class="inv-frow"><span class="m-lbl">Default payment details</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 1234 …  ·  PayPal / payment link" oninput="saveBusinessField('payInfo',this.value)">${escHtml(b.payInfo||'')}</textarea></div>
+    <div class="inv-frow"><span class="m-lbl">Default invoice terms</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="saveBusinessField('terms',this.value)">${escHtml(b.terms||'')}</textarea></div>
+    <div class="sec-lbl" style="margin-top:18px">Invoice design</div>
+    <div class="inv-stylebar" style="margin-top:8px">${invStyleBarHTML()}</div>`;
 }
 function openExpModal(mode){
   expMode = mode;
