@@ -85,6 +85,98 @@
 })();
 </script>
 <script>
+// ── THEME (applied here, before the body paints, so the saved theme never
+// flashes the CSS default on load) ──
+// ── THEMES ──
+const THEMES = [
+  { id:"midnight-gold", name:"Midnight Gold", dots:["#111120","#c9a040","#1c1c2e"], vars:{} },
+  { id:"forest",        name:"Forest",        dots:["#0e1a10","#3db870","#162218"],
+    vars:{"--bg":"#0e1a10","--card":"#162218","--modal":"#162218","--hdr-bg":"rgba(14,26,16,0.9)",
+          "--acc":"#3db870","--acc-hi":"#52d488","--acc-a":"#2a9a55","--acc-b":"#185c34",
+          "--acc-glow":"rgba(42,154,85,0.4)","--acc-bdr":"rgba(42,154,85,0.35)","--acc-dim":"rgba(42,154,85,0.18)"} },
+  { id:"ocean",         name:"Ocean",         dots:["#0c1a24","#2ab4c8","#142230"],
+    vars:{"--bg":"#0c1a24","--card":"#142230","--modal":"#142230","--hdr-bg":"rgba(12,26,36,0.9)",
+          "--acc":"#2ab4c8","--acc-hi":"#40cade","--acc-a":"#1a8ea0","--acc-b":"#0e5a68",
+          "--acc-glow":"rgba(26,142,160,0.4)","--acc-bdr":"rgba(26,142,160,0.35)","--acc-dim":"rgba(26,142,160,0.18)"} },
+  { id:"neon",          name:"Neon",          dots:["#0f0d1e","#9a6ee8","#1a1530"],
+    vars:{"--bg":"#0f0d1e","--card":"#1a1530","--modal":"#1a1530","--hdr-bg":"rgba(15,13,30,0.9)",
+          "--acc":"#9a6ee8","--acc-hi":"#b08cf8","--acc-a":"#7848c8","--acc-b":"#4a2890",
+          "--acc-glow":"rgba(120,72,200,0.4)","--acc-bdr":"rgba(120,72,200,0.35)","--acc-dim":"rgba(120,72,200,0.18)"} },
+  { id:"crimson",       name:"Crimson",       dots:["#1a0d0e","#e05858","#2a1516"],
+    vars:{"--bg":"#1a0d0e","--card":"#2a1516","--modal":"#2a1516","--hdr-bg":"rgba(26,13,14,0.9)",
+          "--acc":"#e05858","--acc-hi":"#f07070","--acc-a":"#b83838","--acc-b":"#7a1c1c",
+          "--acc-glow":"rgba(184,56,56,0.4)","--acc-bdr":"rgba(184,56,56,0.35)","--acc-dim":"rgba(184,56,56,0.18)"} },
+  { id:"smoke",         name:"Smoke",         dots:["#111118","#a0a0c0","#1c1c28"],
+    vars:{"--bg":"#111118","--card":"#1c1c28","--modal":"#1c1c28","--hdr-bg":"rgba(17,17,24,0.9)",
+          "--acc":"#a0a0c0","--acc-hi":"#c0c0e0","--acc-a":"#7878a0","--acc-b":"#505070",
+          "--acc-glow":"rgba(120,120,160,0.3)","--acc-bdr":"rgba(120,120,160,0.3)","--acc-dim":"rgba(120,120,160,0.15)"} },
+  { id:"daylight",      name:"Daylight",      dots:["#f0ece0","#9a6410","#ffffff"],
+    vars:{"--bg":"#f0ece0","--card":"#ffffff","--modal":"#f8f4ec","--hdr-bg":"rgba(240,236,224,0.94)",
+          "--acc":"#9a6410","--acc-hi":"#b87820","--acc-a":"#b87820","--acc-b":"#7a4e10",
+          "--acc-glow":"rgba(184,120,32,0.3)","--acc-bdr":"rgba(184,120,32,0.35)","--acc-dim":"rgba(184,120,32,0.12)",
+          "--txt":"#1a1630","--txt-b":"#1a1630","--txt-d":"#605060","--bdr":"rgba(0,0,0,0.1)",
+          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(40,30,10,0.13)"} },
+  { id:"sunrise",       name:"Sunrise",       dots:["#fff4e8","#c84a10","#ffffff"],
+    vars:{"--bg":"#fff4e8","--card":"#ffffff","--modal":"#fef0e0","--hdr-bg":"rgba(255,244,232,0.94)",
+          "--acc":"#c84a10","--acc-hi":"#e06020","--acc-a":"#e06020","--acc-b":"#a83008",
+          "--acc-glow":"rgba(224,96,32,0.3)","--acc-bdr":"rgba(224,96,32,0.35)","--acc-dim":"rgba(224,96,32,0.12)",
+          "--txt":"#1a100a","--txt-b":"#1a100a","--txt-d":"#706050","--bdr":"rgba(0,0,0,0.12)",
+          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(60,30,10,0.13)"} },
+  { id:"rose",    name:"Rose",    dots:["#1a0d12","#e05878","#2a1520"],
+    vars:{"--bg":"#1a0d12","--card":"#2a1520","--modal":"#221018","--hdr-bg":"rgba(26,13,18,0.9)",
+          "--acc":"#e05878","--acc-hi":"#f07090","--acc-a":"#c03858","--acc-b":"#801830",
+          "--acc-glow":"rgba(192,56,88,0.4)","--acc-bdr":"rgba(192,56,88,0.35)","--acc-dim":"rgba(192,56,88,0.18)"} },
+  { id:"cobalt",  name:"Cobalt",  dots:["#0a0e1e","#3a7ff0","#141a2e"],
+    vars:{"--bg":"#0a0e1e","--card":"#141a2e","--modal":"#101828","--hdr-bg":"rgba(10,14,30,0.92)",
+          "--acc":"#3a7ff0","--acc-hi":"#5a9fff","--acc-a":"#2860c8","--acc-b":"#1840a0",
+          "--acc-glow":"rgba(58,127,240,0.4)","--acc-bdr":"rgba(58,127,240,0.35)","--acc-dim":"rgba(58,127,240,0.18)"} },
+  { id:"arctic",  name:"Arctic",  dots:["#eef6ff","#0088cc","#ffffff"],
+    vars:{"--bg":"#eef6ff","--card":"#ffffff","--modal":"#f4f9ff","--hdr-bg":"rgba(238,246,255,0.94)",
+          "--acc":"#0088cc","--acc-hi":"#00aaee","--acc-a":"#0077bb","--acc-b":"#005588",
+          "--acc-glow":"rgba(0,136,204,0.28)","--acc-bdr":"rgba(0,136,204,0.35)","--acc-dim":"rgba(0,136,204,0.12)",
+          "--txt":"#1a2a3a","--txt-b":"#0a1828","--txt-d":"#4a6880","--bdr":"rgba(0,0,0,0.09)",
+          "--fill-1":"rgba(10,40,70,0.05)","--fill-2":"rgba(10,40,70,0.1)","--fill-3":"rgba(10,40,70,0.03)","--hairline":"rgba(10,40,70,0.08)","--shadow":"rgba(10,50,90,0.12)"} },
+  { id:"mint",    name:"Mint",    dots:["#effaf7","#00a878","#ffffff"],
+    vars:{"--bg":"#effaf7","--card":"#ffffff","--modal":"#eaf7f3","--hdr-bg":"rgba(239,250,247,0.95)",
+          "--acc":"#00a878","--acc-hi":"#00c890","--acc-a":"#008f66","--acc-b":"#005a40",
+          "--acc-glow":"rgba(0,168,120,0.28)","--acc-bdr":"rgba(0,168,120,0.35)","--acc-dim":"rgba(0,168,120,0.12)",
+          "--txt":"#0a2018","--txt-b":"#041410","--txt-d":"#3a7060","--bdr":"rgba(0,0,0,0.08)",
+          "--fill-1":"rgba(0,50,35,0.05)","--fill-2":"rgba(0,50,35,0.1)","--fill-3":"rgba(0,50,35,0.03)","--hairline":"rgba(0,50,35,0.08)","--shadow":"rgba(0,60,40,0.12)"} },
+];
+const FONTS = [
+  { id:"terminal", name:"Terminal", font:"'Courier New',monospace" },
+  { id:"clean",    name:"Clean",    font:"system-ui,-apple-system,sans-serif" },
+  { id:"sharp",    name:"Sharp",    font:"'SF Mono','Menlo','Monaco',monospace" },
+  { id:"baskerville", name:"Baskerville",  font:"Baskerville,'Times New Roman',serif" },
+  { id:"futura",      name:"Futura",       font:"Futura,'Century Gothic',sans-serif" },
+  { id:"helvetica",   name:"Helvetica",    font:"'Helvetica Neue',Helvetica,Arial,sans-serif" },
+  { id:"georgia",     name:"Georgia",      font:"Georgia,Palatino,serif" },
+  { id:"rounded",     name:"Rounded",      font:"'SF Pro Rounded','Varela Round','Nunito',system-ui,sans-serif" },
+  { id:"optima",      name:"Optima",       font:"Optima,'Segoe UI',Candara,sans-serif" },
+  { id:"trebuchet",   name:"Trebuchet",    font:"'Trebuchet MS',Tahoma,Verdana,sans-serif" },
+];
+const ALL_VARS = ["--bg","--card","--modal","--hdr-bg","--acc","--acc-hi","--acc-a","--acc-b","--acc-glow","--acc-bdr","--acc-dim","--txt","--txt-b","--txt-d","--bdr","--fill-1","--fill-2","--fill-3","--hairline","--shadow"];
+
+function _applyThemeVars(id){
+  const t = THEMES.find(t => t.id === id) || THEMES[0];
+  const r = document.documentElement;
+  ALL_VARS.forEach(v => r.style.removeProperty(v));
+  Object.entries(t.vars).forEach(([k,v]) => r.style.setProperty(k,v));
+  // Match the browser/OS UI bar to the active theme's background
+  try {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const bg = getComputedStyle(r).getPropertyValue('--bg').trim();
+    if(meta && bg) meta.setAttribute('content', bg);
+  } catch(e){}
+}
+function _applyFontVar(id){
+  const f = FONTS.find(f => f.id === id) || FONTS[0];
+  document.documentElement.style.setProperty("--font", f.font);
+}
+try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e){}
+try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
+</script>
+<script>
 // Service worker registration — in its own script tag so it always runs,
 // even if the main app script crashes on an old broken cached version.
 if('serviceWorker' in navigator){
@@ -1156,7 +1248,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.17.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.17.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛒</div>
@@ -1471,7 +1563,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.17.1";
+const APP_VER    = "2.17.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3995,92 +4087,6 @@ function renderPerf(){
   </div>`;
 }
 
-// ── THEMES ──
-const THEMES = [
-  { id:"midnight-gold", name:"Midnight Gold", dots:["#111120","#c9a040","#1c1c2e"], vars:{} },
-  { id:"forest",        name:"Forest",        dots:["#0e1a10","#3db870","#162218"],
-    vars:{"--bg":"#0e1a10","--card":"#162218","--modal":"#162218","--hdr-bg":"rgba(14,26,16,0.9)",
-          "--acc":"#3db870","--acc-hi":"#52d488","--acc-a":"#2a9a55","--acc-b":"#185c34",
-          "--acc-glow":"rgba(42,154,85,0.4)","--acc-bdr":"rgba(42,154,85,0.35)","--acc-dim":"rgba(42,154,85,0.18)"} },
-  { id:"ocean",         name:"Ocean",         dots:["#0c1a24","#2ab4c8","#142230"],
-    vars:{"--bg":"#0c1a24","--card":"#142230","--modal":"#142230","--hdr-bg":"rgba(12,26,36,0.9)",
-          "--acc":"#2ab4c8","--acc-hi":"#40cade","--acc-a":"#1a8ea0","--acc-b":"#0e5a68",
-          "--acc-glow":"rgba(26,142,160,0.4)","--acc-bdr":"rgba(26,142,160,0.35)","--acc-dim":"rgba(26,142,160,0.18)"} },
-  { id:"neon",          name:"Neon",          dots:["#0f0d1e","#9a6ee8","#1a1530"],
-    vars:{"--bg":"#0f0d1e","--card":"#1a1530","--modal":"#1a1530","--hdr-bg":"rgba(15,13,30,0.9)",
-          "--acc":"#9a6ee8","--acc-hi":"#b08cf8","--acc-a":"#7848c8","--acc-b":"#4a2890",
-          "--acc-glow":"rgba(120,72,200,0.4)","--acc-bdr":"rgba(120,72,200,0.35)","--acc-dim":"rgba(120,72,200,0.18)"} },
-  { id:"crimson",       name:"Crimson",       dots:["#1a0d0e","#e05858","#2a1516"],
-    vars:{"--bg":"#1a0d0e","--card":"#2a1516","--modal":"#2a1516","--hdr-bg":"rgba(26,13,14,0.9)",
-          "--acc":"#e05858","--acc-hi":"#f07070","--acc-a":"#b83838","--acc-b":"#7a1c1c",
-          "--acc-glow":"rgba(184,56,56,0.4)","--acc-bdr":"rgba(184,56,56,0.35)","--acc-dim":"rgba(184,56,56,0.18)"} },
-  { id:"smoke",         name:"Smoke",         dots:["#111118","#a0a0c0","#1c1c28"],
-    vars:{"--bg":"#111118","--card":"#1c1c28","--modal":"#1c1c28","--hdr-bg":"rgba(17,17,24,0.9)",
-          "--acc":"#a0a0c0","--acc-hi":"#c0c0e0","--acc-a":"#7878a0","--acc-b":"#505070",
-          "--acc-glow":"rgba(120,120,160,0.3)","--acc-bdr":"rgba(120,120,160,0.3)","--acc-dim":"rgba(120,120,160,0.15)"} },
-  { id:"daylight",      name:"Daylight",      dots:["#f0ece0","#9a6410","#ffffff"],
-    vars:{"--bg":"#f0ece0","--card":"#ffffff","--modal":"#f8f4ec","--hdr-bg":"rgba(240,236,224,0.94)",
-          "--acc":"#9a6410","--acc-hi":"#b87820","--acc-a":"#b87820","--acc-b":"#7a4e10",
-          "--acc-glow":"rgba(184,120,32,0.3)","--acc-bdr":"rgba(184,120,32,0.35)","--acc-dim":"rgba(184,120,32,0.12)",
-          "--txt":"#1a1630","--txt-b":"#1a1630","--txt-d":"#605060","--bdr":"rgba(0,0,0,0.1)",
-          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(40,30,10,0.13)"} },
-  { id:"sunrise",       name:"Sunrise",       dots:["#fff4e8","#c84a10","#ffffff"],
-    vars:{"--bg":"#fff4e8","--card":"#ffffff","--modal":"#fef0e0","--hdr-bg":"rgba(255,244,232,0.94)",
-          "--acc":"#c84a10","--acc-hi":"#e06020","--acc-a":"#e06020","--acc-b":"#a83008",
-          "--acc-glow":"rgba(224,96,32,0.3)","--acc-bdr":"rgba(224,96,32,0.35)","--acc-dim":"rgba(224,96,32,0.12)",
-          "--txt":"#1a100a","--txt-b":"#1a100a","--txt-d":"#706050","--bdr":"rgba(0,0,0,0.12)",
-          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(60,30,10,0.13)"} },
-  { id:"rose",    name:"Rose",    dots:["#1a0d12","#e05878","#2a1520"],
-    vars:{"--bg":"#1a0d12","--card":"#2a1520","--modal":"#221018","--hdr-bg":"rgba(26,13,18,0.9)",
-          "--acc":"#e05878","--acc-hi":"#f07090","--acc-a":"#c03858","--acc-b":"#801830",
-          "--acc-glow":"rgba(192,56,88,0.4)","--acc-bdr":"rgba(192,56,88,0.35)","--acc-dim":"rgba(192,56,88,0.18)"} },
-  { id:"cobalt",  name:"Cobalt",  dots:["#0a0e1e","#3a7ff0","#141a2e"],
-    vars:{"--bg":"#0a0e1e","--card":"#141a2e","--modal":"#101828","--hdr-bg":"rgba(10,14,30,0.92)",
-          "--acc":"#3a7ff0","--acc-hi":"#5a9fff","--acc-a":"#2860c8","--acc-b":"#1840a0",
-          "--acc-glow":"rgba(58,127,240,0.4)","--acc-bdr":"rgba(58,127,240,0.35)","--acc-dim":"rgba(58,127,240,0.18)"} },
-  { id:"arctic",  name:"Arctic",  dots:["#eef6ff","#0088cc","#ffffff"],
-    vars:{"--bg":"#eef6ff","--card":"#ffffff","--modal":"#f4f9ff","--hdr-bg":"rgba(238,246,255,0.94)",
-          "--acc":"#0088cc","--acc-hi":"#00aaee","--acc-a":"#0077bb","--acc-b":"#005588",
-          "--acc-glow":"rgba(0,136,204,0.28)","--acc-bdr":"rgba(0,136,204,0.35)","--acc-dim":"rgba(0,136,204,0.12)",
-          "--txt":"#1a2a3a","--txt-b":"#0a1828","--txt-d":"#4a6880","--bdr":"rgba(0,0,0,0.09)",
-          "--fill-1":"rgba(10,40,70,0.05)","--fill-2":"rgba(10,40,70,0.1)","--fill-3":"rgba(10,40,70,0.03)","--hairline":"rgba(10,40,70,0.08)","--shadow":"rgba(10,50,90,0.12)"} },
-  { id:"mint",    name:"Mint",    dots:["#effaf7","#00a878","#ffffff"],
-    vars:{"--bg":"#effaf7","--card":"#ffffff","--modal":"#eaf7f3","--hdr-bg":"rgba(239,250,247,0.95)",
-          "--acc":"#00a878","--acc-hi":"#00c890","--acc-a":"#008f66","--acc-b":"#005a40",
-          "--acc-glow":"rgba(0,168,120,0.28)","--acc-bdr":"rgba(0,168,120,0.35)","--acc-dim":"rgba(0,168,120,0.12)",
-          "--txt":"#0a2018","--txt-b":"#041410","--txt-d":"#3a7060","--bdr":"rgba(0,0,0,0.08)",
-          "--fill-1":"rgba(0,50,35,0.05)","--fill-2":"rgba(0,50,35,0.1)","--fill-3":"rgba(0,50,35,0.03)","--hairline":"rgba(0,50,35,0.08)","--shadow":"rgba(0,60,40,0.12)"} },
-];
-const FONTS = [
-  { id:"terminal", name:"Terminal", font:"'Courier New',monospace" },
-  { id:"clean",    name:"Clean",    font:"system-ui,-apple-system,sans-serif" },
-  { id:"sharp",    name:"Sharp",    font:"'SF Mono','Menlo','Monaco',monospace" },
-  { id:"baskerville", name:"Baskerville",  font:"Baskerville,'Times New Roman',serif" },
-  { id:"futura",      name:"Futura",       font:"Futura,'Century Gothic',sans-serif" },
-  { id:"helvetica",   name:"Helvetica",    font:"'Helvetica Neue',Helvetica,Arial,sans-serif" },
-  { id:"georgia",     name:"Georgia",      font:"Georgia,Palatino,serif" },
-  { id:"rounded",     name:"Rounded",      font:"'SF Pro Rounded','Varela Round','Nunito',system-ui,sans-serif" },
-  { id:"optima",      name:"Optima",       font:"Optima,'Segoe UI',Candara,sans-serif" },
-  { id:"trebuchet",   name:"Trebuchet",    font:"'Trebuchet MS',Tahoma,Verdana,sans-serif" },
-];
-const ALL_VARS = ["--bg","--card","--modal","--hdr-bg","--acc","--acc-hi","--acc-a","--acc-b","--acc-glow","--acc-bdr","--acc-dim","--txt","--txt-b","--txt-d","--bdr","--fill-1","--fill-2","--fill-3","--hairline","--shadow"];
-
-function _applyThemeVars(id){
-  const t = THEMES.find(t => t.id === id) || THEMES[0];
-  const r = document.documentElement;
-  ALL_VARS.forEach(v => r.style.removeProperty(v));
-  Object.entries(t.vars).forEach(([k,v]) => r.style.setProperty(k,v));
-  // Match the browser/OS UI bar to the active theme's background
-  try {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    const bg = getComputedStyle(r).getPropertyValue('--bg').trim();
-    if(meta && bg) meta.setAttribute('content', bg);
-  } catch(e){}
-}
-function _applyFontVar(id){
-  const f = FONTS.find(f => f.id === id) || FONTS[0];
-  document.documentElement.style.setProperty("--font", f.font);
-}
 function applyTheme(id){
   D.theme = id;
   try{ localStorage.setItem("ledger_theme", id); }catch(e){}
