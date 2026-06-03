@@ -1156,20 +1156,20 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.16.7</div>
+    <div class="wn-badge" id="wnVersion">Version 2.17.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🌍</div>
+        <div class="wn-icon">🛒</div>
         <div>
-          <div class="wn-title">Speak Your Language</div>
-          <div class="wn-desc">The Ledger now speaks 10 languages — auto-matched to your phone, or pick your own under More → Language. English, Spanish, Chinese, Hindi, Arabic, French, Portuguese, Russian, German and Japanese, with full right-to-left support for Arabic.</div>
+          <div class="wn-title">Sell Multiple Products at Once</div>
+          <div class="wn-desc">Ring up a customer's whole order in one go — add bundles from different products to a single sale using the new product picker in Record Sale, and it's logged as one grouped purchase in Activity.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">📲</div>
+        <div class="wn-icon">💵</div>
         <div>
-          <div class="wn-title">Add It to Your Phone</div>
-          <div class="wn-desc">A new step-by-step guide shows how to install The Ledger on iPhone or Android, so it runs full-screen and offline like a real app — under More → Install on your phone.</div>
+          <div class="wn-title">Partial Payments</div>
+          <div class="wn-desc">When a customer pays only part of what they owe, tap Mark unpaid and enter how much they paid. The Ledger tracks the running balance in Who Owes You until it's settled.</div>
         </div>
       </div>
     </div>
@@ -1209,6 +1209,10 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
     <div class="modal-hdr">
       <div class="m-title">Record Sale</div>
       <button class="modal-close" onclick="closeModal('sale')">✕</button>
+    </div>
+    <div class="m-sec" id="saleProductSec" style="display:none">
+      <span class="m-lbl">Product</span>
+      <select class="strain-sel" id="saleStrainSel" onchange="saleSwitchStrain(this.value)" style="width:100%;box-sizing:border-box"></select>
     </div>
     <div class="m-sec">
       <span class="m-lbl">Bundle</span>
@@ -1260,6 +1264,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div id="saleCustPanel" style="display:none;margin-top:8px">
         <input class="m-input" id="saleCustIn" placeholder="Customer name" autocomplete="off" oninput="onCustInput()"/>
         <button class="unpaid-btn" id="saleUnpaidBtn" onclick="toggleUnpaid()">Mark unpaid · they owe this</button>
+        <div id="salePaidRow" style="display:none;margin-top:9px">
+          <div class="disc-row">
+            <input class="disc-in" id="salePaidIn" type="number" inputmode="decimal" placeholder="Paid now (optional)" oninput="onPaidInput()" style="flex:1"/>
+            <span id="salePaidOwe" style="font-size:10px;color:var(--acc);white-space:nowrap;align-self:center;padding:0 6px"></span>
+          </div>
+        </div>
       </div>
     </div>
     <div id="saleTagWrap" style="margin-bottom:12px">
@@ -1461,7 +1471,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.16.7";
+const APP_VER    = "2.17.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -1898,7 +1908,7 @@ let _renamingStrain = null;
 let expCategory = "Re-up";
 let saleTag = "";
 let salePayment = "Cash", saleDiscount = 0, saleDiscountType = "amt"; // amt | pct
-let saleCustomer = "", saleUnpaid = false;
+let saleCustomer = "", saleUnpaid = false, salePartialPaid = 0, saleOpenStrain = "";
 let logSearch = "";
 let bulkCart = [];
 // Apply the current discount to a base line total
@@ -2011,6 +2021,17 @@ function _showUndoToast(){
 function undoDelete(){
   const snap = _undoStack.shift();
   if(!snap){ document.getElementById("toast").className = ""; return; }
+  if(snap.multiBatch){
+    Object.entries(snap.affected).forEach(([key, info]) => {
+      const st = D.strains[key]; if(!st) return;
+      st.stock = info.pre.stock; st.earned = info.pre.earned; st.startStock = info.pre.startStock;
+      st.restockTotal = info.pre.restockTotal; st.useTotal = info.pre.useTotal; st.expenses = info.pre.expenses;
+      info.removed.slice().sort((a,b)=>a.idx-b.idx).forEach(r => st.logs.splice(r.idx, 0, r.entry));
+    });
+    persist(); renderAll();
+    if(_undoStack.length > 0){ _showUndoToast(); } else { clearTimeout(_undoTimer); showToast("Restored", "ok"); }
+    return;
+  }
   const s = D.strains[snap.strainKey];
   if(s){
     // Restore the exact pre-delete stats from the snapshot
@@ -2282,6 +2303,7 @@ function updateSaleModal(){
     ? "= " + fmtDollar(fin) + " (was " + fmtDollar(base) + ")"
     : "= " + fmtDollar(base) + " total";
   document.getElementById("saleConfirm").textContent = "Confirm — " + fmtDollar(fin);
+  updatePaidOwe();
 }
 function setFilter(f, btn){
   logFilter = f;
@@ -2308,13 +2330,28 @@ function openModal(id){
   if(id === "resetProduct"){ const el = document.getElementById("resetProductName"); if(el) el.textContent = D.cur; }
   document.getElementById("modal-"+id).classList.add("open");
 }
-function closeModal(id){ document.getElementById("modal-"+id).classList.remove("open"); }
+function closeModal(id){
+  document.getElementById("modal-"+id).classList.remove("open");
+  // Cancelling the sale modal after switching products in it should restore the
+  // product the app was on, so the home view isn't left on a different product.
+  if(id === "sale" && saleOpenStrain && D.strains[saleOpenStrain] && D.cur !== saleOpenStrain){
+    D.cur = saleOpenStrain; syncUnitDefaults(); syncPricesFromRef(); persist(); renderAll();
+  }
+}
 function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
 function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
   saleQty = 1; saleTag = "";
   bulkCart = [];
+  // Product selector — lets one purchase span multiple products. Only shown when
+  // there's more than one product. Remember which product we opened on.
+  saleOpenStrain = D.cur;
+  const psel = document.getElementById("saleStrainSel");
+  const pkeys = Object.keys(D.strains);
+  if(psel) psel.innerHTML = pkeys.map(k=>`<option value="${escAttr(k)}"${k===D.cur?" selected":""}>${escHtml(k)}</option>`).join("");
+  const psec = document.getElementById("saleProductSec");
+  if(psec) psec.style.display = pkeys.length>1 ? "block" : "none";
   document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("on"));
   // Collapse tag panel back to toggle link
   const tp = document.getElementById("saleTagPanel");
@@ -2334,7 +2371,10 @@ function openSaleModal(){
   const cp = document.getElementById("saleCustPanel"); if(cp) cp.style.display = "none";
   const ci = document.getElementById("saleCustToggleIcon"); if(ci) ci.textContent = "＋";
   const cin = document.getElementById("saleCustIn"); if(cin) cin.value = "";
-  const ub = document.getElementById("saleUnpaidBtn"); if(ub){ ub.classList.remove("on"); ub.textContent = "Mark unpaid · they owe this"; }
+  const ub = document.getElementById("saleUnpaidBtn"); if(ub){ ub.classList.remove("on"); ub.textContent = __("Mark unpaid · they owe this"); }
+  salePartialPaid = 0;
+  const pr = document.getElementById("salePaidRow"); if(pr) pr.style.display = "none";
+  const pin = document.getElementById("salePaidIn"); if(pin) pin.value = "";
   // Hide bulk section
   const bi = document.getElementById("bulkItems");
   const bcw = document.getElementById("bulkClearWrap");
@@ -2408,20 +2448,58 @@ function onCustInput(){ saleCustomer = document.getElementById("saleCustIn").val
 function toggleUnpaid(){
   saleUnpaid = !saleUnpaid;
   const b = document.getElementById("saleUnpaidBtn");
-  if(b){ b.classList.toggle("on", saleUnpaid); b.textContent = saleUnpaid ? "✓ Unpaid · added to what they owe" : "Mark unpaid · they owe this"; }
+  if(b){ b.classList.toggle("on", saleUnpaid); b.textContent = saleUnpaid ? __("✓ Unpaid · added to what they owe") : __("Mark unpaid · they owe this"); }
+  const row = document.getElementById("salePaidRow");
+  if(row) row.style.display = saleUnpaid ? "block" : "none";
+  if(!saleUnpaid){ salePartialPaid = 0; const pi=document.getElementById("salePaidIn"); if(pi) pi.value=""; }
+  updatePaidOwe();
+}
+function onPaidInput(){
+  salePartialPaid = Math.max(0, parseFloat(document.getElementById("salePaidIn").value)||0);
+  updatePaidOwe();
+}
+// Total value of the whole purchase being built (cart + current selection).
+function currentSaleTotal(){
+  let t = bulkCart.reduce((a,it)=> a + (it.total!=null ? it.total : it.price*it.qty), 0);
+  t += discTotal(salePrice * saleQty);
+  return t;
+}
+function updatePaidOwe(){
+  const el = document.getElementById("salePaidOwe"); if(!el) return;
+  if(!saleUnpaid){ el.textContent = ""; return; }
+  const owe = Math.max(0, currentSaleTotal() - salePartialPaid);
+  el.textContent = __("Owes {0}", fmtDollar(owe));
+}
+// Switch the product being sold without leaving the modal — the cart keeps each
+// line's own product, so you can add bundles from several products to one purchase.
+function saleSwitchStrain(name){
+  if(!D.strains[name]) return;
+  D.cur = name; syncUnitDefaults(); syncPricesFromRef();
+  saleQty = 1; clearDiscount();
+  const sc = cur();
+  if(isWeight(sc)){ saleType = "14g"; salePrice = midPrice("14g"); }
+  else { const first=(sc.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
+  renderPackBtns(); updateSaleModal(); renderBulkCart();
 }
 
 // ── CUSTOMERS / CREDIT (across all products) ──
+// Outstanding balance for one sale entry — handles partial payment and batched
+// (multi-item / multi-product) purchases, which carry batchTotal/batchPaid.
+function entryOwed(l){
+  if(!l || l.type!=="sale" || l.paid!==false) return 0;
+  if(l.batchId) return Math.max(0, (+l.batchTotal||0) - (+l.batchPaid||0));
+  return Math.max(0, (+l.total||0) - (+l.amountPaid||0));
+}
 function owedByCustomer(){
-  const map = {};
-  Object.entries(D.strains||{}).forEach(([prod,s])=>{
+  const map = {}, seenBatch = {};
+  Object.values(D.strains||{}).forEach(s=>{
     (s.logs||[]).forEach(l=>{
-      if(l.type==="sale" && l.paid===false){
-        const name = (l.customer||"").trim() || "Unknown";
-        if(!map[name]) map[name] = { owed:0, count:0 };
-        map[name].owed += (+l.total||0);
-        map[name].count++;
-      }
+      if(l.type!=="sale" || l.paid!==false) return;
+      if(l.batchId){ if(seenBatch[l.batchId]) return; seenBatch[l.batchId] = 1; } // count each purchase once
+      const name = (l.customer||"").trim() || "Unknown";
+      if(!map[name]) map[name] = { owed:0, count:0 };
+      map[name].owed += entryOwed(l);
+      map[name].count++;
     });
   });
   return map;
@@ -2574,67 +2652,57 @@ function doUse(){
 }
 function confirmSale(){
   const s = cur(); if(!s) return;
-  // If bulk cart has items, add current item to cart then log all
-  if(bulkCart.length > 0){
-    // Add current selection to cart first
-    let curTw;
-    if(isWeight(s)){ curTw = round(PRICES[saleType].w * saleQty); }
-    else { const r=(s.priceRef||[]).find(r=>r.label===saleType); curTw=round((r?packW(r):1)*saleQty); }
-    bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:curTw, total:discTotal(salePrice*saleQty), disc:_discRec() });
-    // Validate total stock
-    const totalW = bulkCart.reduce((a,item)=>a+item.w, 0);
-    if(totalW > s.stock){ showToast("Not enough stock for cart!", "err"); bulkCart.pop(); return; }
-    const batchId = Date.now();
-    let totalEarned = 0;
-    bulkCart.forEach((item, i) => {
-      const earned = item.total != null ? item.total : item.price * item.qty;
-      totalEarned += earned;
-      s.stock = round(s.stock - item.w);
-      s.earned = (s.earned||0) + earned;
-      const note = i === bulkCart.length-1 ? document.getElementById("saleNote").value.trim() : "";
-      const entry = { id:batchId + i, type:"sale", pack:item.type, qty:item.qty, price:item.price, total:earned, w:item.w, note, date:now(), after:s.stock, batchId, payment:salePayment };
-      if(saleTag) entry.tag = saleTag;
-      if(item.disc) entry.discount = item.disc;
-      if(saleCustomer) entry.customer = saleCustomer;
-      if(saleUnpaid) entry.paid = false;
-      s.logs.unshift(entry);
-    });
-    bulkCart = []; saleDiscount = 0;
-    closeModal("sale");
-    saleQty = 1;
-    if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
-    else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
-    renderPackBtns(); updateSaleModal();
-    showToast("Bulk sale — " + fmtDollar(totalEarned), "ok");
-    persist(); renderAll();
-    return;
+  // Weight of the current (not-yet-added) selection, for the active product.
+  let curTw;
+  if(isWeight(s)){ curTw = PRICES[saleType] ? round(PRICES[saleType].w * saleQty) : 0; }
+  else { const r=(s.priceRef||[]).find(r=>r.label===saleType); curTw=round((r?packW(r):1)*saleQty); }
+  // Full purchase = everything already in the cart + the current selection.
+  const items = bulkCart.slice();
+  if(curTw > 0) items.push({ strain:D.cur, type:saleType, qty:saleQty, price:salePrice, w:curTw, total:discTotal(salePrice*saleQty), disc:_discRec() });
+  if(items.length === 0){ showToast("Select a bundle first", "err"); return; }
+  // Validate each product has enough stock for its share of the purchase.
+  const byStrain = {};
+  items.forEach(it => { const k = it.strain || D.cur; byStrain[k] = (byStrain[k]||0) + it.w; });
+  for(const k in byStrain){
+    const st = D.strains[k];
+    if(st && byStrain[k] > (st.stock||0) + 1e-9){ showToast("Not enough stock!", "err"); return; }
   }
-  // Normal single sale
-  let tw;
-  if(isWeight(s)){
-    tw = round(PRICES[saleType].w * saleQty);
-  } else {
-    const r = (s.priceRef||[]).find(r => r.label === saleType);
-    tw = round((r ? packW(r) : 1) * saleQty);
-  }
-  if(tw > s.stock){ showToast("Not enough stock!", "err"); return; }
-  const earned = discTotal(salePrice * saleQty);
-  const ns = round(s.stock - tw);
-  s.stock = ns; s.earned = (s.earned||0) + earned;
+  const isBatch = items.length > 1;
+  const batchId = isBatch ? Date.now() : null;
   const note = document.getElementById("saleNote").value.trim();
-  const entry = { id:Date.now(), type:"sale", pack:saleType, qty:saleQty, price:salePrice, total:earned, w:tw, note:note, date:now(), after:ns, payment:salePayment };
-  if(saleTag) entry.tag = saleTag;
-  if(saleDiscount>0) entry.discount = { amt:saleDiscount, type:saleDiscountType };
-  if(saleCustomer) entry.customer = saleCustomer;
-  if(saleUnpaid) entry.paid = false;
-  s.logs.unshift(entry);
-  saleDiscount = 0;
+  const batchTotal = items.reduce((a,it)=> a + (it.total!=null ? it.total : it.price*it.qty), 0);
+  const batchPaid = saleUnpaid ? Math.min(Math.max(0, salePartialPaid||0), batchTotal) : 0;
+  // Denormalized item list so the grouped Activity card shows the whole purchase
+  // even when viewing from a single product's feed.
+  const itemSummary = items.map(it => ({ strain: it.strain||D.cur, label: it.type, qty: it.qty, total: (it.total!=null?it.total:it.price*it.qty) }));
+  items.forEach((it, i) => {
+    const st = D.strains[it.strain] || s;
+    const earned = it.total!=null ? it.total : it.price*it.qty;
+    st.stock = round(st.stock - it.w);
+    st.earned = (st.earned||0) + earned;
+    const entry = { id:(batchId ? batchId+i : Date.now()), type:"sale", pack:it.type, qty:it.qty, price:it.price, total:earned, w:it.w, note:(i===items.length-1 ? note : ""), date:now(), after:st.stock, payment:salePayment };
+    if(saleTag) entry.tag = saleTag;
+    if(it.disc) entry.discount = it.disc;
+    if(saleCustomer) entry.customer = saleCustomer;
+    if(saleUnpaid) entry.paid = false;
+    if(isBatch){
+      entry.batchId = batchId; entry.batchItems = itemSummary; entry.batchTotal = batchTotal;
+      if(saleUnpaid) entry.batchPaid = batchPaid;
+    } else if(saleUnpaid && batchPaid > 0){
+      entry.amountPaid = batchPaid;
+    }
+    st.logs.unshift(entry);
+  });
+  // Restore the product the modal opened on, reset state, close.
+  bulkCart = []; saleDiscount = 0; salePartialPaid = 0;
+  if(saleOpenStrain && D.strains[saleOpenStrain]) D.cur = saleOpenStrain;
+  syncUnitDefaults(); syncPricesFromRef();
+  const sc = cur();
   closeModal("sale");
   saleQty = 1;
-  if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
-  else { const first=(s.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
-  renderPackBtns(); updateSaleModal();
-  showToast("Sale recorded — " + fmtDollar(earned), "ok");
+  if(sc && isWeight(sc)){ saleType = "14g"; salePrice = midPrice("14g"); }
+  else { const first=(sc && sc.priceRef||[])[0]; saleType=first?first.label:"Single"; salePrice=first?first.hi:5; }
+  showToast((isBatch ? "Purchase logged — " : "Sale recorded — ") + fmtDollar(batchTotal), "ok");
   persist(); renderAll();
 }
 // ── BULK CART ──
@@ -2644,7 +2712,7 @@ function addToBulkCart(){
   if(isWeight(s)){ tw = round(PRICES[saleType].w * saleQty); }
   else { const r=(s.priceRef||[]).find(r=>r.label===saleType); tw=round((r?packW(r):1)*saleQty); }
   if(tw <= 0){ showToast("Select a bundle first","err"); return; }
-  bulkCart.push({ type:saleType, qty:saleQty, price:salePrice, w:tw, total:discTotal(salePrice*saleQty), disc:_discRec() });
+  bulkCart.push({ strain:D.cur, type:saleType, qty:saleQty, price:salePrice, w:tw, total:discTotal(salePrice*saleQty), disc:_discRec() });
   // Reset current selection + per-line discount
   saleQty = 1; clearDiscount();
   if(isWeight(s)){ saleType = "14g"; salePrice = midPrice("14g"); }
@@ -2676,9 +2744,13 @@ function renderBulkCart(){
   if(bcw) bcw.style.display = "block";
   const lineTot = item => item.total != null ? item.total : item.price*item.qty;
   const total = bulkCart.reduce((a,item)=>a+lineTot(item),0);
-  bl.innerHTML = bulkCart.map((item,i)=>
-    `<div class="bulk-item"><span>${item.qty}× ${item.type} — ${fmtDollar(lineTot(item))}${item.disc?" 🏷️":""}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`
-  ).join("");
+  // Show the product name on each line when the purchase spans more than one product.
+  const strains = new Set(bulkCart.map(it => it.strain || D.cur));
+  const showProd = strains.size > 1 || (bulkCart[0] && (bulkCart[0].strain||D.cur) !== D.cur);
+  bl.innerHTML = bulkCart.map((item,i)=>{
+    const prod = showProd ? `<span style="color:var(--txt-d)">${escHtml(item.strain||D.cur)} · </span>` : "";
+    return `<div class="bulk-item"><span>${prod}${item.qty}× ${item.type} — ${fmtDollar(lineTot(item))}${item.disc?" 🏷️":""}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`;
+  }).join("");
   bt.textContent = "Cart total: " + fmtDollar(total);
 }
 
@@ -2715,6 +2787,7 @@ function deleteLog(id){
   const idx = s.logs.findIndex(l => l.id === id);
   if(idx === -1) return;
   const l = s.logs[idx];
+  if(l.batchId){ deleteBatch(l.batchId); return; } // grouped purchase → delete the whole thing
   // Snapshot pre-delete state so the change can be undone
   const snap = {
     strainKey: D.cur, idx, entry: l,
@@ -2729,6 +2802,32 @@ function deleteLog(id){
   const highs = s.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
   _pushUndo(snap);
+  persist(); renderAll();
+  _showUndoToast();
+}
+// Delete a whole batched purchase across every product it touched, reversing each
+// product's stock/earnings. One undo snapshot restores the entire purchase.
+function deleteBatch(batchId){
+  const affected = {};
+  Object.entries(D.strains||{}).forEach(([key, st]) => {
+    const hits = [];
+    (st.logs||[]).forEach((l,i) => { if(l.batchId===batchId) hits.push(i); });
+    if(!hits.length) return;
+    affected[key] = {
+      pre: { stock:st.stock, earned:st.earned||0, startStock:st.startStock, restockTotal:st.restockTotal||0, useTotal:st.useTotal||0, expenses:st.expenses||0 },
+      removed: hits.map(i => ({ idx:i, entry:st.logs[i] }))
+    };
+    for(let j=hits.length-1; j>=0; j--){
+      const l = st.logs[hits[j]];
+      st.stock = round(st.stock + l.w);
+      st.earned = Math.max(0, (st.earned||0) - l.total);
+      st.logs.splice(hits[j], 1);
+    }
+    const highs = st.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
+    st.startStock = highs.length > 0 ? Math.max(...highs, st.stock) : st.stock;
+  });
+  if(!Object.keys(affected).length) return;
+  _pushUndo({ multiBatch:true, affected });
   persist(); renderAll();
   _showUndoToast();
 }
@@ -3531,7 +3630,15 @@ function renderLog(){
     : logs.length + " " + __("Entries");
   renderLogSummary(logs); updateFiltersChip();
   if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
+  const seenBatch = {};
   document.getElementById("logList").innerHTML = logs.map(l => {
+    if(l.batchId){ if(seenBatch[l.batchId]) return ""; seenBatch[l.batchId] = 1; return renderBatchCard(l, s); }
+    return renderSingleLog(l, s);
+  }).join("");
+  attachSwipeHandlers();
+}
+// Render one non-batched log entry (sale / restock / use / expense).
+function renderSingleLog(l, s){
     const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
@@ -3539,7 +3646,7 @@ function renderLog(){
     const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
     const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
     const unpaidBadge = (l.type==="sale" && l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
-    const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(l.total):""}</div>` : "";
+    const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
     const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
@@ -3552,8 +3659,20 @@ function renderLog(){
       inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
     return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
-  }).join("");
-  attachSwipeHandlers();
+}
+// Render a batched purchase (multiple bundles / products bought together) as one
+// grouped card. The denormalized batchItems list shows the whole purchase even
+// when viewed from a single product's feed. Swipe deletes the entire purchase.
+function renderBatchCard(l, s){
+  const items = l.batchItems || [];
+  const multiProd = Object.keys(D.strains||{}).length > 1;
+  const lines = items.map(it => `<div class="log-note">• ${it.qty}× ${escHtml(it.label)}${multiProd?` <span style="color:var(--txt-d)">(${escHtml(it.strain)})</span>`:""} — ${fmtDollar(it.total)}</div>`).join("");
+  const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
+  const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
+  const unpaidBadge = (l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
+  const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
+  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"></div></div>`;
+  return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
 }
 
 // Range summary for the currently-filtered log set (revenue, expenses, net, top seller)
