@@ -1156,7 +1156,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.17.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.17.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛒</div>
@@ -1471,7 +1471,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.17.0";
+const APP_VER    = "2.17.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2008,15 +2008,29 @@ function _pushUndo(snap){
   _undoStack.unshift(snap);
   if(_undoStack.length > UNDO_MAX) _undoStack.length = UNDO_MAX;
 }
-function _showUndoToast(){
+const UNDO_WINDOW = 300000; // 5 minutes
+// Draw the undo toast (no timer logic) — used both on delete and when returning
+// to the Activity page while a delete is still undoable.
+function _renderUndoToast(){
   const t = document.getElementById("toast");
-  clearTimeout(_toastTimer); clearTimeout(_undoTimer);
+  if(!t || _undoStack.length === 0) return;
+  clearTimeout(_toastTimer);
   const n = _undoStack.length;
   const label = n > 1 ? `${__("Entry removed")} (${n})` : __("Entry removed");
   t.innerHTML = `${label} <button class="toast-undo-btn" onclick="undoDelete()">${__("Undo")}</button>`;
   t.className = "show interactive";
-  // After 10 min, commit the deletes permanently and hide toast
-  _undoTimer = setTimeout(() => { _undoStack = []; t.className = ""; }, 600000);
+}
+// Hide the undo toast visually without cancelling the undo window (e.g. when you
+// leave the Activity page). The toast only lives on the Activity page.
+function _hideUndoToastDisplay(){
+  const t = document.getElementById("toast");
+  if(t && t.classList.contains("interactive")) t.className = "";
+}
+function _showUndoToast(){
+  clearTimeout(_undoTimer);
+  _renderUndoToast(); // deletes happen on the Activity page, so show it there now
+  // After the undo window, commit the deletes permanently and hide the toast.
+  _undoTimer = setTimeout(() => { _undoStack = []; _hideUndoToastDisplay(); }, UNDO_WINDOW);
 }
 function undoDelete(){
   const snap = _undoStack.shift();
@@ -4465,6 +4479,10 @@ function switchTab(name, btn){
   document.getElementById("panel-"+name).classList.add("on");
   btn.classList.add("on");
   if(name==="settings") renderSettings();
+  // The "Entry removed · Undo" toast only lives on the Activity page: show it
+  // there if a delete is still undoable, hide it (window keeps running) elsewhere.
+  if(name==="log"){ if(_undoStack.length > 0) _renderUndoToast(); }
+  else { _hideUndoToastDisplay(); }
 }
 
 // ── GUIDED WALKTHROUGH ── first-time coach-mark tour of the new layout
