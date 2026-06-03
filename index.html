@@ -659,6 +659,63 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .btn-add-another{width:100%;background:none;border:1px dashed var(--bdr);color:var(--txt-d);border-radius:10px;padding:9px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);margin-top:8px;margin-bottom:8px;}
 .btn-add-another:active{background:var(--fill-1);}
 
+/* ── INVOICING ── the paper is theme-independent (always a clean white document) so it prints well */
+#invoicePaper{background:#fff;border-radius:10px;padding:22px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.35);}
+.inv-doc{color:#1a1a1a;font-family:'Helvetica Neue',Arial,sans-serif;}
+.inv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:2px solid #1a1a1a;padding-bottom:14px;}
+.inv-biz{display:flex;gap:11px;align-items:flex-start;min-width:0;}
+.inv-logo{width:50px;height:50px;object-fit:contain;border-radius:8px;flex-shrink:0;}
+.inv-biz-name{font-size:17px;font-weight:800;color:#111;line-height:1.15;}
+.inv-biz-meta{font-size:9.5px;color:#555;line-height:1.6;margin-top:3px;}
+.inv-meta{text-align:right;flex-shrink:0;}
+.inv-h1{font-size:21px;font-weight:800;letter-spacing:3px;color:#111;}
+.inv-no{font-size:12px;color:#333;margin-top:3px;font-weight:700;}
+.inv-dt{font-size:10px;color:#666;margin-top:2px;}
+.inv-billto{margin:14px 0 10px;}
+.inv-lbl{font-size:8px;letter-spacing:2px;color:#999;}
+.inv-cust{font-size:14px;font-weight:700;color:#111;margin-top:2px;}
+.inv-table{width:100%;border-collapse:collapse;margin:4px 0;table-layout:fixed;}
+.inv-table th{font-size:8.5px;letter-spacing:1px;color:#999;text-transform:uppercase;text-align:left;border-bottom:1px solid #ddd;padding:6px 4px;}
+.inv-table td{font-size:12px;color:#222;padding:8px 4px;border-bottom:1px solid #eee;vertical-align:top;overflow-wrap:break-word;}
+.inv-table th:nth-child(2),.inv-table td:nth-child(2){width:34px;}
+.inv-table th:nth-child(3),.inv-table td:nth-child(3){width:58px;}
+.inv-table th:nth-child(4),.inv-table td:nth-child(4){width:64px;}
+.inv-table .r{text-align:right;}
+.inv-biz,.inv-meta{min-width:0;}
+.inv-biz-name,.inv-biz-meta{overflow-wrap:break-word;}
+.inv-totals{margin-top:12px;margin-left:auto;width:62%;max-width:280px;}
+.inv-trow{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#333;padding:4px 0;}
+.inv-grand{font-weight:800;color:#111;font-size:15px;border-top:2px solid #1a1a1a;margin-top:4px;padding-top:8px;}
+.inv-bal{font-weight:800;color:#c0392b;font-size:14px;}
+.inv-status{display:inline-block;margin-top:14px;padding:4px 12px;border:2px solid;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:2px;}
+.inv-note{margin-top:14px;font-size:11px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:10px;}
+.inv-foot{margin-top:18px;text-align:center;font-size:9.5px;color:#aaa;}
+/* invoice editor (themed) */
+.inv-edit-wrap{margin-top:22px;}
+.inv-frow{margin-bottom:10px;display:flex;flex-direction:column;}
+.inv-frow2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.inv-frow2>div{display:flex;flex-direction:column;min-width:0;}
+.inv-ehead{display:grid;grid-template-columns:1fr 46px 60px 26px;gap:6px;font-size:8px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;padding:0 2px 4px;}
+.inv-erow{display:grid;grid-template-columns:1fr 46px 60px 26px;gap:6px;margin-bottom:6px;}
+.inv-ein{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px;color:var(--txt);font-size:12px;font-family:var(--font);outline:none;min-width:0;}
+.inv-ein.qty,.inv-ein.price{text-align:right;}
+.inv-erm{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;cursor:pointer;font-size:11px;}
+.inv-add{background:none;border:1px dashed var(--acc-bdr);color:var(--acc);border-radius:10px;padding:9px;width:100%;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);margin:4px 0 12px;}
+.inv-print-btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:var(--font);}
+.biz-logo-row{display:flex;gap:14px;align-items:center;margin-bottom:14px;}
+.biz-logo-prev{width:60px;height:60px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid var(--bdr);padding:3px;}
+.biz-logo-ph{width:60px;height:60px;border-radius:10px;background:var(--fill-1);border:1px dashed var(--bdr);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--txt-d);text-transform:uppercase;letter-spacing:1px;}
+/* keep everything within the phone width so the white paper never gets clipped */
+#invoicePage .subpage-body{overflow-x:hidden;}
+#invoicePaper{max-width:100%;}
+#invoicePage .m-input,.inv-ein{min-width:0;max-width:100%;width:100%;}
+@media print {
+  html, body { background:#fff !important; }
+  body * { visibility:hidden !important; }
+  #invoicePaper, #invoicePaper * { visibility:visible !important; }
+  #invoicePaper { position:fixed !important; left:0 !important; top:0 !important; width:100% !important; box-shadow:none !important; border-radius:0 !important; padding:0 !important; }
+}
+
 /* ── OPUS 4.8 POLISH ── refined depth, light & motion (all theme-safe) ── */
 /* Lit top edge + richer layered shadow on every surface card */
 .sgrid,.exp-card,.acard,.qs-card,.chart-wrap,.settings-card,.pref,.perf-card,.qs-tip,.ai-box,.add-pack-form{
@@ -981,6 +1038,19 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       </div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">Business &amp; Invoices</div>
+      <div class="settings-card">
+        <div class="settings-row" onclick="openSubpage('invoices')" style="cursor:pointer">
+          <span class="settings-row-lbl">🧾 Invoices</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+        <div class="settings-row" onclick="openSubpage('business')" style="cursor:pointer">
+          <span class="settings-row-lbl">🏢 Business profile</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+      </div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Preferences</div>
       <div id="currencySettings" style="margin-bottom:14px"></div>
       <div id="lowStockSettings"></div>
@@ -1211,6 +1281,48 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   </div>
 </div>
 
+<!-- BUSINESS PROFILE PAGE -->
+<div id="businessPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('business')">‹ Back</button>
+    <div class="subpage-title">Business Profile</div>
+  </div>
+  <div class="subpage-body">
+    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:16px">This appears on your invoices. Set it once.</div>
+    <div id="businessFields"></div>
+  </div>
+</div>
+
+<!-- INVOICES PAGE -->
+<div id="invoicesPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('invoices')">‹ Back</button>
+    <div class="subpage-title">Invoices</div>
+  </div>
+  <div class="subpage-body">
+    <button class="btn-confirm" style="margin-bottom:16px" onclick="newBlankInvoice()">＋ New Invoice</button>
+    <div class="sec-lbl" style="margin-top:0">Saved</div>
+    <div id="invoicesList"></div>
+  </div>
+</div>
+
+<!-- INVOICE EDITOR / PREVIEW PAGE -->
+<div id="invoicePage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('invoice')">‹ Back</button>
+    <div class="subpage-title">Invoice</div>
+    <button class="inv-print-btn" onclick="printInvoice()">⤓ PDF</button>
+  </div>
+  <div class="subpage-body">
+    <div id="invoicePaper"></div>
+    <button class="btn-confirm" style="margin-top:14px" onclick="printInvoice()">Print / Save as PDF</button>
+    <div class="inv-edit-wrap">
+      <div class="sec-lbl">Edit invoice</div>
+      <div id="invEditFields"></div>
+    </div>
+  </div>
+</div>
+
 <!-- PRICE REFERENCE PAGE -->
 <div id="priceRefPage" class="subpage">
   <div class="subpage-hdr">
@@ -1248,20 +1360,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.17.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.18.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🛒</div>
+        <div class="wn-icon">🧾</div>
         <div>
-          <div class="wn-title">Sell Multiple Products at Once</div>
-          <div class="wn-desc">Ring up a customer's whole order in one go — add bundles from different products to a single sale using the new product picker in Record Sale, and it's logged as one grouped purchase in Activity.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">💵</div>
-        <div>
-          <div class="wn-title">Partial Payments</div>
-          <div class="wn-desc">When a customer pays only part of what they owe, tap Mark unpaid and enter how much they paid. The Ledger tracks the running balance in Who Owes You until it's settled.</div>
+          <div class="wn-title">Professional Invoices</div>
+          <div class="wn-desc">Create clean, print-ready invoices — generate one from any sale, from a customer's balance in Who Owes You, or start blank. Add your logo and details in More → Business profile, then Print / Save as PDF to send. It tracks paid, partial and unpaid, and speaks all 10 languages.</div>
         </div>
       </div>
     </div>
@@ -1536,6 +1641,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
 <!-- HIDDEN FILE INPUT FOR IMPORT -->
 <input type="file" class="hidden-file" id="importFileInput" accept=".json" onchange="handleImportFile(event)"/>
+<input type="file" class="hidden-file" id="bizLogoInput" accept="image/*" onchange="onBusinessLogo(event)"/>
 
 <!-- RESET ALL MODAL -->
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
@@ -1563,7 +1669,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.17.2";
+const APP_VER    = "2.18.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2191,6 +2297,9 @@ function hydrate(){
     if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
   });
   delete D.priceRef;
+  // Invoicing: business profile + saved invoices (added v2.18)
+  if(!D.business || typeof D.business !== "object") D.business = {};
+  if(!Array.isArray(D.invoices)) D.invoices = [];
   syncPricesFromRef();
 }
 function isReady(){ return D.cur && D.strains[D.cur]; }
@@ -2689,6 +2798,7 @@ function renderCustomers(){
       <div style="min-width:0"><div class="cust-name">${escHtml(name)}</div><div class="cust-sub">${c.count} unpaid sale${c.count===1?"":"s"}</div></div>
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div class="cust-owed">${fmtDollar(c.owed)}</div>
+        <button class="cust-paid-btn" style="background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc)" onclick="invFromCustomer('${escAttr(name)}')">Invoice</button>
         <button class="cust-paid-btn" onclick="markCustomerPaid('${escAttr(name)}')">Mark paid</button>
       </div>
     </div>`).join("");
@@ -2703,6 +2813,222 @@ function markCustomerPaid(name){
   if(count){ persist(); renderAll(); renderCustomers(); showToast(name + " marked paid", "ok"); }
 }
 function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
+
+// ── INVOICING ────────────────────────────────────────────────────────────────
+// Generate professional, print-ready invoices (Save as PDF via the browser).
+// Pulls line items, customer and balances from existing sales, or build a blank
+// one. The invoice "paper" is intentionally theme-independent (always a clean
+// white document) so it prints well on any app theme.
+function getBusiness(){
+  const b = (D.business && typeof D.business==="object") ? D.business : (D.business = {});
+  return { name:b.name||"", logo:b.logo||"", address:b.address||"", phone:b.phone||"",
+           email:b.email||"", taxId:b.taxId||"", taxRate:+b.taxRate||0,
+           prefix:b.prefix||"INV-", next:+b.next||1 };
+}
+function _round2(n){ return Math.round((+n||0)*100)/100; }
+function invMoney(n){ return getCurrency() + _round2(n).toFixed(2); }
+function invDateStr(){ try{ return new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return ""; } }
+function invTotals(inv){
+  const sub = (inv.items||[]).reduce((a,it)=> a + (+it.qty||0)*(+it.price||0), 0);
+  const disc = Math.max(0, Math.min(+inv.discount||0, sub));
+  const taxed = sub - disc;
+  const tax = taxed * ((+inv.taxRate||0)/100);
+  const total = _round2(taxed + tax);
+  const paid = Math.max(0, Math.min(+inv.paid||0, total));
+  return { sub:_round2(sub), disc:_round2(disc), tax:_round2(tax), total, paid:_round2(paid), balance:_round2(Math.max(0,total-paid)) };
+}
+function invStatus(inv){ const t=invTotals(inv); if(t.total>0 && t.balance<=0.001) return "paid"; if(t.paid>0.001) return "partial"; return "unpaid"; }
+function blankInvoiceObj(){
+  return { num:null, no:null, date:invDateStr(), dueDate:"", customer:"", items:[], discount:0, taxRate:getBusiness().taxRate||0, note:"", paid:0, srcId:null };
+}
+function _saleDesc(l){
+  if(l.batchId && l.batchItems) return l.batchItems.map(it=>`${it.qty}× ${it.label}`).join(", ");
+  return `${l.qty||1}× ${l.pack||"Item"}`;
+}
+// Build an invoice from a single sale / grouped purchase in the log.
+function invFromSale(saleId){
+  let entry=null;
+  Object.values(D.strains||{}).forEach(s=>{ (s.logs||[]).forEach(l=>{ if(l.id===saleId) entry=l; }); });
+  if(!entry){ showToast("Sale not found","err"); return; }
+  const inv = blankInvoiceObj();
+  inv.taxRate = 0; // the sale's prices are already final
+  inv.customer = entry.customer || "";
+  inv.date = entry.date || invDateStr();
+  inv.srcId = saleId;
+  const multiProd = Object.keys(D.strains||{}).length > 1;
+  if(entry.batchId && entry.batchItems){
+    inv.items = entry.batchItems.map(it=>({ desc: it.label + (multiProd?` (${it.strain})`:""), qty:+it.qty||1, price:_round2((+it.total||0)/(+it.qty||1)) }));
+  } else {
+    inv.items = [{ desc: entry.pack||"Item", qty:+entry.qty||1, price:_round2((+entry.total||0)/(+entry.qty||1)) }];
+  }
+  const total = invTotals(inv).total;
+  inv.paid = _round2(total - entryOwed(entry)); // full unless it was a credit sale
+  openInvoiceEditor(inv);
+}
+// Build a single invoice for everything a customer currently owes.
+function invFromCustomer(name){
+  const inv = blankInvoiceObj();
+  inv.taxRate = 0; // owed amounts are already final
+  inv.customer = name; inv.paid = 0;
+  const items=[], seen={};
+  Object.values(D.strains||{}).forEach(s=>{ (s.logs||[]).forEach(l=>{
+    if(l.type!=="sale" || l.paid!==false) return;
+    const nm=(l.customer||"").trim()||"Unknown"; if(nm!==name) return;
+    if(l.batchId){ if(seen[l.batchId]) return; seen[l.batchId]=1; }
+    const owed=entryOwed(l);
+    if(owed>0) items.push({ desc:_saleDesc(l), qty:1, price:_round2(owed) });
+  });});
+  inv.items = items.length ? items : [{ desc:"Balance due", qty:1, price:0 }];
+  openInvoiceEditor(inv);
+}
+function newBlankInvoice(){ const inv=blankInvoiceObj(); inv.items=[{desc:"",qty:1,price:0}]; openInvoiceEditor(inv); }
+let _inv = null;
+function openInvoiceEditor(inv){ _inv = inv; openSubpage("invoice"); }
+function _invItemRows(){
+  return (_inv.items||[]).map((it,i)=>`<div class="inv-erow">
+    <input class="inv-ein desc" value="${escAttr(it.desc)}" placeholder="Description" oninput="invSetItem(${i},'desc',this.value)"/>
+    <input class="inv-ein qty" type="number" inputmode="decimal" value="${it.qty}" oninput="invSetItem(${i},'qty',this.value)"/>
+    <input class="inv-ein price" type="number" inputmode="decimal" value="${it.price}" oninput="invSetItem(${i},'price',this.value)"/>
+    <button class="inv-erm" onclick="invRemoveItem(${i})">✕</button>
+  </div>`).join("");
+}
+function renderInvoiceEditor(){
+  if(!_inv) return;
+  const paper = document.getElementById("invoicePaper");
+  if(paper) paper.innerHTML = renderInvoicePaper(_inv);
+  const ed = document.getElementById("invEditFields");
+  if(ed) ed.innerHTML = `
+    <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
+    <span class="m-lbl" style="margin-top:4px">Line items</span>
+    <div class="inv-ehead"><span>Description</span><span>Qty</span><span>Price</span><span></span></div>
+    <div id="invItemRows">${_invItemRows()}</div>
+    <button class="inv-add" onclick="invAddItem()">＋ Add line</button>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Discount</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.discount||0}" oninput="invSetField('discount',this.value)"/></div>
+      <div><span class="m-lbl">Tax %</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.taxRate||0}" oninput="invSetField('taxRate',this.value)"/></div>
+      <div><span class="m-lbl">Amount paid</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.paid||0}" oninput="invSetField('paid',this.value)"/></div>
+    </div>
+    <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / payment terms…" oninput="invSetField('note',this.value)"/></div>`;
+}
+function invSetField(k,v){ _inv[k] = (k==="customer"||k==="dueDate"||k==="note") ? v : (parseFloat(v)||0); if(k==="customer"||k==="dueDate"||k==="note"){ _inv[k]=v; } const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+function invAddItem(){ _inv.items.push({desc:"",qty:1,price:0}); renderInvoiceEditor(); }
+function invRemoveItem(i){ _inv.items.splice(i,1); if(!_inv.items.length) _inv.items.push({desc:"",qty:1,price:0}); renderInvoiceEditor(); }
+function renderInvoicePaper(inv){
+  const b = getBusiness(), t = invTotals(inv), st = invStatus(inv), cur = getCurrency();
+  const logo = b.logo ? `<img src="${b.logo}" alt="" class="inv-logo"/>` : "";
+  const contact = [b.address,b.phone,b.email,b.taxId?(__("Tax ID")+": "+b.taxId):""].filter(Boolean).map(escHtml).join("<br>");
+  const rows = (inv.items||[]).filter(it=>(it.desc||"").trim()||+it.qty||+it.price).map(it=>`<tr>
+    <td>${escHtml(it.desc||"—")}</td><td class="r">${(+it.qty||0)}</td><td class="r">${invMoney(it.price)}</td><td class="r">${invMoney((+it.qty||0)*(+it.price||0))}</td></tr>`).join("") || `<tr><td colspan="4" style="color:#999;text-align:center">No items</td></tr>`;
+  const stLabel = st==="paid"?"PAID":st==="partial"?"PARTIALLY PAID":"UNPAID";
+  const stColor = st==="paid"?"#1a8f4c":st==="partial"?"#b8860b":"#c0392b";
+  return `<div class="inv-doc">
+    <div class="inv-top">
+      <div class="inv-biz">${logo}<div><div class="inv-biz-name">${escHtml(b.name||"Your Business")}</div><div class="inv-biz-meta">${contact}</div></div></div>
+      <div class="inv-meta">
+        <div class="inv-h1">INVOICE</div>
+        <div class="inv-no">${escHtml(inv.no || (b.prefix + String(b.next).padStart(4,"0")))}</div>
+        <div class="inv-dt">${escHtml(inv.date||"")}</div>
+        ${inv.dueDate?`<div class="inv-dt">${__("Due")}: ${escHtml(inv.dueDate)}</div>`:""}
+      </div>
+    </div>
+    <div class="inv-billto"><span class="inv-lbl">BILL TO</span><div class="inv-cust">${escHtml(inv.customer||"—")}</div></div>
+    <table class="inv-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="inv-totals">
+      <div class="inv-trow"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
+      ${t.disc>0?`<div class="inv-trow"><span>Discount</span><span>−${invMoney(t.disc)}</span></div>`:""}
+      ${(+inv.taxRate>0)?`<div class="inv-trow"><span>${__("Tax")} (${(+inv.taxRate||0)}%)</span><span>${invMoney(t.tax)}</span></div>`:""}
+      <div class="inv-trow inv-grand"><span>Total</span><span>${invMoney(t.total)}</span></div>
+      ${t.paid>0?`<div class="inv-trow"><span>Amount paid</span><span>−${invMoney(t.paid)}</span></div>`:""}
+      ${t.balance>0?`<div class="inv-trow inv-bal"><span>Balance due</span><span>${invMoney(t.balance)}</span></div>`:""}
+    </div>
+    <div class="inv-status" style="color:${stColor};border-color:${stColor}">${stLabel}</div>
+    ${inv.note?`<div class="inv-note">${escHtml(inv.note)}</div>`:""}
+    <div class="inv-foot">${escHtml(__("Thank you for your business") + (b.name?(" — "+b.name):""))}</div>
+  </div>`;
+}
+// Assign a number + save (once), then trigger the browser's print / Save-as-PDF.
+function printInvoice(){
+  saveCurrentInvoice();
+  setTimeout(()=>{ try{ window.print(); }catch(e){} }, 60);
+}
+function saveCurrentInvoice(){
+  if(!_inv) return;
+  if(_inv.num == null){
+    const b = getBusiness();
+    _inv.num = b.next;
+    _inv.no = b.prefix + String(b.next).padStart(4,"0");
+    D.business.next = b.next + 1;
+    if(!Array.isArray(D.invoices)) D.invoices = [];
+    D.invoices.unshift(_inv);
+  } else {
+    // already saved — keep the stored copy in sync
+    const idx = D.invoices.findIndex(x=>x.num===_inv.num);
+    if(idx>=0) D.invoices[idx] = _inv; else D.invoices.unshift(_inv);
+  }
+  persist();
+}
+function openSavedInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(inv){ _inv=inv; openSubpage("invoice"); } }
+function deleteInvoice(num){ D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
+function renderInvoicesPage(){
+  const el=document.getElementById("invoicesList"); if(!el) return;
+  const list=D.invoices||[];
+  if(!list.length){ el.innerHTML=`<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:26px 0">No invoices yet</div>`; return; }
+  el.innerHTML=list.map(inv=>{ const t=invTotals(inv), st=invStatus(inv); const c=st==="paid"?"#4caf7a":st==="partial"?"#c9a040":"#e05c5c";
+    return `<div class="settings-card" style="padding:0;margin-bottom:10px"><div class="settings-row" onclick="openSavedInvoice(${inv.num})" style="cursor:pointer">
+      <div style="min-width:0"><div class="settings-row-lbl">${escHtml(inv.no||"")} · ${escHtml(inv.customer||"—")}</div>
+      <div style="font-size:9px;color:var(--txt-d);margin-top:2px">${escHtml(inv.date||"")} · <span style="color:${c}">${invMoney(t.total)}</span></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:8px;letter-spacing:1px;color:${c};text-transform:uppercase">${st}</span><span style="color:var(--txt-d)">›</span></div>
+    </div></div>`; }).join("");
+}
+function pickBusinessLogo(){ const inp=document.getElementById("bizLogoInput"); if(inp) inp.click(); }
+function onBusinessLogo(evt){
+  const f=evt.target.files&&evt.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=function(){
+    const img=new Image();
+    img.onload=function(){
+      try{
+        const max=420; let w=img.width||max, h=img.height||max;
+        if(w>max||h>max){ const s=max/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+        const c=document.createElement("canvas"); c.width=w; c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        if(!D.business||typeof D.business!=="object") D.business={};
+        D.business.logo=c.toDataURL("image/png");
+        persist(); renderBusinessPage(); showToast("Logo added","ok");
+      }catch(e){ showToast("Couldn't add logo","err"); }
+    };
+    img.onerror=function(){ showToast("Couldn't read image","err"); };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+}
+function saveBusinessField(k,v){ if(!D.business||typeof D.business!=="object") D.business={}; D.business[k] = (k==="taxRate")?(parseFloat(v)||0):v; persist(); }
+function clearBusinessLogo(){ if(D.business) D.business.logo=""; persist(); renderBusinessPage(); }
+function renderBusinessPage(){
+  const el=document.getElementById("businessFields"); if(!el) return;
+  const b=getBusiness();
+  el.innerHTML=`
+    <div class="biz-logo-row">
+      ${b.logo?`<img src="${b.logo}" class="biz-logo-prev"/>`:`<div class="biz-logo-ph">No logo</div>`}
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn-sm-acc" onclick="pickBusinessLogo()">${b.logo?"Change logo":"Upload logo"}</button>
+        ${b.logo?`<button class="btn-sm-danger" onclick="clearBusinessLogo()">Remove</button>`:""}
+      </div>
+    </div>
+    <div class="inv-frow"><span class="m-lbl">Business name</span><input class="m-input" value="${escAttr(b.name)}" placeholder="Your business name" oninput="saveBusinessField('name',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Address</span><input class="m-input" value="${escAttr(b.address)}" placeholder="Street, city" oninput="saveBusinessField('address',this.value)"/></div>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Phone</span><input class="m-input" value="${escAttr(b.phone)}" placeholder="Phone" oninput="saveBusinessField('phone',this.value)"/></div>
+      <div><span class="m-lbl">Email</span><input class="m-input" value="${escAttr(b.email)}" placeholder="Email" oninput="saveBusinessField('email',this.value)"/></div>
+    </div>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Tax ID (optional)</span><input class="m-input" value="${escAttr(b.taxId)}" placeholder="Tax / VAT ID" oninput="saveBusinessField('taxId',this.value)"/></div>
+      <div><span class="m-lbl">Default tax %</span><input class="m-input" type="number" inputmode="decimal" value="${b.taxRate||0}" oninput="saveBusinessField('taxRate',this.value)"/></div>
+    </div>
+    <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>`;
+}
 function openExpModal(mode){
   expMode = mode;
   const s = cur();
@@ -3745,7 +4071,8 @@ function renderLog(){
 }
 // Render one non-batched log entry (sale / restock / use / expense).
 function renderSingleLog(l, s){
-    const actions = `<div class="log-actions"><button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
+    const invBtn = l.type==="sale" ? `<button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button>` : "";
+    const actions = `<div class="log-actions">${invBtn}<button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
     const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
@@ -3777,7 +4104,7 @@ function renderBatchCard(l, s){
   const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
   const unpaidBadge = (l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
   const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
-  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"></div></div>`;
+  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button></div></div>`;
   return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
 }
 
@@ -4115,6 +4442,9 @@ const SUBPAGES = {
   internaluse: { el:"internalUsePage", render: () => renderUseHistory() },
   packs:       { el:"packsPage",       render: () => {} },
   customers:   { el:"customersPage",   render: () => renderCustomers() },
+  business:    { el:"businessPage",     render: () => renderBusinessPage() },
+  invoices:    { el:"invoicesPage",     render: () => renderInvoicesPage() },
+  invoice:     { el:"invoicePage",      render: () => renderInvoiceEditor() },
 };
 function openPickerPage(id){
   const def = SUBPAGES[id]; if(!def) return;
