@@ -239,6 +239,27 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .toast-undo-btn:active{transform:scale(0.92);box-shadow:0 1px 6px var(--acc-glow);}
 
 #setupScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:32px 24px;overflow-y:auto;}
+/* Phase 2: splash (covers all until auth resolves) + auth screen */
+#splashScreen{position:fixed;inset:0;z-index:100000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;}
+.splash-dots{display:flex;gap:7px;}
+.splash-dots span{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:splashPulse 1s ease-in-out infinite;}
+.splash-dots span:nth-child(2){animation-delay:.15s;}
+.splash-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes splashPulse{0%,100%{opacity:.3;transform:scale(.85);}50%{opacity:1;transform:scale(1);}}
+#authScreen{position:fixed;inset:0;z-index:9998;background:var(--bg);display:none;flex-direction:column;justify-content:center;align-items:center;padding:28px 22px;overflow-y:auto;}
+.auth-card{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:stretch;}
+.auth-logo{display:flex;justify-content:center;margin-bottom:14px;}
+.auth-title{font-family:var(--display);font-size:30px;font-weight:600;color:var(--txt-b);text-align:center;line-height:1;}
+.auth-sub{font-size:12px;color:var(--txt-d);text-align:center;margin:7px 0 22px;}
+.auth-input{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:14px;color:var(--txt);font-size:15px;font-family:var(--font);outline:none;margin-bottom:11px;width:100%;}
+.auth-input:focus{border-color:var(--acc);}
+.auth-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:var(--font);margin-top:4px;box-shadow:0 4px 16px var(--acc-glow);}
+.auth-btn:active{transform:scale(.98);}
+.auth-msg{font-size:11.5px;text-align:center;min-height:16px;margin-top:11px;line-height:1.5;}
+.auth-msg.err{color:#e0564b;}
+.auth-msg.ok{color:var(--acc);}
+.auth-links{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:16px;}
+.auth-links span{font-size:12px;color:var(--acc);cursor:pointer;}
 .setup-logo{display:flex;justify-content:center;margin-bottom:22px;}
 .setup-logo svg,.setup-logo img{filter:brightness(1.08) saturate(1.06);}
 .setup-title{font-family:var(--display);font-size:34px;font-weight:600;color:var(--txt-b);text-align:center;letter-spacing:0;line-height:1;}
@@ -954,6 +975,29 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <button class="pin-cancel" id="pinCancel" style="display:none" onclick="cancelPINSetup()">Cancel</button>
 </div>
 
+<!-- Splash: covers everything until auth resolves (no flash of the wrong screen) -->
+<div id="splashScreen">
+  <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="border-radius:20px"/>
+  <div class="splash-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- Auth (Phase 2): sign in / sign up / reset -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"><img data-app-icon src="icon.svg" width="62" height="62" alt="" style="border-radius:15px"/></div>
+    <div class="auth-title">The Ledger</div>
+    <div class="auth-sub" id="authSub">Sign in to your account</div>
+    <input id="authEmail" class="auth-input" type="email" inputmode="email" placeholder="Email" autocomplete="email" autocapitalize="none" spellcheck="false"/>
+    <input id="authPw" class="auth-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button id="authSubmit" class="auth-btn" onclick="authSubmit()">Sign In</button>
+    <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-links">
+      <span id="authToggle" onclick="authToggleMode()">New here? Create an account</span>
+      <span id="authForgot" onclick="authSetMode('reset')">Forgot password?</span>
+    </div>
+  </div>
+</div>
+
 <div id="setupScreen">
   <div class="setup-logo">
     <img data-app-icon src="icon.svg" width="120" height="120" alt="The Ledger" style="display:block;border-radius:28px"/>
@@ -1101,6 +1145,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div style="margin-bottom:20px">
       <div style="font-family:var(--display);font-size:26px;font-weight:600;color:var(--txt-b);line-height:1">More</div>
       <div style="font-size:9px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-top:4px">Appearance · Preferences · Data · Help</div>
+    </div>
+    <div class="settings-sec" id="accountSec" style="display:none">
+      <div class="settings-sec-title">Account</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <span class="settings-row-lbl">Signed in</span>
+          <span id="acctEmail" data-noi18n style="font-size:11px;color:var(--acc);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        </div>
+        <div class="settings-row" id="signOutRow" onclick="doSignOut()" style="cursor:pointer">
+          <span class="settings-row-lbl">Sign out</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+      </div>
     </div>
     <div class="settings-sec">
       <div class="settings-card">
@@ -1284,8 +1341,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
     <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 4, 2026 · The Ledger</div>
     <p style="margin:0 0 14px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
-    <div class="legal-h">1. Your data stays on your device</div>
-    <p>The products, sales, expenses, invoices, business profile and settings you enter are stored <b>locally on your device</b> (in your browser's storage). We do not operate a server that collects, transmits or stores this data, and we cannot see it. If you clear your browser data or remove the App, this data is deleted — so keep your own backups.</p>
+    <div class="legal-h">1. Your data: on your device, and in your account</div>
+    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. A copy stays on your device as an offline cache. If you clear your browser data or remove the App, the on-device copy is deleted — so keep your own backups.</p>
     <div class="legal-h">2. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
@@ -1554,13 +1611,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.21.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.22.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔒</div>
+        <div class="wn-icon">🔐</div>
         <div>
-          <div class="wn-title">Privacy &amp; Terms, built in</div>
-          <div class="wn-desc">The Ledger now has a clear Privacy Policy and Terms of Service — find them under More → Legal. Your data still lives only on your device: no ads, no tracking, no accounts.</div>
+          <div class="wn-title">Your account &amp; cloud sync</div>
+          <div class="wn-desc">The Ledger now has secure accounts. Sign in to sync your books to your private space in the cloud and reach them from any device — with each business's data fully walled off from every other's. Your existing data imports automatically the first time you sign in.</div>
         </div>
       </div>
     </div>
@@ -1854,6 +1911,21 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 </div>
 
 <!-- Translation dictionary (must load before the main script reads window.LEDGER_I18N) -->
+<!-- Supabase backend (Phase 2: accounts + multi-tenant sync). The publishable key
+     is safe to ship — Row-Level Security is the security boundary. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPA_URL  = "https://bvhecozbtdvzamfbnzjo.supabase.co";
+  const SUPA_ANON = "sb_publishable_tH7ccgRQj60vPH30xZNspw_ovjhYmCQ";
+  let SB = null;
+  try {
+    if (window.supabase && SUPA_URL && SUPA_ANON) {
+      SB = window.supabase.createClient(SUPA_URL, SUPA_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+    }
+  } catch(e){ SB = null; }
+</script>
 <script src="i18n.js"></script>
 <script>
 const SK = "ledger_v4";
@@ -1863,7 +1935,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.21.0";
+const APP_VER    = "2.22.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2461,40 +2533,64 @@ function undoDelete(){
 
 // ── STORAGE ──
 const SK_BAK = SK + "_bak";
+let _persistTimer = null, _cloudDirty = false;
 function persist(){
   const el = document.getElementById("saveStatus");
-  el.textContent = "● SAVING..."; el.className = "hdr-save saving";
+  if(el){ el.textContent = "● SAVING..."; el.className = "hdr-save saving"; }
   try {
     const json = JSON.stringify(D);
-    localStorage.setItem(SK, json);
+    localStorage.setItem(SK, json);     // instant, offline cache + source of truth
     localStorage.setItem(SK_BAK, json); // safety backup — survives update reloads
   } catch(e){}
-  setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
-}
-function hydrate(){
-  // Require at least one product — empty strains ({}) must NOT count as valid data
-  function _tryLoad(raw){
-    try { const p = JSON.parse(raw); if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
-    return null;
+  // Debounced cloud write-through (no-op in local-only mode / before login).
+  if(SB && Repo.getBusinessId()){
+    _cloudDirty = true;
+    clearTimeout(_persistTimer);
+    _persistTimer = setTimeout(flushToCloud, 800);
   }
-  let loaded = false;
-  const p1 = _tryLoad(localStorage.getItem(SK));
-  if(p1){ D = p1; loaded = true; }
-  if(!loaded){ const p2 = _tryLoad(localStorage.getItem(SK_BAK)); if(p2){ D = p2; loaded = true; } }
-  // Migrate theme/font to independent keys so they survive even if product data resets
+  if(el) setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
+}
+async function flushToCloud(){
+  if(!SB || !_cloudDirty || !Repo.getBusinessId()) return;
+  _cloudDirty = false;
+  try {
+    await Repo.saveDoc(D);
+  } catch(e){
+    if(String(e && (e.message||e)).includes("stale_write")){
+      // another device wrote first — pull the latest, then re-render.
+      try { const doc = await Repo.loadDoc(); if(doc && doc.data){ D = doc.data; _normalizeD(); try{ renderAll(); }catch(_){ } } } catch(_){}
+      return;
+    }
+    _cloudDirty = true;   // keep dirty; localStorage already holds the truth; retry next change/flush
+  }
+}
+// Read a valid local D (>=1 product) from localStorage, or null.
+function _readLocalD(){
+  try { const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || "null");
+        if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
+  return null;
+}
+// Normalize whatever just landed in D (from cloud OR localStorage): migrations + defaults.
+function _normalizeD(){
+  if(!D || typeof D !== "object") D = { strains:{}, cur:"" };
+  if(!D.strains || typeof D.strains !== "object") D.strains = {};
   if(D.theme && !localStorage.getItem("ledger_theme")) try{ localStorage.setItem("ledger_theme", D.theme); }catch(e){}
   if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font);  }catch(e){}
-  // Migrate: copy global priceRef into products that lack one, add unitCfg to old products
   const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
   Object.values(D.strains).forEach(s => {
     if(!s.priceRef) s.priceRef = globalRef.map(r => ({...r}));
     if(!s.unitCfg)  s.unitCfg  = { type:"weight" };
   });
   delete D.priceRef;
-  // Invoicing: business profile + saved invoices (added v2.18)
   if(!D.business || typeof D.business !== "object") D.business = {};
   if(!Array.isArray(D.invoices)) D.invoices = [];
   syncPricesFromRef();
+}
+// Local load (used by the offline fallback boot). Cloud boot sets D from Supabase.
+function hydrate(){
+  const p = _readLocalD();
+  if(p) D = p;
+  _normalizeD();
 }
 function isReady(){ return D.cur && D.strains[D.cur]; }
 
@@ -5229,32 +5325,172 @@ function maybeStartTour(){
   setTimeout(tryStart, 600);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CLOUD (Phase 2) — accounts + multi-tenant sync via Supabase. The ONLY place
+// that talks to the backend. If Supabase is unavailable, the app falls back to
+// local-only (offline) mode so the user can never be locked out.
+// ═══════════════════════════════════════════════════════════════════════════
+const Repo = {
+  businessId:null, lastSeen:null,
+  setBusiness(id){ this.businessId = id; },
+  getBusinessId(){ return this.businessId; },
+  async resolveActiveBusiness(user){
+    const r = await SB.from("memberships").select("business_id,role").eq("user_id", user.id);
+    if(!r.error && r.data && r.data.length){
+      const o = r.data.find(m => m.role === "owner") || r.data[0];
+      return { id:o.business_id, fresh:false };
+    }
+    const ld = _readLocalD();
+    const nm = (ld && ld.business && ld.business.name) || "My Business";
+    const pr = await SB.rpc("provision_business", { p_name: nm });
+    if(pr.error) throw pr.error;
+    return { id: pr.data, fresh:true };
+  },
+  async loadDoc(){
+    const r = await SB.from("businesses").select("data,updated_at,migrated_at").eq("id", this.businessId).single();
+    if(r.error) throw r.error;
+    this.lastSeen = r.data.updated_at;
+    return r.data;
+  },
+  async saveDoc(d){
+    const r = await SB.rpc("save_business_doc", { p_id:this.businessId, p_data:d, p_base:this.lastSeen });
+    if(r.error) throw new Error(r.error.message || String(r.error));
+    this.lastSeen = r.data;
+    return r.data;
+  },
+  async migrateLocal(d){
+    const r = await SB.rpc("migrate_local_data", { p_business_id:this.businessId, p_d:d });
+    if(r.error && !String(r.error.message||"").toLowerCase().includes("already migrated")) throw r.error;
+  }
+};
+const authRepo = {
+  signUp(email, pw){ return SB.auth.signUp({ email, password: pw }); },
+  signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
+  async signOut(){ try{ await flushToCloud(); }catch(e){} Repo.setBusiness(null); _cloudBooted=false; return SB.auth.signOut(); },
+  requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
+  setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); }
+};
+async function doSignOut(){ try{ await authRepo.signOut(); }catch(e){} }  // onAuthStateChange(null) → showAuthScreen
+// ---- screen management ----
+function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
+function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("mainApp","none"); }
+function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
+function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); }
+function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
+function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
+// ---- auth UI ----
+let _authMode = "signin";
+function _authMsg(t, kind){ const e=document.getElementById("authMsg"); if(e){ e.textContent=t||""; e.className="auth-msg"+(kind?(" "+kind):""); } }
+function authSetMode(m){
+  _authMode = m;
+  const sub=document.getElementById("authSub"), btn=document.getElementById("authSubmit"),
+        pw=document.getElementById("authPw"), toggle=document.getElementById("authToggle"), forgot=document.getElementById("authForgot");
+  _authMsg("");
+  if(pw) pw.style.display = (m==="reset") ? "none" : "block";
+  if(forgot) forgot.style.display = (m==="signin") ? "inline" : "none";
+  if(!sub) return;
+  if(m==="signup"){ sub.textContent="Create your account"; btn.textContent="Create Account"; toggle.textContent="Have an account? Sign in"; if(pw) pw.placeholder="Choose a password (6+ characters)"; }
+  else if(m==="reset"){ sub.textContent="Reset your password"; btn.textContent="Send Reset Link"; toggle.textContent="Back to sign in"; }
+  else if(m==="reset-new"){ sub.textContent="Set a new password"; btn.textContent="Update Password"; toggle.textContent=""; if(pw){ pw.style.display="block"; pw.placeholder="New password"; } }
+  else { sub.textContent="Sign in to your account"; btn.textContent="Sign In"; toggle.textContent="New here? Create an account"; if(pw) pw.placeholder="Password"; }
+}
+function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
+async function authSubmit(){
+  const email=(document.getElementById("authEmail").value||"").trim();
+  const pw=(document.getElementById("authPw").value||"");
+  const btn=document.getElementById("authSubmit");
+  const lock=(on)=>{ if(btn){ btn.disabled=on; btn.style.opacity=on?"0.6":""; } };
+  try{
+    if(_authMode==="reset"){
+      if(!email){ _authMsg("Enter your email.","err"); return; }
+      lock(true); const r=await authRepo.requestReset(email); lock(false);
+      if(r.error){ _authMsg(r.error.message,"err"); return; }
+      _authMsg("Check your email for a reset link.","ok"); return;
+    }
+    if(_authMode==="reset-new"){
+      if(pw.length<6){ _authMsg("Password must be at least 6 characters.","err"); return; }
+      lock(true); const r=await authRepo.setNewPassword(pw); lock(false);
+      if(r.error){ _authMsg(r.error.message,"err"); return; }
+      _authMsg("Password updated.","ok"); return;
+    }
+    if(!email || pw.length<6){ _authMsg("Enter your email and a password (6+ characters).","err"); return; }
+    lock(true);
+    if(_authMode==="signup"){
+      const r=await authRepo.signUp(email, pw); lock(false);
+      if(r.error){ _authMsg(r.error.message,"err"); return; }
+      if(!(r.data && r.data.session)){ _authMsg("Account created. Check your email to confirm, then sign in.","ok"); authSetMode("signin"); }
+    } else {
+      const r=await authRepo.signIn(email, pw); lock(false);
+      if(r.error){ _authMsg(r.error.message,"err"); return; }
+    }
+  }catch(e){ lock(false); _authMsg(String(e && (e.message||e)),"err"); }
+}
+// ---- boot ----
+let _cloudBooted = false;
+async function bootAuthedUser(sess){
+  showSplash();
+  try{
+    const biz = await Repo.resolveActiveBusiness(sess.user);
+    Repo.setBusiness(biz.id);
+    try{ const ae=document.getElementById("acctEmail"); if(ae) ae.textContent = sess.user.email||""; const as=document.getElementById("accountSec"); if(as) as.style.display="block"; }catch(e){}
+    let doc=null; try{ doc = await Repo.loadDoc(); }catch(e){ doc=null; }
+    const cloudData = (doc && doc.data && doc.data.strains && Object.keys(doc.data.strains).length>0) ? doc.data : null;
+    const local = _readLocalD();
+    if(cloudData){
+      D = cloudData;
+    } else if(local){
+      // First login of an existing on-device user → import local data (non-destructive).
+      D = local;
+      try{ if(doc && !doc.migrated_at) await Repo.migrateLocal(local); }catch(e){}
+      if(doc) Repo.lastSeen = doc.updated_at;
+      try{ await Repo.saveDoc(D); }catch(e){}
+      try{ showToast("Your data is now synced to your account.","ok"); }catch(e){}
+    } else {
+      D = { strains:{}, cur:"" };
+    }
+    _normalizeD();
+    if(isReady()){
+      syncUnitDefaults();
+      if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
+      else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} checkVersion(); }
+    } else {
+      showSetup();
+    }
+    try{ i18nApply(); }catch(e){}
+  }catch(e){ bootLocalFallback(); }
+}
+function bootLocalFallback(){
+  hydrate();
+  if(isReady()){
+    syncUnitDefaults();
+    if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
+    else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} checkVersion(); }
+  } else { showSetup(); }
+  try{ i18nApply(); }catch(e){}
+}
+function initBoot(){
+  if(SB){
+    showSplash();
+    try{
+      SB.auth.onAuthStateChange((event, sess)=>{
+        if(event==="PASSWORD_RECOVERY"){ showAuthScreen(); authSetMode("reset-new"); return; }
+        if(sess && sess.user){ if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); } }
+        else { _cloudBooted=false; showAuthScreen(); }
+      });
+    }catch(e){ bootLocalFallback(); return; }
+    setTimeout(()=>{ if(!_cloudBooted){ const a=document.getElementById("authScreen"); if(!a || a.style.display==="none") bootLocalFallback(); } }, 8000);
+  } else { bootLocalFallback(); }
+}
+
 // ── INIT ──
 // Apply theme and font FIRST from independent keys — they survive data resets
 try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e){}
 try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
 // Currency is read at runtime via getCurrency() — no explicit apply needed
 
-hydrate();
+initBoot();
 
-if(isReady()){
-  syncUnitDefaults();
-  document.getElementById("setupScreen").style.display = "none";
-  if(hasPIN()){
-    document.getElementById("mainApp").style.display = "none";
-    showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue");
-  } else {
-    document.getElementById("mainApp").style.display = "block";
-    try { renderAll(); updateSaleModal(); } catch(e) {}
-    checkVersion();
-  }
-} else {
-  // hydrate() found no valid product data — new user or all data was lost
-  document.getElementById("setupScreen").style.display = "flex";
-  document.getElementById("mainApp").style.display = "none";
-}
-
-// Translate whichever screen is showing (setup / PIN / main) for the chosen language
+// Translate whichever screen is showing (auth / setup / PIN / main) for the chosen language
 try{ i18nApply(); }catch(e){}
 // Safety net: any async DOM update (banners, late renders) gets translated too.
 // Debounced via rAF; i18nApply only rewrites nodes that differ, so it self-settles.
