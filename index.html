@@ -1611,13 +1611,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.22.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.22.1</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔐</div>
+        <div class="wn-icon">✉️</div>
         <div>
-          <div class="wn-title">Your account &amp; cloud sync</div>
-          <div class="wn-desc">The Ledger now has secure accounts. Sign in to sync your books to your private space in the cloud and reach them from any device — with each business's data fully walled off from every other's. Your existing data imports automatically the first time you sign in.</div>
+          <div class="wn-title">Smoother email confirmation</div>
+          <div class="wn-desc">Tapping the confirmation link in your sign-up email now brings you straight back into The Ledger, already signed in — no more "Safari can't open the page." If a link has expired, you'll see a clear message instead.</div>
         </div>
       </div>
     </div>
@@ -1917,6 +1917,23 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 <script>
   const SUPA_URL  = "https://bvhecozbtdvzamfbnzjo.supabase.co";
   const SUPA_ANON = "sb_publishable_tH7ccgRQj60vPH30xZNspw_ovjhYmCQ";
+  // Snapshot the email-link return state BEFORE supabase-js consumes/strips the URL.
+  // Confirmation links land back here as  #access_token=...&type=signup  (success)
+  // or  #error=...&error_code=...  (expired/invalid link). Used to show a clear
+  // "Email verified" message and auto-continue into the app.
+  window.__authReturn = (function(){
+    try{
+      const s = (location.hash || "").replace(/^#/, "") + "&" + (location.search || "").replace(/^\?/, "");
+      const p = new URLSearchParams(s);
+      const type = p.get("type") || "";
+      const err  = p.get("error") || p.get("error_code") || "";
+      return {
+        confirmed: (type === "signup" || type === "magiclink" || type === "email") && !err && (!!p.get("access_token") || !!p.get("code")),
+        recovery:  type === "recovery",
+        error:     err ? (p.get("error_description") || err).replace(/\+/g, " ") : ""
+      };
+    }catch(e){ return { confirmed:false, recovery:false, error:"" }; }
+  })();
   let SB = null;
   try {
     if (window.supabase && SUPA_URL && SUPA_ANON) {
@@ -1935,7 +1952,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.22.0";
+const APP_VER    = "2.22.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5364,7 +5381,7 @@ const Repo = {
   }
 };
 const authRepo = {
-  signUp(email, pw){ return SB.auth.signUp({ email, password: pw }); },
+  signUp(email, pw){ return SB.auth.signUp({ email, password: pw, options:{ emailRedirectTo: location.origin + location.pathname } }); },
   signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
   async signOut(){ try{ await flushToCloud(); }catch(e){} Repo.setBusiness(null); _cloudBooted=false; return SB.auth.signOut(); },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
@@ -5418,7 +5435,7 @@ async function authSubmit(){
     if(_authMode==="signup"){
       const r=await authRepo.signUp(email, pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
-      if(!(r.data && r.data.session)){ _authMsg("Account created. Check your email to confirm, then sign in.","ok"); authSetMode("signin"); }
+      if(!(r.data && r.data.session)){ _authMsg("Account created! Check your email and tap the confirmation link — it'll bring you right back here, signed in.","ok"); authSetMode("signin"); }
     } else {
       const r=await authRepo.signIn(email, pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
@@ -5457,6 +5474,11 @@ async function bootAuthedUser(sess){
       showSetup();
     }
     try{ i18nApply(); }catch(e){}
+    // Arrived here via an email-confirmation link → confirm it plainly.
+    if(window.__authReturn && window.__authReturn.confirmed){
+      window.__authReturn.confirmed = false;
+      try{ showToast("✓ Email verified — you're signed in.","ok"); }catch(e){}
+    }
   }catch(e){ bootLocalFallback(); }
 }
 function bootLocalFallback(){
@@ -5475,7 +5497,13 @@ function initBoot(){
       SB.auth.onAuthStateChange((event, sess)=>{
         if(event==="PASSWORD_RECOVERY"){ showAuthScreen(); authSetMode("reset-new"); return; }
         if(sess && sess.user){ if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); } }
-        else { _cloudBooted=false; showAuthScreen(); }
+        else {
+          _cloudBooted=false; showAuthScreen();
+          if(window.__authReturn && window.__authReturn.error){
+            const msg = window.__authReturn.error; window.__authReturn.error = "";
+            _authMsg("This verification link is invalid or has expired. Please sign in, or sign up again to get a fresh link.","err");
+          }
+        }
       });
     }catch(e){ bootLocalFallback(); return; }
     setTimeout(()=>{ if(!_cloudBooted){ const a=document.getElementById("authScreen"); if(!a || a.style.display==="none") bootLocalFallback(); } }, 8000);
