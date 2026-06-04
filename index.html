@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- The Ledger — © 2026 The Ledger. All rights reserved. Proprietary software; see LICENSE. Unauthorized copying, modification, or distribution is prohibited. -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -784,6 +785,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .inv-sb-chip{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:999px;padding:6px 13px;font-size:11px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;}
 .inv-sb-chip.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;}
 .inv-ta{resize:vertical;min-height:58px;line-height:1.5;}
+.legal-h{font-weight:700;color:var(--txt-b);font-size:12.5px;margin:17px 0 5px;}
+#privacyPage p,#termsPage p{margin:0 0 11px;}
 /* invoice editor (themed) */
 .inv-edit-wrap{margin-top:22px;}
 .inv-frow{margin-bottom:10px;display:flex;flex-direction:column;}
@@ -1174,6 +1177,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div id="dataSyncSettings"></div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">Legal</div>
+      <div class="settings-card">
+        <div class="settings-row" id="privacyRow" onclick="openSubpage('privacy')" style="cursor:pointer">
+          <span class="settings-row-lbl">🔒 Privacy Policy</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+        <div class="settings-row" id="termsRow" onclick="openSubpage('terms')" style="cursor:pointer">
+          <span class="settings-row-lbl">📄 Terms of Service</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+      </div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Danger Zone</div>
       <div class="danger-zone">
         <div class="settings-row">
@@ -1186,8 +1202,9 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         </div>
       </div>
     </div>
-    <div style="text-align:right;padding-top:18px;padding-bottom:4px">
+    <div style="text-align:center;padding-top:18px;padding-bottom:4px">
       <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger · v<span id="appVerLbl"></span></div>
+      <div style="font-size:8px;letter-spacing:1px;color:var(--txt-d);margin-top:5px">© 2026 The Ledger · All rights reserved</div>
     </div>
   </div>
 </div>
@@ -1255,6 +1272,70 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 
     <button class="btn-ai" style="margin-top:2px" onclick="shareAppLink()">✦ Share app link</button>
     <div style="text-align:center;font-size:10px;color:var(--txt-d);margin-top:13px;line-height:1.6">App Store &amp; Google Play versions are coming soon.</div>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY PAGE -->
+<div id="privacyPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('privacy')">‹ Back</button>
+    <div class="subpage-title">Privacy Policy</div>
+  </div>
+  <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 4, 2026 · The Ledger</div>
+    <p style="margin:0 0 14px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
+    <div class="legal-h">1. Your data stays on your device</div>
+    <p>The products, sales, expenses, invoices, business profile and settings you enter are stored <b>locally on your device</b> (in your browser's storage). We do not operate a server that collects, transmits or stores this data, and we cannot see it. If you clear your browser data or remove the App, this data is deleted — so keep your own backups.</p>
+    <div class="legal-h">2. Third-party services the App contacts</div>
+    <p>To work, the App connects to a few outside services:</p>
+    <ul style="margin:6px 0 12px;padding-left:18px">
+      <li style="margin-bottom:6px"><b>Hosting &amp; updates (GitHub):</b> the App is delivered from, and checks for updates against, GitHub. Like any website visit, this involves standard technical data such as your IP address and device/browser type, handled under GitHub's privacy policy.</li>
+      <li style="margin-bottom:6px"><b>AI Advisor (optional):</b> if you use the AI Advisor, the question you ask and the figures needed to answer it are sent to a third-party AI provider to generate a reply, handled under that provider's policy. Do not enter anything you are not comfortable sending. If you add your own AI key, your request goes to that provider instead.</li>
+    </ul>
+    <div class="legal-h">3. What we do NOT do</div>
+    <p>No accounts are required to use the App today. We do not show ads, we do not use analytics or tracking cookies, and we never sell or rent your information.</p>
+    <div class="legal-h">4. Backups and sync codes</div>
+    <p>Exports and "sync codes" are generated by you and stay in your control. If you share a backup or sync code with someone, they can read its contents — treat it like a copy of your books.</p>
+    <div class="legal-h">5. Your rights</div>
+    <p>Because your data lives on your device, you can access, edit, export or permanently delete it at any time from within the App. Depending on where you live, privacy laws such as Canada's PIPEDA, the EU's GDPR and California's CPRA give you additional rights over personal information; to exercise any right regarding data we may process, contact us below.</p>
+    <div class="legal-h">6. Children</div>
+    <p>The App is intended for business owners and is not directed at children under 16.</p>
+    <div class="legal-h">7. Changes</div>
+    <p>We may update this policy as the App evolves (for example, when optional cloud accounts and sync are introduced). We will revise the effective date above and note material changes in the App.</p>
+    <div class="legal-h">8. Contact</div>
+    <p>Questions about privacy? Contact us at <b>qualityselectiion@gmail.com</b>.</p>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE PAGE -->
+<div id="termsPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('terms')">‹ Back</button>
+    <div class="subpage-title">Terms of Service</div>
+  </div>
+  <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 4, 2026 · The Ledger</div>
+    <p style="margin:0 0 14px">By using The Ledger (the "App"), you agree to these Terms. If you do not agree, please do not use the App.</p>
+    <div class="legal-h">1. Licence to use</div>
+    <p>We grant you a personal, non-exclusive, non-transferable, revocable licence to use the App for your own personal or business record-keeping. We retain all rights, title and interest in the App, including its code, design, and the "The Ledger" name and logo.</p>
+    <div class="legal-h">2. Acceptable use</div>
+    <p>You agree not to copy, modify, resell, sublicense, reverse-engineer, or attempt to extract the source of the App except as permitted by law, and not to use it for any unlawful purpose.</p>
+    <div class="legal-h">3. Your data and accuracy</div>
+    <p>You own the data you enter and are solely responsible for its accuracy and for keeping your own backups. The App is a tool to help you record and estimate; the figures it shows (including profit, stock value and any tax-related amounts) depend entirely on what you enter.</p>
+    <div class="legal-h">4. Not professional advice</div>
+    <p>The App is <b>not</b> accounting, bookkeeping, tax, financial, or legal advice and is not a substitute for a qualified professional. You are responsible for your own business decisions and for meeting your tax and legal obligations.</p>
+    <div class="legal-h">5. "As is" — no warranty</div>
+    <p>The App is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, accuracy, and uninterrupted availability. We do not guarantee the App will be error-free or available at all times.</p>
+    <div class="legal-h">6. Limitation of liability</div>
+    <p>To the maximum extent permitted by law, we are not liable for any indirect, incidental, special or consequential damages, or for any loss of data, profits or revenue, arising from your use of (or inability to use) the App. Some jurisdictions do not allow certain limitations, so some of the above may not apply to you.</p>
+    <div class="legal-h">7. Third-party services</div>
+    <p>The App relies on third-party services (such as hosting and optional AI features) that are governed by their own terms and privacy policies.</p>
+    <div class="legal-h">8. Changes and availability</div>
+    <p>We may update, change or discontinue the App or these Terms at any time. Continued use after a change means you accept the updated Terms.</p>
+    <div class="legal-h">9. Governing law</div>
+    <p>These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada applicable there, without regard to conflict-of-law rules.</p>
+    <div class="legal-h">10. Contact</div>
+    <p>Questions about these Terms? Contact us at <b>qualityselectiion@gmail.com</b>.</p>
   </div>
 </div>
 
@@ -1473,20 +1554,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.20.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.21.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">📖</div>
+        <div class="wn-icon">🔒</div>
         <div>
-          <div class="wn-title">Meet the Guide</div>
-          <div class="wn-desc">The walkthrough has been reborn as the Guide — an immersive, premium tour that spotlights each part of the app with a refined card, smooth motion and a clear sense of progress.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✨</div>
-        <div>
-          <div class="wn-title">Short to start, complete on demand</div>
-          <div class="wn-desc">A quick first run covers the essentials in under a minute. Want the deep dive? Replay the full Guide from More → Replay Guide — twenty steps across every section, in any of 10 languages.</div>
+          <div class="wn-title">Privacy &amp; Terms, built in</div>
+          <div class="wn-desc">The Ledger now has a clear Privacy Policy and Terms of Service — find them under More → Legal. Your data still lives only on your device: no ads, no tracking, no accounts.</div>
         </div>
       </div>
     </div>
@@ -1789,7 +1863,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.20.2";
+const APP_VER    = "2.21.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4646,6 +4720,8 @@ const SUBPAGES = {
   icon:     { el:"iconPickerPage",  render: () => renderIconPickerPage() },
   lang:     { el:"langPickerPage",  render: () => renderLangPickerPage() },
   install:  { el:"installPage",     render: () => {} },
+  privacy:  { el:"privacyPage",     render: () => {} },
+  terms:    { el:"termsPage",       render: () => {} },
   reports:     { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
   ai:          { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
   priceref:    { el:"priceRefPage",    render: () => renderPriceRef() },
