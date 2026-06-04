@@ -994,6 +994,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="auth-links">
       <span id="authToggle" onclick="authToggleMode()">New here? Create an account</span>
       <span id="authForgot" onclick="authSetMode('reset')">Forgot password?</span>
+      <span id="authResend" onclick="authResend()">Didn't get the confirmation email? Resend it</span>
     </div>
   </div>
 </div>
@@ -1611,13 +1612,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.22.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.22.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">✉️</div>
         <div>
           <div class="wn-title">Smoother email confirmation</div>
           <div class="wn-desc">Tapping the confirmation link in your sign-up email now brings you straight back into The Ledger, already signed in — no more "Safari can't open the page." If a link has expired, you'll see a clear message instead.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">🔁</div>
+        <div>
+          <div class="wn-title">Resend the confirmation email</div>
+          <div class="wn-desc">Never got the email, or your link expired? Tap "Didn't get the confirmation email? Resend it" on the sign-in screen to send a fresh one.</div>
         </div>
       </div>
     </div>
@@ -1952,7 +1960,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.22.1";
+const APP_VER    = "2.22.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5385,7 +5393,8 @@ const authRepo = {
   signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
   async signOut(){ try{ await flushToCloud(); }catch(e){} Repo.setBusiness(null); _cloudBooted=false; return SB.auth.signOut(); },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
-  setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); }
+  setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); },
+  resendConfirm(email){ return SB.auth.resend({ type:"signup", email, options:{ emailRedirectTo: location.origin + location.pathname } }); }
 };
 async function doSignOut(){ try{ await authRepo.signOut(); }catch(e){} }  // onAuthStateChange(null) → showAuthScreen
 // ---- screen management ----
@@ -5401,10 +5410,12 @@ function _authMsg(t, kind){ const e=document.getElementById("authMsg"); if(e){ e
 function authSetMode(m){
   _authMode = m;
   const sub=document.getElementById("authSub"), btn=document.getElementById("authSubmit"),
-        pw=document.getElementById("authPw"), toggle=document.getElementById("authToggle"), forgot=document.getElementById("authForgot");
+        pw=document.getElementById("authPw"), toggle=document.getElementById("authToggle"),
+        forgot=document.getElementById("authForgot"), resend=document.getElementById("authResend");
   _authMsg("");
   if(pw) pw.style.display = (m==="reset") ? "none" : "block";
   if(forgot) forgot.style.display = (m==="signin") ? "inline" : "none";
+  if(resend) resend.style.display = (m==="signin") ? "inline" : "none";
   if(!sub) return;
   if(m==="signup"){ sub.textContent="Create your account"; btn.textContent="Create Account"; toggle.textContent="Have an account? Sign in"; if(pw) pw.placeholder="Choose a password (6+ characters)"; }
   else if(m==="reset"){ sub.textContent="Reset your password"; btn.textContent="Send Reset Link"; toggle.textContent="Back to sign in"; }
@@ -5412,6 +5423,22 @@ function authSetMode(m){
   else { sub.textContent="Sign in to your account"; btn.textContent="Sign In"; toggle.textContent="New here? Create an account"; if(pw) pw.placeholder="Password"; }
 }
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
+// Resend the sign-up confirmation email (for users whose link expired or never arrived).
+let _resendAt = 0;
+async function authResend(){
+  const email=(document.getElementById("authEmail").value||"").trim();
+  if(!email){ _authMsg("Enter your email above first, then tap Resend.","err"); try{ document.getElementById("authEmail").focus(); }catch(e){} return; }
+  const now=Date.now();
+  if(now-_resendAt < 20000){ _authMsg("Just a moment — you can resend again in a few seconds.","ok"); return; }
+  const link=document.getElementById("authResend");
+  if(link) link.style.pointerEvents="none", link.style.opacity="0.6";
+  try{
+    const r=await authRepo.resendConfirm(email);
+    if(r && r.error){ _authMsg(r.error.message,"err"); }
+    else { _resendAt=now; _authMsg("Confirmation email sent. Check your inbox (and spam) and tap the link — it'll bring you right back here.","ok"); }
+  }catch(e){ _authMsg(String(e && (e.message||e)),"err"); }
+  finally{ if(link) link.style.pointerEvents="", link.style.opacity=""; }
+}
 async function authSubmit(){
   const email=(document.getElementById("authEmail").value||"").trim();
   const pw=(document.getElementById("authPw").value||"");
