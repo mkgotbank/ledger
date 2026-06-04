@@ -1101,7 +1101,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     </div>
     <div class="settings-sec">
       <div class="settings-card">
-        <div class="settings-row" onclick="replayTour()" style="cursor:pointer">
+        <div class="settings-row" id="replayRow" onclick="replayTour()" style="cursor:pointer">
           <span class="settings-row-lbl">📖 Replay Guide</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
@@ -1473,7 +1473,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.20.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.20.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">📖</div>
@@ -1789,7 +1789,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.20.1";
+const APP_VER    = "2.20.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5053,8 +5053,9 @@ const TOUR_STEPS = [
   { tab:"settings", sel:"#pinSettings", icon:"🔒", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
   { tab:"settings", sel:"#aiSettings", icon:"🤖", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
   { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up your data", body:"Important: your data lives only on this device. Export a backup or copy a sync code to move between devices — removing the app can erase it." },
+  { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"📖", title:"Want the full tour?", body:"You've got the essentials — nicely done. For an in-depth walkthrough of every feature, replay the Guide right here anytime. Happy selling!" },
   { tab:"settings", sel:"#installRow", icon:"📲", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
-  { essential:true, tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
+  { tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
 ];
 let _tourI = 0;
 let _tourSteps = TOUR_STEPS;
@@ -5062,7 +5063,7 @@ let _tourSteps = TOUR_STEPS;
 // (full=true) walks all 20 for a complete reference.
 function startTour(full){
   const ov = _el("tourOverlay"); if(!ov) return;
-  _tourSteps = full ? TOUR_STEPS : TOUR_STEPS.filter(s => s.essential);
+  _tourSteps = full ? TOUR_STEPS.filter(s => !s.shortOnly) : TOUR_STEPS.filter(s => s.essential);
   try { const homeTab = document.querySelector(".tabs .tab"); if(homeTab && !document.getElementById("panel-stock").classList.contains("on")) switchTab("stock", homeTab); } catch(e){}
   // close any open sub-page so targets are visible
   document.querySelectorAll(".subpage.open").forEach(p => p.classList.remove("open"));
