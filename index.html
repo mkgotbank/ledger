@@ -1443,7 +1443,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.19.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.19.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">✦</div>
@@ -1463,7 +1463,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
         <div class="wn-icon">👤</div>
         <div>
           <div class="wn-title">Everything a real invoice needs</div>
-          <div class="wn-desc">Add full client details (address, phone, email, Tax/VAT ID), a Reference / PO number, and a Payment Details section — bank, IBAN or a payment link — so customers know exactly how to pay. Set defaults once in More → Business profile.</div>
+          <div class="wn-desc">See the running Total and record what's been paid and what's still owed — perfect for unpaid or part-paid invoices. Plus full client details (address, phone, email, Tax/VAT ID), a Reference / PO number, and a Payment Details section — bank, IBAN or a payment link. Set defaults once in More → Business profile.</div>
         </div>
       </div>
     </div>
@@ -1766,7 +1766,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.19.1";
+const APP_VER    = "2.19.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2998,6 +2998,7 @@ function _invItemRows(){
 }
 function renderInvoiceEditor(){
   if(!_inv) return;
+  const _t = invTotals(_inv);
   const paper = document.getElementById("invoicePaper");
   if(paper) paper.innerHTML = renderInvoicePaper(_inv);
   const sb = document.getElementById("invStyleBar");
@@ -3028,14 +3029,31 @@ function renderInvoiceEditor(){
     </div>
     <div class="inv-frow2">
       <div><span class="m-lbl">Tax %</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.taxRate||0}" oninput="invSetField('taxRate',this.value)"/></div>
-      <div><span class="m-lbl">Amount paid</span><input class="m-input" type="number" inputmode="decimal" value="${_inv.paid||0}" oninput="invSetField('paid',this.value)"/></div>
+      <div><span class="m-lbl">Total (from line items)</span><input class="m-input" id="invTotalDisp" type="text" value="${invMoney(_t.total)}" readonly tabindex="-1" style="font-weight:700;opacity:.9"/></div>
+    </div>
+    <div class="inv-frow2">
+      <div><span class="m-lbl">Amount paid</span><input class="m-input" id="invPaidInput" type="number" inputmode="decimal" value="${_round2(+_inv.paid||0)}" oninput="invOnPaid(this.value)"/></div>
+      <div><span class="m-lbl">Amount owed</span><input class="m-input" id="invOwedInput" type="number" inputmode="decimal" value="${_t.balance}" oninput="invOnOwed(this.value)"/></div>
     </div>
     <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / short note…" oninput="invSetField('note',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Payment details (shown on invoice)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 …  ·  or a payment link" oninput="invSetField('payInfo',this.value)">${escHtml(_inv.payInfo||'')}</textarea></div>
     <div class="inv-frow"><span class="m-lbl">Terms (shown at the bottom)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="invSetField('terms',this.value)">${escHtml(_inv.terms||'')}</textarea></div>`;
 }
-function invSetField(k,v){ const txt=["customer","customerAddress","customerPhone","customerEmail","customerTaxId","poNumber","dueDate","note","title","terms","payInfo"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
-function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv); }
+// Re-render the live paper preview AND keep the Total / paid / owed read-outs in
+// sync (without rebuilding the editor, so the field you're typing in keeps focus).
+function _invRefreshPaper(){
+  const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv);
+  const t=invTotals(_inv), owed=_round2(Math.max(0, t.total-(+_inv.paid||0)));
+  const td=document.getElementById("invTotalDisp"); if(td) td.value=invMoney(t.total);
+  const pi=document.getElementById("invPaidInput"); if(pi && document.activeElement!==pi) pi.value=_round2(+_inv.paid||0);
+  const oi=document.getElementById("invOwedInput"); if(oi && document.activeElement!==oi) oi.value=owed;
+}
+function invSetField(k,v){ const txt=["customer","customerAddress","customerPhone","customerEmail","customerTaxId","poNumber","dueDate","note","title","terms","payInfo"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); _invRefreshPaper(); }
+function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); _invRefreshPaper(); }
+// Amount paid and Amount owed are two views of the same thing: owed = total − paid.
+// Editing either one updates the other so an unpaid/partial invoice is easy to record.
+function invOnPaid(v){ const total=invTotals(_inv).total; _inv.paid=_round2(Math.max(0, Math.min(parseFloat(v)||0, total))); _invRefreshPaper(); }
+function invOnOwed(v){ const total=invTotals(_inv).total; const owed=Math.max(0, Math.min(parseFloat(v)||0, total)); _inv.paid=_round2(Math.max(0, total-owed)); _invRefreshPaper(); }
 function invSetDiscType(t){ _inv.discountType = t; renderInvoiceEditor(); }
 function invAddItem(){ _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
 function invRemoveItem(i){ _inv.items.splice(i,1); if(!_inv.items.length) _inv.items.push({desc:"",qty:1,unit:"",price:0}); renderInvoiceEditor(); }
