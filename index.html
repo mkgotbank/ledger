@@ -1473,7 +1473,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.20.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.20.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">📖</div>
@@ -1485,8 +1485,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="wn-item">
         <div class="wn-icon">✨</div>
         <div>
-          <div class="wn-title">Nothing stays hidden</div>
-          <div class="wn-desc">Twenty crisp steps now cover every section — Home, Activity, invoicing, preferences, security, backups and more — so you're fully up to speed. Replay it anytime from More → Replay Guide, in any of 10 languages.</div>
+          <div class="wn-title">Short to start, complete on demand</div>
+          <div class="wn-desc">A quick first run covers the essentials in under a minute. Want the deep dive? Replay the full Guide from More → Replay Guide — twenty steps across every section, in any of 10 languages.</div>
         </div>
       </div>
     </div>
@@ -1789,7 +1789,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.20.0";
+const APP_VER    = "2.20.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5035,30 +5035,34 @@ function switchTab(name, btn){
 // ── GUIDED WALKTHROUGH ── first-time coach-mark tour of the new layout
 const TOUR_KEY = "ledger_tour_done";
 const TOUR_STEPS = [
-  { tab:"stock", sel:null, icon:"📖", title:"Welcome to The Ledger", body:"A two-minute guide to every corner of your books. We'll walk Home, Activity and More so nothing stays hidden. You can skip anytime." },
-  { tab:"stock", sel:".strain-bar", icon:"📦", title:"Your products & stock", body:"Switch between products here; the gear manages them. Up top you always see stock remaining and roughly how many days it will last." },
-  { tab:"stock", sel:".sgrid", icon:"💰", title:"Money at a glance", body:"Earned, net profit, expenses and your estimated stock value — the four numbers that matter, always front and centre on Home." },
+  { essential:true, tab:"stock", sel:null, icon:"📖", title:"Welcome to The Ledger", body:"A two-minute guide to every corner of your books. We'll walk Home, Activity and More so nothing stays hidden. You can skip anytime." },
+  { essential:true, tab:"stock", sel:".strain-bar", icon:"📦", title:"Your products & stock", body:"Switch between products here; the gear manages them. Up top you always see stock remaining and roughly how many days it will last." },
+  { essential:true, tab:"stock", sel:".sgrid", icon:"💰", title:"Money at a glance", body:"Earned, net profit, expenses and your estimated stock value — the four numbers that matter, always front and centre on Home." },
   { tab:"stock", sel:"#healthStrip", icon:"📈", title:"Today's pulse", body:"A live read on today: revenue so far, number of sales, and your current top seller — a quick gut-check before the day runs away." },
-  { tab:"stock", sel:".qa-strip", icon:"⚡", title:"Your two daily actions", body:"Record Sale logs a sale — bundles, discounts, payment type, even selling on credit. Restock adds inventory. These are your everyday taps." },
-  { tab:"stock", sel:"#manageGroups", icon:"🗂️", title:"Everything else, organised", body:"Grouped hubs for Money, Inventory and Analysis — expenses, who owes you, stock breakdown, reports, the AI advisor and more, one tap away." },
-  { tab:"log", sel:null, icon:"🧾", title:"Activity — your full history", body:"The Activity tab is the running record of your business. Every sale, restock, expense and internal use lands here, in order. Let's break it down." },
+  { essential:true, tab:"stock", sel:".qa-strip", icon:"⚡", title:"Your two daily actions", body:"Record Sale logs a sale — bundles, discounts, payment type, even selling on credit. Restock adds inventory. These are your everyday taps." },
+  { essential:true, tab:"stock", sel:"#manageGroups", icon:"🗂️", title:"Everything else, organised", body:"Grouped hubs for Money, Inventory and Analysis — expenses, who owes you, stock breakdown, reports, the AI advisor and more, one tap away." },
+  { essential:true, tab:"log", sel:null, icon:"🧾", title:"Activity — your full history", body:"The Activity tab is the running record of your business. Every sale, restock, expense and internal use lands here, in order. Let's break it down." },
   { tab:"log", sel:".log-search-wrap", icon:"🔍", title:"Search anything", body:"Looking for one transaction? Search by product, customer, note or amount to jump straight to it instead of scrolling the whole history." },
   { tab:"log", sel:".filters-bar", icon:"🎚️", title:"Filter & total any range", body:"Narrow the log by type or date. The summary up top instantly totals whatever range you choose — handy for a day, a week or a month." },
   { tab:"log", sel:"#logList", icon:"✏️", title:"Tap any entry to edit", body:"This is every entry in full. Made a typo or need to adjust a sale? Tap any line to open and edit it — your totals update automatically." },
-  { tab:"settings", sel:null, icon:"⚙️", title:"More — settings & tools", body:"The More tab holds appearance, your business profile, preferences, security, data backup and help. We'll highlight the ones worth knowing." },
+  { essential:true, tab:"settings", sel:null, icon:"⚙️", title:"More — settings & tools", body:"The More tab holds appearance, your business profile, preferences, security, data backup and help. We'll highlight the ones worth knowing." },
   { tab:"settings", sel:"#appearanceCard", icon:"🎨", title:"Make it yours", body:"Twelve themes, multiple fonts, your own app icon, and ten languages. Set the look and language that feel right — everything restyles instantly." },
   { tab:"settings", sel:"#businessRow", icon:"🏢", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice design once. It's saved and applied automatically to every invoice you send." },
   { tab:"settings", sel:"#invoicesRow", icon:"🧮", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Pick a premium layout, then print or save as PDF." },
   { tab:"settings", sel:"#currencySettings", icon:"🪙", title:"Currency & low-stock alerts", body:"Set your currency once so every figure reads right, and choose a low-stock threshold so the app warns you before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"🔒", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
   { tab:"settings", sel:"#aiSettings", icon:"🤖", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
-  { tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up your data", body:"Important: your data lives only on this device. Export a backup or copy a sync code to move between devices — removing the app can erase it." },
+  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up your data", body:"Important: your data lives only on this device. Export a backup or copy a sync code to move between devices — removing the app can erase it." },
   { tab:"settings", sel:"#installRow", icon:"📲", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
-  { tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
+  { essential:true, tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
 ];
 let _tourI = 0;
-function startTour(){
+let _tourSteps = TOUR_STEPS;
+// First run shows only the essential steps (a quick orientation); Replay Guide
+// (full=true) walks all 20 for a complete reference.
+function startTour(full){
   const ov = _el("tourOverlay"); if(!ov) return;
+  _tourSteps = full ? TOUR_STEPS : TOUR_STEPS.filter(s => s.essential);
   try { const homeTab = document.querySelector(".tabs .tab"); if(homeTab && !document.getElementById("panel-stock").classList.contains("on")) switchTab("stock", homeTab); } catch(e){}
   // close any open sub-page so targets are visible
   document.querySelectorAll(".subpage.open").forEach(p => p.classList.remove("open"));
@@ -5067,7 +5071,7 @@ function startTour(){
   tourShow();
 }
 function tourShow(){
-  const step = TOUR_STEPS[_tourI];
+  const step = _tourSteps[_tourI];
   const spot = _el("tourSpot"), card = _el("tourCard");
   if(step.tab){
     const idx = {stock:0,log:1,settings:2}[step.tab];
@@ -5077,12 +5081,12 @@ function tourShow(){
   // close any open sub-page that could occlude a target
   document.querySelectorAll(".subpage.open").forEach(p => p.classList.remove("open"));
   const ico = _el("tourIcon"); if(ico) ico.textContent = step.icon || "";
-  _txt("tourStepNum", __("Guide") + " · " + (_tourI+1) + " / " + TOUR_STEPS.length);
+  _txt("tourStepNum", __("Guide") + " · " + (_tourI+1) + " / " + _tourSteps.length);
   _txt("tourTitle", __(step.title));
   _txt("tourBody", __(step.body));
-  const pf = _el("tourProgFill"); if(pf) pf.style.width = Math.round((_tourI+1)/TOUR_STEPS.length*100) + "%";
+  const pf = _el("tourProgFill"); if(pf) pf.style.width = Math.round((_tourI+1)/_tourSteps.length*100) + "%";
   const back = _el("tourBack"); if(back) back.style.visibility = _tourI===0 ? "hidden" : "visible";
-  _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? __("Got it") : __("Next"));
+  _txt("tourNext", _tourI===_tourSteps.length-1 ? __("Got it") : __("Next"));
   // re-trigger the content cross-fade on each step
   const content = _el("tourContent");
   if(content){ content.classList.remove("tour-fade"); void content.offsetWidth; content.classList.add("tour-fade"); }
@@ -5125,10 +5129,10 @@ function tourShow(){
     card.style.bottom = ""; card.style.top = "50%"; card.style.transform = "translate(-50%,-50%)";
   }
 }
-function tourNext(){ if(_tourI >= TOUR_STEPS.length-1){ endTour(); return; } _tourI++; tourShow(); }
+function tourNext(){ if(_tourI >= _tourSteps.length-1){ endTour(); return; } _tourI++; tourShow(); }
 function tourPrev(){ if(_tourI > 0){ _tourI--; tourShow(); } }
 function endTour(){ const ov=_el("tourOverlay"); if(ov) ov.style.display="none"; try{ localStorage.setItem(TOUR_KEY,"1"); }catch(e){} try{ const ht=document.querySelectorAll(".tabs .tab")[0]; if(ht) switchTab("stock",ht); }catch(e){} }
-function replayTour(){ startTour(); }
+function replayTour(){ startTour(true); }
 function maybeStartTour(){
   try{ if(localStorage.getItem(TOUR_KEY)) return; }catch(e){}
   if(!isReady()) return;
