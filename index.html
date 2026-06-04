@@ -175,6 +175,16 @@ function _applyFontVar(id){
 }
 try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e){}
 try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
+// Decide setup-vs-app BEFORE first paint so returning users never see a flash of
+// the welcome screen. Mirrors hydrate()/isReady(): valid data = a current product
+// that exists. Tries the main key then the backup, exactly like hydrate().
+try{
+  var _erdy = function(raw){ try{ var p=JSON.parse(raw); return !!(p && p.strains && p.cur && p.strains[p.cur]); }catch(e){ return false; } };
+  if(_erdy(localStorage.getItem("ledger_v4")) || _erdy(localStorage.getItem("ledger_v4_bak"))){
+    document.documentElement.classList.add("has-data");
+    if(localStorage.getItem("ledger_pin")) document.documentElement.classList.add("has-pin");
+  }
+}catch(e){}
 </script>
 <script>
 // Service worker registration — in its own script tag so it always runs,
@@ -242,6 +252,11 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .setup-note{font-size:10px;color:var(--txt-d);text-align:center;margin-top:14px;line-height:1.7;}
 
 #mainApp{display:none;max-width:480px;margin:0 auto;padding-bottom:110px;}
+/* Returning users: hide the welcome screen and reveal the app on the FIRST paint
+   (the early head script adds .has-data / .has-pin before render — no flash).
+   PIN users stay blank until the PIN screen shows, so data never flashes pre-unlock. */
+html.has-data #setupScreen{display:none;}
+html.has-data:not(.has-pin) #mainApp{display:block;}
 
 /* Sticky frosted-glass header */
 .hdr{padding:15px 18px 0;border-bottom:1px solid var(--acc-bdr);position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 10px 30px -16px rgba(0,0,0,0.55);}
@@ -1443,7 +1458,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.19.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.19.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">✦</div>
@@ -1766,7 +1781,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.19.2";
+const APP_VER    = "2.19.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
