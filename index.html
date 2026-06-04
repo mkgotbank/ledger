@@ -853,12 +853,21 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .nav-group:first-child{margin-top:2px;}
 /* ── GUIDED WALKTHROUGH ── spotlight + tooltip */
 #tourOverlay{position:fixed;inset:0;z-index:9990;}
-#tourSpot{position:absolute;border-radius:14px;border:2px solid var(--acc-hi);box-shadow:0 0 0 9999px rgba(6,10,20,0.74),0 0 22px var(--acc-glow);transition:top 0.34s cubic-bezier(0.2,0.8,0.2,1),left 0.34s cubic-bezier(0.2,0.8,0.2,1),width 0.34s cubic-bezier(0.2,0.8,0.2,1),height 0.34s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;}
-.tour-card{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,400px);background:var(--modal);border:1px solid var(--acc-bdr);border-radius:18px;padding:18px 18px 16px;box-shadow:0 20px 54px rgba(0,0,0,0.55);z-index:9991;animation:tourCardIn 0.3s cubic-bezier(0.2,0.8,0.2,1);}
-@keyframes tourCardIn{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;}}
-.tour-step{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:7px;}
-.tour-title{font-family:var(--display);font-size:22px;font-weight:600;color:var(--txt-b);margin-bottom:7px;line-height:1.08;}
-.tour-body{font-size:12px;color:var(--txt-d);line-height:1.7;margin-bottom:16px;}
+#tourOverlay.tour-centered{background:rgba(8,11,18,0.62);backdrop-filter:blur(7px) saturate(112%);-webkit-backdrop-filter:blur(7px) saturate(112%);}
+#tourSpot{position:absolute;border-radius:14px;border:1.5px solid var(--acc-hi);box-shadow:0 0 0 9999px rgba(8,11,18,0.80),0 0 0 4px var(--acc-dim),0 0 34px 5px var(--acc-glow);transition:top 0.42s cubic-bezier(0.22,0.85,0.24,1),left 0.42s cubic-bezier(0.22,0.85,0.24,1),width 0.42s cubic-bezier(0.22,0.85,0.24,1),height 0.42s cubic-bezier(0.22,0.85,0.24,1);pointer-events:none;}
+#tourSpot::after{content:"";position:absolute;inset:-2px;border-radius:16px;border:1.5px solid var(--acc-hi);opacity:0;animation:tourPulse 2.6s ease-out infinite;pointer-events:none;}
+@keyframes tourPulse{0%{opacity:.5;transform:scale(1);}70%,100%{opacity:0;transform:scale(1.05);}}
+.tour-card{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,410px);background:var(--modal);border:1px solid var(--acc-bdr);border-left:3px solid var(--acc);border-radius:20px;padding:0 19px 15px;box-shadow:0 26px 70px rgba(0,0,0,0.62),inset 0 1px 0 var(--hairline);z-index:9991;overflow:hidden;animation:tourCardIn 0.36s cubic-bezier(0.2,0.8,0.2,1);}
+@keyframes tourCardIn{from{opacity:0;transform:translateX(-50%) translateY(12px) scale(0.97);}to{opacity:1;}}
+.tour-prog{position:absolute;top:0;left:0;right:0;height:3px;background:var(--fill-1);}
+.tour-prog-fill{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc-hi));box-shadow:0 0 10px var(--acc-glow);transition:width 0.44s cubic-bezier(0.2,0.8,0.2,1);}
+.tour-head{display:flex;align-items:center;gap:11px;padding-top:18px;margin-bottom:13px;}
+.tour-ico{flex:none;width:42px;height:42px;border-radius:13px;background:radial-gradient(120% 120% at 30% 20%,var(--acc-dim),var(--fill-1));border:1px solid var(--acc-bdr);display:flex;align-items:center;justify-content:center;font-size:21px;line-height:1;box-shadow:0 0 16px var(--acc-glow),inset 0 1px 0 var(--hairline);}
+.tour-eyebrow{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);font-weight:700;}
+.tour-title{font-family:var(--display);font-size:21px;font-weight:600;color:var(--txt-b);margin-bottom:8px;line-height:1.12;}
+.tour-body{font-size:12.5px;color:var(--txt-d);line-height:1.65;margin-bottom:17px;}
+#tourContent.tour-fade{animation:tourFade 0.34s cubic-bezier(0.2,0.8,0.2,1);}
+@keyframes tourFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .tour-actions{display:flex;align-items:center;gap:9px;}
 .tour-skip{background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:6px 2px;}
 .tour-btn{background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:11px;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 2px 12px var(--acc-glow);transition:transform 0.15s var(--ease);}
@@ -1093,7 +1102,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="settings-sec">
       <div class="settings-card">
         <div class="settings-row" onclick="replayTour()" style="cursor:pointer">
-          <span class="settings-row-lbl">📘 Replay walkthrough</span>
+          <span class="settings-row-lbl">📖 Replay Guide</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
         <div class="settings-row" id="installRow" onclick="openSubpage('install')" style="cursor:pointer">
@@ -1103,7 +1112,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       </div>
     </div>
     <div class="settings-sec">
-      <div class="settings-card">
+      <div class="settings-card" id="appearanceCard">
         <div class="settings-row" onclick="openPickerPage('theme')" style="cursor:pointer">
           <span class="settings-row-lbl">Theme</span>
           <div style="display:flex;align-items:center;gap:8px">
@@ -1439,9 +1448,15 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 <div id="tourOverlay" style="display:none">
   <div id="tourSpot"></div>
   <div id="tourCard" class="tour-card">
-    <div class="tour-step" id="tourStepNum"></div>
-    <div class="tour-title" id="tourTitle"></div>
-    <div class="tour-body" id="tourBody"></div>
+    <div class="tour-prog"><span class="tour-prog-fill" id="tourProgFill"></span></div>
+    <div id="tourContent">
+      <div class="tour-head">
+        <div class="tour-ico" id="tourIcon">👋</div>
+        <div class="tour-eyebrow" id="tourStepNum"></div>
+      </div>
+      <div class="tour-title" id="tourTitle"></div>
+      <div class="tour-body" id="tourBody"></div>
+    </div>
     <div class="tour-actions">
       <button class="tour-skip" onclick="endTour()">Skip</button>
       <div style="flex:1"></div>
@@ -1458,27 +1473,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.19.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.20.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">✦</div>
+        <div class="wn-icon">📖</div>
         <div>
-          <div class="wn-title">A beautifully redesigned invoice</div>
-          <div class="wn-desc">Your invoice now has the premium, luxury look of a top studio — refined typography, generous spacing, a prominent total, and crisp printing.</div>
+          <div class="wn-title">Meet the Guide</div>
+          <div class="wn-desc">The walkthrough has been reborn as the Guide — an immersive, premium tour that spotlights each part of the app with a refined card, smooth motion and a clear sense of progress.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🎨</div>
+        <div class="wn-icon">✨</div>
         <div>
-          <div class="wn-title">5 layouts &amp; 5 fonts to choose from</div>
-          <div class="wn-desc">Pick the style that fits your brand — Classic, Minimal, Bold, Elegant or Modern — and a font (Helvetica, Georgia, Didot, Avenir or Mono). Switch live right on the invoice, or set your default in More → Business profile.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">👤</div>
-        <div>
-          <div class="wn-title">Everything a real invoice needs</div>
-          <div class="wn-desc">See the running Total and record what's been paid and what's still owed — perfect for unpaid or part-paid invoices. Plus full client details (address, phone, email, Tax/VAT ID), a Reference / PO number, and a Payment Details section — bank, IBAN or a payment link. Set defaults once in More → Business profile.</div>
+          <div class="wn-title">Nothing stays hidden</div>
+          <div class="wn-desc">Twenty crisp steps now cover every section — Home, Activity, invoicing, preferences, security, backups and more — so you're fully up to speed. Replay it anytime from More → Replay Guide, in any of 10 languages.</div>
         </div>
       </div>
     </div>
@@ -1781,7 +1789,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.19.3";
+const APP_VER    = "2.20.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5027,20 +5035,26 @@ function switchTab(name, btn){
 // ── GUIDED WALKTHROUGH ── first-time coach-mark tour of the new layout
 const TOUR_KEY = "ledger_tour_done";
 const TOUR_STEPS = [
-  { tab:"stock", sel:null, title:"Welcome to The Ledger", body:"A quick tour of all three tabs so you know where everything lives. You can skip anytime." },
-  { tab:"stock", sel:".strain-bar", title:"Your products & stock", body:"Switch between products here, and add more with the gear. Up top you always see how much stock is left and roughly how many days it will last." },
-  { tab:"stock", sel:".sgrid", title:"Your money at a glance", body:"Earned, net profit, expenses, and your estimated stock value — always front and centre on the Home tab." },
-  { tab:"stock", sel:"#healthStrip", title:"Today at a glance", body:"A quick pulse of today's revenue, number of sales, and your top seller." },
-  { tab:"stock", sel:".qa-strip", title:"Your two daily actions", body:"Tap Record Sale to log a sale — with bundles, discounts, payment type, even selling on credit. Tap Restock to add inventory." },
-  { tab:"stock", sel:"#manageGroups", title:"Everything else, organized", body:"Expenses, who owes you, internal use, stock breakdown, reports, the AI advisor, and price reference — each on its own clean page, one tap away." },
-  { tab:"log", sel:null, title:"Activity \u2014 your full history", body:"This is the Activity tab. Every sale, restock, expense and internal use is logged here. Search it, filter by type or date with the Filters bar, and tap any entry to edit it \u2014 the summary up top totals whatever range you pick." },
-  { tab:"settings", sel:null, title:"More \u2014 settings & tools", body:"The More tab has your themes, fonts and app icon, currency, low-stock alerts, a PIN lock, and more. A few things worth knowing are coming up next." },
-  { tab:"settings", sel:"#businessRow", title:"Set up your business", body:"Add your logo, contact details, tax info and payment details here \u2014 and choose your invoice design. It's saved once and used automatically on every invoice you send." },
-  { tab:"settings", sel:"#invoicesRow", title:"Create & send invoices", body:"Make a polished invoice in seconds \u2014 from a sale, from what a customer owes you, or from scratch. Pick from 5 premium layouts and fonts, add your client's details, then Print or Save as PDF to send." },
-  { tab:"settings", sel:"#installRow", title:"Add it to your phone", body:"Tap here for step-by-step instructions to add The Ledger to your home screen \u2014 it then opens full-screen and works offline, just like a real app, with no app store needed." },
-  { tab:"settings", sel:"#aiSettings", title:"Faster AI advice (optional)", body:"The AI Advisor works for free but can be slow. Paste a free Groq key here \u2014 grab one in about a minute at console.groq.com \u2014 to make its advice fast and reliable. The steps are right on this card. Totally optional." },
-  { tab:"settings", sel:"#dataSyncSettings", title:"Back up your data", body:"Important: your data lives only on this device. Tap Export to save a backup file, or Copy Sync Code to save it as text. The app also reminds you weekly \u2014 on iPhone especially, removing the app can erase its data, so keep a backup." },
-  { tab:"stock", sel:null, title:"You're all set", body:"That's it \u2014 Home, Activity, and More. Tap Home anytime to get back to your dashboard. Happy selling!" },
+  { tab:"stock", sel:null, icon:"📖", title:"Welcome to The Ledger", body:"A two-minute guide to every corner of your books. We'll walk Home, Activity and More so nothing stays hidden. You can skip anytime." },
+  { tab:"stock", sel:".strain-bar", icon:"📦", title:"Your products & stock", body:"Switch between products here; the gear manages them. Up top you always see stock remaining and roughly how many days it will last." },
+  { tab:"stock", sel:".sgrid", icon:"💰", title:"Money at a glance", body:"Earned, net profit, expenses and your estimated stock value — the four numbers that matter, always front and centre on Home." },
+  { tab:"stock", sel:"#healthStrip", icon:"📈", title:"Today's pulse", body:"A live read on today: revenue so far, number of sales, and your current top seller — a quick gut-check before the day runs away." },
+  { tab:"stock", sel:".qa-strip", icon:"⚡", title:"Your two daily actions", body:"Record Sale logs a sale — bundles, discounts, payment type, even selling on credit. Restock adds inventory. These are your everyday taps." },
+  { tab:"stock", sel:"#manageGroups", icon:"🗂️", title:"Everything else, organised", body:"Grouped hubs for Money, Inventory and Analysis — expenses, who owes you, stock breakdown, reports, the AI advisor and more, one tap away." },
+  { tab:"log", sel:null, icon:"🧾", title:"Activity — your full history", body:"The Activity tab is the running record of your business. Every sale, restock, expense and internal use lands here, in order. Let's break it down." },
+  { tab:"log", sel:".log-search-wrap", icon:"🔍", title:"Search anything", body:"Looking for one transaction? Search by product, customer, note or amount to jump straight to it instead of scrolling the whole history." },
+  { tab:"log", sel:".filters-bar", icon:"🎚️", title:"Filter & total any range", body:"Narrow the log by type or date. The summary up top instantly totals whatever range you choose — handy for a day, a week or a month." },
+  { tab:"log", sel:"#logList", icon:"✏️", title:"Tap any entry to edit", body:"This is every entry in full. Made a typo or need to adjust a sale? Tap any line to open and edit it — your totals update automatically." },
+  { tab:"settings", sel:null, icon:"⚙️", title:"More — settings & tools", body:"The More tab holds appearance, your business profile, preferences, security, data backup and help. We'll highlight the ones worth knowing." },
+  { tab:"settings", sel:"#appearanceCard", icon:"🎨", title:"Make it yours", body:"Twelve themes, multiple fonts, your own app icon, and ten languages. Set the look and language that feel right — everything restyles instantly." },
+  { tab:"settings", sel:"#businessRow", icon:"🏢", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice design once. It's saved and applied automatically to every invoice you send." },
+  { tab:"settings", sel:"#invoicesRow", icon:"🧮", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Pick a premium layout, then print or save as PDF." },
+  { tab:"settings", sel:"#currencySettings", icon:"🪙", title:"Currency & low-stock alerts", body:"Set your currency once so every figure reads right, and choose a low-stock threshold so the app warns you before a product runs out." },
+  { tab:"settings", sel:"#pinSettings", icon:"🔒", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
+  { tab:"settings", sel:"#aiSettings", icon:"🤖", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
+  { tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up your data", body:"Important: your data lives only on this device. Export a backup or copy a sync code to move between devices — removing the app can erase it." },
+  { tab:"settings", sel:"#installRow", icon:"📲", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
+  { tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
 ];
 let _tourI = 0;
 function startTour(){
@@ -5060,36 +5074,53 @@ function tourShow(){
     const tabBtn = document.querySelectorAll(".tabs .tab")[idx];
     if(tabBtn && !document.getElementById("panel-"+step.tab).classList.contains("on")) switchTab(step.tab, tabBtn);
   }
-  _txt("tourStepNum", __("Step {0} of {1}", _tourI+1, TOUR_STEPS.length));
+  // close any open sub-page that could occlude a target
+  document.querySelectorAll(".subpage.open").forEach(p => p.classList.remove("open"));
+  const ico = _el("tourIcon"); if(ico) ico.textContent = step.icon || "";
+  _txt("tourStepNum", __("Guide") + " · " + (_tourI+1) + " / " + TOUR_STEPS.length);
   _txt("tourTitle", __(step.title));
   _txt("tourBody", __(step.body));
+  const pf = _el("tourProgFill"); if(pf) pf.style.width = Math.round((_tourI+1)/TOUR_STEPS.length*100) + "%";
   const back = _el("tourBack"); if(back) back.style.visibility = _tourI===0 ? "hidden" : "visible";
   _txt("tourNext", _tourI===TOUR_STEPS.length-1 ? __("Got it") : __("Next"));
+  // re-trigger the content cross-fade on each step
+  const content = _el("tourContent");
+  if(content){ content.classList.remove("tour-fade"); void content.offsetWidth; content.classList.add("tour-fade"); }
   const target = step.sel ? document.querySelector(step.sel) : null;
   if(target){
-    try { target.scrollIntoView({ block:"nearest", behavior:"auto" }); } catch(e){}
+    const ov = _el("tourOverlay"); if(ov) ov.classList.remove("tour-centered");
+    try { target.scrollIntoView({ block:"center", behavior:"auto" }); } catch(e){}
     const place = () => {
-      const r = target.getBoundingClientRect(), pad = 7, gap = 14;
+      const r = target.getBoundingClientRect();
+      const pad = 7, gap = 14, M = 10;
+      const vw = window.innerWidth;
+      const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      // Clamp the spotlight fully inside the viewport — size first, then origin —
+      // so wide/tall elements never push the highlight off-screen (the old bug).
+      const sw = Math.min(r.width + pad*2, vw - 2*M);
+      const sh = Math.min(r.height + pad*2, vh - 2*M);
+      const sx = Math.max(M, Math.min(r.left - pad, vw - M - sw));
+      const sy = Math.max(M, Math.min(r.top - pad, vh - M - sh));
       spot.style.display = "block";
-      spot.style.top = (r.top-pad)+"px"; spot.style.left = (r.left-pad)+"px";
-      spot.style.width = (r.width+pad*2)+"px"; spot.style.height = (r.height+pad*2)+"px";
-      card.style.transform = "translateX(-50%)";
-      // Always anchor with `top` and clamp into a safe band so the card (and its
-      // Next button) never lands under the iOS Safari toolbar / home indicator.
-      // Prefer just below the highlighted element, else just above it, else centred.
-      const vh = window.innerHeight;
-      const ch = card.offsetHeight || 210;
-      const topSafe = 64, botSafe = 116;
-      const below = r.bottom + gap;
-      const above = r.top - gap - ch;
+      spot.style.left = sx + "px"; spot.style.top = sy + "px";
+      spot.style.width = sw + "px"; spot.style.height = sh + "px";
+      // Place the card relative to the (clamped) highlight: below, else above,
+      // else centred — always inside a safe band away from the device edges.
+      const ch = card.offsetHeight || 220;
+      const topSafe = 60, botSafe = 110;
+      const below = (sy + sh) + gap;
+      const above = sy - gap - ch;
       let top = (below + ch <= vh - botSafe) ? below
-              : (above >= topSafe ? above : (vh - ch) / 2);
+              : (above >= topSafe ? above : Math.max(topSafe, (vh - ch) / 2));
       top = Math.max(topSafe, Math.min(top, vh - botSafe - ch));
+      card.style.transform = "translateX(-50%)";
       card.style.bottom = ""; card.style.top = top + "px";
     };
     place();
     requestAnimationFrame(place);
+    setTimeout(place, 90);
   } else {
+    const ov = _el("tourOverlay"); if(ov) ov.classList.add("tour-centered");
     spot.style.display = "none";
     card.style.bottom = ""; card.style.top = "50%"; card.style.transform = "translate(-50%,-50%)";
   }
