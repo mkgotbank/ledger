@@ -1612,20 +1612,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.22.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.22.3</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">✉️</div>
+        <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">Smoother email confirmation</div>
-          <div class="wn-desc">Tapping the confirmation link in your sign-up email now brings you straight back into The Ledger, already signed in — no more "Safari can't open the page." If a link has expired, you'll see a clear message instead.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">🔁</div>
-        <div>
-          <div class="wn-title">Resend the confirmation email</div>
-          <div class="wn-desc">Never got the email, or your link expired? Tap "Didn't get the confirmation email? Resend it" on the sign-in screen to send a fresh one.</div>
+          <div class="wn-title">Safer accounts &amp; sync</div>
+          <div class="wn-desc">Under-the-hood hardening of cloud sync: signing out now fully clears your data from the device, your books stay readable offline after signing in, your PIN lock follows your account to new devices, and a shaky connection at login can no longer overwrite your cloud data.</div>
         </div>
       </div>
     </div>
@@ -1960,7 +1953,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.22.2";
+const APP_VER    = "2.22.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2051,8 +2044,8 @@ function fmtLogDate(str){
 let pinBuffer = "", pinPhase = "verify", pinNew1 = "";
 function hasPIN(){ return !!localStorage.getItem(PIN_SK); }
 function getPIN(){ return localStorage.getItem(PIN_SK)||""; }
-function savePIN(p){ localStorage.setItem(PIN_SK, p); }
-function clearPIN(){ localStorage.removeItem(PIN_SK); }
+function savePIN(p){ localStorage.setItem(PIN_SK, p); try{ if(D&&typeof D==="object"){ D.pin = p; persist(); } }catch(e){} }   // mirror into D so the lock travels with the account
+function clearPIN(){ localStorage.removeItem(PIN_SK); try{ if(D&&typeof D==="object"){ delete D.pin; persist(); } }catch(e){} }
 
 function showPINScreen(phase, title, sub){
   pinBuffer = ""; pinPhase = phase; if(phase!=="set2") pinNew1="";
@@ -2575,6 +2568,9 @@ function persist(){
   }
   if(el) setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
 }
+// Mirror the in-memory D to localStorage WITHOUT scheduling a cloud write. Used when
+// adopting cloud data at boot/sync so the offline cache matches what was just loaded.
+function _cacheLocalD(){ try{ const j=JSON.stringify(D); localStorage.setItem(SK,j); localStorage.setItem(SK_BAK,j); }catch(e){} }
 async function flushToCloud(){
   if(!SB || !_cloudDirty || !Repo.getBusinessId()) return;
   _cloudDirty = false;
@@ -2582,8 +2578,10 @@ async function flushToCloud(){
     await Repo.saveDoc(D);
   } catch(e){
     if(String(e && (e.message||e)).includes("stale_write")){
-      // another device wrote first — pull the latest, then re-render.
-      try { const doc = await Repo.loadDoc(); if(doc && doc.data){ D = doc.data; _normalizeD(); try{ renderAll(); }catch(_){ } } } catch(_){}
+      // Another device wrote first — pull the latest, cache it locally, re-render, and
+      // tell the user so the change doesn't appear silently. (Document-level last-write-
+      // wins; a field-level merge is a separate, larger task — see audit TODO.)
+      try { const doc = await Repo.loadDoc(); if(doc && doc.data){ D = doc.data; _normalizeD(); _cacheLocalD(); try{ renderAll(); }catch(_){ } try{ showToast("Updated from your other device.","ok"); }catch(_){ } } } catch(_){}
       return;
     }
     _cloudDirty = true;   // keep dirty; localStorage already holds the truth; retry next change/flush
@@ -2601,6 +2599,7 @@ function _normalizeD(){
   if(!D.strains || typeof D.strains !== "object") D.strains = {};
   if(D.theme && !localStorage.getItem("ledger_theme")) try{ localStorage.setItem("ledger_theme", D.theme); }catch(e){}
   if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font);  }catch(e){}
+  if(D.pin   && !localStorage.getItem(PIN_SK))         try{ localStorage.setItem(PIN_SK, D.pin); }catch(e){}  // restore the account PIN on a new device
   const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
   Object.values(D.strains).forEach(s => {
     if(!s.priceRef) s.priceRef = globalRef.map(r => ({...r}));
@@ -3613,8 +3612,15 @@ function doReset(){
   closeModal("resetProduct"); showToast("Product data cleared");
   persist(); renderAll();
 }
-function doResetAll(){
-  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); } catch(e){}
+async function doResetAll(){
+  // If signed in, wipe the CLOUD document too — otherwise loadDoc resurrects everything on
+  // the next boot and the reset appears to do nothing for cloud accounts.
+  if(SB && Repo.getBusinessId()){
+    try{ _cloudDirty=false; clearTimeout(_persistTimer);
+         if(Repo.lastSeen==null) await Repo.loadDoc();
+         await Repo.saveDoc({ strains:{}, cur:"", invoices:[], business:{} }); }catch(e){}
+  }
+  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
   try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
@@ -5363,13 +5369,13 @@ const Repo = {
     const r = await SB.from("memberships").select("business_id,role").eq("user_id", user.id);
     if(!r.error && r.data && r.data.length){
       const o = r.data.find(m => m.role === "owner") || r.data[0];
-      return { id:o.business_id, fresh:false };
+      return { id:o.business_id, fresh:false, role:o.role };
     }
     const ld = _readLocalD();
     const nm = (ld && ld.business && ld.business.name) || "My Business";
     const pr = await SB.rpc("provision_business", { p_name: nm });
     if(pr.error) throw pr.error;
-    return { id: pr.data, fresh:true };
+    return { id: pr.data, fresh:true, role:"owner" };
   },
   async loadDoc(){
     const r = await SB.from("businesses").select("data,updated_at,migrated_at").eq("id", this.businessId).single();
@@ -5378,6 +5384,10 @@ const Repo = {
     return r.data;
   },
   async saveDoc(d){
+    // Never write without a known base: a null p_base makes the SQL LWW guard match
+    // unconditionally and would let a stale local cache clobber newer cloud data. The
+    // base is established by a successful loadDoc() (the businesses row always exists).
+    if(this.lastSeen == null){ try{ await this.loadDoc(); }catch(e){ throw new Error("no base"); } }
     const r = await SB.rpc("save_business_doc", { p_id:this.businessId, p_data:d, p_base:this.lastSeen });
     if(r.error) throw new Error(r.error.message || String(r.error));
     this.lastSeen = r.data;
@@ -5391,7 +5401,17 @@ const Repo = {
 const authRepo = {
   signUp(email, pw){ return SB.auth.signUp({ email, password: pw, options:{ emailRedirectTo: location.origin + location.pathname } }); },
   signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
-  async signOut(){ try{ await flushToCloud(); }catch(e){} Repo.setBusiness(null); _cloudBooted=false; return SB.auth.signOut(); },
+  async signOut(){
+    try{ await flushToCloud(); }catch(e){}
+    // Wipe per-user state so the NEXT person to sign in on this device can never inherit
+    // or re-upload the previous user's data (cross-account/tenant leak).
+    try{ clearTimeout(_persistTimer); }catch(e){}
+    _cloudDirty = false;
+    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); }catch(e){}
+    D = { strains:{}, cur:"" };
+    Repo.setBusiness(null); Repo.lastSeen = null; _cloudBooted = false;
+    return SB.auth.signOut();
+  },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
   setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); },
   resendConfirm(email){ return SB.auth.resend({ type:"signup", email, options:{ emailRedirectTo: location.origin + location.pathname } }); }
@@ -5455,7 +5475,10 @@ async function authSubmit(){
       if(pw.length<6){ _authMsg("Password must be at least 6 characters.","err"); return; }
       lock(true); const r=await authRepo.setNewPassword(pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
-      _authMsg("Password updated.","ok"); return;
+      _authMsg("Password updated.","ok");
+      _inRecovery=false;   // recovery complete — now allow the session to boot into the app
+      try{ const s=(await SB.auth.getSession()).data.session; if(s && s.user && !_cloudBooted){ _cloudBooted=true; setTimeout(()=>bootAuthedUser(s), 800); } }catch(e){}
+      return;
     }
     if(!email || pw.length<6){ _authMsg("Enter your email and a password (6+ characters).","err"); return; }
     lock(true);
@@ -5470,27 +5493,37 @@ async function authSubmit(){
   }catch(e){ lock(false); _authMsg(String(e && (e.message||e)),"err"); }
 }
 // ---- boot ----
-let _cloudBooted = false;
+let _cloudBooted = false, _inRecovery = false;
 async function bootAuthedUser(sess){
   showSplash();
   try{
     const biz = await Repo.resolveActiveBusiness(sess.user);
     Repo.setBusiness(biz.id);
     try{ const ae=document.getElementById("acctEmail"); if(ae) ae.textContent = sess.user.email||""; const as=document.getElementById("accountSec"); if(as) as.style.display="block"; }catch(e){}
-    let doc=null; try{ doc = await Repo.loadDoc(); }catch(e){ doc=null; }
+    let doc=null, loadOk=false; try{ doc = await Repo.loadDoc(); loadOk=true; }catch(e){ doc=null; loadOk=false; }
     const cloudData = (doc && doc.data && doc.data.strains && Object.keys(doc.data.strains).length>0) ? doc.data : null;
     const local = _readLocalD();
     if(cloudData){
-      D = cloudData;
-    } else if(local){
-      // First login of an existing on-device user → import local data (non-destructive).
+      D = cloudData; _cacheLocalD();                 // cloud has real data → authoritative; mirror to offline cache
+    } else if(biz.fresh && local && loadOk){
+      // This business was JUST provisioned for THIS user → import their on-device data once.
+      // Gated on biz.fresh so we NEVER push a local (or leftover/foreign) cache over an
+      // existing tenant — e.g. a staff member's first login onto their employer's business.
       D = local;
       try{ if(doc && !doc.migrated_at) await Repo.migrateLocal(local); }catch(e){}
-      if(doc) Repo.lastSeen = doc.updated_at;
+      try{ await Repo.loadDoc(); }catch(e){}          // refresh the LWW base (migrate advanced updated_at)
       try{ await Repo.saveDoc(D); }catch(e){}
+      _cacheLocalD();
       try{ showToast("Your data is now synced to your account.","ok"); }catch(e){}
+    } else if(loadOk){
+      // Existing business (or fresh without local) and cloud read OK → cloud is the source
+      // of truth even when empty. Don't resurrect or upload a stale/foreign local cache.
+      D = (doc && doc.data && typeof doc.data==="object") ? doc.data : { strains:{}, cur:"" };
+      _cacheLocalD();
     } else {
-      D = { strains:{}, cur:"" };
+      // Cloud read FAILED → run read-only on the local cache this session. saveDoc() refuses
+      // to write without a base, so a transient failure can't clobber the cloud.
+      D = local || { strains:{}, cur:"" };
     }
     _normalizeD();
     if(isReady()){
@@ -5522,8 +5555,10 @@ function initBoot(){
     showSplash();
     try{
       SB.auth.onAuthStateChange((event, sess)=>{
-        if(event==="PASSWORD_RECOVERY"){ showAuthScreen(); authSetMode("reset-new"); return; }
-        if(sess && sess.user){ if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); } }
+        if(event==="PASSWORD_RECOVERY"){ _inRecovery=true; showAuthScreen(); authSetMode("reset-new"); return; }
+        // During recovery, ignore the USER_UPDATED/session events updateUser() emits so the
+        // user stays on "Set a new password" until they finish (see authSubmit reset-new).
+        if(sess && sess.user && !_inRecovery){ if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); } }
         else {
           _cloudBooted=false; showAuthScreen();
           if(window.__authReturn && window.__authReturn.error){
@@ -5566,8 +5601,12 @@ setTimeout(checkBackupReminder, 2200);
 // open — so updates land without needing a full quit-and-relaunch.
 document.addEventListener("visibilitychange", () => {
   if(document.visibilityState === "visible") checkForUpdate();
+  else { try{ flushToCloud(); }catch(e){} }   // backgrounded → best-effort push of pending edits
 });
 window.addEventListener("focus", checkForUpdate);
+// Last line of defence: flush any pending cloud write when the page is being torn down,
+// so the final edit before close isn't stranded in localStorage only.
+window.addEventListener("pagehide", () => { try{ flushToCloud(); }catch(e){} });
 setInterval(checkForUpdate, 120000);
 </script>
 </body>
