@@ -1631,7 +1631,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.23.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.23.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🔒</div>
@@ -2000,7 +2000,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.23.0";
+const APP_VER    = "2.23.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5724,10 +5724,23 @@ async function bootAuthedUser(sess){
       }
       _cacheLocalD();
     } else if(loadOk){
-      // Existing business (or fresh without local) and cloud read OK → cloud is the source
-      // of truth even when empty. Don't resurrect or upload a stale/foreign local cache.
-      D = (doc && doc.data && typeof doc.data==="object") ? doc.data : { strains:{}, cur:"" };
-      _cacheLocalD(); _clearUnsynced();
+      const cloudHas = !!cloudData;
+      const localHas = !!(local && local.strains && Object.keys(local.strains).length>0);
+      if(!cloudHas && localHas){
+        // CLOUD IS EMPTY but THIS device has real data for OUR OWN confirmed business → the
+        // earlier sync never landed (silent-failure on an older version). NEVER overwrite the
+        // local copy with empty — keep it, back it up, and push it to the cloud. (Safe: this is
+        // our own membership-confirmed business, not a foreign/leftover cache.)
+        _saveRecovery(local, "cloud-empty-kept-local");
+        D = local;
+        try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced"); }
+        catch(e){ _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline"); }
+        _cacheLocalD();
+      } else {
+        // Cloud is authoritative (it has data, or there is no local to preserve).
+        D = (doc && doc.data && typeof doc.data==="object") ? doc.data : { strains:{}, cur:"" };
+        _cacheLocalD(); _clearUnsynced();
+      }
     } else {
       // Cloud read FAILED → run read-only on the local cache this session. saveDoc() refuses
       // to write without a base, so a transient failure can't clobber the cloud. Leave the
