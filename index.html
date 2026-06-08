@@ -852,13 +852,15 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   #invoicePage { display:block !important; position:static !important; inset:auto !important;
                  width:auto !important; max-width:none !important; height:auto !important;
                  overflow:visible !important; background:#fff !important; }
-  #invoicePage .subpage-hdr, #invStyleBar, .inv-print-btn, .btn-confirm { display:none !important; }
+  /* hide the page header (back/title/PDF buttons) */
+  #invoicePage > .subpage-hdr { display:none !important; }
   #invoicePage .subpage-body { display:block !important; position:static !important;
                  width:auto !important; max-width:none !important; overflow:visible !important;
                  padding:0 !important; margin:0 !important; }
-  /* The white paper, centered on the sheet with comfortable inner margins. */
-  #invoicePaper { position:static !important; margin:0 auto !important; width:100% !important;
-                  max-width:700px !important; padding:14mm 12mm !important;
+  /* show ONLY the white paper — hide the style bar, the buttons, and the whole edit form */
+  #invoicePage .subpage-body > *:not(#invoicePaper) { display:none !important; }
+  #invoicePaper { display:block !important; position:static !important; margin:0 auto !important;
+                  width:100% !important; max-width:700px !important; padding:14mm 12mm !important;
                   background:#fff !important; box-shadow:none !important; border-radius:0 !important; }
   .inv-bold .inv-head, .inv-modern .inv-table th, .inv-modern .inv-meta, .inv-modern .inv-totals, .inv-bold .inv-grand { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
@@ -1660,7 +1662,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.25.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.25.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -2015,7 +2017,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.25.1";
+const APP_VER    = "2.25.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
