@@ -1706,7 +1706,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2054,7 +2054,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.0";
+const APP_VER    = "2.28.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3411,6 +3411,19 @@ function getBusiness(){
 function _round2(n){ return Math.round((+n||0)*100)/100; }
 function invMoney(n){ return getCurrency() + _round2(n).toFixed(2); }
 function invDateStr(){ try{ return new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return ""; } }
+// Format an invoice date with NO time, in the business's chosen style: "Jun 8, 2026" (long)
+// or "06/08/26" (short). Parses whatever is stored (incl. old timestamped values) and strips time.
+function _fmtInvDate(s, fmtOverride){
+  if(!s) return "";
+  const d = (s instanceof Date) ? s : new Date(s);
+  if(isNaN(d.getTime())) return (typeof s==="string") ? s : "";   // unparseable → leave as-is
+  const fmt = fmtOverride || (getBusiness().invDateFmt==="short" ? "short" : "long");
+  if(fmt==="short"){
+    const mm=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"), yy=String(d.getFullYear()).slice(-2);
+    return `${mm}/${dd}/${yy}`;
+  }
+  try{ return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return String(s); }
+}
 function invTotals(inv){
   const sub = (inv.items||[]).reduce((a,it)=> a + (+it.qty||0)*(+it.price||0), 0);
   const rawDisc = inv.discountType==="pct" ? sub*((+inv.discount||0)/100) : (+inv.discount||0);
@@ -3577,7 +3590,7 @@ function renderInvoicePaper(inv){
         <div class="inv-meta">
           <div class="inv-mrow"><span class="inv-mk">Invoice No.</span><span class="inv-mv">${escHtml(inv.no || (b.prefix + String(b.next).padStart(4,"0")))}</span></div>
           ${inv.poNumber?`<div class="inv-mrow"><span class="inv-mk">Reference</span><span class="inv-mv">${escHtml(inv.poNumber)}</span></div>`:""}
-          <div class="inv-mrow"><span class="inv-mk">Date</span><span class="inv-mv">${escHtml(inv.date||"")}</span></div>
+          <div class="inv-mrow"><span class="inv-mk">Date</span><span class="inv-mv">${escHtml(_fmtInvDate(inv.date))}</span></div>
           ${inv.dueDate?`<div class="inv-mrow"><span class="inv-mk">${__("Due")}</span><span class="inv-mv">${escHtml(inv.dueDate)}</span></div>`:""}
         </div>
       </div>
@@ -3607,9 +3620,14 @@ function invStyleBarHTML(){
   const b = getBusiness();
   const styleChips = INV_STYLES.map(s=>`<button class="inv-sb-chip${b.invStyle===s.id?' on':''}" onclick="setInvStyle('${s.id}')">${s.name}</button>`).join("");
   const fontChips  = INV_FONTS.map(f=>`<button class="inv-sb-chip${b.invFont===f.id?' on':''}" style="font-family:${f.stack}" onclick="setInvFont('${f.id}')">${f.name}</button>`).join("");
+  const dfmt = b.invDateFmt==="short" ? "short" : "long";
+  const dateChips = `<button class="inv-sb-chip${dfmt==='long'?' on':''}" onclick="setDateFmt('long')">${_fmtInvDate(new Date(),'long')}</button>`
+    + `<button class="inv-sb-chip${dfmt==='short'?' on':''}" onclick="setDateFmt('short')">${_fmtInvDate(new Date(),'short')}</button>`;
   return `<div class="inv-sb-group"><span class="inv-sb-lbl">Invoice style</span><div class="inv-sb-chips">${styleChips}</div></div>
-    <div class="inv-sb-group"><span class="inv-sb-lbl">Font</span><div class="inv-sb-chips">${fontChips}</div></div>`;
+    <div class="inv-sb-group"><span class="inv-sb-lbl">Font</span><div class="inv-sb-chips">${fontChips}</div></div>
+    <div class="inv-sb-group"><span class="inv-sb-lbl">Date format</span><div class="inv-sb-chips">${dateChips}</div></div>`;
 }
+function setDateFmt(f){ if(!D.business||typeof D.business!=="object") D.business={}; D.business.invDateFmt = (f==="short"?"short":"long"); persist(); _invSyncStyleUI(); }
 function _invSyncStyleUI(){
   const paper = document.getElementById("invoicePaper");
   if(paper && _inv) paper.innerHTML = renderInvoicePaper(_inv);
@@ -3738,6 +3756,7 @@ function saveCurrentInvoice(){
 }
 function openSavedInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(inv){ _inv=inv; openSubpage("invoice"); } }
 function deleteInvoice(num){ D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
+function delInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(confirm("Delete invoice "+((inv&&inv.no)||"")+"? This can't be undone.")) deleteInvoice(num); }
 function renderInvoicesPage(){
   const el=document.getElementById("invoicesList"); if(!el) return;
   const list=D.invoices||[];
@@ -3745,8 +3764,10 @@ function renderInvoicesPage(){
   el.innerHTML=list.map(inv=>{ const t=invTotals(inv), st=invStatus(inv); const c=st==="paid"?"#4caf7a":st==="partial"?"#c9a040":"#e05c5c";
     return `<div class="settings-card" style="padding:0;margin-bottom:10px"><div class="settings-row" onclick="openSavedInvoice(${inv.num})" style="cursor:pointer">
       <div style="min-width:0"><div class="settings-row-lbl">${escHtml(inv.no||"")} · ${escHtml(inv.customer||"—")}</div>
-      <div style="font-size:9px;color:var(--txt-d);margin-top:2px">${escHtml(inv.date||"")} · <span style="color:${c}">${invMoney(t.total)}</span></div></div>
-      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:8px;letter-spacing:1px;color:${c};text-transform:uppercase">${st}</span><span style="color:var(--txt-d)">›</span></div>
+      <div style="font-size:9px;color:var(--txt-d);margin-top:2px">${escHtml(_fmtInvDate(inv.date))} · <span style="color:${c}">${invMoney(t.total)}</span></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:8px;letter-spacing:1px;color:${c};text-transform:uppercase">${st}</span>
+        <button class="team-x" title="Delete invoice" onclick="event.stopPropagation();delInvoice(${inv.num})"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        <span style="color:var(--txt-d)">›</span></div>
     </div></div>`; }).join("");
 }
 function pickBusinessLogo(){ const inp=document.getElementById("bizLogoInput"); if(inp) inp.click(); }
