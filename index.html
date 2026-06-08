@@ -1716,7 +1716,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.7</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.8</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2064,7 +2064,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.7";
+const APP_VER    = "2.28.8";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3437,9 +3437,16 @@ function invDateStr(){ try{ return new Date().toLocaleDateString(undefined,{year
 // Format an invoice date with NO time, in the business's chosen style: "Jun 8, 2026" (long)
 // or "06/08/26" (short). Parses whatever is stored (incl. old timestamped values) and strips time.
 function _fmtInvDate(s, fmtOverride){
-  if(!s) return "";
-  const d = (s instanceof Date) ? s : new Date(s);
-  if(isNaN(d.getTime())) return (typeof s==="string") ? s : "";   // unparseable → leave as-is
+  if(s==null || s==="") return "";
+  let d = (s instanceof Date) ? s : new Date(s);
+  if(isNaN(d.getTime()) && typeof s==="string"){
+    // Couldn't parse — strip any trailing clock time (toLocaleString "date, 4:28 PM") and retry,
+    // so a time is NEVER shown even on odd/locale-specific stored values.
+    const noTime = s.replace(/[,\s]+\d{1,2}:\d{2}(:\d{2})?\s*([ap]\.?m\.?)?\s*$/i, "").trim();
+    d = new Date(noTime);
+    if(isNaN(d.getTime())) return noTime || s;   // last resort: the date portion, never the time
+  }
+  if(isNaN(d.getTime())) return (typeof s==="string") ? s : "";
   const fmt = fmtOverride || (getBusiness().invDateFmt==="short" ? "short" : "long");
   if(fmt==="short"){
     const mm=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"), yy=String(d.getFullYear()).slice(-2);
@@ -3473,7 +3480,9 @@ function invFromSale(saleId){
   const inv = blankInvoiceObj();
   inv.taxRate = 0; // the sale's prices are already final
   inv.customer = entry.customer || "";
-  inv.date = entry.date || invDateStr();
+  // Use the sale's own timestamp (entry.id) for a clean, time-free, always-parseable date —
+  // entry.date is a full toLocaleString() with the clock time, which we must not carry onto the invoice.
+  inv.date = (entry.id ? _fmtInvDate(new Date(entry.id), "long") : "") || invDateStr();
   inv.srcId = saleId;
   const multiProd = Object.keys(D.strains||{}).length > 1;
   if(entry.batchId && entry.batchItems){
