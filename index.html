@@ -1662,7 +1662,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.26.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.26.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -2017,7 +2017,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.26.0";
+const APP_VER    = "2.26.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3618,13 +3618,17 @@ async function exportInvoicePDF(){
     const canvas=await window.html2canvas(clone,{ scale:Math.min(3,(window.devicePixelRatio||1)*2), useCORS:true, backgroundColor:"#ffffff", logging:false, windowWidth:holder.offsetWidth });
     document.body.removeChild(holder);
     const { jsPDF }=window.jspdf;
-    const pdf=new jsPDF({ unit:"pt", format:"a4", compress:true });
-    const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
-    const margin=28, imgW=pageW-margin*2, imgH=canvas.height*(imgW/canvas.width);
-    if(imgH <= pageH-margin*2){
+    const margin=28, baseW=595.28, a4H=841.89;       // A4 width, in pt
+    const imgW=baseW-margin*2, imgH=canvas.height*(imgW/canvas.width);
+    let pdf;
+    if(imgH <= a4H*1.6 - margin*2){
+      // Fit the PAGE to the invoice (no wasted blank space) — mirrors the in-app preview.
+      pdf=new jsPDF({ unit:"pt", format:[baseW, imgH+margin*2], compress:true });
       pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,imgH,undefined,"FAST");
     } else {
-      const sliceHpx=Math.floor((pageH-margin*2)*(canvas.width/imgW));
+      // Genuinely long invoice → standard A4, paginated so it prints sensibly.
+      pdf=new jsPDF({ unit:"pt", format:"a4", compress:true });
+      const sliceHpx=Math.floor((a4H-margin*2)*(canvas.width/imgW));
       let yPx=0, page=0;
       while(yPx < canvas.height){
         const h=Math.min(sliceHpx, canvas.height-yPx);
