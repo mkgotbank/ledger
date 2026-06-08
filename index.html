@@ -924,7 +924,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 #tourSpot{position:absolute;border-radius:14px;border:1.5px solid var(--acc-hi);box-shadow:0 0 0 9999px rgba(8,11,18,0.80),0 0 0 4px var(--acc-dim),0 0 34px 5px var(--acc-glow);transition:top 0.42s cubic-bezier(0.22,0.85,0.24,1),left 0.42s cubic-bezier(0.22,0.85,0.24,1),width 0.42s cubic-bezier(0.22,0.85,0.24,1),height 0.42s cubic-bezier(0.22,0.85,0.24,1);pointer-events:none;}
 #tourSpot::after{content:"";position:absolute;inset:-2px;border-radius:16px;border:1.5px solid var(--acc-hi);opacity:0;animation:tourPulse 2.6s ease-out infinite;pointer-events:none;}
 @keyframes tourPulse{0%{opacity:.5;transform:scale(1);}70%,100%{opacity:0;transform:scale(1.05);}}
-.tour-card{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,410px);background:var(--modal);border:1px solid var(--acc-bdr);border-left:3px solid var(--acc);border-radius:20px;padding:0 19px 15px;box-shadow:0 26px 70px rgba(0,0,0,0.62),inset 0 1px 0 var(--hairline);z-index:9991;overflow:hidden;animation:tourCardIn 0.36s cubic-bezier(0.2,0.8,0.2,1);}
+.tour-card{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,410px);background:var(--modal);border:1px solid var(--acc-bdr);border-left:3px solid var(--acc);border-radius:20px;padding:0 19px 15px;box-shadow:0 24px 60px -10px rgba(0,0,0,0.5),inset 0 1px 0 var(--hairline);z-index:9991;overflow:hidden;animation:tourCardIn 0.36s cubic-bezier(0.2,0.8,0.2,1);}
 @keyframes tourCardIn{from{opacity:0;transform:translateX(-50%) translateY(12px) scale(0.97);}to{opacity:1;}}
 .tour-prog{position:absolute;top:0;left:0;right:0;height:3px;background:var(--fill-1);}
 .tour-prog-fill{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc-hi));box-shadow:0 0 10px var(--acc-glow);transition:width 0.44s cubic-bezier(0.2,0.8,0.2,1);}
@@ -938,7 +938,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 @keyframes tourFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .tour-actions{display:flex;align-items:center;gap:9px;}
 .tour-skip{background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:6px 2px;}
-.tour-btn{background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:11px;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 2px 12px var(--acc-glow);transition:transform 0.15s var(--ease);}
+.tour-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:11px;padding:10px 18px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 6px 16px -6px var(--acc-glow);transition:transform 0.15s var(--ease);}
 .tour-btn:active{transform:scale(0.94);}
 .tour-btn-ghost{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt);border-radius:11px;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);}
 /* Activity: collapsible filters bar with active-filter chip */
@@ -1045,6 +1045,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <span id="authForgot" onclick="authSetMode('reset')">Forgot password?</span>
       <span id="authResend" onclick="authResend()">Didn't get the confirmation email? Resend it</span>
     </div>
+  </div>
+  <div style="text-align:center;padding:20px 0 8px">
+    <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger · v<span id="authVerLbl"></span></div>
+    <div style="font-size:8px;letter-spacing:1px;color:var(--txt-d);margin-top:5px">© 2026 The Ledger · All rights reserved</div>
   </div>
 </div>
 
@@ -1711,7 +1715,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.5</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2059,7 +2063,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.4";
+const APP_VER    = "2.28.5";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5662,28 +5666,27 @@ function switchTab(name, btn){
 // ── GUIDED WALKTHROUGH ── first-time coach-mark tour of the new layout
 const TOUR_KEY = "ledger_tour_done";
 const TOUR_STEPS = [
-  { essential:true, tab:"stock", sel:null, icon:"welcome", title:"Welcome to The Ledger", body:"A two-minute guide to every corner of your books. We'll walk Home, Activity and More so nothing stays hidden. You can skip anytime." },
-  { essential:true, tab:"stock", sel:".strain-bar", icon:"stock", title:"Your products & stock", body:"Switch between products here; the gear manages them. Up top you always see stock remaining and roughly how many days it will last." },
-  { essential:true, tab:"stock", sel:".sgrid", icon:"money", title:"Money at a glance", body:"Earned, net profit, expenses and your estimated stock value — the four numbers that matter, always front and centre on Home." },
-  { tab:"stock", sel:"#healthStrip", icon:"pulse", title:"Today's pulse", body:"A live read on today: revenue so far, number of sales, and your current top seller — a quick gut-check before the day runs away." },
-  { essential:true, tab:"stock", sel:".qa-strip", icon:"bolt", title:"Your two daily actions", body:"Record Sale logs a sale — bundles, discounts, payment type, even selling on credit. Restock adds inventory. These are your everyday taps." },
-  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Grouped hubs for Money, Inventory and Analysis — expenses, who owes you, stock breakdown, reports, the AI advisor and more, one tap away." },
-  { essential:true, tab:"log", sel:null, icon:"receipt", title:"Activity — your full history", body:"The Activity tab is the running record of your business. Every sale, restock, expense and internal use lands here, in order. Let's break it down." },
-  { tab:"log", sel:".log-search-wrap", icon:"search", title:"Search anything", body:"Looking for one transaction? Search by product, customer, note or amount to jump straight to it instead of scrolling the whole history." },
-  { tab:"log", sel:".filters-bar", icon:"sliders", title:"Filter & total any range", body:"Narrow the log by type or date. The summary up top instantly totals whatever range you choose — handy for a day, a week or a month." },
-  { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"This is every entry in full. Made a typo or need to adjust a sale? Tap any line to open and edit it — your totals update automatically." },
-  { essential:true, tab:"settings", sel:null, icon:"settings", title:"More — settings & tools", body:"The More tab holds appearance, your business profile, team & roles, invoices, preferences, security, data backup and help. We'll highlight the ones worth knowing." },
-  { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it yours", body:"Twelve themes, multiple fonts, your own app icon, and ten languages. Set the look and language that feel right — everything restyles instantly." },
-  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice design once. It's saved and applied automatically to every invoice you send." },
-  { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Pick a premium layout and date format, then save as a clean PDF. Delete any invoice from the list anytime." },
-  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"With a free account you can add teammates by email in More → Team & roles. Pick a role for each: Staff records sales & expenses, Viewer is read-only (great for an accountant), and Admin manages everything. Each person only sees and does what their role allows." },
-  { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once so every figure reads right, and choose a low-stock threshold so the app warns you before a product runs out." },
-  { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
-  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
-  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"cloud", title:"Back up & sync your data", body:"Create a free account to back up to the cloud and sync across devices — sign in with email or Google. The app also keeps automatic backups on your device, so you can tap Restore here anytime to bring your data back. No account? Your data lives only on this device — export a backup to be safe." },
-  { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"Want the full tour?", body:"You've got the essentials — nicely done. For an in-depth walkthrough of every feature, replay the Guide right here anytime. Happy selling!" },
-  { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
-  { tab:"stock", sel:null, icon:"check", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
+  { essential:true, tab:"stock", sel:null, icon:"welcome", title:"Welcome to The Ledger", body:"A quick tour of your books — Home, Activity and More. It takes about two minutes, and you can skip whenever you like." },
+  { essential:true, tab:"stock", sel:".strain-bar", icon:"stock", title:"Your products & stock", body:"Switch between products here, and manage them with the gear. Up top you'll always see stock remaining and roughly how many days it'll last." },
+  { essential:true, tab:"stock", sel:".sgrid", icon:"money", title:"Money at a glance", body:"Earned, net profit, expenses and estimated stock value — the four numbers that matter, always front and centre." },
+  { tab:"stock", sel:"#healthStrip", icon:"pulse", title:"Today at a glance", body:"A live read on today: revenue so far, sales count and your current top seller — a quick gut-check any time." },
+  { essential:true, tab:"stock", sel:".qa-strip", icon:"bolt", title:"Your two everyday actions", body:"Record a sale — bundles, discounts, payment type, even on credit — or restock your inventory. These are your daily taps." },
+  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, reports, the AI advisor and more — all one tap away." },
+  { essential:true, tab:"log", sel:null, icon:"receipt", title:"Activity — your full history", body:"Every sale, restock, expense and internal use, in order — the complete running record of your business." },
+  { tab:"log", sel:".log-search-wrap", icon:"search", title:"Find anything fast", body:"Search by product, customer, note or amount to jump straight to any transaction — no scrolling required." },
+  { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
+  { essential:true, tab:"settings", sel:null, icon:"settings", title:"More — your settings & tools", body:"Your business profile, team, invoices, appearance, security, backups and help all live here. Let's hit the highlights." },
+  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
+  { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it your own", body:"Twelve themes, multiple fonts, a custom app icon and ten languages — the whole app restyles instantly." },
+  { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Choose a layout and date style, then share a clean PDF." },
+  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows." },
+  { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
+  { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
+  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice", body:"The free AI Advisor can be slow; add a free key (about a minute to set up) to make it instant. Entirely optional." },
+  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"cloud", title:"Back up & sync", body:"Create a free account to back up to the cloud and sync across devices — by email or Google. The app keeps automatic backups too, so you can Restore here any time. Without an account, your data stays on this device only, so export a backup to be safe." },
+  { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"That's the essentials", body:"Nicely done. For a closer look at every feature, replay the full Guide here any time. Happy selling." },
+  { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed." },
+  { tab:"stock", sel:null, icon:"check", title:"You're all set", body:"That's the tour. Tap Home any time to return to your dashboard, and replay this Guide from More whenever you like." },
 ];
 let _tourI = 0;
 let _tourSteps = TOUR_STEPS;
@@ -5938,7 +5941,7 @@ async function doSignOut(){
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
-function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); }
+function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); try{ const av=document.getElementById("authVerLbl"); if(av) av.textContent=APP_VER; }catch(e){} }
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
 function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
 // Empty-state guard: never silently drop a user onto a blank setup if we hold a backup that
