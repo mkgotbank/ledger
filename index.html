@@ -1047,7 +1047,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     </div>
   </div>
   <div style="text-align:center;padding:20px 0 8px">
-    <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger · v<span id="authVerLbl"></span></div>
+    <div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase">The Ledger</div>
     <div style="font-size:8px;letter-spacing:1px;color:var(--txt-d);margin-top:5px">© 2026 The Ledger · All rights reserved</div>
   </div>
 </div>
@@ -1715,7 +1715,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.5</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.6</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2063,7 +2063,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.5";
+const APP_VER    = "2.28.6";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5941,7 +5941,7 @@ async function doSignOut(){
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
-function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); try{ const av=document.getElementById("authVerLbl"); if(av) av.textContent=APP_VER; }catch(e){} }
+function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin");}
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
 function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
 // Empty-state guard: never silently drop a user onto a blank setup if we hold a backup that
