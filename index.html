@@ -230,11 +230,11 @@ button,input,select,textarea{font-family:var(--font);}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 
-#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(16px) scale(0.96);background:linear-gradient(180deg,rgba(42,42,64,0.96),rgba(22,22,38,0.97));border:1px solid var(--bdr);color:#f1eee4;padding:12px 18px;border-radius:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.32s cubic-bezier(0.2,0.8,0.2,1),transform 0.32s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 44px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);}
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(16px) scale(0.96);background:var(--card);border:1px solid var(--bdr);color:var(--txt);padding:12px 18px;border-radius:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.32s cubic-bezier(0.2,0.8,0.2,1),transform 0.32s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 44px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
 #toast.interactive{pointer-events:auto;}
 #toast.err{border-color:rgba(224,92,92,0.45);color:#f08080;}
-#toast.ok{border-color:rgba(76,175,122,0.45);color:#6fd49a;}
+#toast.ok{border-color:var(--acc-bdr);color:var(--acc);background:linear-gradient(180deg,var(--acc-dim),var(--card));}
 .toast-undo-btn{background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:10px;padding:5px 14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:11px;font-family:var(--font);vertical-align:middle;box-shadow:0 2px 12px var(--acc-glow),inset 0 1px 0 rgba(255,255,255,0.25);transition:transform 0.15s ease,box-shadow 0.2s ease;}
 .toast-undo-btn:active{transform:scale(0.92);box-shadow:0 1px 6px var(--acc-glow);}
 
@@ -255,6 +255,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .auth-input:focus{border-color:var(--acc);}
 .auth-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:var(--font);margin-top:4px;box-shadow:0 4px 16px var(--acc-glow);}
 .auth-btn:active{transform:scale(.98);}
+.auth-or{display:flex;align-items:center;text-align:center;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 12px;}
+.auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--bdr);}
+.auth-or span{padding:0 12px;}
+.auth-btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;transition:background .15s,box-shadow .15s,transform .12s;box-shadow:0 2px 10px rgba(0,0,0,0.16);}
+.auth-btn-google:active{background:#f5f6f7;transform:scale(.98);}
+.auth-btn-google .g-ic{flex-shrink:0;display:block;}
 .auth-msg{font-size:11.5px;text-align:center;min-height:16px;margin-top:11px;line-height:1.5;}
 .auth-msg.err{color:#e0564b;}
 .auth-msg.ok{color:var(--acc);}
@@ -288,6 +294,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .hdr-save{font-size:8px;letter-spacing:3px;margin-top:4px;transition:color 0.4s;}
 .hdr-save.saving{color:var(--acc);}
 .hdr-save.saved{color:var(--txt-d);}
+.hdr-save.offline{color:#e0a830;}
 .hdr-stock{text-align:right;}
 .hdr-stock-lbl{font-size:8px;color:var(--txt-d);letter-spacing:3px;margin-bottom:1px;}
 .hdr-stock-val{font-size:36px;font-weight:700;line-height:1;letter-spacing:-1.5px;}
@@ -827,13 +834,18 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 #invoicePage .subpage-body{overflow-x:hidden;}
 #invoicePaper{max-width:100%;}
 #invoicePage .m-input,.inv-ein{min-width:0;max-width:100%;width:100%;}
-@page { margin:15mm; }
+/* margin:0 suppresses the browser's auto page header/footer (URL bottom-left, date/title) */
+@page { margin:0; }
 @media print {
   html, body { background:#fff !important; }
   body * { visibility:hidden !important; }
   #invoicePaper, #invoicePaper * { visibility:visible !important; }
-  #invoicePaper { position:fixed !important; left:0 !important; top:0 !important; width:100% !important; box-shadow:none !important; border-radius:0 !important; padding:0 !important; }
+  /* centered on the page with safe printable margins, replacing the old left:0 full-bleed */
+  #invoicePaper { position:absolute !important; left:50% !important; top:0 !important; transform:translateX(-50%) !important; width:100% !important; max-width:720px !important; margin:0 auto !important; padding:16mm 13mm !important; background:#fff !important; box-shadow:none !important; border-radius:0 !important; }
   #invStyleBar { display:none !important; }
+  /* Hard-hide the app chrome — Safari ignores visibility:hidden on position:fixed bars,
+     which let the bottom tab bar ("…moRE") and header bleed onto the printed invoice. */
+  .tabs, .hdr, #toast, #backupBanner, .modal-overlay, .fab, .qa-bar { display:none !important; }
   .inv-bold .inv-head, .inv-modern .inv-table th, .inv-modern .inv-meta, .inv-modern .inv-totals, .inv-bold .inv-grand { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
@@ -990,6 +1002,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <input id="authEmail" class="auth-input" type="email" inputmode="email" placeholder="Email" autocomplete="email" autocapitalize="none" spellcheck="false"/>
     <input id="authPw" class="auth-input" type="password" placeholder="Password" autocomplete="current-password"/>
     <button id="authSubmit" class="auth-btn" onclick="authSubmit()">Sign In</button>
+    <div class="auth-or" id="authOr"><span>or</span></div>
+    <button id="authGoogle" class="auth-btn-google" onclick="authGoogle()">
+      <svg class="g-ic" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.98 10.72a5.4 5.4 0 0 1 0-3.44V4.94H.96a9 9 0 0 0 0 8.12l3.02-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </button>
     <div class="auth-msg" id="authMsg"></div>
     <div class="auth-links">
       <span id="authToggle" onclick="authToggleMode()">New here? Create an account</span>
@@ -1340,7 +1357,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Privacy Policy</div>
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
-    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 4, 2026 · The Ledger</div>
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 8, 2026 · The Ledger</div>
     <p style="margin:0 0 14px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
     <div class="legal-h">1. Your data: on your device, and in your account</div>
     <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. A copy stays on your device as an offline cache. If you clear your browser data or remove the App, the on-device copy is deleted — so keep your own backups.</p>
@@ -1348,6 +1365,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
       <li style="margin-bottom:6px"><b>Hosting &amp; updates (GitHub):</b> the App is delivered from, and checks for updates against, GitHub. Like any website visit, this involves standard technical data such as your IP address and device/browser type, handled under GitHub's privacy policy.</li>
+      <li style="margin-bottom:6px"><b>Accounts &amp; cloud sync (Supabase):</b> if you create an account, your email address and the business data you enter are stored in our cloud database and authentication provider (Supabase) so you can sign in and sync across devices. Your data is isolated from other businesses by database-level security and handled under Supabase's privacy policy.</li>
+      <li style="margin-bottom:6px"><b>Google sign-in (optional):</b> if you choose "Continue with Google", Google verifies your identity and shares basic profile information (such as your name and email) to create or sign you into your account, under Google's privacy policy. You can always use an email and password instead.</li>
       <li style="margin-bottom:6px"><b>AI Advisor (optional):</b> if you use the AI Advisor, the question you ask and the figures needed to answer it are sent to a third-party AI provider to generate a reply, handled under that provider's policy. Do not enter anything you are not comfortable sending. If you add your own AI key, your request goes to that provider instead.</li>
     </ul>
     <div class="legal-h">3. What we do NOT do</div>
@@ -1372,7 +1391,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Terms of Service</div>
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
-    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 4, 2026 · The Ledger</div>
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 8, 2026 · The Ledger</div>
     <p style="margin:0 0 14px">By using The Ledger (the "App"), you agree to these Terms. If you do not agree, please do not use the App.</p>
     <div class="legal-h">1. Licence to use</div>
     <p>We grant you a personal, non-exclusive, non-transferable, revocable licence to use the App for your own personal or business record-keeping. We retain all rights, title and interest in the App, including its code, design, and the "The Ledger" name and logo.</p>
@@ -1387,7 +1406,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">6. Limitation of liability</div>
     <p>To the maximum extent permitted by law, we are not liable for any indirect, incidental, special or consequential damages, or for any loss of data, profits or revenue, arising from your use of (or inability to use) the App. Some jurisdictions do not allow certain limitations, so some of the above may not apply to you.</p>
     <div class="legal-h">7. Third-party services</div>
-    <p>The App relies on third-party services (such as hosting and optional AI features) that are governed by their own terms and privacy policies.</p>
+    <p>The App relies on third-party services — including hosting, cloud accounts and sync, authentication (including optional Google sign-in), and optional AI features — that are governed by their own terms and privacy policies.</p>
     <div class="legal-h">8. Changes and availability</div>
     <p>We may update, change or discontinue the App or these Terms at any time. Continued use after a change means you accept the updated Terms.</p>
     <div class="legal-h">9. Governing law</div>
@@ -1612,13 +1631,41 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.22.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.23.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">🔒</div>
+        <div>
+          <div class="wn-title">Sign in with Google</div>
+          <div class="wn-desc">Create your account or sign in with one tap using Google — no password to remember. Email sign-in still works too.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">Safer accounts &amp; sync</div>
-          <div class="wn-desc">Under-the-hood hardening of cloud sync: signing out now fully clears your data from the device, your books stay readable offline after signing in, your PIN lock follows your account to new devices, and a shaky connection at login can no longer overwrite your cloud data.</div>
+          <div class="wn-title">Your data is safer than ever</div>
+          <div class="wn-desc">A major reliability overhaul: your books back up to the cloud the moment you close the app, retry automatically when you're back online, and a clear status shows whether you're Synced or still Saving on this device — so nothing slips through the cracks.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">✉️</div>
+        <div>
+          <div class="wn-title">Email confirmation fixed</div>
+          <div class="wn-desc">Tapping the confirmation link now brings you straight back into the app, signed in — no more "can't connect to server" page.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">🧾</div>
+        <div>
+          <div class="wn-title">Cleaner invoices</div>
+          <div class="wn-desc">Invoice numbers are now editable, the PDF is centered with no website link in the corner, and a stray label that occasionally appeared is gone.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">✨</div>
+        <div>
+          <div class="wn-title">Polish</div>
+          <div class="wn-desc">The expense category "Re-up" is now "Restock" (your past entries update automatically), and the sync confirmation now matches your chosen theme.</div>
         </div>
       </div>
     </div>
@@ -1778,7 +1825,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="m-sec" id="expCatWrap">
       <span class="m-lbl">Category</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="cat-btn on" onclick="setExpCat('Re-up',this)">Re-up</button>
+        <button class="cat-btn on" onclick="setExpCat('Restock',this)">Restock</button>
         <button class="cat-btn" onclick="setExpCat('Supplies',this)">Supplies</button>
         <button class="cat-btn" onclick="setExpCat('Transport',this)">Transport</button>
         <button class="cat-btn" onclick="setExpCat('Other',this)">Other</button>
@@ -1788,7 +1835,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <input class="m-input-lg" id="expMInput" type="number" placeholder="0" inputmode="decimal"/>
     <div class="m-sec" id="expNoteWrap" style="margin-top:12px">
       <span class="m-lbl">Note (optional)</span>
-      <input class="m-input" id="expMNote" placeholder="e.g. re-up cost, supplies..."/>
+      <input class="m-input" id="expMNote" placeholder="e.g. restock cost, supplies..."/>
     </div>
     <button class="btn-confirm-red" id="expMConfirm" onclick="confirmExp()">Confirm</button>
   </div>
@@ -1953,7 +2000,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.22.3";
+const APP_VER    = "2.23.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2387,7 +2434,7 @@ const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005
 let D = { strains:{}, cur:"" };
 let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 let _renamingStrain = null;
-let expCategory = "Re-up";
+let expCategory = "Restock";
 let saleTag = "";
 let salePayment = "Cash", saleDiscount = 0, saleDiscountType = "amt"; // amt | pct
 let saleCustomer = "", saleUnpaid = false, salePartialPaid = 0, saleOpenStrain = "";
@@ -2551,10 +2598,44 @@ function undoDelete(){
 
 // ── STORAGE ──
 const SK_BAK = SK + "_bak";
+// Persisted "this device has edits the cloud has NOT confirmed yet" marker, scoped to the
+// business id. Survives reloads. It's how boot knows the local cache is newer than a stale
+// cloud read (e.g. a cloud write that was interrupted) and must not be overwritten.
+const UNSYNCED_KEY = SK + "_unsynced";
+function _markUnsynced(){ try{ const b=Repo.getBusinessId(); if(b) localStorage.setItem(UNSYNCED_KEY, String(b)); }catch(e){} }
+function _clearUnsynced(){ try{ localStorage.removeItem(UNSYNCED_KEY); }catch(e){} }
+function _unsyncedBiz(){ try{ return localStorage.getItem(UNSYNCED_KEY); }catch(e){ return null; } }
+// The cloud `updated_at` we last CONFIRMED a sync against, persisted across reloads. Lets boot
+// tell "local is strictly newer" (cloud unchanged since our last sync) apart from a genuine
+// multi-device conflict (cloud moved on) — without trusting device clocks.
+const BASE_KEY = SK + "_base";
+function _saveBase(v){ try{ if(v!=null) localStorage.setItem(BASE_KEY, String(v)); }catch(e){} }
+function _readBase(){ try{ return localStorage.getItem(BASE_KEY); }catch(e){ return null; } }
+function _clearBase(){ try{ localStorage.removeItem(BASE_KEY); }catch(e){} }
+// Safety net: before any path that DISCARDS unsynced local edits, stash a copy here. This key
+// is never touched by _clearUnsynced, so a wrong reconciliation can never permanently lose data.
+const RECOVERY_KEY = SK + "_recovery";
+function _saveRecovery(d, reason){
+  try{
+    if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return;
+    const arr = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "[]");
+    arr.unshift({ t:Date.now(), reason:reason||"", biz:_unsyncedBiz()||null, data:d });
+    while(arr.length > 3) arr.pop();              // keep the last 3 only
+    localStorage.setItem(RECOVERY_KEY, JSON.stringify(arr));
+  }catch(e){}
+}
+let _flushing = false; // serializes cloud writes: never two concurrent saves sharing one LWW base
+// Truthful save/sync indicator — never claims "synced" unless the cloud confirmed the write.
+function _setSaveStatus(state){
+  const el = document.getElementById("saveStatus"); if(!el) return;
+  const map = { saving:["● SAVING…","hdr-save saving"], synced:["● SYNCED","hdr-save saved"],
+                saved:["● SAVED","hdr-save saved"], device:["● SAVED ON DEVICE","hdr-save saved"],
+                offline:["● SAVED ON DEVICE","hdr-save offline"] };
+  const m = map[state] || map.saved;
+  el.textContent = m[0]; el.className = m[1];
+}
 let _persistTimer = null, _cloudDirty = false;
 function persist(){
-  const el = document.getElementById("saveStatus");
-  if(el){ el.textContent = "● SAVING..."; el.className = "hdr-save saving"; }
   try {
     const json = JSON.stringify(D);
     localStorage.setItem(SK, json);     // instant, offline cache + source of truth
@@ -2563,30 +2644,70 @@ function persist(){
   // Debounced cloud write-through (no-op in local-only mode / before login).
   if(SB && Repo.getBusinessId()){
     _cloudDirty = true;
+    _markUnsynced();                    // mark BEFORE the write so an interruption leaves a trail
+    _setSaveStatus("saving");
     clearTimeout(_persistTimer);
     _persistTimer = setTimeout(flushToCloud, 800);
+  } else {
+    _setSaveStatus("device");           // local-only mode (no account yet) → on this device only
   }
-  if(el) setTimeout(() => { el.textContent = "● SAVED"; el.className = "hdr-save saved"; }, 500);
 }
 // Mirror the in-memory D to localStorage WITHOUT scheduling a cloud write. Used when
 // adopting cloud data at boot/sync so the offline cache matches what was just loaded.
 function _cacheLocalD(){ try{ const j=JSON.stringify(D); localStorage.setItem(SK,j); localStorage.setItem(SK_BAK,j); }catch(e){} }
 async function flushToCloud(){
   if(!SB || !_cloudDirty || !Repo.getBusinessId()) return;
+  if(_flushing) return;                 // a save is already in flight — don't start a second on the same base
+  _flushing = true;
+  // Snapshot at flush time so a concurrent edit can't tear the doc mid-serialize, and so we
+  // can tell whether new edits arrived during the await (then we must NOT mark synced).
+  let snap; try{ snap = JSON.parse(JSON.stringify(D)); }catch(e){ snap = D; }
   _cloudDirty = false;
   try {
-    await Repo.saveDoc(D);
+    await Repo.saveDoc(snap);
+    if(_cloudDirty){
+      _setSaveStatus("saving");         // an edit landed during the write → leave unsynced, re-flush below
+    } else {
+      _clearUnsynced();                 // cloud confirmed AND nothing newer pending → fully in sync
+      _setSaveStatus("synced");
+    }
   } catch(e){
     if(String(e && (e.message||e)).includes("stale_write")){
-      // Another device wrote first — pull the latest, cache it locally, re-render, and
-      // tell the user so the change doesn't appear silently. (Document-level last-write-
-      // wins; a field-level merge is a separate, larger task — see audit TODO.)
-      try { const doc = await Repo.loadDoc(); if(doc && doc.data){ D = doc.data; _normalizeD(); _cacheLocalD(); try{ renderAll(); }catch(_){ } try{ showToast("Updated from your other device.","ok"); }catch(_){ } } } catch(_){}
-      return;
+      // Another device wrote first. Preserve our pending edit in the recovery key BEFORE adopting
+      // the cloud copy, so a document-level overwrite can never permanently lose it. (Automatic
+      // field-level merge is the larger deferred task — see audit TODO.)
+      try {
+        const doc = await Repo.loadDoc();
+        if(doc && doc.data){
+          _saveRecovery(snap, "stale_write");
+          D = doc.data; _normalizeD(); _cacheLocalD(); _clearUnsynced(); _setSaveStatus("synced");
+          try{ renderAll(); }catch(_){ }
+          try{ showToast("Synced from your other device · your unsynced change was backed up","ok"); }catch(_){ }
+        }
+      } catch(_){}
+    } else {
+      _cloudDirty = true;   // keep dirty; localStorage already holds the truth; retry on reconnect / next change
+      _setSaveStatus("offline"); // be truthful: the change is on this device but NOT yet backed up
     }
-    _cloudDirty = true;   // keep dirty; localStorage already holds the truth; retry next change/flush
+  } finally {
+    _flushing = false;
+    if(_cloudDirty && SB && Repo.getBusinessId()){ clearTimeout(_persistTimer); _persistTimer = setTimeout(flushToCloud, 400); }
   }
 }
+// Retry a stuck cloud write the moment connectivity or focus returns.
+function _retrySync(){ if(SB && _cloudDirty && Repo.getBusinessId()){ clearTimeout(_persistTimer); flushToCloud(); } }
+try{ window.addEventListener("online", _retrySync); }catch(e){}
+// Best-effort: when the app is backgrounded or closed, immediately mirror to the local
+// cache and push any pending change to the cloud rather than waiting out the debounce
+// (a swipe-close would otherwise kill the pending timer and lose the last edits).
+function _flushNow(){
+  try{ _cacheLocalD(); }catch(e){}
+  if(SB && _cloudDirty && Repo.getBusinessId()){ try{ clearTimeout(_persistTimer); }catch(e){} try{ flushToCloud(); }catch(e){} }
+}
+try{
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") _flushNow(); else _retrySync(); });
+  window.addEventListener("pagehide", _flushNow);
+}catch(e){}
 // Read a valid local D (>=1 product) from localStorage, or null.
 function _readLocalD(){
   try { const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || "null");
@@ -2608,6 +2729,10 @@ function _normalizeD(){
   delete D.priceRef;
   if(!D.business || typeof D.business !== "object") D.business = {};
   if(!Array.isArray(D.invoices)) D.invoices = [];
+  // Migrate the old "Re-up" expense category → "Restock" (renamed v2.23) so history stays consistent.
+  Object.values(D.strains).forEach(s => {
+    if(Array.isArray(s.logs)) s.logs.forEach(l => { if(l && l.category === "Re-up") l.category = "Restock"; });
+  });
   syncPricesFromRef();
 }
 // Local load (used by the offline fallback boot). Cloud boot sets D from Supabase.
@@ -3221,7 +3346,10 @@ function renderInvoiceEditor(){
   const sb = document.getElementById("invStyleBar");
   if(sb) sb.innerHTML = invStyleBarHTML();
   const ed = document.getElementById("invEditFields");
+  const _b = getBusiness();
+  const _autoNo = (_b.prefix||"") + String(_b.next||1).padStart(4,"0");
   if(ed) ed.innerHTML = `
+    <div class="inv-frow"><span class="m-lbl">Invoice No.</span><input class="m-input" value="${escAttr(_inv.no||_autoNo)}" placeholder="${escAttr(_autoNo)}" oninput="invSetField('no',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Customer address (optional)</span><input class="m-input" value="${escAttr(_inv.customerAddress||'')}" placeholder="Street, city" oninput="invSetField('customerAddress',this.value)"/></div>
     <div class="inv-frow2">
@@ -3265,7 +3393,7 @@ function _invRefreshPaper(){
   const pi=document.getElementById("invPaidInput"); if(pi && document.activeElement!==pi) pi.value=_round2(+_inv.paid||0);
   const oi=document.getElementById("invOwedInput"); if(oi && document.activeElement!==oi) oi.value=owed;
 }
-function invSetField(k,v){ const txt=["customer","customerAddress","customerPhone","customerEmail","customerTaxId","poNumber","dueDate","note","title","terms","payInfo"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); _invRefreshPaper(); }
+function invSetField(k,v){ const txt=["no","customer","customerAddress","customerPhone","customerEmail","customerTaxId","poNumber","dueDate","note","title","terms","payInfo"]; _inv[k] = txt.indexOf(k)>=0 ? v : (parseFloat(v)||0); _invRefreshPaper(); }
 function invSetItem(i,k,v){ if(!_inv.items[i]) return; _inv.items[i][k] = (k==="desc"||k==="unit")?v:(parseFloat(v)||0); _invRefreshPaper(); }
 // Amount paid and Amount owed are two views of the same thing: owed = total − paid.
 // Editing either one updates the other so an unpaid/partial invoice is easy to record.
@@ -3359,7 +3487,7 @@ function saveCurrentInvoice(){
   if(_inv.num == null){
     const b = getBusiness();
     _inv.num = b.next;
-    _inv.no = b.prefix + String(b.next).padStart(4,"0");
+    if(!_inv.no) _inv.no = b.prefix + String(b.next).padStart(4,"0"); // respect a manually-entered number
     D.business.next = b.next + 1;
     if(!Array.isArray(D.invoices)) D.invoices = [];
     D.invoices.unshift(_inv);
@@ -3445,7 +3573,7 @@ function openExpModal(mode){
   document.getElementById("expNoteWrap").style.display = mode==="edit" ? "none" : "block";
   const catWrap = document.getElementById("expCatWrap");
   if(catWrap) catWrap.style.display = mode==="edit" ? "none" : "block";
-  expCategory = "Re-up";
+  expCategory = "Restock";
   document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("on"));
   const firstCat = document.querySelector(".cat-btn");
   if(firstCat) firstCat.classList.add("on");
@@ -3620,7 +3748,7 @@ async function doResetAll(){
          if(Repo.lastSeen==null) await Repo.loadDoc();
          await Repo.saveDoc({ strains:{}, cur:"", invoices:[], business:{} }); }catch(e){}
   }
-  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); } catch(e){}
+  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
   try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
@@ -4622,12 +4750,12 @@ function renderQS(){
   const tips = [];
   if(profit < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
   else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on your best-selling pack sizes to maximize revenue.");
-  else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger re-up could scale your earnings.");
-  else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your re-up cost to see your real profit picture.");
+  else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger restock could scale your earnings.");
+  else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your restock cost to see your real profit picture.");
 
   const lowThreshold = isWeight(s) ? 14 : 3;
   if(stock===0) tips.push("🚨 Out of stock — restock before you lose customers.");
-  else if(stock<lowThreshold) tips.push(`📦 Stock is getting low — plan your next re-up soon.`);
+  else if(stock<lowThreshold) tips.push(`📦 Stock is getting low — plan your next restock soon.`);
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round(tu * avgUnitPrice(s));
@@ -4653,7 +4781,7 @@ function renderQS(){
       const perDay = g14 / 14;
       const suggested = Math.round(perDay * 14);
       if(dl < 7){
-        tips.push(`📅 At your current pace, you'll sell out in ~${daysLeft} days — plan your next re-up now. Suggested restock: ${fmtQty(suggested,s)}.`);
+        tips.push(`📅 At your current pace, you'll sell out in ~${daysLeft} days — plan your next restock now. Suggested restock: ${fmtQty(suggested,s)}.`);
       } else {
         tips.push(`📅 Stock should last ~${daysLeft} more days at current velocity. Suggested 2-week buffer: ${fmtQty(suggested,s)}.`);
       }
@@ -5255,7 +5383,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:"#currencySettings", icon:"🪙", title:"Currency & low-stock alerts", body:"Set your currency once so every figure reads right, and choose a low-stock threshold so the app warns you before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"🔒", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
   { tab:"settings", sel:"#aiSettings", icon:"🤖", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
-  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up your data", body:"Important: your data lives only on this device. Export a backup or copy a sync code to move between devices — removing the app can erase it." },
+  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up & sync your data", body:"Create a free account to back up to the cloud and sync across devices — sign in with email or Google. Without an account your data lives only on this device, so export a backup; removing the app can erase it." },
   { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"📖", title:"Want the full tour?", body:"You've got the essentials — nicely done. For an in-depth walkthrough of every feature, replay the Guide right here anytime. Happy selling!" },
   { tab:"settings", sel:"#installRow", icon:"📲", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
   { tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
@@ -5366,9 +5494,20 @@ const Repo = {
   setBusiness(id){ this.businessId = id; },
   getBusinessId(){ return this.businessId; },
   async resolveActiveBusiness(user){
-    const r = await SB.from("memberships").select("business_id,role").eq("user_id", user.id);
-    if(!r.error && r.data && r.data.length){
-      const o = r.data.find(m => m.role === "owner") || r.data[0];
+    // A failed lookup (network/RLS) must NOT fall through to provisioning a new empty
+    // business — that would strand the user's real business + data. Throw so boot falls
+    // back to the read-only local cache. A momentarily-EMPTY read (read-replica lag right
+    // after signup, or a transient RLS gap) would likewise wrongly provision a duplicate
+    // empty tenant, so retry a couple of times with backoff before deciding "new user".
+    let rows = null;
+    for(let attempt=0; attempt<3; attempt++){
+      const r = await SB.from("memberships").select("business_id,role").eq("user_id", user.id);
+      if(r.error) throw r.error;
+      if(r.data && r.data.length){ rows = r.data; break; }
+      if(attempt < 2) await new Promise(res => setTimeout(res, 400 * (attempt+1)));
+    }
+    if(rows){
+      const o = rows.find(m => m.role === "owner") || rows[0];
       return { id:o.business_id, fresh:false, role:o.role };
     }
     const ld = _readLocalD();
@@ -5380,7 +5519,7 @@ const Repo = {
   async loadDoc(){
     const r = await SB.from("businesses").select("data,updated_at,migrated_at").eq("id", this.businessId).single();
     if(r.error) throw r.error;
-    this.lastSeen = r.data.updated_at;
+    this.lastSeen = r.data.updated_at; _saveBase(this.lastSeen); // remember the base across reloads
     return r.data;
   },
   async saveDoc(d){
@@ -5390,7 +5529,7 @@ const Repo = {
     if(this.lastSeen == null){ try{ await this.loadDoc(); }catch(e){ throw new Error("no base"); } }
     const r = await SB.rpc("save_business_doc", { p_id:this.businessId, p_data:d, p_base:this.lastSeen });
     if(r.error) throw new Error(r.error.message || String(r.error));
-    this.lastSeen = r.data;
+    this.lastSeen = r.data; _saveBase(this.lastSeen);
     return r.data;
   },
   async migrateLocal(d){
@@ -5407,16 +5546,24 @@ const authRepo = {
     // or re-upload the previous user's data (cross-account/tenant leak).
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
-    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); }catch(e){}
+    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
     D = { strains:{}, cur:"" };
-    Repo.setBusiness(null); Repo.lastSeen = null; _cloudBooted = false;
+    Repo.setBusiness(null); Repo.lastSeen = null; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
   },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
   setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); },
   resendConfirm(email){ return SB.auth.resend({ type:"signup", email, options:{ emailRedirectTo: location.origin + location.pathname } }); }
 };
-async function doSignOut(){ try{ await authRepo.signOut(); }catch(e){} }  // onAuthStateChange(null) → showAuthScreen
+async function doSignOut(){
+  // Give a stuck write a last chance, then warn before wiping the device if anything is still unsynced.
+  try{ await flushToCloud(); }catch(e){}
+  if(_cloudDirty || _unsyncedBiz()){
+    const ok = confirm("Some changes haven't finished backing up to the cloud yet. Sign out anyway? Those unsynced changes on this device could be lost.");
+    if(!ok) return;
+  }
+  try{ await authRepo.signOut(); }catch(e){}
+}  // onAuthStateChange(null) → showAuthScreen
 // ---- screen management ----
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("mainApp","none"); }
@@ -5436,6 +5583,11 @@ function authSetMode(m){
   if(pw) pw.style.display = (m==="reset") ? "none" : "block";
   if(forgot) forgot.style.display = (m==="signin") ? "inline" : "none";
   if(resend) resend.style.display = (m==="signin") ? "inline" : "none";
+  // Google sign-in only makes sense on the sign-in / sign-up screens, not the reset flows.
+  const gWrap=document.getElementById("authGoogle"), gOr=document.getElementById("authOr");
+  const showG = (m==="signin" || m==="signup");
+  if(gWrap) gWrap.style.display = showG ? "flex" : "none";
+  if(gOr) gOr.style.display = showG ? "flex" : "none";
   if(!sub) return;
   if(m==="signup"){ sub.textContent="Create your account"; btn.textContent="Create Account"; toggle.textContent="Have an account? Sign in"; if(pw) pw.placeholder="Choose a password (6+ characters)"; }
   else if(m==="reset"){ sub.textContent="Reset your password"; btn.textContent="Send Reset Link"; toggle.textContent="Back to sign in"; }
@@ -5443,6 +5595,16 @@ function authSetMode(m){
   else { sub.textContent="Sign in to your account"; btn.textContent="Sign In"; toggle.textContent="New here? Create an account"; if(pw) pw.placeholder="Password"; }
 }
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
+// Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
+// Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
+async function authGoogle(){
+  if(!SB){ _authMsg("Cloud sign-in isn't available right now.","err"); return; }
+  _authMsg("Opening Google…","ok");
+  try{
+    const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
+    if(r && r.error){ _authMsg(r.error.message,"err"); }
+  }catch(e){ _authMsg(String(e && (e.message||e)),"err"); }
+}
 // Resend the sign-up confirmation email (for users whose link expired or never arrived).
 let _resendAt = 0;
 async function authResend(){
@@ -5477,7 +5639,11 @@ async function authSubmit(){
       if(r.error){ _authMsg(r.error.message,"err"); return; }
       _authMsg("Password updated.","ok");
       _inRecovery=false;   // recovery complete — now allow the session to boot into the app
-      try{ const s=(await SB.auth.getSession()).data.session; if(s && s.user && !_cloudBooted){ _cloudBooted=true; setTimeout(()=>bootAuthedUser(s), 800); } }catch(e){}
+      try{ const s=(await SB.auth.getSession()).data.session;
+           if(s && s.user && (!_cloudBooted || _bootedUid !== s.user.id)){
+             if(_cloudBooted && _bootedUid && _bootedUid !== s.user.id) _resetForAccountSwitch(); // different account → drop prior tenant
+             _cloudBooted=true; setTimeout(()=>bootAuthedUser(s), 800);
+           } }catch(e){}
       return;
     }
     if(!email || pw.length<6){ _authMsg("Enter your email and a password (6+ characters).","err"); return; }
@@ -5493,9 +5659,14 @@ async function authSubmit(){
   }catch(e){ lock(false); _authMsg(String(e && (e.message||e)),"err"); }
 }
 // ---- boot ----
-let _cloudBooted = false, _inRecovery = false;
+let _cloudBooted = false, _inRecovery = false, _bootedUid = null;
 async function bootAuthedUser(sess){
   showSplash();
+  _bootedUid = sess.user.id;
+  // Capture the sync-base from BEFORE this boot's loadDoc overwrites it — lets us tell
+  // "cloud is unchanged since our last confirmed sync" (safe to push local) apart from
+  // "cloud moved on" (a real multi-device conflict).
+  const priorBase = _readBase();
   try{
     const biz = await Repo.resolveActiveBusiness(sess.user);
     Repo.setBusiness(biz.id);
@@ -5503,8 +5674,41 @@ async function bootAuthedUser(sess){
     let doc=null, loadOk=false; try{ doc = await Repo.loadDoc(); loadOk=true; }catch(e){ doc=null; loadOk=false; }
     const cloudData = (doc && doc.data && doc.data.strains && Object.keys(doc.data.strains).length>0) ? doc.data : null;
     const local = _readLocalD();
-    if(cloudData){
-      D = cloudData; _cacheLocalD();                 // cloud has real data → authoritative; mirror to offline cache
+    // This device has edits the cloud never confirmed (UNSYNCED flag for THIS exact business
+    // survived a reload). Whether we can safely push them depends on whether the cloud moved
+    // since our last confirmed sync.
+    const localUnsynced = !!local && !biz.fresh && _unsyncedBiz() === String(biz.id);
+    // cloudMoved: with a known prior base, the cloud's updated_at differs from it (another
+    // device wrote). Without a prior base, fall back to "cloud has real data" as the signal.
+    const cloudMoved = priorBase ? (String(doc && doc.updated_at) !== String(priorBase)) : !!cloudData;
+    if(localUnsynced && loadOk && !cloudMoved){
+      // Cloud unchanged since our last sync → our local edits are strictly newer. Push them.
+      // (saveDoc's base now legitimately equals the cloud row, so the LWW guard is satisfied
+      // honestly — we are NOT defeating it, because we've confirmed nobody else wrote.)
+      D = local;
+      try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced"); }
+      catch(e){ _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline"); }
+      _cacheLocalD();
+    } else if(localUnsynced && loadOk && cloudMoved && !priorBase && cloudData){
+      // AMBIGUOUS: unsynced local, but NO base to compare recency against (e.g. only ever
+      // edited offline). Prefer the local cache the user has actually been using on this
+      // device, but snapshot the cloud copy to recovery first so a genuine other-device
+      // write is never lost. (Single-device — the common case — gets the right answer.)
+      _saveRecovery(cloudData, "ambiguous-cloud");
+      D = local;
+      try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced"); }
+      catch(e){ _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline"); }
+      _cacheLocalD();
+    } else if(localUnsynced && loadOk && cloudMoved){
+      // CONFLICT: a known base existed and the cloud moved PAST it → another device genuinely
+      // wrote. We can't auto-merge yet, so preserve local in the recovery key (never lost) and
+      // adopt the cloud as authoritative.
+      _saveRecovery(local, "conflict");
+      D = cloudData || (doc && doc.data && typeof doc.data==="object" ? doc.data : { strains:{}, cur:"" });
+      _cacheLocalD(); _clearUnsynced();
+      try{ showToast("Synced from your other device · unsynced changes were backed up","ok"); }catch(e){}
+    } else if(cloudData){
+      D = cloudData; _cacheLocalD(); _clearUnsynced();// cloud has real data → authoritative; mirror to offline cache
     } else if(biz.fresh && local && loadOk){
       // This business was JUST provisioned for THIS user → import their on-device data once.
       // Gated on biz.fresh so we NEVER push a local (or leftover/foreign) cache over an
@@ -5512,17 +5716,22 @@ async function bootAuthedUser(sess){
       D = local;
       try{ if(doc && !doc.migrated_at) await Repo.migrateLocal(local); }catch(e){}
       try{ await Repo.loadDoc(); }catch(e){}          // refresh the LWW base (migrate advanced updated_at)
-      try{ await Repo.saveDoc(D); }catch(e){}
+      try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced");
+           try{ showToast("Your data is now synced to your account.","ok"); }catch(e){} }
+      catch(e){ // first sync did NOT confirm — keep it dirty so retry/reconnect reconciles, and be truthful
+        _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline");
+        try{ showToast("Saved on this device — finishing cloud backup…","ok"); }catch(_){}
+      }
       _cacheLocalD();
-      try{ showToast("Your data is now synced to your account.","ok"); }catch(e){}
     } else if(loadOk){
       // Existing business (or fresh without local) and cloud read OK → cloud is the source
       // of truth even when empty. Don't resurrect or upload a stale/foreign local cache.
       D = (doc && doc.data && typeof doc.data==="object") ? doc.data : { strains:{}, cur:"" };
-      _cacheLocalD();
+      _cacheLocalD(); _clearUnsynced();
     } else {
       // Cloud read FAILED → run read-only on the local cache this session. saveDoc() refuses
-      // to write without a base, so a transient failure can't clobber the cloud.
+      // to write without a base, so a transient failure can't clobber the cloud. Leave the
+      // UNSYNCED flag intact so the next good connection still reconciles.
       D = local || { strains:{}, cur:"" };
     }
     _normalizeD();
@@ -5541,6 +5750,16 @@ async function bootAuthedUser(sess){
     }
   }catch(e){ bootLocalFallback(); }
 }
+// A DIFFERENT account became active without a sign-out in between (multi-tab sign-in,
+// magic-link/recovery completion). Tear down the previous tenant's in-memory + on-device
+// state so the new user never sees or overwrites it.
+function _resetForAccountSwitch(){
+  try{ clearTimeout(_persistTimer); }catch(e){}
+  _cloudDirty = false; _flushing = false;
+  try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
+  D = { strains:{}, cur:"" };
+  Repo.setBusiness(null); Repo.lastSeen = null;
+}
 function bootLocalFallback(){
   hydrate();
   if(isReady()){
@@ -5558,7 +5777,12 @@ function initBoot(){
         if(event==="PASSWORD_RECOVERY"){ _inRecovery=true; showAuthScreen(); authSetMode("reset-new"); return; }
         // During recovery, ignore the USER_UPDATED/session events updateUser() emits so the
         // user stays on "Set a new password" until they finish (see authSubmit reset-new).
-        if(sess && sess.user && !_inRecovery){ if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); } }
+        if(sess && sess.user && !_inRecovery){
+          if(!_cloudBooted){ _cloudBooted=true; bootAuthedUser(sess); }
+          else if(_bootedUid && _bootedUid !== sess.user.id){ // account switched with no sign-out between → re-boot as the new user
+            _resetForAccountSwitch(); _cloudBooted=true; bootAuthedUser(sess);
+          }
+        }
         else {
           _cloudBooted=false; showAuthScreen();
           if(window.__authReturn && window.__authReturn.error){
