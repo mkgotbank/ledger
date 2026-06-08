@@ -133,8 +133,8 @@ const THEMES = [
           "--acc-glow":"rgba(58,127,240,0.4)","--acc-bdr":"rgba(58,127,240,0.35)","--acc-dim":"rgba(58,127,240,0.18)"} },
   { id:"arctic",  name:"Arctic",  dots:["#eef6ff","#0088cc","#ffffff"],
     vars:{"--bg":"#eef6ff","--card":"#ffffff","--modal":"#f4f9ff","--hdr-bg":"rgba(238,246,255,0.94)",
-          "--acc":"#0088cc","--acc-hi":"#00aaee","--acc-a":"#0077bb","--acc-b":"#005588",
-          "--acc-glow":"rgba(0,136,204,0.28)","--acc-bdr":"rgba(0,136,204,0.35)","--acc-dim":"rgba(0,136,204,0.12)",
+          "--acc":"#0a6dba","--acc-hi":"#2b8fd4","--acc-a":"#0a5c9e","--acc-b":"#08487e",
+          "--acc-glow":"rgba(10,109,186,0.24)","--acc-bdr":"rgba(10,109,186,0.30)","--acc-dim":"rgba(10,109,186,0.10)",
           "--txt":"#1a2a3a","--txt-b":"#0a1828","--txt-d":"#4a6880","--bdr":"rgba(0,0,0,0.09)",
           "--fill-1":"rgba(10,40,70,0.05)","--fill-2":"rgba(10,40,70,0.1)","--fill-3":"rgba(10,40,70,0.03)","--hairline":"rgba(10,40,70,0.08)","--shadow":"rgba(10,50,90,0.12)"} },
   { id:"mint",    name:"Mint",    dots:["#effaf7","#00a878","#ffffff"],
@@ -294,7 +294,7 @@ html.has-data #setupScreen{display:none;}
 html.has-data:not(.has-pin) #mainApp{display:block;}
 
 /* Sticky frosted-glass header */
-.hdr{padding:15px 18px 0;border-bottom:1px solid var(--acc-bdr);position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 10px 30px -16px rgba(0,0,0,0.55);}
+.hdr{padding:15px 18px 0;border-bottom:1px solid var(--hairline);position:sticky;top:0;z-index:100;background:var(--hdr-bg);backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2);box-shadow:0 8px 24px -20px rgba(0,0,0,0.45);}
 .hdr-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .hdr-lbl{font-size:8px;letter-spacing:4px;color:var(--acc);text-transform:uppercase;margin-bottom:3px;opacity:0.9;}
 .hdr-title{font-family:var(--display);font-size:28px;font-weight:600;color:var(--txt-b);letter-spacing:0;line-height:1;}
@@ -339,14 +339,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .panel.on{display:block;}
 
 /* Unified stat block — one card, four cells split by hairlines (denser + refined) */
-.sgrid{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;margin-bottom:11px;}
-.scard{padding:11px 14px;}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--bdr);border-radius:16px;overflow:hidden;margin-bottom:11px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
+.scard{padding:14px 16px;}
 .scard:nth-child(odd){border-right:1px solid var(--hairline);}
 .scard:nth-child(-n+2){border-bottom:1px solid var(--hairline);}
 .scard-lbl{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);margin-bottom:3px;text-transform:uppercase;}
 .scard-val{font-size:21px;font-weight:700;letter-spacing:-0.5px;}
 
-.exp-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px 13px;margin-bottom:10px;box-shadow:0 4px 18px var(--shadow);}
+.exp-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px 13px;margin-bottom:10px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
 .exp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;}
 .exp-top span{color:var(--acc);}
 .exp-btns{display:flex;gap:6px;margin-top:8px;}
@@ -354,7 +354,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .exp-btn.add{background:rgba(224,92,92,0.09);border-color:rgba(224,92,92,0.25);color:#c05050;}
 .exp-btn.edit{background:var(--fill-1);border-color:var(--bdr);color:var(--txt-d);}
 
-.acard{border-radius:14px;padding:11px 13px;margin-bottom:10px;box-shadow:0 4px 18px var(--shadow);}
+.acard{border-radius:14px;padding:11px 13px;margin-bottom:10px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
 .acard.g{background:var(--card);border:1px solid rgba(76,175,122,0.22);}
 .acard.r{background:var(--card);border:1px solid rgba(224,92,92,0.2);}
 .acard-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
@@ -420,7 +420,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .log-edit:active{color:var(--acc);}
 .log-empty{text-align:center;color:var(--txt-d);padding:60px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;}
 
-.ai-box{background:var(--card);border:1px solid var(--acc-bdr);border-left:3px solid var(--acc);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 4px 18px var(--shadow);}
+.ai-box{background:var(--card);border:1px solid var(--acc-bdr);border-left:3px solid var(--acc);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
 .ai-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .ai-title{font-size:9px;letter-spacing:3px;color:var(--acc);font-weight:700;text-transform:uppercase;}
 .ai-badge{font-size:7px;letter-spacing:2px;color:var(--acc);background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:5px;padding:2px 7px;text-transform:uppercase;}
@@ -475,8 +475,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .m-input:focus{border-color:var(--acc-bdr);}
 .m-input-lg{width:100%;background:var(--fill-3);border:1px solid rgba(224,92,92,0.25);border-radius:14px;padding:15px;color:var(--txt);font-size:22px;font-weight:700;outline:none;text-align:center;transition:border-color 0.2s;}
 .m-input-lg:focus{border-color:rgba(224,92,92,0.5);}
-.btn-confirm{width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:14px;padding:15px;color:#0a0a0f;font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 28px var(--acc-glow),0 0 0 1px var(--acc-hi) inset;transition:opacity 0.2s;}
-.btn-confirm:active{opacity:0.85;}
+.btn-confirm{width:100%;background:linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:14px;padding:15px;color:#0a0a0f;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 22px -8px var(--acc-glow);transition:transform 0.15s var(--ease),box-shadow 0.2s;}
+.btn-confirm:active{transform:scale(0.985);box-shadow:0 4px 14px -8px var(--acc-glow);}
 .btn-confirm-red{width:100%;background:linear-gradient(135deg,#c0392b,#7b241c);border:none;border-radius:14px;padding:15px;color:#fff;font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:12px;box-shadow:0 4px 18px rgba(192,57,43,0.25);transition:opacity 0.2s;}
 .reset-warning{color:var(--txt-d);font-size:13px;line-height:1.8;margin-bottom:22px;text-align:center;}
 .reset-confirm-lbl{font-size:10px;letter-spacing:2px;color:var(--txt-d);text-align:center;margin-bottom:16px;text-transform:uppercase;}
@@ -582,7 +582,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .pin-cancel:active{color:var(--acc);}
 
 /* ── CHART ── */
-.chart-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:13px 13px 9px;margin-bottom:11px;box-shadow:0 4px 18px var(--shadow);}
+.chart-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:13px 13px 9px;margin-bottom:11px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
 .chart-hdr{font-size:7px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;margin-bottom:12px;}
 .chart-meta-row{display:flex;align-items:center;margin-bottom:14px;}
 .chart-meta-item{flex:1;text-align:center;}
@@ -595,7 +595,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 /* ── LOG DATE FILTER ── */
 .ldf-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:20px;padding:5px 13px;font-size:8px;letter-spacing:2px;white-space:nowrap;cursor:pointer;text-transform:uppercase;transition:all 0.2s;font-family:var(--font);}
 .ldf-btn.on{background:var(--fill-2);border-color:var(--acc-bdr);color:var(--txt-b);}
-.log-summary{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px 13px;margin-bottom:11px;box-shadow:0 4px 18px var(--shadow);}
+.log-summary{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px 13px;margin-bottom:11px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
 .ls-range{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:9px;}
 .ls-stats{display:flex;}
 .ls-stat{flex:1;border-left:1px solid var(--hairline);padding-left:11px;}
@@ -643,7 +643,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .unpaid-btn{width:100%;margin-top:8px;background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:9px;padding:9px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
 .unpaid-btn.on{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.4);color:#e07070;}
 /* Owed (credit) summary card on the Stock panel */
-.owed-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid rgba(224,92,92,0.28);border-left:3px solid #e05c5c;border-radius:14px;padding:11px 13px;margin-bottom:13px;cursor:pointer;box-shadow:0 4px 18px var(--shadow);transition:transform 0.18s var(--ease);}
+.owed-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid rgba(224,92,92,0.28);border-left:3px solid #e05c5c;border-radius:14px;padding:11px 13px;margin-bottom:13px;cursor:pointer;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);transition:transform 0.18s var(--ease);}
 .owed-card:active{transform:scale(0.99);}
 .owed-card-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#e07070;}
 .owed-card-v{font-size:19px;font-weight:700;color:#e05c5c;letter-spacing:-0.5px;margin-top:2px;}
@@ -665,7 +665,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .backup-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,var(--acc-dim),transparent);border-bottom:1px solid var(--acc-bdr);padding:7px 14px 7px 16px;}
 .backup-banner-txt{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);font-weight:700;}
 .backup-banner-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.backup-banner-btn{background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:8px;padding:5px 12px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px var(--acc-glow);transition:transform 0.15s var(--ease);}
+.backup-banner-btn{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:8px;padding:5px 12px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);transition:transform 0.15s var(--ease),background 0.15s;}
 .backup-banner-btn:active{transform:scale(0.94);}
 .backup-banner-x{background:none;border:none;color:var(--acc);opacity:0.65;font-size:12px;cursor:pointer;padding:2px 4px;line-height:1;font-family:var(--font);}
 .backup-banner-x:active{opacity:1;}
@@ -893,11 +893,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .subpage-title{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--txt-b);text-transform:uppercase;}
 .subpage-body{max-width:480px;margin:0 auto;padding:18px 16px 64px;}
 /* ── REUSABLE NAV LIST ── grouped index rows (the "organized/expensive" signature) */
-.nav-card{background:var(--card);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;box-shadow:0 4px 18px var(--shadow);margin-bottom:12px;}
+.nav-card{background:var(--card);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);margin-bottom:12px;}
 .nav-row{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;border-bottom:1px solid var(--hairline);transition:background 0.15s;}
 .nav-row:last-child{border-bottom:none;}
 .nav-row:active{background:var(--fill-1);}
-.nav-ic{font-size:15px;width:22px;text-align:center;flex-shrink:0;line-height:1;}
+.nav-ic{font-size:15px;width:22px;text-align:center;flex-shrink:0;line-height:1;color:var(--acc);}
+.nav-ic svg{width:19px;height:19px;display:block;margin:0 auto;}
+.settings-row-lbl svg{width:14px;height:14px;vertical-align:-2.5px;margin-right:8px;color:var(--acc);opacity:.9;}
 .nav-lbl{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--txt-b);letter-spacing:0.2px;}
 .nav-val{font-size:11px;color:var(--txt-d);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .nav-chev{color:var(--txt-d);font-size:16px;opacity:0.6;flex-shrink:0;line-height:1;}
@@ -935,7 +937,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 /* Home: Quick Actions strip (one loud primary + one fast secondary) */
 .qa-strip{display:flex;gap:9px;margin-bottom:6px;}
 .qa-sale{flex:1.7;margin-bottom:0;}
-.qa-restock{flex:1;background:var(--card);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:13px;padding:14px 8px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 4px 18px var(--shadow);transition:transform 0.18s var(--ease),background 0.15s;}
+.qa-restock{flex:1;background:var(--card);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:13px;padding:14px 8px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);transition:transform 0.18s var(--ease),background 0.15s;}
 .qa-restock span{font-size:13px;margin-right:2px;}
 .qa-restock:active{transform:scale(0.975);background:rgba(76,175,122,0.1);}
 /* Home: one-line "today" pulse */
@@ -1209,11 +1211,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="settings-sec">
       <div class="settings-card">
         <div class="settings-row" id="replayRow" onclick="replayTour()" style="cursor:pointer">
-          <span class="settings-row-lbl">📖 Replay Guide</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h6a3.5 3.5 0 0 1 3.5 3.5V21a3 3 0 0 0-3-2.5H2.5z"/><path d="M21.5 4h-6A3.5 3.5 0 0 0 12 7.5V21a3 3 0 0 1 3-2.5h6.5z"/></svg>Replay Guide</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
         <div class="settings-row" id="installRow" onclick="openSubpage('install')" style="cursor:pointer">
-          <span class="settings-row-lbl">📲 Install on your phone</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7.5 10.5 12 15 16.5 10.5"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Install on your phone</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
       </div>
@@ -1254,11 +1256,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="settings-sec-title">Business &amp; Invoices</div>
       <div class="settings-card" id="bizInvoiceCard">
         <div class="settings-row" id="invoicesRow" onclick="openSubpage('invoices')" style="cursor:pointer">
-          <span class="settings-row-lbl">🧾 Invoices</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="15" y1="13" x2="9" y2="13"/><line x1="15" y1="17" x2="9" y2="17"/></svg>Invoices</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
         <div class="settings-row" id="businessRow" onclick="openSubpage('business')" style="cursor:pointer">
-          <span class="settings-row-lbl">🏢 Business profile</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="13" rx="2"/><path d="M16 20.5V5.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v15"/></svg>Business profile</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
       </div>
@@ -1284,11 +1286,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="settings-sec-title">Legal</div>
       <div class="settings-card">
         <div class="settings-row" id="privacyRow" onclick="openSubpage('privacy')" style="cursor:pointer">
-          <span class="settings-row-lbl">🔒 Privacy Policy</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg>Privacy Policy</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
         <div class="settings-row" id="termsRow" onclick="openSubpage('terms')" style="cursor:pointer">
-          <span class="settings-row-lbl">📄 Terms of Service</span>
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Terms of Service</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
       </div>
@@ -1560,7 +1562,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="sec-lbl" style="margin-top:0">Current Stock — what you can make</div>
     <div id="packBreak"></div>
     <div class="nav-card" style="margin-top:12px">
-      <div class="nav-row" onclick="closeSubpage('packs');openSubpage('priceref')"><span class="nav-ic">🏷️</span><span class="nav-lbl">Edit Price Reference</span><span class="nav-chev">›</span></div>
+      <div class="nav-row" onclick="closeSubpage('packs');openSubpage('priceref')"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V3h9l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.2"/></svg></span><span class="nav-lbl">Edit Price Reference</span><span class="nav-chev">›</span></div>
     </div>
   </div>
 </div>
@@ -1662,27 +1664,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.26.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.27.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🧾</div>
+        <div class="wn-icon">✨</div>
         <div>
-          <div class="wn-title">Invoices export as real PDFs</div>
-          <div class="wn-desc">Invoices now save as a clean PDF — perfectly centered, with no website link at the bottom — ready to share or save straight from your phone.</div>
+          <div class="wn-title">A cleaner, more refined look</div>
+          <div class="wn-desc">Fresh line icons throughout, a calmer and more premium colour palette, softer depth, and a tidier header — for a more polished, professional feel.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">☁️</div>
         <div>
-          <div class="wn-title">Cloud backups</div>
-          <div class="wn-desc">On top of on-device backups, your data now snapshots to the cloud automatically — restore it on any device from More → Data &amp; Sync → Restore.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">⏪</div>
-        <div>
-          <div class="wn-title">More time to undo</div>
-          <div class="wn-desc">Removed an entry by mistake? The Undo option now stays available for a few minutes instead of seconds.</div>
+          <div class="wn-title">Cloud backups + real-PDF invoices</div>
+          <div class="wn-desc">In case you missed them: your data now backs up to the cloud (restore from More → Data &amp; Sync), and invoices export as clean PDFs with no link in the corner.</div>
         </div>
       </div>
     </div>
@@ -2017,7 +2012,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.26.3";
+const APP_VER    = "2.27.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3253,6 +3248,31 @@ function renderOwedCard(){
 }
 function openCustomers(){ openSubpage("customers"); }
 
+// ── LINE ICON SET (Feather-style, matches the tab-bar icons) ──
+const LI = {
+  expenses:'<rect x="1" y="4" width="22" height="16" rx="2.5"/><line x1="1" y1="9.5" x2="23" y2="9.5"/>',
+  customers:'<path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/>',
+  internaluse:'<circle cx="12" cy="12" r="9.5"/><line x1="7.5" y1="12" x2="16.5" y2="12"/>',
+  stock:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/>',
+  reports:'<line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="5"/>',
+  ai:'<path d="M12 2.5l2.1 5.9 5.9 2.1-5.9 2.1L12 18.5l-2.1-5.9L4 10.5l5.9-2.1z"/>',
+  pricetag:'<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V3h9l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.2"/>',
+  invoices:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="15" y1="13" x2="9" y2="13"/><line x1="15" y1="17" x2="9" y2="17"/>',
+  business:'<rect x="2.5" y="7.5" width="19" height="13" rx="2"/><path d="M16 20.5V5.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v15"/>',
+  guide:'<path d="M2.5 4h6a3.5 3.5 0 0 1 3.5 3.5V21a3 3 0 0 0-3-2.5H2.5z"/><path d="M21.5 4h-6A3.5 3.5 0 0 0 12 7.5V21a3 3 0 0 1 3-2.5h6.5z"/>',
+  install:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7.5 10.5 12 15 16.5 10.5"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  shield:'<path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/>',
+  terms:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
+  theme:'<circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 0-20 8 8 0 0 1 8 8 5 5 0 0 1-5 5h-2a2 2 0 0 0-1 3.5A2 2 0 0 1 12 22z"/>',
+  font:'<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>',
+  appicon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  language:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  currency:'<line x1="12" y1="1.5" x2="12" y2="22.5"/><path d="M17 5.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  lock:'<rect x="3.5" y="11" width="17" height="10" rx="2"/><path d="M7.5 11V7a4.5 4.5 0 0 1 9 0v4"/>',
+  ai2:'<rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1"/><line x1="9" y1="1.5" x2="9" y2="4"/><line x1="15" y1="1.5" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22.5"/><line x1="15" y1="20" x2="15" y2="22.5"/><line x1="1.5" y1="9" x2="4" y2="9"/><line x1="1.5" y1="15" x2="4" y2="15"/><line x1="20" y1="9" x2="22.5" y2="9"/><line x1="20" y1="15" x2="22.5" y2="15"/>',
+  data:'<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/><path d="M4 11.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>'
+};
+function _li(name){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${LI[name]||""}</svg>`; }
 // ── MANAGE INDEX + HISTORY (drill-down pages) ──
 function _navRow(ic, lbl, val, onclick){
   return `<div class="nav-row" onclick="${onclick}"><span class="nav-ic">${ic}</span><span class="nav-lbl">${lbl}</span>${val?`<span class="nav-val">${val}</span>`:""}<span class="nav-chev">›</span></div>`;
@@ -3261,16 +3281,16 @@ function renderManageGroups(){
   const el = _el("manageGroups"); if(!el) return;
   const s = cur(); if(!s){ el.innerHTML = ""; return; }
   const exp = s.expenses||0, ut = s.useTotal||0, owed = totalOwed();
-  const money = [ _navRow("💸","Expenses", exp>0?fmtDollar(exp):"", "openSubpage('expenses')") ];
-  if(owed>0) money.push(_navRow("👥","Customers", fmtDollar(owed)+" owed", "openCustomers()"));
+  const money = [ _navRow(_li("expenses"),"Expenses", exp>0?fmtDollar(exp):"", "openSubpage('expenses')") ];
+  if(owed>0) money.push(_navRow(_li("customers"),"Customers", fmtDollar(owed)+" owed", "openCustomers()"));
   const inv = [
-    _navRow("📉","Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"),
-    _navRow("📦","Stock Breakdown", "", "openSubpage('packs')"),
+    _navRow(_li("internaluse"),"Internal Use", ut>0?fmtQty(ut,s)+" used":"", "openSubpage('internaluse')"),
+    _navRow(_li("stock"),"Stock Breakdown", "", "openSubpage('packs')"),
   ];
   const analysis = [
-    _navRow("📈","Reports", "", "openSubpage('reports')"),
-    _navRow("✦","AI Advisor", "", "openSubpage('ai')"),
-    _navRow("🏷️","Price Reference", "", "openSubpage('priceref')"),
+    _navRow(_li("reports"),"Reports", "", "openSubpage('reports')"),
+    _navRow(_li("ai"),"AI Advisor", "", "openSubpage('ai')"),
+    _navRow(_li("pricetag"),"Price Reference", "", "openSubpage('priceref')"),
   ];
   el.innerHTML =
     `<div class="nav-group">Money</div><div class="nav-card">${money.join("")}</div>` +
