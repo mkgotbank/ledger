@@ -1662,7 +1662,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.26.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.26.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -2017,7 +2017,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.26.1";
+const APP_VER    = "2.26.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3622,8 +3622,12 @@ async function exportInvoicePDF(){
     const imgW=baseW-margin*2, imgH=canvas.height*(imgW/canvas.width);
     let pdf;
     if(imgH <= a4H*1.6 - margin*2){
-      // Fit the PAGE to the invoice (no wasted blank space) — mirrors the in-app preview.
-      pdf=new jsPDF({ unit:"pt", format:[baseW, imgH+margin*2], compress:true });
+      // Fit the PAGE height to the invoice (little/no wasted blank) — mirrors the preview.
+      // Keep it PORTRAIT (height >= width) so the page is never wider than tall: that both
+      // matches what people expect AND guarantees jsPDF keeps baseW as the width (it reorients
+      // [w,h] to portrait and would otherwise put the smaller value as width → right-edge clip).
+      const pageH = Math.max(imgH + margin*2, baseW);
+      pdf=new jsPDF({ orientation:"portrait", unit:"pt", format:[baseW, pageH], compress:true });
       pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,imgH,undefined,"FAST");
     } else {
       // Genuinely long invoice → standard A4, paginated so it prints sensibly.
