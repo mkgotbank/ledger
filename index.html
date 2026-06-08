@@ -284,6 +284,13 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
    (the early head script adds .has-data / .has-pin before render — no flash).
    PIN users stay blank until the PIN screen shows, so data never flashes pre-unlock. */
 html.has-data #setupScreen{display:none;}
+#recoverScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:none;flex-direction:column;justify-content:center;align-items:center;padding:32px 24px;overflow-y:auto;}
+.recover-list{width:100%;max-width:430px;display:flex;flex-direction:column;gap:9px;margin:8px 0 18px;}
+.recover-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:13px 15px;}
+.recover-when{font-size:13px;font-weight:700;color:var(--txt);}
+.recover-meta{font-size:9.5px;color:var(--txt-d);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.recover-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));color:#fff;border:none;border-radius:10px;padding:9px 17px;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:var(--font);box-shadow:0 4px 14px var(--acc-glow);flex-shrink:0;}
+.recover-btn:active{transform:scale(.96);}
 html.has-data:not(.has-pin) #mainApp{display:block;}
 
 /* Sticky frosted-glass header */
@@ -1054,6 +1061,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="setup-note">You can add more products and edit everything inside the app at any time.</div>
 </div>
 
+<!-- DATA RECOVERY SCREEN — shown instead of a blank setup when backups exist -->
+<div id="recoverScreen">
+  <div class="setup-logo">
+    <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="display:block;border-radius:20px"/>
+  </div>
+  <div class="setup-title">Restore your data</div>
+  <div class="setup-sub">Backup found on this device</div>
+  <div class="setup-welcome">Your books didn't load this time — but the app keeps automatic backups. Pick one to restore. Nothing is changed until you choose.</div>
+  <div id="recoverList" class="recover-list"></div>
+  <button class="setup-btn" style="background:transparent;border:1px solid var(--bdr);color:var(--txt-d);box-shadow:none" onclick="recoverDismiss()">Start fresh instead</button>
+  <div class="setup-note">Once restored, export a backup file from More → Data &amp; Sync for extra safety.</div>
+</div>
+
 <div id="mainApp">
   <div class="hdr">
     <div class="hdr-top">
@@ -1631,41 +1651,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.23.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.24.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔒</div>
+        <div class="wn-icon">🛟</div>
         <div>
-          <div class="wn-title">Sign in with Google</div>
-          <div class="wn-desc">Create your account or sign in with one tap using Google — no password to remember. Email sign-in still works too.</div>
+          <div class="wn-title">Automatic backups</div>
+          <div class="wn-desc">The app now keeps automatic backups of your data on your device — the last several days, stored separately and protected so a sync hiccup can never touch them.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">↩️</div>
+        <div>
+          <div class="wn-title">One-tap Restore</div>
+          <div class="wn-desc">A new Restore screen (More → Data &amp; Sync → Restore) lets you bring your data back from any backup in a single tap, any time.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon">🛡️</div>
         <div>
-          <div class="wn-title">Your data is safer than ever</div>
-          <div class="wn-desc">A major reliability overhaul: your books back up to the cloud the moment you close the app, retry automatically when you're back online, and a clear status shows whether you're Synced or still Saving on this device — so nothing slips through the cracks.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✉️</div>
-        <div>
-          <div class="wn-title">Email confirmation fixed</div>
-          <div class="wn-desc">Tapping the confirmation link now brings you straight back into the app, signed in — no more "can't connect to server" page.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">🧾</div>
-        <div>
-          <div class="wn-title">Cleaner invoices</div>
-          <div class="wn-desc">Invoice numbers are now editable, the PDF is centered with no website link in the corner, and a stray label that occasionally appeared is gone.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✨</div>
-        <div>
-          <div class="wn-title">Polish</div>
-          <div class="wn-desc">The expense category "Re-up" is now "Restock" (your past entries update automatically), and the sync confirmation now matches your chosen theme.</div>
+          <div class="wn-title">Never a blank screen</div>
+          <div class="wn-desc">If your data ever can't load, the app now offers to restore from a backup instead of ever dropping you onto an empty setup screen.</div>
         </div>
       </div>
     </div>
@@ -2000,7 +2006,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.23.1";
+const APP_VER    = "2.24.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2624,6 +2630,39 @@ function _saveRecovery(d, reason){
     localStorage.setItem(RECOVERY_KEY, JSON.stringify(arr));
   }catch(e){}
 }
+// ── ROLLING ON-DEVICE BACKUPS ──────────────────────────────────────────────
+// A separate store that the cloud-sync / boot logic NEVER overwrites. Keeps the last few
+// REAL snapshots (one per day) so data can always be restored from inside the app, even if
+// the cloud is empty, the network failed, and the live cache got clobbered all at once.
+const HISTORY_KEY = SK + "_history";
+function _readHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }catch(e){ return []; } }
+function _pushHistory(d){
+  try{
+    if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return; // never snapshot an empty state
+    const j = JSON.stringify(d);
+    const arr = _readHistory();
+    if(arr[0] && arr[0].j === j) return;                 // unchanged → skip
+    const now = Date.now();
+    const entry = { t:now, n:Object.keys(d.strains).length, biz:(Repo&&Repo.getBusinessId&&Repo.getBusinessId())||null, j };
+    // Collapse same-calendar-day saves into the latest; keep prior days as distinct restore points.
+    if(arr[0] && new Date(arr[0].t).toDateString() === new Date(now).toDateString()) arr[0] = entry;
+    else arr.unshift(entry);
+    while(arr.length > 7) arr.pop();
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+  }catch(e){}
+}
+// Restore points available to the CURRENT context (this business, or account-less local snapshots).
+function _availableRestorePoints(){
+  const biz = (Repo&&Repo.getBusinessId&&Repo.getBusinessId())||null;
+  const hist = _readHistory().filter(e => !biz || !e.biz || String(e.biz)===String(biz))
+                             .map(e => ({ t:e.t, n:e.n, j:e.j, src:"backup" }));
+  let rec = [];
+  try{ rec = JSON.parse(localStorage.getItem(RECOVERY_KEY)||"[]")
+              .filter(e => !biz || !e.biz || String(e.biz)===String(biz))
+              .map(e => ({ t:e.t, n:(e.data&&e.data.strains?Object.keys(e.data.strains).length:0), j:JSON.stringify(e.data), src:"recovery", reason:e.reason })); }catch(e){}
+  return [...hist, ...rec].filter(e => e.n>0).sort((a,b)=>b.t-a.t);
+}
+function _hasBackups(){ return _availableRestorePoints().length>0; }
 let _flushing = false; // serializes cloud writes: never two concurrent saves sharing one LWW base
 // Truthful save/sync indicator — never claims "synced" unless the cloud confirmed the write.
 function _setSaveStatus(state){
@@ -2641,6 +2680,7 @@ function persist(){
     localStorage.setItem(SK, json);     // instant, offline cache + source of truth
     localStorage.setItem(SK_BAK, json); // safety backup — survives update reloads
   } catch(e){}
+  _pushHistory(D);                      // rolling on-device backup the sync logic can never overwrite
   // Debounced cloud write-through (no-op in local-only mode / before login).
   if(SB && Repo.getBusinessId()){
     _cloudDirty = true;
@@ -5154,6 +5194,10 @@ function renderSettings(){
         <span style="font-size:7px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase">Backup status</span>
       </div>
       <div class="settings-row">
+        <span class="settings-row-lbl">Restore from an automatic backup</span>
+        <button class="btn-sm-acc" onclick="openRecover()">Restore</button>
+      </div>
+      <div class="settings-row">
         <span class="settings-row-lbl">Export all data as JSON</span>
         <button class="btn-sm-acc" onclick="exportJSON()">Export</button>
       </div>
@@ -5566,11 +5610,47 @@ async function doSignOut(){
 }  // onAuthStateChange(null) → showAuthScreen
 // ---- screen management ----
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
-function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("mainApp","none"); }
+function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
 function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); }
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
 function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
+// Empty-state guard: never silently drop a user onto a blank setup if we hold a backup that
+// could restore their data — offer recovery first. Brand-new users (no backups) get setup.
+function showSetupOrRecover(){ if(_hasBackups()) showRecover(); else showSetup(); }
+function _fmtBackupDate(t){
+  try{ const d=new Date(t), now=new Date();
+    const sameDay = d.toDateString()===now.toDateString();
+    const time = d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+    return sameDay ? ("Today · "+time) : (d.toLocaleDateString([], {month:"short", day:"numeric"})+" · "+time);
+  }catch(e){ return ""; }
+}
+let _recoverPoints = [];
+function renderRecoverList(){
+  _recoverPoints = _availableRestorePoints();
+  const el = document.getElementById("recoverList"); if(!el) return;
+  if(!_recoverPoints.length){ el.innerHTML = '<div class="recover-meta" style="text-align:center">No backups found on this device.</div>'; return; }
+  el.innerHTML = _recoverPoints.map((p,i)=>`<div class="recover-row">
+    <div><div class="recover-when">${_fmtBackupDate(p.t)}</div><div class="recover-meta">${p.n} product${p.n===1?"":"s"}${p.src==="recovery"?" · auto-saved":""}</div></div>
+    <button class="recover-btn" onclick="recoverRestore(${i})">Restore</button>
+  </div>`).join("");
+}
+function showRecover(){ hideAllScreens(); renderRecoverList(); _scr("recoverScreen","flex"); }
+function recoverRestore(i){
+  const p = _recoverPoints[i]; if(!p) return;
+  let d; try{ d = JSON.parse(p.j); }catch(e){ d = null; }
+  if(!d || !d.strains || !Object.keys(d.strains).length){ showToast("That backup looks empty","err"); return; }
+  D = d; _normalizeD(); _cacheLocalD(); _pushHistory(D);
+  // Push the restored data up so the cloud matches the device again.
+  if(SB && Repo.getBusinessId()){ _cloudDirty = true; _markUnsynced(); try{ flushToCloud(); }catch(e){} }
+  syncUnitDefaults();
+  hideAllScreens(); showMain();
+  try{ renderAll(); updateSaleModal(); }catch(e){}
+  showToast("Data restored ✓","ok");
+}
+function recoverDismiss(){ if(isReady()){ showMain(); try{ renderAll(); }catch(e){} } else { showSetup(); } }
+// Reachable from Settings → Data & Sync at any time, not just on an empty boot.
+function openRecover(){ showRecover(); }
 // ---- auth UI ----
 let _authMode = "signin";
 function _authMsg(t, kind){ const e=document.getElementById("authMsg"); if(e){ e.textContent=t||""; e.className="auth-msg"+(kind?(" "+kind):""); } }
@@ -5753,7 +5833,7 @@ async function bootAuthedUser(sess){
       if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
       else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} checkVersion(); }
     } else {
-      showSetup();
+      showSetupOrRecover();   // never blank-slate a returning user if a backup can restore them
     }
     try{ i18nApply(); }catch(e){}
     // Arrived here via an email-confirmation link → confirm it plainly.
@@ -5779,7 +5859,7 @@ function bootLocalFallback(){
     syncUnitDefaults();
     if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
     else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} checkVersion(); }
-  } else { showSetup(); }
+  } else { showSetupOrRecover(); }
   try{ i18nApply(); }catch(e){}
 }
 function initBoot(){
