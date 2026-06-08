@@ -1716,7 +1716,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.8</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.9</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2064,7 +2064,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.8";
+const APP_VER    = "2.28.9";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3450,7 +3450,7 @@ function _fmtInvDate(s, fmtOverride){
   const fmt = fmtOverride || (getBusiness().invDateFmt==="short" ? "short" : "long");
   if(fmt==="short"){
     const mm=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"), yy=String(d.getFullYear()).slice(-2);
-    return `${mm}/${dd}/${yy}`;
+    return `${dd}/${mm}/${yy}`;
   }
   try{ return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return String(s); }
 }
