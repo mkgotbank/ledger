@@ -1606,12 +1606,12 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="subpage-hdr">
     <button class="subpage-back" onclick="closeSubpage('invoice')">‹ Back</button>
     <div class="subpage-title">Invoice</div>
-    <button class="inv-print-btn" onclick="printInvoice()">⤓ PDF</button>
+    <button class="inv-print-btn" onclick="exportInvoicePDF()">⤓ PDF</button>
   </div>
   <div class="subpage-body">
     <div id="invoicePaper"></div>
     <div id="invStyleBar" class="inv-stylebar"></div>
-    <button class="btn-confirm" style="margin-top:14px" onclick="printInvoice()">Print / Save as PDF</button>
+    <button class="btn-confirm" style="margin-top:14px" onclick="exportInvoicePDF()">Save as PDF</button>
     <div class="inv-edit-wrap">
       <div class="sec-lbl">Edit invoice</div>
       <div id="invEditFields"></div>
@@ -1662,13 +1662,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.25.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.26.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
         <div>
-          <div class="wn-title">Invoice PDFs fixed</div>
-          <div class="wn-desc">Invoices now print perfectly centered, with no website link in the corner — and flow cleanly across multiple pages when needed.</div>
+          <div class="wn-title">Invoices export as real PDFs</div>
+          <div class="wn-desc">Invoices now save as a clean PDF — perfectly centered, with no website link at the bottom — ready to share or save straight from your phone.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon">☁️</div>
+        <div>
+          <div class="wn-title">Cloud backups</div>
+          <div class="wn-desc">On top of on-device backups, your data now snapshots to the cloud automatically — restore it on any device from More → Data &amp; Sync → Restore.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -1676,13 +1683,6 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div>
           <div class="wn-title">More time to undo</div>
           <div class="wn-desc">Removed an entry by mistake? The Undo option now stays available for a few minutes instead of seconds.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">📄</div>
-        <div>
-          <div class="wn-title">Clearer Privacy &amp; Terms</div>
-          <div class="wn-desc">Refreshed, easier to read, and up to date with accounts, cloud sync and automatic backups.</div>
         </div>
       </div>
     </div>
@@ -2017,7 +2017,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.25.2";
+const APP_VER    = "2.26.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2674,6 +2674,31 @@ function _availableRestorePoints(){
   return [...hist, ...rec].filter(e => e.n>0).sort((a,b)=>b.t-a.t);
 }
 function _hasBackups(){ return _availableRestorePoints().length>0; }
+// ── CLOUD BACKUPS ──────────────────────────────────────────────────────────
+// In addition to on-device backups, keep the last ~7 snapshots SERVER-SIDE so data can be
+// restored on any device (or after a reinstall). Best-effort; never blocks normal sync.
+const CLOUD_BK_KEY = SK + "_cloudbk_day";
+async function _maybeCloudBackup(){
+  try{
+    if(!SB || !Repo.getBusinessId()) return;
+    if(!D || !D.strains || !Object.keys(D.strains).length) return;     // never snapshot empty
+    const today = new Date().toDateString();
+    if(localStorage.getItem(CLOUD_BK_KEY) === today) return;            // once per day is plenty
+    const r = await SB.rpc("save_business_backup", { p_business_id: Repo.getBusinessId(), p_data: D });
+    if(r && !r.error){ try{ localStorage.setItem(CLOUD_BK_KEY, today); }catch(e){} }
+  }catch(e){}
+}
+// Cloud restore points for the current business, normalized like device ones.
+async function _fetchCloudRestorePoints(){
+  try{
+    if(!SB || !Repo.getBusinessId()) return [];
+    const r = await SB.from("business_backups").select("id,created_at,data")
+                      .eq("business_id", Repo.getBusinessId()).order("created_at",{ascending:false}).limit(7);
+    if(r.error || !r.data) return [];
+    return r.data.filter(row => row.data && row.data.strains && Object.keys(row.data.strains).length>0)
+                 .map(row => ({ t:new Date(row.created_at).getTime(), n:Object.keys(row.data.strains).length, j:JSON.stringify(row.data), src:"cloud" }));
+  }catch(e){ return []; }
+}
 let _flushing = false; // serializes cloud writes: never two concurrent saves sharing one LWW base
 let _lastSyncError = "", _lastSyncErrAt = 0; // surface WHY a cloud sync failed (truthful + debuggable)
 // Truthful save/sync indicator — never claims "synced" unless the cloud confirmed the write.
@@ -2722,6 +2747,7 @@ async function flushToCloud(){
     } else {
       _clearUnsynced();                 // cloud confirmed AND nothing newer pending → fully in sync
       _setSaveStatus("synced");
+      _maybeCloudBackup();              // best-effort daily server-side snapshot (fire-and-forget)
     }
   } catch(e){
     if(String(e && (e.message||e)).includes("stale_write")){
@@ -3536,6 +3562,92 @@ function setInvFont(id){ if(!D.business||typeof D.business!=="object") D.busines
 function printInvoice(){
   saveCurrentInvoice();
   setTimeout(()=>{ try{ window.print(); }catch(e){} }, 60);
+}
+// ── IN-APP PDF EXPORT ──────────────────────────────────────────────────────
+// Renders ONLY the invoice paper to a real PDF (html2canvas + jsPDF), so there is
+// no browser-added URL/date/page footer (which iOS Safari injects and CSS can't remove).
+// Libs are lazy-loaded from the same CDN as supabase-js; falls back to window.print().
+const _PDF_LIBS = {
+  html2canvas: "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+  jspdf:       "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"
+};
+let _pdfLibsPromise = null;
+function _loadScriptOnce(src){
+  return new Promise((resolve, reject)=>{
+    if([...document.scripts].some(s=>s.src===src)) return resolve();
+    const el=document.createElement("script"); el.src=src; el.async=true;
+    el.onload=()=>resolve(); el.onerror=()=>reject(new Error("load failed "+src));
+    document.head.appendChild(el);
+  });
+}
+function _ensurePdfLibs(){
+  if(window.html2canvas && window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+  if(!_pdfLibsPromise){
+    _pdfLibsPromise = _loadScriptOnce(_PDF_LIBS.html2canvas)
+      .then(()=>_loadScriptOnce(_PDF_LIBS.jspdf))
+      .catch(err=>{ _pdfLibsPromise=null; throw err; });
+  }
+  return _pdfLibsPromise;
+}
+async function _inlineExternalImages(node){
+  const imgs=[...node.querySelectorAll('img')].filter(im=>im.src && !im.src.startsWith('data:'));
+  await Promise.all(imgs.map(im=>new Promise(res=>{
+    try{
+      const probe=new Image(); probe.crossOrigin="anonymous";
+      probe.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=probe.naturalWidth; c.height=probe.naturalHeight; c.getContext('2d').drawImage(probe,0,0); im.src=c.toDataURL('image/png'); }catch(_){ } res(); };
+      probe.onerror=()=>res(); probe.src=im.src;
+    }catch(_){ res(); }
+  })));
+}
+async function exportInvoicePDF(){
+  saveCurrentInvoice();
+  const paper=document.getElementById("invoicePaper");
+  if(!paper) return printInvoice();
+  const btns=[...document.querySelectorAll('.inv-print-btn, #invoicePage .btn-confirm')];
+  btns.forEach(b=>{ b.disabled=true; b.style.opacity="0.6"; });
+  try{
+    await _ensurePdfLibs();
+    await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+    const PX_W=760;
+    const clone=paper.cloneNode(true);
+    clone.style.cssText += `;width:${PX_W}px;max-width:${PX_W}px;margin:0;box-shadow:none;border-radius:0;background:#fff;`;
+    const holder=document.createElement('div');
+    holder.style.cssText=`position:fixed;left:-10000px;top:0;background:#fff;padding:24px;width:${PX_W+48}px;`;
+    holder.appendChild(clone); document.body.appendChild(holder);
+    await _inlineExternalImages(clone);
+    const canvas=await window.html2canvas(clone,{ scale:Math.min(3,(window.devicePixelRatio||1)*2), useCORS:true, backgroundColor:"#ffffff", logging:false, windowWidth:holder.offsetWidth });
+    document.body.removeChild(holder);
+    const { jsPDF }=window.jspdf;
+    const pdf=new jsPDF({ unit:"pt", format:"a4", compress:true });
+    const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+    const margin=28, imgW=pageW-margin*2, imgH=canvas.height*(imgW/canvas.width);
+    if(imgH <= pageH-margin*2){
+      pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,imgH,undefined,"FAST");
+    } else {
+      const sliceHpx=Math.floor((pageH-margin*2)*(canvas.width/imgW));
+      let yPx=0, page=0;
+      while(yPx < canvas.height){
+        const h=Math.min(sliceHpx, canvas.height-yPx);
+        const band=document.createElement('canvas'); band.width=canvas.width; band.height=h;
+        band.getContext('2d').drawImage(canvas,0,yPx,canvas.width,h,0,0,canvas.width,h);
+        if(page>0) pdf.addPage();
+        pdf.addImage(band.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,h*(imgW/canvas.width),undefined,"FAST");
+        yPx+=h; page++;
+      }
+    }
+    const safeNo=String((_inv&&_inv.no)||"invoice").replace(/[^\w.-]+/g,"-").replace(/^-+|-+$/g,"")||"invoice";
+    const fname=`Invoice-${safeNo}.pdf`;
+    try{
+      const blob=pdf.output("blob"); const file=new File([blob],fname,{type:"application/pdf"});
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:`Invoice ${safeNo}`}); }
+      else { pdf.save(fname); }
+    }catch(_){ pdf.save(fname); }
+  }catch(err){
+    try{ showToast("Opening print view…"); }catch(_){}
+    try{ window.print(); }catch(_){}
+  }finally{
+    btns.forEach(b=>{ b.disabled=false; b.style.opacity=""; });
+  }
 }
 function saveCurrentInvoice(){
   if(!_inv) return;
@@ -5656,14 +5768,27 @@ function _fmtBackupDate(t){
   }catch(e){ return ""; }
 }
 let _recoverPoints = [];
-function renderRecoverList(){
-  _recoverPoints = _availableRestorePoints();
+function _recoverSrcLabel(src){ return src==="cloud" ? "☁ cloud" : (src==="recovery" ? "auto-saved" : "on device"); }
+function _paintRecoverList(){
   const el = document.getElementById("recoverList"); if(!el) return;
-  if(!_recoverPoints.length){ el.innerHTML = '<div class="recover-meta" style="text-align:center">No backups found on this device.</div>'; return; }
+  if(!_recoverPoints.length){ el.innerHTML = '<div class="recover-meta" style="text-align:center">No backups found.</div>'; return; }
   el.innerHTML = _recoverPoints.map((p,i)=>`<div class="recover-row">
-    <div><div class="recover-when">${_fmtBackupDate(p.t)}</div><div class="recover-meta">${p.n} product${p.n===1?"":"s"}${p.src==="recovery"?" · auto-saved":""}</div></div>
+    <div><div class="recover-when">${_fmtBackupDate(p.t)}</div><div class="recover-meta">${p.n} product${p.n===1?"":"s"} · ${_recoverSrcLabel(p.src)}</div></div>
     <button class="recover-btn" onclick="recoverRestore(${i})">Restore</button>
   </div>`).join("");
+}
+function renderRecoverList(){
+  _recoverPoints = _availableRestorePoints();     // on-device restore points — instant
+  _paintRecoverList();
+  // Append cloud backups when they arrive (best-effort; de-duped against device snapshots).
+  _fetchCloudRestorePoints().then(cloud=>{
+    if(!cloud || !cloud.length) return;
+    const seen = new Set(_recoverPoints.map(p=>p.j));
+    const fresh = cloud.filter(c=>!seen.has(c.j));
+    if(!fresh.length) return;
+    _recoverPoints = _recoverPoints.concat(fresh).sort((a,b)=>b.t-a.t);
+    _paintRecoverList();
+  }).catch(()=>{});
 }
 function showRecover(){ hideAllScreens(); renderRecoverList(); _scr("recoverScreen","flex"); }
 function recoverRestore(i){
