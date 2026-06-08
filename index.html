@@ -1651,7 +1651,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.24.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.24.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛟</div>
@@ -2006,7 +2006,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.24.0";
+const APP_VER    = "2.24.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2625,7 +2625,7 @@ function _saveRecovery(d, reason){
   try{
     if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return;
     const arr = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "[]");
-    arr.unshift({ t:Date.now(), reason:reason||"", biz:_unsyncedBiz()||null, data:d });
+    arr.unshift({ t:Date.now(), reason:reason||"", biz:(Repo&&Repo.getBusinessId&&Repo.getBusinessId())||_unsyncedBiz()||null, data:d });
     while(arr.length > 3) arr.pop();              // keep the last 3 only
     localStorage.setItem(RECOVERY_KEY, JSON.stringify(arr));
   }catch(e){}
