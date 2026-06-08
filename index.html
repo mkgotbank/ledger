@@ -844,15 +844,22 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 /* margin:0 suppresses the browser's auto page header/footer (URL bottom-left, date/title) */
 @page { margin:0; }
 @media print {
-  html, body { background:#fff !important; }
-  body * { visibility:hidden !important; }
-  #invoicePaper, #invoicePaper * { visibility:visible !important; }
-  /* centered on the page with safe printable margins, replacing the old left:0 full-bleed */
-  #invoicePaper { position:absolute !important; left:50% !important; top:0 !important; transform:translateX(-50%) !important; width:100% !important; max-width:720px !important; margin:0 auto !important; padding:16mm 13mm !important; background:#fff !important; box-shadow:none !important; border-radius:0 !important; }
-  #invStyleBar { display:none !important; }
-  /* Hard-hide the app chrome — Safari ignores visibility:hidden on position:fixed bars,
-     which let the bottom tab bar ("…moRE") and header bleed onto the printed invoice. */
-  .tabs, .hdr, #toast, #backupBanner, .modal-overlay, .fab, .qa-bar { display:none !important; }
+  html, body { background:#fff !important; margin:0 !important; padding:0 !important; }
+  /* Take EVERY top-level block out of the print flow, then bring back ONLY the invoice page
+     in normal flow. This (a) kills the app-chrome bleed (tab bar / header), (b) centers the
+     paper reliably without transforms, and (c) lets a long invoice span multiple pages. */
+  body > * { display:none !important; }
+  #invoicePage { display:block !important; position:static !important; inset:auto !important;
+                 width:auto !important; max-width:none !important; height:auto !important;
+                 overflow:visible !important; background:#fff !important; }
+  #invoicePage .subpage-hdr, #invStyleBar, .inv-print-btn, .btn-confirm { display:none !important; }
+  #invoicePage .subpage-body { display:block !important; position:static !important;
+                 width:auto !important; max-width:none !important; overflow:visible !important;
+                 padding:0 !important; margin:0 !important; }
+  /* The white paper, centered on the sheet with comfortable inner margins. */
+  #invoicePaper { position:static !important; margin:0 auto !important; width:100% !important;
+                  max-width:700px !important; padding:14mm 12mm !important;
+                  background:#fff !important; box-shadow:none !important; border-radius:0 !important; }
   .inv-bold .inv-head, .inv-modern .inv-table th, .inv-modern .inv-meta, .inv-modern .inv-totals, .inv-bold .inv-grand { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
@@ -1378,9 +1385,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
     <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 8, 2026 · The Ledger</div>
-    <p style="margin:0 0 14px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
+    <p style="margin:0 0 12px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
+    <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> your books are yours. They're stored on your device and — if you create an account — backed up to your own private cloud space so you can sync across devices. We don't show ads, we don't track you, and we never sell your data.</p>
     <div class="legal-h">1. Your data: on your device, and in your account</div>
-    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. A copy stays on your device as an offline cache. If you clear your browser data or remove the App, the on-device copy is deleted — so keep your own backups.</p>
+    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b> so your data can be restored if something goes wrong. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
@@ -1391,14 +1399,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     </ul>
     <div class="legal-h">3. What we do NOT do</div>
     <p>No accounts are required to use the App today. We do not show ads, we do not use analytics or tracking cookies, and we never sell or rent your information.</p>
-    <div class="legal-h">4. Backups and sync codes</div>
-    <p>Exports and "sync codes" are generated by you and stay in your control. If you share a backup or sync code with someone, they can read its contents — treat it like a copy of your books.</p>
+    <div class="legal-h">4. Backups, exports and sync codes</div>
+    <p>The App automatically keeps recent backups on your device, and you can export a full backup file or copy a "sync code" at any time from <b>Data &amp; Sync</b>. Exports and sync codes are generated by you and stay in your control — if you share one, the recipient can read its contents, so treat it like a copy of your books.</p>
     <div class="legal-h">5. Your rights</div>
     <p>Because your data lives on your device, you can access, edit, export or permanently delete it at any time from within the App. Depending on where you live, privacy laws such as Canada's PIPEDA, the EU's GDPR and California's CPRA give you additional rights over personal information; to exercise any right regarding data we may process, contact us below.</p>
     <div class="legal-h">6. Children</div>
     <p>The App is intended for business owners and is not directed at children under 16.</p>
     <div class="legal-h">7. Changes</div>
-    <p>We may update this policy as the App evolves (for example, when optional cloud accounts and sync are introduced). We will revise the effective date above and note material changes in the App.</p>
+    <p>We may update this policy as the App evolves (for example, as cloud accounts, sync and backups develop). We will revise the effective date above and note material changes in the App.</p>
     <div class="legal-h">8. Contact</div>
     <p>Questions about privacy? Contact us at <b>qualityselectiion@gmail.com</b>.</p>
   </div>
@@ -1412,13 +1420,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
     <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 8, 2026 · The Ledger</div>
-    <p style="margin:0 0 14px">By using The Ledger (the "App"), you agree to these Terms. If you do not agree, please do not use the App.</p>
+    <p style="margin:0 0 12px">By using The Ledger (the "App"), you agree to these Terms. If you do not agree, please do not use the App.</p>
+    <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> use The Ledger for your own record-keeping, keep your own backups, and understand it's a tool to help you track your business — not professional accounting, tax or legal advice.</p>
     <div class="legal-h">1. Licence to use</div>
     <p>We grant you a personal, non-exclusive, non-transferable, revocable licence to use the App for your own personal or business record-keeping. We retain all rights, title and interest in the App, including its code, design, and the "The Ledger" name and logo.</p>
     <div class="legal-h">2. Acceptable use</div>
     <p>You agree not to copy, modify, resell, sublicense, reverse-engineer, or attempt to extract the source of the App except as permitted by law, and not to use it for any unlawful purpose.</p>
     <div class="legal-h">3. Your data and accuracy</div>
-    <p>You own the data you enter and are solely responsible for its accuracy and for keeping your own backups. The App is a tool to help you record and estimate; the figures it shows (including profit, stock value and any tax-related amounts) depend entirely on what you enter.</p>
+    <p>You own the data you enter and are solely responsible for its accuracy. The App keeps automatic on-device backups and, with an account, cloud sync — but you remain responsible for keeping your own backups (for example, periodic exports). The App is a tool to help you record and estimate; the figures it shows (including profit, stock value and any tax-related amounts) depend entirely on what you enter.</p>
     <div class="legal-h">4. Not professional advice</div>
     <p>The App is <b>not</b> accounting, bookkeeping, tax, financial, or legal advice and is not a substitute for a qualified professional. You are responsible for your own business decisions and for meeting your tax and legal obligations.</p>
     <div class="legal-h">5. "As is" — no warranty</div>
@@ -1651,27 +1660,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.24.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.25.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🛟</div>
+        <div class="wn-icon">🧾</div>
         <div>
-          <div class="wn-title">Automatic backups</div>
-          <div class="wn-desc">The app now keeps automatic backups of your data on your device — the last several days, stored separately and protected so a sync hiccup can never touch them.</div>
+          <div class="wn-title">Invoice PDFs fixed</div>
+          <div class="wn-desc">Invoices now print perfectly centered, with no website link in the corner — and flow cleanly across multiple pages when needed.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">↩️</div>
+        <div class="wn-icon">⏪</div>
         <div>
-          <div class="wn-title">One-tap Restore</div>
-          <div class="wn-desc">A new Restore screen (More → Data &amp; Sync → Restore) lets you bring your data back from any backup in a single tap, any time.</div>
+          <div class="wn-title">More time to undo</div>
+          <div class="wn-desc">Removed an entry by mistake? The Undo option now stays available for a few minutes instead of seconds.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">🛡️</div>
+        <div class="wn-icon">📄</div>
         <div>
-          <div class="wn-title">Never a blank screen</div>
-          <div class="wn-desc">If your data ever can't load, the app now offers to restore from a backup instead of ever dropping you onto an empty setup screen.</div>
+          <div class="wn-title">Clearer Privacy &amp; Terms</div>
+          <div class="wn-desc">Refreshed, easier to read, and up to date with accounts, cloud sync and automatic backups.</div>
         </div>
       </div>
     </div>
@@ -2006,7 +2015,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.24.2";
+const APP_VER    = "2.25.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2543,7 +2552,7 @@ function _pushUndo(snap){
   _undoStack.unshift(snap);
   if(_undoStack.length > UNDO_MAX) _undoStack.length = UNDO_MAX;
 }
-const UNDO_WINDOW = 300000; // 5 minutes
+const UNDO_WINDOW = 180000; // 3 minutes
 // Draw the undo toast (no timer logic) — used both on delete and when returning
 // to the Activity page while a delete is still undoable.
 function _renderUndoToast(){
@@ -5431,7 +5440,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:"#currencySettings", icon:"🪙", title:"Currency & low-stock alerts", body:"Set your currency once so every figure reads right, and choose a low-stock threshold so the app warns you before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"🔒", title:"Lock it with a PIN", body:"Keep your numbers private. Set a PIN here and The Ledger asks for it on open — quick for you, closed to everyone else." },
   { tab:"settings", sel:"#aiSettings", icon:"🤖", title:"Faster AI advice (optional)", body:"The AI Advisor gives free business tips but can be slow. Paste a free key — about a minute to get — to make it fast. Totally optional." },
-  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up & sync your data", body:"Create a free account to back up to the cloud and sync across devices — sign in with email or Google. Without an account your data lives only on this device, so export a backup; removing the app can erase it." },
+  { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"💾", title:"Back up & sync your data", body:"Create a free account to back up to the cloud and sync across devices — sign in with email or Google. The app also keeps automatic backups on your device, so you can tap Restore here anytime to bring your data back. No account? Your data lives only on this device — export a backup to be safe." },
   { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"📖", title:"Want the full tour?", body:"You've got the essentials — nicely done. For an in-depth walkthrough of every feature, replay the Guide right here anytime. Happy selling!" },
   { tab:"settings", sel:"#installRow", icon:"📲", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed. Step-by-step instructions are inside." },
   { tab:"stock", sel:null, icon:"✨", title:"You're all set", body:"That's Home, Activity and More. Tap Home anytime to return to your dashboard, and replay this Guide from More whenever you like. Happy selling." },
