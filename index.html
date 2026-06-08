@@ -1228,18 +1228,6 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       </div>
     </div>
     <div class="settings-sec">
-      <div class="settings-card">
-        <div class="settings-row" id="replayRow" onclick="replayTour()" style="cursor:pointer">
-          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h6a3.5 3.5 0 0 1 3.5 3.5V21a3 3 0 0 0-3-2.5H2.5z"/><path d="M21.5 4h-6A3.5 3.5 0 0 0 12 7.5V21a3 3 0 0 1 3-2.5h6.5z"/></svg>Replay Guide</span>
-          <span style="color:var(--acc);font-size:14px">›</span>
-        </div>
-        <div class="settings-row" id="installRow" onclick="openSubpage('install')" style="cursor:pointer">
-          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7.5 10.5 12 15 16.5 10.5"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Install on your phone</span>
-          <span style="color:var(--acc);font-size:14px">›</span>
-        </div>
-      </div>
-    </div>
-    <div class="settings-sec">
       <div class="settings-card" id="appearanceCard">
         <div class="settings-row" onclick="openPickerPage('theme')" style="cursor:pointer">
           <span class="settings-row-lbl">Theme</span>
@@ -1274,12 +1262,12 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="settings-sec">
       <div class="settings-sec-title">Business &amp; Invoices</div>
       <div class="settings-card" id="bizInvoiceCard">
-        <div class="settings-row" id="invoicesRow" onclick="openSubpage('invoices')" style="cursor:pointer">
-          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="15" y1="13" x2="9" y2="13"/><line x1="15" y1="17" x2="9" y2="17"/></svg>Invoices</span>
-          <span style="color:var(--acc);font-size:14px">›</span>
-        </div>
         <div class="settings-row" id="businessRow" onclick="openSubpage('business')" style="cursor:pointer">
           <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="13" rx="2"/><path d="M16 20.5V5.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v15"/></svg>Business profile</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+        <div class="settings-row" id="invoicesRow" onclick="openSubpage('invoices')" style="cursor:pointer">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="15" y1="13" x2="9" y2="13"/><line x1="15" y1="17" x2="9" y2="17"/></svg>Invoices</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
         <div class="settings-row" id="teamRow" onclick="openTeam()" style="cursor:pointer;display:none">
@@ -1304,6 +1292,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="settings-sec">
       <div class="settings-sec-title">Data &amp; Sync</div>
       <div id="dataSyncSettings"></div>
+    </div>
+    <div class="settings-sec">
+      <div class="settings-sec-title">Help</div>
+      <div class="settings-card">
+        <div class="settings-row" id="replayRow" onclick="replayTour()" style="cursor:pointer">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h6a3.5 3.5 0 0 1 3.5 3.5V21a3 3 0 0 0-3-2.5H2.5z"/><path d="M21.5 4h-6A3.5 3.5 0 0 0 12 7.5V21a3 3 0 0 1 3-2.5h6.5z"/></svg>Replay Guide</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+        <div class="settings-row" id="installRow" onclick="openSubpage('install')" style="cursor:pointer">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7.5 10.5 12 15 16.5 10.5"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Install on your phone</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+      </div>
     </div>
     <div class="settings-sec">
       <div class="settings-sec-title">Legal</div>
@@ -1715,7 +1716,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.6</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.7</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2063,7 +2064,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.6";
+const APP_VER    = "2.28.7";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5676,16 +5677,16 @@ const TOUR_STEPS = [
   { tab:"log", sel:".log-search-wrap", icon:"search", title:"Find anything fast", body:"Search by product, customer, note or amount to jump straight to any transaction — no scrolling required." },
   { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
   { essential:true, tab:"settings", sel:null, icon:"settings", title:"More — your settings & tools", body:"Your business profile, team, invoices, appearance, security, backups and help all live here. Let's hit the highlights." },
-  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
   { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it your own", body:"Twelve themes, multiple fonts, a custom app icon and ten languages — the whole app restyles instantly." },
+  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
   { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Choose a layout and date style, then share a clean PDF." },
   { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
   { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice", body:"The free AI Advisor can be slow; add a free key (about a minute to set up) to make it instant. Entirely optional." },
   { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"cloud", title:"Back up & sync", body:"Create a free account to back up to the cloud and sync across devices — by email or Google. The app keeps automatic backups too, so you can Restore here any time. Without an account, your data stays on this device only, so export a backup to be safe." },
-  { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"That's the essentials", body:"Nicely done. For a closer look at every feature, replay the full Guide here any time. Happy selling." },
-  { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — no app store needed." },
+  { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"That's the essentials", body:"Nicely done — that's the heart of The Ledger. Replay the full Guide here any time to explore every feature." },
+  { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — tap here for the quick steps." },
   { tab:"stock", sel:null, icon:"check", title:"You're all set", body:"That's the tour. Tap Home any time to return to your dashboard, and replay this Guide from More whenever you like." },
 ];
 let _tourI = 0;
