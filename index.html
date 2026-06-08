@@ -1651,7 +1651,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.24.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.24.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🛟</div>
@@ -2006,7 +2006,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.24.1";
+const APP_VER    = "2.24.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2664,6 +2664,7 @@ function _availableRestorePoints(){
 }
 function _hasBackups(){ return _availableRestorePoints().length>0; }
 let _flushing = false; // serializes cloud writes: never two concurrent saves sharing one LWW base
+let _lastSyncError = "", _lastSyncErrAt = 0; // surface WHY a cloud sync failed (truthful + debuggable)
 // Truthful save/sync indicator — never claims "synced" unless the cloud confirmed the write.
 function _setSaveStatus(state){
   const el = document.getElementById("saveStatus"); if(!el) return;
@@ -2727,7 +2728,10 @@ async function flushToCloud(){
       } catch(_){}
     } else {
       _cloudDirty = true;   // keep dirty; localStorage already holds the truth; retry on reconnect / next change
+      _lastSyncError = String(e && (e.message||e)) || "unknown error";
       _setSaveStatus("offline"); // be truthful: the change is on this device but NOT yet backed up
+      const _now = Date.now();
+      if(_now - _lastSyncErrAt > 12000){ _lastSyncErrAt = _now; try{ showToast("Cloud sync failed — "+_lastSyncError, "err"); }catch(_){ } }
     }
   } finally {
     _flushing = false;
