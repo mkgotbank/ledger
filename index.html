@@ -291,6 +291,19 @@ html.has-data #setupScreen{display:none;}
 .recover-meta{font-size:9.5px;color:var(--txt-d);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
 .recover-btn{background:linear-gradient(135deg,var(--acc-hi),var(--acc));color:#fff;border:none;border-radius:10px;padding:9px 17px;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:var(--font);box-shadow:0 4px 14px var(--acc-glow);flex-shrink:0;}
 .recover-btn:active{transform:scale(.96);}
+/* Team & roles */
+.team-invite-row{display:flex;gap:8px;margin-top:8px;}
+.team-role-sel{flex:1;-webkit-appearance:none;appearance:none;}
+.team-grp{font-size:8px;letter-spacing:2.5px;color:var(--txt-d);text-transform:uppercase;margin:18px 2px 9px;}
+.team-member{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:11px 13px;margin-bottom:8px;box-shadow:0 1px 2px -1px var(--shadow),0 12px 28px -18px var(--shadow);}
+.team-member-email{font-size:12px;font-weight:700;color:var(--txt-b);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-member-sub{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-d);margin-top:2px;}
+.team-badge{font-size:8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--acc);background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:6px;padding:3px 8px;white-space:nowrap;}
+.team-role-edit{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;font-size:10px;padding:5px 6px;font-family:var(--font);-webkit-appearance:none;appearance:none;}
+.team-x{background:none;border:none;color:#e05c5c;font-size:14px;cursor:pointer;padding:2px 5px;line-height:1;}
+.team-pending{opacity:.72;}
+.role-pill{display:inline-block;font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);background:var(--acc-dim);border:1px solid var(--acc-bdr);border-radius:20px;padding:3px 9px;margin-top:5px;}
+.ro-banner{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:13px;padding:11px 14px;font-size:10px;font-weight:600;letter-spacing:.3px;text-align:center;margin-bottom:8px;}
 html.has-data:not(.has-pin) #mainApp{display:block;}
 
 /* Sticky frosted-glass header */
@@ -1149,10 +1162,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 
     <div id="owedCard"></div>
 
-    <div class="qa-strip">
+    <div class="qa-strip" id="qaStrip">
       <button class="btn-sale qa-sale" onclick="openSaleModal()">+ Record Sale</button>
       <button class="qa-restock" onclick="openModal('restock')"><span>↑</span> Restock</button>
     </div>
+    <div id="roReadonly" class="ro-banner" style="display:none">👁 View-only access — ask the owner if you need to record sales.</div>
 
     <div id="manageGroups"></div>
   </div>
@@ -1199,8 +1213,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="settings-sec-title">Account</div>
       <div class="settings-card">
         <div class="settings-row">
-          <span class="settings-row-lbl">Signed in</span>
-          <span id="acctEmail" data-noi18n style="font-size:11px;color:var(--acc);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <span class="settings-row-lbl">Signed in<span id="acctRolePill" class="role-pill" data-noi18n style="display:none;margin-left:8px;margin-top:0"></span></span>
+          <span id="acctEmail" data-noi18n style="font-size:11px;color:var(--acc);max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
         </div>
         <div class="settings-row" id="signOutRow" onclick="doSignOut()" style="cursor:pointer">
           <span class="settings-row-lbl">Sign out</span>
@@ -1261,6 +1275,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         </div>
         <div class="settings-row" id="businessRow" onclick="openSubpage('business')" style="cursor:pointer">
           <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="13" rx="2"/><path d="M16 20.5V5.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v15"/></svg>Business profile</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
+        <div class="settings-row" id="teamRow" onclick="openTeam()" style="cursor:pointer;display:none">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>Team &amp; roles</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
       </div>
@@ -1590,6 +1608,30 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
 </div>
 
+<!-- TEAM PAGE -->
+<div id="teamPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('team')">‹ Back</button>
+    <div class="subpage-title">Team</div>
+  </div>
+  <div class="subpage-body">
+    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:14px">Invite people to your business. They sign in with the email you invite and see only what their role allows.</div>
+    <div class="team-invite">
+      <input id="teamInviteEmail" class="m-input" type="email" inputmode="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="teammate@email.com"/>
+      <div class="team-invite-row">
+        <select id="teamInviteRole" class="m-input team-role-sel">
+          <option value="staff">Staff · record sales &amp; expenses</option>
+          <option value="viewer">Viewer · read-only</option>
+          <option value="admin">Admin · manage everything</option>
+        </select>
+        <button class="btn-sm-acc" onclick="inviteMember()">Invite</button>
+      </div>
+      <div id="teamInviteMsg" class="auth-msg"></div>
+    </div>
+    <div id="teamBody"></div>
+  </div>
+</div>
+
 <!-- INVOICES PAGE -->
 <div id="invoicesPage" class="subpage">
   <div class="subpage-hdr">
@@ -1664,20 +1706,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.27.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">👥</div>
+        <div>
+          <div class="wn-title">Invite your team</div>
+          <div class="wn-desc">Add teammates by email with a role — Staff (record sales &amp; expenses), Viewer (read-only), or Admin (manage everything). Find it in More → Team &amp; roles.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">✨</div>
         <div>
           <div class="wn-title">A cleaner, more refined look</div>
-          <div class="wn-desc">Fresh line icons throughout, a calmer and more premium colour palette, softer depth, and a tidier header — for a more polished, professional feel.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">☁️</div>
-        <div>
-          <div class="wn-title">Cloud backups + real-PDF invoices</div>
-          <div class="wn-desc">In case you missed them: your data now backs up to the cloud (restore from More → Data &amp; Sync), and invoices export as clean PDFs with no link in the corner.</div>
+          <div class="wn-desc">Fresh line icons throughout, a calmer premium colour palette, and softer depth — for a more polished, professional feel.</div>
         </div>
       </div>
     </div>
@@ -2012,7 +2054,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.27.0";
+const APP_VER    = "2.28.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4658,8 +4700,15 @@ function renderLangPickerPage(){
 }
 
 // ── RENDER ALL ──
+function applyRoleGating(){
+  // Viewer = read-only: hide the record/restock entry points, show a banner.
+  const ro = isViewer();
+  const qs=document.getElementById("qaStrip"); if(qs) qs.style.display = ro ? "none" : "";
+  const rb=document.getElementById("roReadonly"); if(rb) rb.style.display = ro ? "block" : "none";
+}
 function renderAll(){
   const s = cur(); if(!s) return;
+  applyRoleGating();
   renderStrainSel();
 
   // Unit bar — weight products show unit buttons; count products show static label
@@ -5181,6 +5230,7 @@ const SUBPAGES = {
   packs:       { el:"packsPage",       render: () => {} },
   customers:   { el:"customersPage",   render: () => renderCustomers() },
   business:    { el:"businessPage",     render: () => renderBusinessPage() },
+  team:        { el:"teamPage",         render: () => renderTeam() },
   invoices:    { el:"invoicesPage",     render: () => renderInvoicesPage() },
   invoice:     { el:"invoicePage",      render: () => renderInvoiceEditor() },
 };
@@ -5267,6 +5317,13 @@ function _backupFallback(code){
 
 function renderSettings(){
   const vl = document.getElementById("appVerLbl"); if(vl) vl.textContent = APP_VER;
+  // Team & roles: only owners/admins see the Team entry. Show everyone their own role
+  // (when signed into a shared business) so non-owners know their access level.
+  try{
+    const tr=document.getElementById("teamRow"); if(tr) tr.style.display = canManage() && SB && Repo.getBusinessId() ? "flex" : "none";
+    const rp=document.getElementById("acctRolePill");
+    if(rp){ const showRole = SB && Repo.getBusinessId() && _role()!=="owner"; rp.style.display = showRole?"inline-block":"none"; rp.textContent = (ROLE_LABELS[_role()]||"")+" access"; }
+  }catch(e){}
 
   // Currency (inside merged Preferences section)
   const curEl = document.getElementById("currencySettings");
@@ -5690,7 +5747,7 @@ function maybeStartTour(){
 // local-only (offline) mode so the user can never be locked out.
 // ═══════════════════════════════════════════════════════════════════════════
 const Repo = {
-  businessId:null, lastSeen:null,
+  businessId:null, lastSeen:null, role:"owner",
   setBusiness(id){ this.businessId = id; },
   getBusinessId(){ return this.businessId; },
   async resolveActiveBusiness(user){
@@ -5752,6 +5809,64 @@ const Repo = {
     if(r.error && !String(r.error.message||"").toLowerCase().includes("already migrated")) throw r.error;
   }
 };
+// ── ROLE CAPABILITIES ──  owner: all · admin: all but delete-biz/owner · staff: record only · viewer: read-only
+// Local-only mode (no account) = full control, so solo users are never gated.
+function _role(){ return (SB && Repo.getBusinessId()) ? (Repo.role || "owner") : "owner"; }
+function canWrite(){ const r=_role(); return r==="owner"||r==="admin"||r==="staff"; } // record sales/expenses/edits
+function canManage(){ const r=_role(); return r==="owner"||r==="admin"; }             // settings, profile, team, invoices
+function isOwner(){ return _role()==="owner"; }
+function isViewer(){ return _role()==="viewer"; }
+const ROLE_LABELS = { owner:"Owner", admin:"Admin", staff:"Staff", viewer:"Viewer" };
+// ── TEAM management UI ──
+function openTeam(){
+  if(!canManage()){ try{ showToast("Only owners and admins can manage the team","err"); }catch(e){} return; }
+  openSubpage('team'); renderTeam();
+}
+async function renderTeam(){
+  const body=document.getElementById("teamBody"); if(!body) return;
+  if(!SB || !Repo.getBusinessId()){ body.innerHTML='<div class="team-grp">Create an account to add a team.</div>'; return; }
+  body.innerHTML='<div class="team-grp">Loading…</div>';
+  let members=[], invites=[];
+  try{ const r=await SB.rpc("list_members",{p_business_id:Repo.getBusinessId()}); if(!r.error && r.data) members=r.data; }catch(e){}
+  try{ const r=await SB.from("pending_invites").select("email,role").eq("business_id",Repo.getBusinessId()); if(!r.error && r.data) invites=r.data; }catch(e){}
+  const roleOpts=(c)=>["staff","viewer","admin"].map(rr=>`<option value="${rr}"${c===rr?" selected":""}>${ROLE_LABELS[rr]}</option>`).join("");
+  const memberRows=members.map(m=>{
+    const isOwn=m.user_id===_bootedUid, owner=m.role==="owner";
+    const right = owner ? `<span class="team-badge">Owner</span>`
+      : isOwn ? `<span class="team-badge">${ROLE_LABELS[m.role]||m.role}</span>`
+      : `<select class="team-role-edit" onchange="changeMemberRole('${m.user_id}',this.value)">${roleOpts(m.role)}</select><button class="team-x" title="Remove" onclick="removeMember('${m.user_id}',${JSON.stringify(m.email||"")})">✕</button>`;
+    return `<div class="team-member"><div style="min-width:0"><div class="team-member-email">${escHtml(m.email||"—")}${isOwn?" · you":""}</div><div class="team-member-sub">${ROLE_LABELS[m.role]||m.role}</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0">${right}</div></div>`;
+  }).join("");
+  const inviteRows=invites.map(iv=>`<div class="team-member team-pending"><div style="min-width:0"><div class="team-member-email">${escHtml(iv.email)}</div><div class="team-member-sub">Invited · ${ROLE_LABELS[iv.role]||iv.role}</div></div><button class="team-x" title="Cancel" onclick="cancelInvite(${JSON.stringify(iv.email)})">✕</button></div>`).join("");
+  body.innerHTML = `<div class="team-grp">Members</div>${memberRows||'<div class="team-member-sub" style="padding:2px">Just you so far.</div>'}`
+    + (inviteRows?`<div class="team-grp">Pending invites</div>${inviteRows}`:"");
+}
+async function inviteMember(){
+  const emailEl=document.getElementById("teamInviteEmail"), roleEl=document.getElementById("teamInviteRole"), msg=document.getElementById("teamInviteMsg");
+  const email=((emailEl&&emailEl.value)||"").trim().toLowerCase(), role=(roleEl&&roleEl.value)||"staff";
+  const set=(t,k)=>{ if(msg){ msg.textContent=t||""; msg.className="auth-msg"+(k?(" "+k):""); } };
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ set("Enter a valid email.","err"); return; }
+  set("Inviting…","ok");
+  try{
+    const r=await SB.rpc("invite_member",{p_business_id:Repo.getBusinessId(), p_email:email, p_role:role});
+    if(r.error){ set(r.error.message||"Couldn't send invite","err"); return; }
+    if(emailEl) emailEl.value=""; set(email+" can now join by signing in with that email.","ok"); renderTeam();
+  }catch(e){ set(String(e&&(e.message||e)),"err"); }
+}
+async function changeMemberRole(uid, role){
+  try{ const r=await SB.rpc("set_member_role",{p_business_id:Repo.getBusinessId(), p_user_id:uid, p_role:role}); showToast(r.error?(r.error.message||"Couldn't update"):"Role updated", r.error?"err":"ok"); }catch(e){ showToast("Couldn't update role","err"); }
+  renderTeam();
+}
+async function removeMember(uid, email){
+  if(!confirm("Remove "+(email||"this member")+" from your business?")) return;
+  try{ const r=await SB.rpc("remove_member",{p_business_id:Repo.getBusinessId(), p_user_id:uid}); showToast(r.error?(r.error.message||"Couldn't remove"):"Removed", r.error?"err":"ok"); }catch(e){ showToast("Couldn't remove member","err"); }
+  renderTeam();
+}
+async function cancelInvite(email){
+  if(!confirm("Cancel the invite to "+email+"?")) return;
+  try{ const r=await SB.rpc("cancel_invite",{p_business_id:Repo.getBusinessId(), p_email:email}); if(r.error) showToast(r.error.message||"Couldn't cancel","err"); }catch(e){}
+  renderTeam();
+}
 const authRepo = {
   signUp(email, pw){ return SB.auth.signUp({ email, password: pw, options:{ emailRedirectTo: location.origin + location.pathname } }); },
   signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
@@ -5763,7 +5878,7 @@ const authRepo = {
     _cloudDirty = false;
     try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
     D = { strains:{}, cur:"" };
-    Repo.setBusiness(null); Repo.lastSeen = null; _cloudBooted = false; _bootedUid = null;
+    Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
   },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
@@ -5932,8 +6047,12 @@ async function bootAuthedUser(sess){
   // "cloud moved on" (a real multi-device conflict).
   const priorBase = _readBase();
   try{
+    // Claim any pending email invites for this user FIRST, so a freshly-invited teammate
+    // is a member before we resolve which business to load. Best-effort.
+    try{ await SB.rpc("accept_my_invites"); }catch(e){}
     const biz = await Repo.resolveActiveBusiness(sess.user);
     Repo.setBusiness(biz.id);
+    Repo.role = biz.role || "owner";   // the current user's role in the active business
     try{ const ae=document.getElementById("acctEmail"); if(ae) ae.textContent = sess.user.email||""; const as=document.getElementById("accountSec"); if(as) as.style.display="block"; }catch(e){}
     let doc=null, loadOk=false; try{ doc = await Repo.loadDoc(); loadOk=true; }catch(e){ doc=null; loadOk=false; }
     const cloudData = (doc && doc.data && doc.data.strains && Object.keys(doc.data.strains).length>0) ? doc.data : null;
@@ -6035,7 +6154,7 @@ function _resetForAccountSwitch(){
   _cloudDirty = false; _flushing = false;
   try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
   D = { strains:{}, cur:"" };
-  Repo.setBusiness(null); Repo.lastSeen = null;
+  Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner";
 }
 function bootLocalFallback(){
   hydrate();
