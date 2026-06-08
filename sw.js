@@ -4,7 +4,7 @@
    This ensures home screen / PWA always serves from cache (fast) and
    updates are applied explicitly by the app, not the CDN. */
 
-const CACHE = 'ledger-v4';
+const CACHE = 'ledger-v5';
 const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/i18n.js', '/ledger/icon.svg',
                '/ledger/icon-monogram.svg', '/ledger/icon-book.svg'];
 
@@ -33,6 +33,24 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
+
+  // Runtime-cache the CDN libraries (supabase, html2canvas, jsPDF) so they load instantly
+  // and work offline after the first fetch — keeps invoice PDF export reliable across the
+  // page reloads that app updates trigger (stale-while-revalidate).
+  if (url.hostname === 'cdn.jsdelivr.net') {
+    event.respondWith(
+      caches.open(CACHE).then(cache =>
+        cache.match(event.request).then(cached => {
+          const net = fetch(event.request)
+            .then(resp => { if (resp && resp.ok) cache.put(event.request, resp.clone()); return resp; })
+            .catch(() => cached);
+          return cached || net;
+        })
+      )
+    );
+    return;
+  }
+
   if (url.origin !== location.origin) return;
 
   const isShell = url.pathname === '/ledger/' ||

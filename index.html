@@ -1662,7 +1662,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.26.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.26.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">🧾</div>
@@ -2017,7 +2017,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.26.2";
+const APP_VER    = "2.26.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3647,7 +3647,8 @@ async function exportInvoicePDF(){
     const fname=`Invoice-${safeNo}.pdf`;
     try{
       const blob=pdf.output("blob"); const file=new File([blob],fname,{type:"application/pdf"});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:`Invoice ${safeNo}`}); }
+      // Share ONLY the file — no title/text/url, so iOS never attaches a link to the app.
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file]}); }
       else { pdf.save(fname); }
     }catch(_){ pdf.save(fname); }
   }catch(err){
