@@ -1716,7 +1716,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.9</div>
+    <div class="wn-badge" id="wnVersion">Version 2.28.10</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2064,7 +2064,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.9";
+const APP_VER    = "2.28.10";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3537,7 +3537,7 @@ function renderInvoiceEditor(){
   const _b = getBusiness();
   const _autoNo = (_b.prefix||"") + String(_b.next||1).padStart(4,"0");
   if(ed) ed.innerHTML = `
-    <div class="inv-frow"><span class="m-lbl">Invoice No.</span><input class="m-input" value="${escAttr(_inv.no||_autoNo)}" placeholder="${escAttr(_autoNo)}" oninput="invSetField('no',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Invoice No. (optional — clear to hide)</span><input class="m-input" value="${escAttr(_inv.no!=null?_inv.no:_autoNo)}" placeholder="${escAttr(_autoNo)}" oninput="invSetField('no',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Customer address (optional)</span><input class="m-input" value="${escAttr(_inv.customerAddress||'')}" placeholder="Street, city" oninput="invSetField('customerAddress',this.value)"/></div>
     <div class="inv-frow2">
@@ -3606,6 +3606,7 @@ const INV_FONTS = [
 ];
 function renderInvoicePaper(inv){
   const b = getBusiness(), t = invTotals(inv), st = invStatus(inv);
+  const dispNo = (inv.no!=null) ? inv.no : (b.prefix + String(b.next).padStart(4,"0"));
   const style = INV_STYLES.some(s=>s.id===b.invStyle) ? b.invStyle : "classic";
   const font  = INV_FONTS.find(f=>f.id===b.invFont) || INV_FONTS[0];
   const logo = b.logo ? `<img src="${b.logo}" alt="" class="inv-logo"/>` : "";
@@ -3620,7 +3621,7 @@ function renderInvoicePaper(inv){
       <div class="inv-head-doc">
         <div class="inv-word">Invoice</div>
         <div class="inv-meta">
-          <div class="inv-mrow"><span class="inv-mk">Invoice No.</span><span class="inv-mv">${escHtml(inv.no || (b.prefix + String(b.next).padStart(4,"0")))}</span></div>
+          ${dispNo ? ('<div class="inv-mrow"><span class="inv-mk">Invoice No.</span><span class="inv-mv">'+escHtml(dispNo)+'</span></div>') : ""}
           ${inv.poNumber?`<div class="inv-mrow"><span class="inv-mk">Reference</span><span class="inv-mv">${escHtml(inv.poNumber)}</span></div>`:""}
           <div class="inv-mrow"><span class="inv-mk">Date</span><span class="inv-mv">${escHtml(_fmtInvDate(inv.date))}</span></div>
           ${inv.dueDate?`<div class="inv-mrow"><span class="inv-mk">${__("Due")}</span><span class="inv-mv">${escHtml(inv.dueDate)}</span></div>`:""}
@@ -3775,7 +3776,7 @@ function saveCurrentInvoice(){
   if(_inv.num == null){
     const b = getBusiness();
     _inv.num = b.next;
-    if(!_inv.no) _inv.no = b.prefix + String(b.next).padStart(4,"0"); // respect a manually-entered number
+    if(_inv.no == null) _inv.no = b.prefix + String(b.next).padStart(4,"0"); // null = assign auto; "" = user cleared it (no number)
     D.business.next = b.next + 1;
     if(!Array.isArray(D.invoices)) D.invoices = [];
     D.invoices.unshift(_inv);
@@ -3795,7 +3796,7 @@ function renderInvoicesPage(){
   if(!list.length){ el.innerHTML=`<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:26px 0">No invoices yet</div>`; return; }
   el.innerHTML=list.map(inv=>{ const t=invTotals(inv), st=invStatus(inv); const c=st==="paid"?"#4caf7a":st==="partial"?"#c9a040":"#e05c5c";
     return `<div class="settings-card" style="padding:0;margin-bottom:10px"><div class="settings-row" onclick="openSavedInvoice(${inv.num})" style="cursor:pointer">
-      <div style="min-width:0"><div class="settings-row-lbl">${escHtml(inv.no||"")} · ${escHtml(inv.customer||"—")}</div>
+      <div style="min-width:0"><div class="settings-row-lbl">${inv.no?escHtml(inv.no)+" · ":""}${escHtml(inv.customer||"—")}</div>
       <div style="font-size:9px;color:var(--txt-d);margin-top:2px">${escHtml(_fmtInvDate(inv.date))} · <span style="color:${c}">${invMoney(t.total)}</span></div></div>
       <div style="display:flex;align-items:center;gap:8px"><span style="font-size:8px;letter-spacing:1px;color:${c};text-transform:uppercase">${st}</span>
         <button class="team-x" title="Delete invoice" onclick="event.stopPropagation();delInvoice(${inv.num})"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
