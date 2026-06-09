@@ -1766,20 +1766,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.35.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.36.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">🔀</div>
+        <div>
+          <div class="wn-title">Two devices, nothing lost</div>
+          <div class="wn-desc">When two devices record sales at the same time, The Ledger now merges both sides automatically — every sale, expense, restock and invoice from each device is kept, and stock totals come out right.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">⇄</div>
         <div>
           <div class="wn-title">Switch between businesses</div>
-          <div class="wn-desc">Part of more than one business? A new "Switch business" row appears in More — tap to jump between them. Each business's data stays completely separate, and your role in each is respected.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">☁️</div>
-        <div>
-          <div class="wn-title">Your look follows your account</div>
-          <div class="wn-desc">Currency symbol and app icon now sync to your account like theme and font — sign in on a new device and everything looks right immediately, no reload needed.</div>
+          <div class="wn-desc">Part of more than one business? A new "Switch business" row appears in More — tap to jump between them. Each business's data stays completely separate.</div>
         </div>
       </div>
     </div>
@@ -2115,7 +2115,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.35.0";
+const APP_VER    = "2.36.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2852,16 +2852,23 @@ async function flushToCloud(){
     }
   } catch(e){
     if(String(e && (e.message||e)).includes("stale_write")){
-      // Another device wrote first. Preserve our pending edit in the recovery key BEFORE adopting
-      // the cloud copy, so a document-level overwrite can never permanently lose it. (Automatic
-      // field-level merge is the larger deferred task — see audit TODO.)
+      // Another device wrote first. Snapshot our pending copy to recovery (belt-and-braces),
+      // then FIELD-LEVEL MERGE our append-only entries into the fresh cloud copy and re-save,
+      // so neither device's recorded sales/expenses/restocks/invoices are dropped.
       try {
-        const doc = await Repo.loadDoc();
+        const doc = await Repo.loadDoc();              // also refreshes the LWW base
         if(doc && doc.data){
           _saveRecovery(snap, "stale_write");
-          D = doc.data; _normalizeD(); _cacheLocalD(); _clearUnsynced(); _setSaveStatus("synced");
+          const m = _mergeDocs(snap, doc.data);        // scaffold = cloud, bring over our appends
+          D = m.doc; _normalizeD(); _cacheLocalD();
+          if(m.added){
+            _cloudDirty = true; _setSaveStatus("saving");   // the finally-block re-flush pushes the merged doc
+            try{ showToast(__("Merged changes from your other device"),"ok"); }catch(_){ }
+          } else {
+            _clearUnsynced(); _setSaveStatus("synced");
+            try{ showToast(__("Synced from your other device"),"ok"); }catch(_){ }
+          }
           try{ renderAll(); }catch(_){ }
-          try{ showToast("Synced from your other device · your unsynced change was backed up","ok"); }catch(_){ }
         }
       } catch(_){}
     } else {
@@ -2895,6 +2902,60 @@ function _readLocalD(){
   try { const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || "null");
         if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
   return null;
+}
+// ── FIELD-LEVEL MERGE (concurrent multi-device edits) ─────────────────────────
+// Union the APPEND-ONLY collections (per-product logs, invoices) by entry id and
+// replay the deltas of entries that exist ONLY on the secondary side onto the
+// scaffold's running totals (stock/earned/useTotal/restockTotal/expenses), so a
+// document-level conflict no longer drops one device's appends to a recovery file.
+// Same-id conflicts (the SAME entry edited on both sides) keep the scaffold's copy —
+// identical to the old document-LWW outcome, never worse. Money totals are added
+// un-rounded, matching how recording does it; weights go through round().
+// _mergeDocs(secondary, scaffold) → { doc, added }: doc starts as a deep copy of
+// `scaffold`; `added` counts entries brought over from `secondary`.
+function _mergeDocs(secondary, scaffold){
+  const out = JSON.parse(JSON.stringify(scaffold && typeof scaffold==="object" ? scaffold : { strains:{}, cur:"" }));
+  out.strains = out.strains || {};
+  let added = 0;
+  if(!secondary || typeof secondary !== "object") return { doc:out, added:0 };
+  const sst = secondary.strains || {};
+  for(const name in sst){
+    const ls = sst[name];
+    if(!ls || typeof ls !== "object") continue;
+    if(!out.strains[name]){                       // product created on one device only → bring it whole
+      out.strains[name] = JSON.parse(JSON.stringify(ls));
+      added += Math.max(1, (ls.logs||[]).length);
+      continue;
+    }
+    const cs = out.strains[name];
+    cs.logs = Array.isArray(cs.logs) ? cs.logs : [];
+    const seen = new Set(cs.logs.map(e => String(e && e.id)));
+    const fresh = (Array.isArray(ls.logs) ? ls.logs : []).filter(e => e && e.id != null && !seen.has(String(e.id)));
+    for(const e of fresh){
+      const w = +e.w || 0, total = +e.total || 0, amt = +e.amount || 0;
+      if(e.type === "sale"){      cs.stock = round((cs.stock||0) - w); cs.earned = (cs.earned||0) + total; }
+      else if(e.type === "restock"){ cs.stock = round((cs.stock||0) + w); cs.restockTotal = round((cs.restockTotal||0) + w); }
+      else if(e.type === "use"){  cs.stock = round((cs.stock||0) - w); cs.useTotal = round((cs.useTotal||0) + w); }
+      else if(e.type === "expense"){ cs.expenses = (cs.expenses||0) + amt; }
+      cs.logs.push({ ...e, after:null });         // the running balance is stale once merged
+      seen.add(String(e.id)); added++;
+    }
+    if(fresh.length){
+      cs.logs.sort((a,b) => (+(b&&b.id)||0) - (+(a&&a.id)||0));   // newest-first, the app's invariant
+      if((cs.stock||0) < 0) cs.stock = 0;                          // concurrent over-sell can't go negative
+      cs.startStock = Math.max(cs.startStock||0, cs.stock||0);
+    }
+  }
+  // Invoices: append-only, keyed by id (invoice number as fallback for legacy rows).
+  const ikey = inv => String(inv && (inv.id != null ? inv.id : inv.no));
+  out.invoices = Array.isArray(out.invoices) ? out.invoices : [];
+  const ik = new Set(out.invoices.map(ikey));
+  let invAdded = false;
+  for(const inv of (Array.isArray(secondary.invoices) ? secondary.invoices : [])){
+    if(inv && !ik.has(ikey(inv))){ out.invoices.push(JSON.parse(JSON.stringify(inv))); ik.add(ikey(inv)); added++; invAdded = true; }
+  }
+  if(invAdded) out.invoices.sort((a,b) => (+(b&&b.id)||0) - (+(a&&a.id)||0));
+  return { doc:out, added };
 }
 // Normalize whatever just landed in D (from cloud OR localStorage): migrations + defaults.
 function _normalizeD(){
@@ -4755,7 +4816,9 @@ try{
   "Owner": {"es":"Propietario","zh":"所有者","hi":"मालिक","ar":"المالك","fr":"Propriétaire","pt":"Proprietário","ru":"Владелец","de":"Inhaber","ja":"オーナー"},
   "Admin": {"es":"Administrador","zh":"管理员","hi":"एडमिन","ar":"مسؤول","fr":"Administrateur","pt":"Administrador","ru":"Администратор","de":"Administrator","ja":"管理者"},
   "Staff": {"es":"Personal","zh":"员工","hi":"स्टाफ़","ar":"موظف","fr":"Personnel","pt":"Equipe","ru":"Сотрудник","de":"Mitarbeiter","ja":"スタッフ"},
-  "Viewer": {"es":"Observador","zh":"查看者","hi":"व्यूअर","ar":"مشاهد","fr":"Lecteur","pt":"Visualizador","ru":"Наблюдатель","de":"Betrachter","ja":"閲覧者"}
+  "Viewer": {"es":"Observador","zh":"查看者","hi":"व्यूअर","ar":"مشاهد","fr":"Lecteur","pt":"Visualizador","ru":"Наблюдатель","de":"Betrachter","ja":"閲覧者"},
+  "Merged changes from your other device": {"es":"Cambios de tu otro dispositivo fusionados","zh":"已合并来自您其他设备的更改","hi":"आपके दूसरे डिवाइस के बदलाव मर्ज कर दिए गए","ar":"تم دمج التغييرات من جهازك الآخر","fr":"Modifications de votre autre appareil fusionnées","pt":"Alterações do seu outro dispositivo mescladas","ru":"Изменения с другого устройства объединены","de":"Änderungen von Ihrem anderen Gerät zusammengeführt","ja":"他のデバイスからの変更を統合しました"},
+  "Synced from your other device": {"es":"Sincronizado desde tu otro dispositivo","zh":"已从您的其他设备同步","hi":"आपके दूसरे डिवाइस से सिंक हो गया","ar":"تمت المزامنة من جهازك الآخر","fr":"Synchronisé depuis votre autre appareil","pt":"Sincronizado do seu outro dispositivo","ru":"Синхронизировано с другого устройства","de":"Von Ihrem anderen Gerät synchronisiert","ja":"他のデバイスから同期しました"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -6369,22 +6432,33 @@ async function bootAuthedUser(sess){
       _cacheLocalD();
     } else if(localUnsynced && loadOk && cloudMoved && !priorBase && cloudData){
       // AMBIGUOUS: unsynced local, but NO base to compare recency against (e.g. only ever
-      // edited offline). Prefer the local cache the user has actually been using on this
-      // device, but snapshot the cloud copy to recovery first so a genuine other-device
-      // write is never lost. (Single-device — the common case — gets the right answer.)
+      // edited offline). Keep the local copy the user has actually been using on this device
+      // as the scaffold, and MERGE IN any cloud-only appends (another device's entries), so
+      // neither side is lost. Cloud copy still snapshotted to recovery first.
       _saveRecovery(cloudData, "ambiguous-cloud");
-      D = local;
+      const ma = _mergeDocs(cloudData, local);          // scaffold = local, bring over cloud appends
+      D = ma.doc;
       try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced"); }
       catch(e){ _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline"); }
+      if(ma.added){ try{ showToast(__("Merged changes from your other device"),"ok"); }catch(e){} }
       _cacheLocalD();
     } else if(localUnsynced && loadOk && cloudMoved){
       // CONFLICT: a known base existed and the cloud moved PAST it → another device genuinely
-      // wrote. We can't auto-merge yet, so preserve local in the recovery key (never lost) and
-      // adopt the cloud as authoritative.
+      // wrote. Snapshot local to recovery (belt-and-braces), then FIELD-LEVEL MERGE our local
+      // appends into the authoritative cloud copy and push the merged doc back.
       _saveRecovery(local, "conflict");
-      D = cloudData || (doc && doc.data && typeof doc.data==="object" ? doc.data : { strains:{}, cur:"" });
-      _cacheLocalD(); _clearUnsynced();
-      try{ showToast("Synced from your other device · unsynced changes were backed up","ok"); }catch(e){}
+      const base = cloudData || (doc && doc.data && typeof doc.data==="object" ? doc.data : { strains:{}, cur:"" });
+      const mc = _mergeDocs(local, base);               // scaffold = cloud, bring over local appends
+      D = mc.doc;
+      if(mc.added){
+        try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced"); }
+        catch(e){ _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline"); }
+        try{ showToast(__("Merged changes from your other device"),"ok"); }catch(e){}
+      } else {
+        _clearUnsynced();
+        try{ showToast(__("Synced from your other device"),"ok"); }catch(e){}
+      }
+      _cacheLocalD();
     } else if(cloudData){
       D = cloudData; _cacheLocalD(); _clearUnsynced();// cloud has real data → authoritative; mirror to offline cache
     } else if(biz.fresh && local && loadOk){
