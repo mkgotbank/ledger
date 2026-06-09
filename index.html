@@ -416,6 +416,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .log-entry.restock{background:var(--card);border:1px solid rgba(76,175,122,0.18);border-left:3px solid #3a8a5a;}
 .log-entry.use{background:var(--card);border:1px solid rgba(224,92,92,0.16);border-left:3px solid #c05050;}
 .log-entry.expense{background:var(--card);border:1px solid rgba(224,92,92,0.16);border-left:3px solid #c05050;}
+.log-by{color:var(--acc);font-weight:700;}
 .log-inner{display:flex;justify-content:space-between;align-items:flex-start;}
 .log-lt .log-title{font-size:11px;font-weight:700;}
 .log-lt .log-title.g{color:#4caf7a;}
@@ -1418,7 +1419,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">1. Your data: on your device, and in your account</div>
     <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
-    <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward.</p>
+    <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense or other entry, the App stores which member created it so the activity history shows who did what.</p>
     <div class="legal-h">3. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
@@ -1716,7 +1717,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.28.10</div>
+    <div class="wn-badge" id="wnVersion">Version 2.29.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">👥</div>
@@ -2064,7 +2065,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.28.10";
+const APP_VER    = "2.29.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3888,7 +3889,7 @@ function doRestock(){
   s.stock = ns;
   s.startStock   = Math.max(s.startStock||0, ns);
   s.restockTotal = round((s.restockTotal||0) + addAmt);
-  s.logs.unshift({ id:Date.now(), type:"restock", w:addAmt, date:now(), after:ns });
+  s.logs.unshift({ id:Date.now(), type:"restock", w:addAmt, date:now(), after:ns, ..._actorStamp() });
   showToast("+" + restockAmt + " " + unitSingular(s) + " added", "ok");
   closeModal("restock");
   persist(); renderAll();
@@ -3903,7 +3904,7 @@ function doUse(){
   const ns = round(s.stock - useAmt_);
   s.stock = ns;
   s.useTotal = round((s.useTotal||0) + useAmt_);
-  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns });
+  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns, ..._actorStamp() });
   showToast(useAmt + " " + unitSingular(s) + " logged");
   persist(); renderAll();
 }
@@ -3937,7 +3938,7 @@ function confirmSale(){
     const earned = it.total!=null ? it.total : it.price*it.qty;
     st.stock = round(st.stock - it.w);
     st.earned = (st.earned||0) + earned;
-    const entry = { id:(batchId ? batchId+i : Date.now()), type:"sale", pack:it.type, qty:it.qty, price:it.price, total:earned, w:it.w, note:(i===items.length-1 ? note : ""), date:now(), after:st.stock, payment:salePayment };
+    const entry = { id:(batchId ? batchId+i : Date.now()), type:"sale", pack:it.type, qty:it.qty, price:it.price, total:earned, w:it.w, note:(i===items.length-1 ? note : ""), date:now(), after:st.stock, payment:salePayment, ..._actorStamp() };
     if(saleTag) entry.tag = saleTag;
     if(it.disc) entry.discount = it.disc;
     if(saleCustomer) entry.customer = saleCustomer;
@@ -4020,7 +4021,7 @@ function confirmExp(){
     s.expenses = val; showToast("Expenses updated");
   } else {
     s.expenses = (s.expenses||0) + val;
-    s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, category:expCategory, date:now() });
+    s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, category:expCategory, date:now(), ..._actorStamp() });
     showToast(fmtDollar(val) + " expense logged");
   }
   closeModal("exp"); persist(); renderAll();
@@ -4910,6 +4911,7 @@ function renderLog(){
 }
 // Render one non-batched log entry (sale / restock / use / expense).
 function renderSingleLog(l, s){
+    const byTag = (l.byId && l.byId !== _me.id && l.by) ? (' · <span class="log-by">'+escHtml(l.by)+'</span>') : "";
     const invBtn = l.type==="sale" ? `<button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button>` : "";
     const actions = `<div class="log-actions">${invBtn}<button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
@@ -4922,13 +4924,13 @@ function renderSingleLog(l, s){
     const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
-      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="restock")
-      inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
-      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="expense")
-      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
+      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
     return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
 }
@@ -4936,6 +4938,7 @@ function renderSingleLog(l, s){
 // grouped card. The denormalized batchItems list shows the whole purchase even
 // when viewed from a single product's feed. Swipe deletes the entire purchase.
 function renderBatchCard(l, s){
+  const byTag = (l.byId && l.byId !== _me.id && l.by) ? (' · <span class="log-by">'+escHtml(l.by)+'</span>') : "";
   const items = l.batchItems || [];
   const multiProd = Object.keys(D.strains||{}).length > 1;
   const lines = items.map(it => `<div class="log-note">• ${it.qty}× ${escHtml(it.label)}${multiProd?` <span style="color:var(--txt-d)">(${escHtml(it.strain)})</span>`:""} — ${fmtDollar(it.total)}</div>`).join("");
@@ -4943,7 +4946,7 @@ function renderBatchCard(l, s){
   const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
   const unpaidBadge = (l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
   const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
-  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button></div></div>`;
+  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button></div></div>`;
   return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
 }
 
@@ -5690,7 +5693,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it your own", body:"Twelve themes, multiple fonts, a custom app icon and ten languages — the whole app restyles instantly." },
   { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
   { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Choose a layout and date style, then share a clean PDF." },
-  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows." },
+  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Activity log shows who recorded each sale and expense, so you have a clear record of who did what." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
   { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice", body:"The free AI Advisor can be slow; add a free key (about a minute to set up) to make it instant. Entirely optional." },
@@ -5871,6 +5874,7 @@ function canManage(){ const r=_role(); return r==="owner"||r==="admin"; }       
 function isOwner(){ return _role()==="owner"; }
 function isViewer(){ return _role()==="viewer"; }
 const ROLE_LABELS = { owner:"Owner", admin:"Admin", staff:"Staff", viewer:"Viewer" };
+function _actorStamp(){ return (SB && Repo.getBusinessId() && _me.id) ? { by:_me.label, byId:_me.id } : {}; }
 // ── TEAM management UI ──
 function openTeam(){
   if(!canManage()){ try{ showToast("Only owners and admins can manage the team","err"); }catch(e){} return; }
@@ -5932,7 +5936,7 @@ const authRepo = {
     _cloudDirty = false;
     try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
     D = { strains:{}, cur:"" };
-    Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _cloudBooted = false; _bootedUid = null;
+    Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
   },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
@@ -6093,9 +6097,11 @@ async function authSubmit(){
 }
 // ---- boot ----
 let _cloudBooted = false, _inRecovery = false, _bootedUid = null;
+let _me = { id:null, label:"" };
 async function bootAuthedUser(sess){
   showSplash();
   _bootedUid = sess.user.id;
+  try{ const _md=(sess.user.user_metadata)||{}; _me = { id:sess.user.id, label:String(_md.full_name||_md.name||(sess.user.email||"").split("@")[0]||"member").trim() }; }catch(e){ _me={id:sess.user.id,label:""}; }
   // Capture the sync-base from BEFORE this boot's loadDoc overwrites it — lets us tell
   // "cloud is unchanged since our last confirmed sync" (safe to push local) apart from
   // "cloud moved on" (a real multi-device conflict).
@@ -6208,7 +6214,7 @@ function _resetForAccountSwitch(){
   _cloudDirty = false; _flushing = false;
   try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
   D = { strains:{}, cur:"" };
-  Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner";
+  Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" };
 }
 function bootLocalFallback(){
   hydrate();
