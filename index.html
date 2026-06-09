@@ -1747,7 +1747,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.32.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.32.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">⇄</div>
@@ -2089,7 +2089,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.32.0";
+const APP_VER    = "2.32.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3672,7 +3672,7 @@ function renderInvoicePaper(inv){
     </div></div>
     <div class="inv-statusrow"><span class="inv-status inv-st-${st}">${stLabel}</span></div>
     ${inv.note?`<div class="inv-note">${escHtml(inv.note)}</div>`:""}
-    ${(b.etransfer && (b.etransferEmail||b.email))?`<div class="inv-terms inv-pay"><div class="inv-terms-h">INTERAC e-TRANSFER</div><div class="inv-terms-b">Send to: ${escHtml(b.etransferEmail||b.email)}${dispNo?`<br>Please use invoice ${escHtml(dispNo)} as the message.`:""}</div></div>`:""}
+    ${(b.etransfer && (b.etransferEmail||b.email))?`<div class="inv-terms inv-pay"><div class="inv-terms-h"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:7px"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>INTERAC e-TRANSFER</div><div class="inv-terms-b">Send to: ${escHtml(b.etransferEmail||b.email)}${dispNo?`<br>Please use invoice ${escHtml(dispNo)} as the message.`:""}</div></div>`:""}
     ${inv.payInfo?`<div class="inv-terms inv-pay"><div class="inv-terms-h">${__("PAYMENT DETAILS")}</div><div class="inv-terms-b">${escHtml(inv.payInfo)}</div></div>`:""}
     ${inv.terms?`<div class="inv-terms"><div class="inv-terms-h">${__("TERMS")}</div><div class="inv-terms-b">${escHtml(inv.terms)}</div></div>`:""}
     <div class="inv-foot">${escHtml(__("Thank you for your business") + (b.name?(" — "+b.name):""))}</div>
