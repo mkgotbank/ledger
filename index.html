@@ -1281,6 +1281,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
           <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Audit log</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
+        <div class="settings-row" id="bizSwitchRow" onclick="openBizSwitch()" style="cursor:pointer;display:none">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Switch business</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
       </div>
     </div>
     <div class="settings-sec">
@@ -1426,6 +1430,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
     <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense, restock or other entry, our servers record which member created it — stamped from their verified sign-in, so the entry's author cannot be altered or faked — and this is shown to owners and admins in the <b>Audit log</b> so there is a reliable record of who did what.</p>
+    <p>If you belong to <b>more than one business</b>, you can switch between them from <b>More → Switch business</b>. Each business's data is kept completely separate: switching only changes which business you are viewing, and your access to each is always governed by your role in that business.</p>
     <div class="legal-h">3. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
@@ -1651,6 +1656,18 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
 </div>
 
+<!-- BUSINESS SWITCHER PAGE -->
+<div id="bizSwitchPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('bizswitch')">‹ Back</button>
+    <div class="subpage-title">Switch Business</div>
+  </div>
+  <div class="subpage-body">
+    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:14px">You belong to more than one business. Tap one to switch — each business's data stays completely separate.</div>
+    <div id="bizSwitchBody"></div>
+  </div>
+</div>
+
 <!-- AUDIT LOG PAGE -->
 <div id="auditPage" class="subpage">
   <div class="subpage-hdr">
@@ -1749,13 +1766,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.33.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.34.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon">⇄</div>
+        <div>
+          <div class="wn-title">Switch between businesses</div>
+          <div class="wn-desc">Part of more than one business? A new "Switch business" row appears in More — tap to jump between them. Each business's data stays completely separate, and your role in each is respected.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon">🌐</div>
         <div>
           <div class="wn-title">Sign-in screen in your language</div>
-          <div class="wn-desc">The sign-in, sign-up and password-reset screens — including every message — now appear in all 10 supported languages, right-to-left for Arabic too.</div>
+          <div class="wn-desc">The sign-in, sign-up and password-reset screens now appear in all 10 supported languages, right-to-left for Arabic too.</div>
         </div>
       </div>
     </div>
@@ -2091,7 +2115,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.33.0";
+const APP_VER    = "2.34.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2807,7 +2831,7 @@ function persist(){
 }
 // Mirror the in-memory D to localStorage WITHOUT scheduling a cloud write. Used when
 // adopting cloud data at boot/sync so the offline cache matches what was just loaded.
-function _cacheLocalD(){ try{ const j=JSON.stringify(D); localStorage.setItem(SK,j); localStorage.setItem(SK_BAK,j); }catch(e){} }
+function _cacheLocalD(){ try{ const j=JSON.stringify(D); localStorage.setItem(SK,j); localStorage.setItem(SK_BAK,j); if(typeof Repo!=="undefined" && Repo.businessId) localStorage.setItem("ledger_cache_biz", String(Repo.businessId)); }catch(e){} }
 async function flushToCloud(){
   if(!SB || !_cloudDirty || !Repo.getBusinessId()) return;
   if(_flushing) return;                 // a save is already in flight — don't start a second on the same base
@@ -4086,7 +4110,7 @@ async function doResetAll(){
          if(Repo.lastSeen==null) await Repo.loadDoc();
          await Repo.saveDoc({ strains:{}, cur:"", invoices:[], business:{} }); }catch(e){}
   }
-  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); } catch(e){}
+  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
   try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
@@ -4712,6 +4736,26 @@ const LANGS = [
   { code:"de", name:"German",     native:"Deutsch",    flag:"🇩🇪" },
   { code:"ja", name:"Japanese",   native:"日本語",       flag:"🇯🇵" },
 ];
+// Business-switcher keys (v2.34.0) merged here in-app — they ship with index.html;
+// i18n.js stays the master dictionary for everything else and always wins on conflict.
+try{
+  window.LEDGER_I18N = window.LEDGER_I18N || {};
+  const _EXTRA_I18N = {
+  "Switch business": {"es":"Cambiar de negocio","zh":"切换商家","hi":"व्यवसाय बदलें","ar":"تبديل النشاط التجاري","fr":"Changer d'entreprise","pt":"Trocar de negócio","ru":"Сменить бизнес","de":"Unternehmen wechseln","ja":"ビジネスを切り替え"},
+  "Switch Business": {"es":"Cambiar de negocio","zh":"切换商家","hi":"व्यवसाय बदलें","ar":"تبديل النشاط التجاري","fr":"Changer d'entreprise","pt":"Trocar de negócio","ru":"Сменить бизнес","de":"Unternehmen wechseln","ja":"ビジネスを切り替え"},
+  "You belong to more than one business. Tap one to switch — each business's data stays completely separate.": {"es":"Perteneces a más de un negocio. Toca uno para cambiar — los datos de cada negocio se mantienen completamente separados.","zh":"您属于多个商家。点按即可切换 — 每个商家的数据完全独立。","hi":"आप एक से अधिक व्यवसायों से जुड़े हैं। बदलने के लिए किसी एक पर टैप करें — हर व्यवसाय का डेटा पूरी तरह अलग रहता है।","ar":"أنت عضو في أكثر من نشاط تجاري. انقر على أحدها للتبديل — تبقى بيانات كل نشاط منفصلة تمامًا.","fr":"Vous appartenez à plusieurs entreprises. Touchez-en une pour changer — les données de chaque entreprise restent totalement séparées.","pt":"Você faz parte de mais de um negócio. Toque em um para trocar — os dados de cada negócio ficam totalmente separados.","ru":"Вы состоите более чем в одном бизнесе. Нажмите на нужный, чтобы переключиться — данные каждого бизнеса хранятся полностью отдельно.","de":"Sie gehören zu mehr als einem Unternehmen. Tippen Sie auf eines, um zu wechseln — die Daten jedes Unternehmens bleiben vollständig getrennt.","ja":"複数のビジネスに所属しています。タップで切り替え — 各ビジネスのデータは完全に分離されています。"},
+  "Unnamed business": {"es":"Negocio sin nombre","zh":"未命名商家","hi":"बिना नाम का व्यवसाय","ar":"نشاط تجاري بدون اسم","fr":"Entreprise sans nom","pt":"Negócio sem nome","ru":"Бизнес без названия","de":"Unbenanntes Unternehmen","ja":"名前のないビジネス"},
+  "No businesses found.": {"es":"No se encontraron negocios.","zh":"未找到商家。","hi":"कोई व्यवसाय नहीं मिला।","ar":"لم يتم العثور على أنشطة تجارية.","fr":"Aucune entreprise trouvée.","pt":"Nenhum negócio encontrado.","ru":"Бизнесы не найдены.","de":"Keine Unternehmen gefunden.","ja":"ビジネスが見つかりません。"},
+  "Switching business…": {"es":"Cambiando de negocio…","zh":"正在切换商家…","hi":"व्यवसाय बदला जा रहा है…","ar":"جارٍ تبديل النشاط التجاري…","fr":"Changement d'entreprise…","pt":"Trocando de negócio…","ru":"Переключаем бизнес…","de":"Unternehmen wird gewechselt…","ja":"ビジネスを切り替えています…"},
+  "products": {"es":"productos","zh":"件商品","hi":"उत्पाद","ar":"منتجات","fr":"produits","pt":"produtos","ru":"товаров","de":"Produkte","ja":"件の商品"},
+  "Loading…": {"es":"Cargando…","zh":"加载中…","hi":"लोड हो रहा है…","ar":"جارٍ التحميل…","fr":"Chargement…","pt":"Carregando…","ru":"Загрузка…","de":"Wird geladen…","ja":"読み込み中…"},
+  "Owner": {"es":"Propietario","zh":"所有者","hi":"मालिक","ar":"المالك","fr":"Propriétaire","pt":"Proprietário","ru":"Владелец","de":"Inhaber","ja":"オーナー"},
+  "Admin": {"es":"Administrador","zh":"管理员","hi":"एडमिन","ar":"مسؤول","fr":"Administrateur","pt":"Administrador","ru":"Администратор","de":"Administrator","ja":"管理者"},
+  "Staff": {"es":"Personal","zh":"员工","hi":"स्टाफ़","ar":"موظف","fr":"Personnel","pt":"Equipe","ru":"Сотрудник","de":"Mitarbeiter","ja":"スタッフ"},
+  "Viewer": {"es":"Observador","zh":"查看者","hi":"व्यूअर","ar":"مشاهد","fr":"Lecteur","pt":"Visualizador","ru":"Наблюдатель","de":"Betrachter","ja":"閲覧者"}
+  };
+  for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
+}catch(e){}
 const I18N = window.LEDGER_I18N || {};  // en → { es, zh, hi, ar, fr, pt, ru, de, ja }
 function _langObj(c){ return LANGS.find(l => l.code === c) || LANGS[0]; }
 function detectLang(){
@@ -5338,6 +5382,7 @@ const SUBPAGES = {
   customers:   { el:"customersPage",   render: () => renderCustomers() },
   business:    { el:"businessPage",     render: () => renderBusinessPage() },
   team:        { el:"teamPage",         render: () => renderTeam() },
+  bizswitch:   { el:"bizSwitchPage",    render: () => renderBizSwitch() },
   audit:       { el:"auditPage",        render: () => renderAudit() },
   invoices:    { el:"invoicesPage",     render: () => renderInvoicesPage() },
   invoice:     { el:"invoicePage",      render: () => renderInvoiceEditor() },
@@ -5431,6 +5476,8 @@ function renderSettings(){
     const _showMgr = canManage() && SB && Repo.getBusinessId();
     const tr=document.getElementById("teamRow"); if(tr) tr.style.display = _showMgr ? "flex" : "none";
     const ar=document.getElementById("auditRow"); if(ar) ar.style.display = _showMgr ? "flex" : "none";
+    // Switch business: any role, but only when the user actually belongs to 2+ businesses.
+    const bs=document.getElementById("bizSwitchRow"); if(bs) bs.style.display = (SB && (Repo.myMemberships||[]).length>1) ? "flex" : "none";
     const rp=document.getElementById("acctRolePill");
     if(rp){ const showRole = SB && Repo.getBusinessId() && _role()!=="owner"; rp.style.display = showRole?"inline-block":"none"; rp.textContent = (ROLE_LABELS[_role()]||"")+" access"; }
   }catch(e){}
@@ -5874,6 +5921,17 @@ const Repo = {
       if(attempt < 2) await new Promise(res => setTimeout(res, 400 * (attempt+1)));
     }
     if(rows){
+      this.myMemberships = rows;   // for the Switch-business UI (renderSettings shows the row when 2+)
+      // The user explicitly chose a business on this device — honor it while they're still a
+      // member; clear a stale preference (e.g. they were removed from that team).
+      try{
+        const pref = localStorage.getItem("ledger_pref_biz");
+        if(pref){
+          const hit = rows.find(m => String(m.business_id) === pref);
+          if(hit) return { id:hit.business_id, fresh:false, role:hit.role };
+          localStorage.removeItem("ledger_pref_biz");
+        }
+      }catch(e){}
       const owners = rows.filter(m => m.role === "owner");
       const candidates = owners.length ? owners : rows;
       if(candidates.length === 1){ return { id:candidates[0].business_id, fresh:false, role:candidates[0].role }; }
@@ -5930,6 +5988,39 @@ const ROLE_LABELS = { owner:"Owner", admin:"Admin", staff:"Staff", viewer:"Viewe
 function _actorStamp(){ return (SB && Repo.getBusinessId() && _me.id) ? { by:_me.label, byId:_me.id } : {}; }
 // Tamper-proof audit: best-effort, fire-and-forget event with a server-stamped author (auth.uid()).
 function _logActivity(type, summary, clientId){ try{ if(!SB || !Repo.getBusinessId()) return; SB.rpc("log_activity", { p_business_id:Repo.getBusinessId(), p_type:String(type), p_summary:summary||{}, p_client_id:(clientId!=null?String(clientId):null) }).then(()=>{}, ()=>{}); }catch(e){} }
+// ── MULTI-BUSINESS SWITCHER ──  visible to any role, only when the user belongs to 2+ businesses.
+function openBizSwitch(){ openSubpage('bizswitch'); }
+async function renderBizSwitch(){
+  const body=document.getElementById("bizSwitchBody"); if(!body) return;
+  const rows=(Repo.myMemberships||[]);
+  body.innerHTML='<div class="team-member-sub" style="padding:2px">'+__("Loading…")+'</div>';
+  // Best-effort detail (name / product count / last activity) — RLS lets members read their
+  // own businesses. If the lookup fails we still list memberships so switching always works.
+  let info={};
+  try{
+    const r=await SB.from("businesses").select("id,data,updated_at").in("id", rows.map(m=>m.business_id));
+    if(!r.error && r.data) r.data.forEach(b=>{ info[b.id]=b; });
+  }catch(e){}
+  const cur=String(Repo.getBusinessId()||"");
+  body.innerHTML = rows.map(m=>{
+    const b=info[m.business_id]||{};
+    const name=(b.data && b.data.business && b.data.business.name) || __("Unnamed business");
+    const products=(b.data && b.data.strains) ? Object.keys(b.data.strains).length : 0;
+    const on=String(m.business_id)===cur;
+    return `<div class="team-member" style="cursor:pointer" onclick="switchBusiness('${String(m.business_id).replace(/[^\w-]/g,"")}')">
+      <div style="min-width:0"><div class="team-member-email">${escHtml(name)}${on?' <span class="team-badge">✓</span>':''}</div>
+      <div class="team-member-sub">${__(ROLE_LABELS[m.role]||m.role)} · ${products} ${__("products")}</div></div>
+      ${on?'':'<span style="color:var(--acc);font-size:14px">›</span>'}</div>`;
+  }).join("") || '<div class="team-member-sub">'+__("No businesses found.")+'</div>';
+  try{ i18nApply(); }catch(e){}
+}
+function switchBusiness(id){
+  if(String(id)===String(Repo.getBusinessId()||"")){ closeSubpage('bizswitch'); return; }
+  try{ _flushNow(); }catch(e){}                                   // push pending edits for the CURRENT business
+  try{ localStorage.setItem("ledger_pref_biz", String(id)); }catch(e){}
+  try{ showToast(__("Switching business…"),"ok"); }catch(e){}
+  setTimeout(()=>location.reload(), 250);                         // boot resolves the new preference
+}
 // ── TEAM management UI ──
 function openTeam(){
   if(!canManage()){ try{ showToast("Only owners and admins can manage the team","err"); }catch(e){} return; }
@@ -6066,7 +6157,7 @@ const authRepo = {
     // or re-upload the previous user's data (cross-account/tenant leak).
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
-    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
+    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
@@ -6252,7 +6343,11 @@ async function bootAuthedUser(sess){
     try{ const ae=document.getElementById("acctEmail"); if(ae) ae.textContent = sess.user.email||""; const as=document.getElementById("accountSec"); if(as) as.style.display="block"; }catch(e){}
     let doc=null, loadOk=false; try{ doc = await Repo.loadDoc(); loadOk=true; }catch(e){ doc=null; loadOk=false; }
     const cloudData = (doc && doc.data && doc.data.strains && Object.keys(doc.data.strains).length>0) ? doc.data : null;
-    const local = _readLocalD();
+    let local = _readLocalD();
+    // The on-device cache is tagged with the business it belongs to. If it was written for a
+    // DIFFERENT business (multi-business switching), it must never be imported into — or
+    // pushed over — this one, so treat it as absent. Untagged legacy caches pass through.
+    try{ const cb=localStorage.getItem("ledger_cache_biz"); if(local && cb && cb!==String(biz.id)) local=null; }catch(e){}
     // This device has edits the cloud never confirmed (UNSYNCED flag for THIS exact business
     // survived a reload). Whether we can safely push them depends on whether the cloud moved
     // since our last confirmed sync.
@@ -6348,7 +6443,7 @@ async function bootAuthedUser(sess){
 function _resetForAccountSwitch(){
   try{ clearTimeout(_persistTimer); }catch(e){}
   _cloudDirty = false; _flushing = false;
-  try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); }catch(e){}
+  try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
   D = { strains:{}, cur:"" };
   Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" };
 }
