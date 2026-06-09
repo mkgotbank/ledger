@@ -1654,8 +1654,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Audit Log</div>
   </div>
   <div class="subpage-body">
-    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:12px">A tamper-proof record of who recorded, removed or edited each sale, expense and restock — so nothing is hidden, even a mistaken entry that was deleted. Entries marked <b style="color:var(--acc)">✓</b> have a verified author stamped by the server.</div>
+    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:12px">A tamper-proof record of who recorded, removed or edited each sale, expense, restock and invoice — so nothing is hidden, even a mistaken entry that was deleted. Entries marked <b style="color:var(--acc)">✓</b> have a verified author stamped by the server.</div>
     <button class="btn-sm-acc" id="auditImportBtn" onclick="backfillAudit()" style="margin-bottom:14px">Import past entries</button>
+    <div class="log-search-wrap">
+      <input class="log-search-in" id="auditSearch" placeholder="Search by person, type or amount…" autocomplete="off" oninput="onAuditSearch(this.value)"/>
+      <button class="log-search-clear" id="auditSearchClear" onclick="clearAuditSearch()" style="display:none">✕</button>
+    </div>
+    <div id="auditFilterRow" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:5px;margin-bottom:8px;-webkit-overflow-scrolling:touch">
+      <button class="lf-btn on" data-af="all"     onclick="setAuditFilter('all',this)">All</button>
+      <button class="lf-btn"    data-af="sale"    onclick="setAuditFilter('sale',this)">Sales</button>
+      <button class="lf-btn"    data-af="stock"   onclick="setAuditFilter('stock',this)">Stock</button>
+      <button class="lf-btn"    data-af="expense" onclick="setAuditFilter('expense',this)">Expenses</button>
+      <button class="lf-btn"    data-af="invoice" onclick="setAuditFilter('invoice',this)">Invoices</button>
+    </div>
     <div id="auditBody"></div>
   </div>
 </div>
@@ -1734,13 +1745,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.30.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.31.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon">✓</div>
         <div>
-          <div class="wn-title">Tamper-proof audit log</div>
-          <div class="wn-desc">See exactly who recorded each sale, expense and restock — with the author verified and stamped by the server, so it can't be edited or faked. Owners &amp; admins find it in More → Audit log.</div>
+          <div class="wn-title">A fuller audit log</div>
+          <div class="wn-desc">The audit log now records every sale, expense, restock <b>and invoice</b> — including anything removed, edited or restored — so nothing is hidden. Filter by type, search by person or amount, and entries are grouped by day. Owners &amp; admins find it in More → Audit log.</div>
         </div>
       </div>
     </div>
@@ -2075,7 +2086,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.30.0";
+const APP_VER    = "2.31.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3793,6 +3804,7 @@ function saveCurrentInvoice(){
     D.business.next = b.next + 1;
     if(!Array.isArray(D.invoices)) D.invoices = [];
     D.invoices.unshift(_inv);
+    try{ _logActivity("invoice", { no:(_inv.no!=null?_inv.no:null), total:invTotals(_inv).total }, "inv-"+_inv.num); }catch(e){}
   } else {
     // already saved — keep the stored copy in sync
     const idx = D.invoices.findIndex(x=>x.num===_inv.num);
@@ -3801,7 +3813,7 @@ function saveCurrentInvoice(){
   persist();
 }
 function openSavedInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(inv){ _inv=inv; openSubpage("invoice"); } }
-function deleteInvoice(num){ D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
+function deleteInvoice(num){ const _di=(D.invoices||[]).find(x=>x.num===num); try{ if(_di) _logActivity("delete", { was:"invoice", no:(_di.no!=null?_di.no:null), total:invTotals(_di).total }, null); }catch(e){} D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
 function delInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(confirm("Delete invoice "+((inv&&inv.no)||"")+"? This can't be undone.")) deleteInvoice(num); }
 function renderInvoicesPage(){
   const el=document.getElementById("invoicesList"); if(!el) return;
@@ -5952,32 +5964,56 @@ async function cancelInvite(email){
   renderTeam();
 }
 // ── AUDIT LOG (tamper-proof, server-stamped) ──
-function openAudit(){ if(!canManage()){ try{ showToast("Owners and admins only","err"); }catch(e){} return; } openSubpage('audit'); renderAudit(); }
+function openAudit(){ if(!canManage()){ try{ showToast("Owners and admins only","err"); }catch(e){} return; } _auditFilter="all"; _auditSearch=""; const _as=document.getElementById("auditSearch"); if(_as) _as.value=""; const _ac=document.getElementById("auditSearchClear"); if(_ac) _ac.style.display="none"; const _ar=document.getElementById("auditFilterRow"); if(_ar) _ar.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("data-af")==="all")); openSubpage('audit'); renderAudit(); }
 function _auditSummary(type, s){
   s=s||{};
   if(type==="sale") return (s.total!=null?fmtDollar(s.total):"")+(s.items>1?(" · "+s.items+" items"):"");
   if(type==="expense") return (s.amount!=null?fmtDollar(s.amount):"")+(s.category?(" · "+escHtml(String(s.category))):"");
   if(type==="restock"||type==="use") return (s.amount!=null?String(s.amount):"")+(s.product?(" · "+escHtml(String(s.product))):"");
+  if(type==="invoice") return (s.no!=null&&s.no!==""?("#"+escHtml(String(s.no))):"no number")+(s.total!=null?(" · "+fmtDollar(s.total)):"");
   if(type==="delete"||type==="restore"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(inner?(" · "+inner):""); }
   if(type==="edit"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(s.field?(" "+escHtml(String(s.field))):"")+(inner?(" · "+inner):""); }
   return "";
 }
-function _auditTypeLabel(t){ const m={ sale:"sale", restock:"restock", use:"internal use", expense:"expense", delete:"removed", restore:"restored", edit:"edited" }; return escHtml(String(m[t]||t||"")); }
+function _auditTypeLabel(t){ const m={ sale:"sale", restock:"restock", use:"internal use", expense:"expense", invoice:"invoice", delete:"removed", restore:"restored", edit:"edited" }; return escHtml(String(m[t]||t||"")); }
 function _fmtAuditTime(t){ try{ return new Date(t).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+function _fmtAuditClock(t){ try{ return new Date(t).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+function _auditDayLabel(t){ try{ const d=new Date(t),n=new Date(); const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()),b=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const diff=Math.round((a-b)/86400000); if(diff===0)return "Today"; if(diff===1)return "Yesterday"; return d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"}); }catch(e){ return ""; } }
+// Subject = what the event is about (a delete/edit/restore inherits its target's subject),
+// so filtering by "Sales" catches both a sale and a removed sale — mirrors the Activity tab.
+function _auditSubject(r){ const t=r&&r.type; if(t==="delete"||t==="restore"||t==="edit"){ return (r.summary&&r.summary.was)||t; } return t; }
+function _auditCategory(r){ const s=_auditSubject(r); if(s==="sale")return "sale"; if(s==="restock"||s==="use")return "stock"; if(s==="expense")return "expense"; if(s==="invoice")return "invoice"; return "other"; }
+let _auditRows=null, _auditFilter="all", _auditSearch="";
 async function renderAudit(){
   const body=document.getElementById("auditBody"); if(!body) return;
   if(!SB || !Repo.getBusinessId()){ body.innerHTML='<div class="team-grp">Create an account to use the audit log.</div>'; return; }
   body.innerHTML='<div class="team-grp">Loading…</div>';
   let rows=[];
-  try{ const r=await SB.from("activity_events").select("actor_label,type,summary,source,created_at").eq("business_id",Repo.getBusinessId()).order("created_at",{ascending:false}).limit(300); if(!r.error && r.data) rows=r.data; }catch(e){}
-  if(!rows.length){ body.innerHTML='<div class="team-member-sub" style="padding:2px">No recorded activity yet. New sales, expenses and restocks will appear here with a verified author. Tap "Import past entries" to bring in your existing history.</div>'; return; }
-  body.innerHTML = rows.map(r=>{
-    const verified = r.source==="live";
-    const who = r.actor_label || (verified?"member":"(unknown)");
-    const sum = _auditSummary(r.type, r.summary);
-    const label = _auditTypeLabel(r.type);
-    return `<div class="team-member"><div style="min-width:0"><div class="team-member-email">${escHtml(who)}${verified?"":' <span style="opacity:.55;font-weight:400">· imported</span>'}</div><div class="team-member-sub">${label}${sum?(" · "+sum):""} · ${_fmtAuditTime(r.created_at)}</div></div>${verified?'<span class="team-badge" title="Server-verified author">✓</span>':""}</div>`;
-  }).join("");
+  try{ const r=await SB.from("activity_events").select("actor_label,type,summary,source,created_at").eq("business_id",Repo.getBusinessId()).order("created_at",{ascending:false}).limit(500); if(!r.error && r.data) rows=r.data; }catch(e){}
+  _auditRows=rows;
+  _renderAuditList();
+}
+function setAuditFilter(f, btn){ _auditFilter=f; const row=document.getElementById("auditFilterRow"); if(row) row.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b===btn)); _renderAuditList(); }
+function onAuditSearch(v){ _auditSearch=(v||"").trim().toLowerCase(); const c=document.getElementById("auditSearchClear"); if(c) c.style.display=_auditSearch?"block":"none"; _renderAuditList(); }
+function clearAuditSearch(){ _auditSearch=""; const el=document.getElementById("auditSearch"); if(el) el.value=""; const c=document.getElementById("auditSearchClear"); if(c) c.style.display="none"; _renderAuditList(); }
+function _renderAuditList(){
+  const body=document.getElementById("auditBody"); if(!body) return;
+  let rows=_auditRows||[];
+  if(!rows.length){ body.innerHTML='<div class="team-member-sub" style="padding:2px">No recorded activity yet. New sales, expenses, restocks and invoices will appear here with a verified author. Tap "Import past entries" to bring in your existing history.</div>'; return; }
+  if(_auditFilter!=="all") rows=rows.filter(r=>_auditCategory(r)===_auditFilter);
+  if(_auditSearch){ const q=_auditSearch; rows=rows.filter(r=>{ const blob=((r.actor_label||"")+" "+_auditTypeLabel(r.type)+" "+_auditSummary(r.type,r.summary)+" "+(r.type||"")).toLowerCase(); return blob.includes(q); }); }
+  if(!rows.length){ body.innerHTML='<div class="team-member-sub" style="padding:2px">No matching activity.</div>'; return; }
+  let html="", lastDay="";
+  rows.forEach(r=>{
+    const day=_auditDayLabel(r.created_at);
+    if(day!==lastDay){ html+=`<div class="team-grp" style="margin-top:14px">${escHtml(day)}</div>`; lastDay=day; }
+    const verified=r.source==="live";
+    const who=r.actor_label || (verified?"member":"(unknown)");
+    const sum=_auditSummary(r.type, r.summary);
+    const label=_auditTypeLabel(r.type);
+    html+=`<div class="team-member"><div style="min-width:0"><div class="team-member-email">${escHtml(who)}${verified?"":' <span style="opacity:.55;font-weight:400">· imported</span>'}</div><div class="team-member-sub">${label}${sum?(" · "+sum):""} · ${_fmtAuditClock(r.created_at)}</div></div>${verified?'<span class="team-badge" title="Server-verified author">✓</span>':""}</div>`;
+  });
+  body.innerHTML=html;
 }
 function _buildBackfillEvents(){
   const evs=[];
