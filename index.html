@@ -1749,20 +1749,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.32.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.33.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">⚡</div>
+        <div class="wn-icon">🌐</div>
         <div>
-          <div class="wn-title">Faster, more reliable updates</div>
-          <div class="wn-desc">Fixed an issue where new versions weren't saved for offline use right away — updates now land instantly and work offline from the first launch.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">♿</div>
-        <div>
-          <div class="wn-title">Easier sign-in</div>
-          <div class="wn-desc">Press Enter to sign in, your email field is focused automatically, and the sign-in screen now works properly with screen readers.</div>
+          <div class="wn-title">Sign-in screen in your language</div>
+          <div class="wn-desc">The sign-in, sign-up and password-reset screens — including every message — now appear in all 10 supported languages, right-to-left for Arabic too.</div>
         </div>
       </div>
     </div>
@@ -2098,7 +2091,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.32.2";
+const APP_VER    = "2.33.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -6165,17 +6158,21 @@ function authSetMode(m){
   if(gWrap) gWrap.style.display = showG ? "flex" : "none";
   if(gOr) gOr.style.display = showG ? "flex" : "none";
   if(!sub) return;
-  if(m==="signup"){ sub.textContent="Create your account"; btn.textContent="Create Account"; toggle.textContent="Have an account? Sign in"; if(pw) pw.placeholder="Choose a password (6+ characters)"; }
-  else if(m==="reset"){ sub.textContent="Reset your password"; btn.textContent="Send Reset Link"; toggle.textContent="Back to sign in"; }
-  else if(m==="reset-new"){ sub.textContent="Set a new password"; btn.textContent="Update Password"; toggle.textContent=""; if(pw){ pw.style.display="block"; pw.placeholder="New password"; } }
-  else { sub.textContent="Sign in to your account"; btn.textContent="Sign In"; toggle.textContent="New here? Create an account"; if(pw) pw.placeholder="Password"; }
+  // i18n: translate now via __() AND refresh i18nApply's placeholder cache (dataset),
+  // otherwise the next global i18nApply pass would stomp a JS-set placeholder back
+  // to the cached markup original.
+  const _ph=(el,s)=>{ if(el){ el.placeholder=__(s); el.dataset.i18nplaceholder=s; } };
+  if(m==="signup"){ sub.textContent=__("Create your account"); btn.textContent=__("Create Account"); toggle.textContent=__("Have an account? Sign in"); _ph(pw,"Choose a password (6+ characters)"); }
+  else if(m==="reset"){ sub.textContent=__("Reset your password"); btn.textContent=__("Send Reset Link"); toggle.textContent=__("Back to sign in"); }
+  else if(m==="reset-new"){ sub.textContent=__("Set a new password"); btn.textContent=__("Update Password"); toggle.textContent=""; if(pw){ pw.style.display="block"; _ph(pw,"New password"); } }
+  else { sub.textContent=__("Sign in to your account"); btn.textContent=__("Sign In"); toggle.textContent=__("New here? Create an account"); _ph(pw,"Password"); }
 }
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
 // Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
 async function authGoogle(){
-  if(!SB){ _authMsg("Cloud sign-in isn't available right now.","err"); return; }
-  _authMsg("Opening Google…","ok");
+  if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
+  _authMsg(__("Opening Google…"),"ok");
   try{
     const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
     if(r && r.error){ _authMsg(r.error.message,"err"); }
@@ -6185,15 +6182,15 @@ async function authGoogle(){
 let _resendAt = 0;
 async function authResend(){
   const email=(document.getElementById("authEmail").value||"").trim();
-  if(!email){ _authMsg("Enter your email above first, then tap Resend.","err"); try{ document.getElementById("authEmail").focus(); }catch(e){} return; }
+  if(!email){ _authMsg(__("Enter your email above first, then tap Resend."),"err"); try{ document.getElementById("authEmail").focus(); }catch(e){} return; }
   const now=Date.now();
-  if(now-_resendAt < 20000){ _authMsg("Just a moment — you can resend again in a few seconds.","ok"); return; }
+  if(now-_resendAt < 20000){ _authMsg(__("Just a moment — you can resend again in a few seconds."),"ok"); return; }
   const link=document.getElementById("authResend");
   if(link) link.style.pointerEvents="none", link.style.opacity="0.6";
   try{
     const r=await authRepo.resendConfirm(email);
     if(r && r.error){ _authMsg(r.error.message,"err"); }
-    else { _resendAt=now; _authMsg("Confirmation email sent. Check your inbox (and spam) and tap the link — it'll bring you right back here.","ok"); }
+    else { _resendAt=now; _authMsg(__("Confirmation email sent. Check your inbox (and spam) and tap the link — it'll bring you right back here."),"ok"); }
   }catch(e){ _authMsg(String(e && (e.message||e)),"err"); }
   finally{ if(link) link.style.pointerEvents="", link.style.opacity=""; }
 }
@@ -6204,16 +6201,16 @@ async function authSubmit(){
   const lock=(on)=>{ if(btn){ btn.disabled=on; btn.style.opacity=on?"0.6":""; } };
   try{
     if(_authMode==="reset"){
-      if(!email){ _authMsg("Enter your email.","err"); return; }
+      if(!email){ _authMsg(__("Enter your email."),"err"); return; }
       lock(true); const r=await authRepo.requestReset(email); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
-      _authMsg("Check your email for a reset link.","ok"); return;
+      _authMsg(__("Check your email for a reset link."),"ok"); return;
     }
     if(_authMode==="reset-new"){
-      if(pw.length<6){ _authMsg("Password must be at least 6 characters.","err"); return; }
+      if(pw.length<6){ _authMsg(__("Password must be at least 6 characters."),"err"); return; }
       lock(true); const r=await authRepo.setNewPassword(pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
-      _authMsg("Password updated.","ok");
+      _authMsg(__("Password updated."),"ok");
       _inRecovery=false;   // recovery complete — now allow the session to boot into the app
       try{ const s=(await SB.auth.getSession()).data.session;
            if(s && s.user && (!_cloudBooted || _bootedUid !== s.user.id)){
@@ -6222,12 +6219,12 @@ async function authSubmit(){
            } }catch(e){}
       return;
     }
-    if(!email || pw.length<6){ _authMsg("Enter your email and a password (6+ characters).","err"); return; }
+    if(!email || pw.length<6){ _authMsg(__("Enter your email and a password (6+ characters)."),"err"); return; }
     lock(true);
     if(_authMode==="signup"){
       const r=await authRepo.signUp(email, pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
-      if(!(r.data && r.data.session)){ _authMsg("Account created! Check your email and tap the confirmation link — it'll bring you right back here, signed in.","ok"); authSetMode("signin"); }
+      if(!(r.data && r.data.session)){ _authMsg(__("Account created! Check your email and tap the confirmation link — it'll bring you right back here, signed in."),"ok"); authSetMode("signin"); }
     } else {
       const r=await authRepo.signIn(email, pw); lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
@@ -6341,7 +6338,7 @@ async function bootAuthedUser(sess){
     // Arrived here via an email-confirmation link → confirm it plainly.
     if(window.__authReturn && window.__authReturn.confirmed){
       window.__authReturn.confirmed = false;
-      try{ showToast("✓ Email verified — you're signed in.","ok"); }catch(e){}
+      try{ showToast(__("✓ Email verified — you're signed in."),"ok"); }catch(e){}
     }
   }catch(e){ bootLocalFallback(); }
 }
@@ -6382,7 +6379,7 @@ function initBoot(){
           _cloudBooted=false; showAuthScreen();
           if(window.__authReturn && window.__authReturn.error){
             const msg = window.__authReturn.error; window.__authReturn.error = "";
-            _authMsg("This verification link is invalid or has expired. Please sign in, or sign up again to get a fresh link.","err");
+            _authMsg(__("This verification link is invalid or has expired. Please sign in, or sign up again to get a fresh link."),"err");
           }
         }
       });
