@@ -1467,17 +1467,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <p>You own the data you enter and are solely responsible for its accuracy. The App keeps automatic on-device backups and, with an account, cloud sync — but you remain responsible for keeping your own backups (for example, periodic exports). The App is a tool to help you record and estimate; the figures it shows (including profit, stock value and any tax-related amounts) depend entirely on what you enter.</p>
     <div class="legal-h">5. Not professional advice</div>
     <p>The App is <b>not</b> accounting, bookkeeping, tax, financial, or legal advice and is not a substitute for a qualified professional. You are responsible for your own business decisions and for meeting your tax and legal obligations.</p>
-    <div class="legal-h">6. "As is" — no warranty</div>
+    <div class="legal-h">6. Invoices and payments</div>
+    <p>The App helps you create invoices and record how you were paid (for example by Interac e-Transfer, card, cash or other methods). The App does <b>not</b> process payments or handle funds: any payment arrangement — including an e-Transfer — is made directly between you and your customer through your own bank or payment provider, and we are not a party to it. You are responsible for the payment details you choose to display on your invoices and for confirming you have actually been paid before marking an invoice as paid.</p>
+    <div class="legal-h">7. "As is" — no warranty</div>
     <p>The App is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, accuracy, and uninterrupted availability. We do not guarantee the App will be error-free or available at all times.</p>
-    <div class="legal-h">7. Limitation of liability</div>
+    <div class="legal-h">8. Limitation of liability</div>
     <p>To the maximum extent permitted by law, we are not liable for any indirect, incidental, special or consequential damages, or for any loss of data, profits or revenue, arising from your use of (or inability to use) the App. Some jurisdictions do not allow certain limitations, so some of the above may not apply to you.</p>
-    <div class="legal-h">8. Third-party services</div>
+    <div class="legal-h">9. Third-party services</div>
     <p>The App relies on third-party services — including hosting, cloud accounts and sync, authentication (including optional Google sign-in), and optional AI features — that are governed by their own terms and privacy policies.</p>
-    <div class="legal-h">9. Changes and availability</div>
+    <div class="legal-h">10. Changes and availability</div>
     <p>We may update, change or discontinue the App or these Terms at any time. Continued use after a change means you accept the updated Terms.</p>
-    <div class="legal-h">10. Governing law</div>
+    <div class="legal-h">11. Governing law</div>
     <p>These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada applicable there, without regard to conflict-of-law rules.</p>
-    <div class="legal-h">11. Contact</div>
+    <div class="legal-h">12. Contact</div>
     <p>Questions about these Terms? Contact us at <b>qualityselectiion@gmail.com</b>.</p>
   </div>
 </div>
@@ -1745,13 +1747,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.31.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.32.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">✓</div>
+        <div class="wn-icon">⇄</div>
         <div>
-          <div class="wn-title">A fuller audit log</div>
-          <div class="wn-desc">The audit log now records every sale, expense, restock <b>and invoice</b> — including anything removed, edited or restored — so nothing is hidden. Filter by type, search by person or amount, and entries are grouped by day. Owners &amp; admins find it in More → Audit log.</div>
+          <div class="wn-title">Accept Interac e-Transfer</div>
+          <div class="wn-desc">Turn it on in More → Business profile and your e-Transfer details appear cleanly on every invoice — perfect if you get paid by e-Transfer. It's off by default. You can also tag a sale as paid by e-Transfer.</div>
         </div>
       </div>
     </div>
@@ -1823,6 +1825,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="pay-btns" id="payBtns">
         <button class="pay-btn on" onclick="setPayment('Cash',this)">💵 Cash</button>
         <button class="pay-btn" onclick="setPayment('Card',this)">💳 Card</button>
+        <button class="pay-btn" id="payBtnEtransfer" onclick="setPayment('e-Transfer',this)" style="display:none">⇄ e-Transfer</button>
         <button class="pay-btn" onclick="setPayment('Other',this)">⋯ Other</button>
       </div>
     </div>
@@ -2086,7 +2089,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.31.0";
+const APP_VER    = "2.32.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3166,7 +3169,8 @@ function openSaleModal(){
   if(ti){ ti.textContent = "＋"; }
   // Reset payment + discount
   salePayment = "Cash"; saleDiscountType = "amt";
-  document.querySelectorAll(".pay-btn").forEach((b,i)=>b.classList.toggle("on", i===0));
+  const _etb = document.getElementById("payBtnEtransfer"); if(_etb) _etb.style.display = getBusiness().etransfer ? "" : "none";
+  document.querySelectorAll(".pay-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("onclick")==="setPayment('Cash',this)"));
   const dp = document.getElementById("saleDiscPanel"); if(dp) dp.style.display = "none";
   const di = document.getElementById("saleDiscToggleIcon"); if(di) di.textContent = "＋";
   const dt = document.getElementById("discTypeAmt"); if(dt) dt.classList.add("on");
@@ -3453,6 +3457,7 @@ function getBusiness(){
   return { name:b.name||"", logo:b.logo||"", address:b.address||"", phone:b.phone||"",
            email:b.email||"", taxId:b.taxId||"", taxRate:+b.taxRate||0,
            prefix:b.prefix||"INV-", next:+b.next||1, terms:b.terms||"", payInfo:b.payInfo||"",
+           etransfer:!!b.etransfer, etransferEmail:b.etransferEmail||"",
            invStyle:b.invStyle||"classic", invFont:b.invFont||"sans", invDateFmt:b.invDateFmt||"long" };
 }
 function _round2(n){ return Math.round((+n||0)*100)/100; }
@@ -3667,6 +3672,7 @@ function renderInvoicePaper(inv){
     </div></div>
     <div class="inv-statusrow"><span class="inv-status inv-st-${st}">${stLabel}</span></div>
     ${inv.note?`<div class="inv-note">${escHtml(inv.note)}</div>`:""}
+    ${(b.etransfer && (b.etransferEmail||b.email))?`<div class="inv-terms inv-pay"><div class="inv-terms-h">INTERAC e-TRANSFER</div><div class="inv-terms-b">Send to: ${escHtml(b.etransferEmail||b.email)}${dispNo?`<br>Please use invoice ${escHtml(dispNo)} as the message.`:""}</div></div>`:""}
     ${inv.payInfo?`<div class="inv-terms inv-pay"><div class="inv-terms-h">${__("PAYMENT DETAILS")}</div><div class="inv-terms-b">${escHtml(inv.payInfo)}</div></div>`:""}
     ${inv.terms?`<div class="inv-terms"><div class="inv-terms-h">${__("TERMS")}</div><div class="inv-terms-b">${escHtml(inv.terms)}</div></div>`:""}
     <div class="inv-foot">${escHtml(__("Thank you for your business") + (b.name?(" — "+b.name):""))}</div>
@@ -3851,6 +3857,7 @@ function onBusinessLogo(evt){
   rd.readAsDataURL(f);
 }
 function saveBusinessField(k,v){ if(!D.business||typeof D.business!=="object") D.business={}; D.business[k] = (k==="taxRate")?(parseFloat(v)||0):v; persist(); }
+function toggleEtransfer(){ if(!D.business||typeof D.business!=="object") D.business={}; D.business.etransfer = !D.business.etransfer; if(D.business.etransfer && !D.business.etransferEmail) D.business.etransferEmail = D.business.email||""; persist(); renderBusinessPage(); }
 function clearBusinessLogo(){ if(D.business) D.business.logo=""; persist(); renderBusinessPage(); }
 function renderBusinessPage(){
   const el=document.getElementById("businessFields"); if(!el) return;
@@ -3875,6 +3882,14 @@ function renderBusinessPage(){
     </div>
     <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Default payment details</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 1234 …  ·  PayPal / payment link" oninput="saveBusinessField('payInfo',this.value)">${escHtml(b.payInfo||'')}</textarea></div>
+    <div class="inv-frow" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px">
+      <div style="min-width:0">
+        <span class="m-lbl" style="margin:0">Accept Interac e-Transfer</span>
+        <div class="sm" style="color:var(--txt-d);margin-top:2px">Shows e-Transfer details on your invoices</div>
+      </div>
+      <button class="lf-btn${b.etransfer?' on':''}" id="etToggle" onclick="toggleEtransfer()" style="flex:none">${b.etransfer?'On':'Off'}</button>
+    </div>
+    ${b.etransfer?`<div class="inv-frow"><span class="m-lbl">e-Transfer email</span><input class="m-input" value="${escAttr(b.etransferEmail||b.email||'')}" placeholder="you@email.com" inputmode="email" oninput="saveBusinessField('etransferEmail',this.value)"/></div>`:''}
     <div class="inv-frow"><span class="m-lbl">Default invoice terms</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="saveBusinessField('terms',this.value)">${escHtml(b.terms||'')}</textarea></div>
     <div class="sec-lbl" style="margin-top:18px">Invoice design</div>
     <div class="inv-stylebar" style="margin-top:8px">${invStyleBarHTML()}</div>`;
@@ -5727,7 +5742,7 @@ const TOUR_STEPS = [
   { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
   { essential:true, tab:"settings", sel:null, icon:"settings", title:"More — your settings & tools", body:"Your business profile, team, invoices, appearance, security, backups and help all live here. Let's hit the highlights." },
   { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it your own", body:"Twelve themes, multiple fonts, a custom app icon and ten languages — the whole app restyles instantly." },
-  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
+  { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically. Get paid by Interac e-Transfer? Switch it on here and your details show cleanly on each invoice." },
   { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Choose a layout and date style, then share a clean PDF." },
   { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Audit log records who entered each sale, expense and restock, with the author verified by the server so it can't be faked." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
