@@ -1275,6 +1275,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
           <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>Team &amp; roles</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
+        <div class="settings-row" id="auditRow" onclick="openAudit()" style="cursor:pointer;display:none">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Audit log</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
       </div>
     </div>
     <div class="settings-sec">
@@ -1419,7 +1423,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">1. Your data: on your device, and in your account</div>
     <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
-    <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense or other entry, the App stores which member created it so the activity history shows who did what.</p>
+    <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense, restock or other entry, our servers record which member created it — stamped from their verified sign-in, so the entry's author cannot be altered or faked — and this is shown to owners and admins in the <b>Audit log</b> so there is a reliable record of who did what.</p>
     <div class="legal-h">3. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
@@ -1643,6 +1647,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
 </div>
 
+<!-- AUDIT LOG PAGE -->
+<div id="auditPage" class="subpage">
+  <div class="subpage-hdr">
+    <button class="subpage-back" onclick="closeSubpage('audit')">‹ Back</button>
+    <div class="subpage-title">Audit Log</div>
+  </div>
+  <div class="subpage-body">
+    <div style="font-size:11px;color:var(--txt-d);line-height:1.6;margin-bottom:12px">A tamper-proof record of who logged each sale, expense and restock. Entries marked <b style="color:var(--acc)">✓</b> have a verified author stamped by the server.</div>
+    <button class="btn-sm-acc" id="auditImportBtn" onclick="backfillAudit()" style="margin-bottom:14px">Import past entries</button>
+    <div id="auditBody"></div>
+  </div>
+</div>
+
 <!-- INVOICES PAGE -->
 <div id="invoicesPage" class="subpage">
   <div class="subpage-hdr">
@@ -1717,20 +1734,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.29.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.30.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">👥</div>
+        <div class="wn-icon">✓</div>
         <div>
-          <div class="wn-title">Invite your team</div>
-          <div class="wn-desc">Add teammates by email with a role — Staff (record sales &amp; expenses), Viewer (read-only), or Admin (manage everything). Find it in More → Team &amp; roles.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon">✨</div>
-        <div>
-          <div class="wn-title">A cleaner, more refined look</div>
-          <div class="wn-desc">Fresh line icons throughout, a calmer premium colour palette, and softer depth — for a more polished, professional feel.</div>
+          <div class="wn-title">Tamper-proof audit log</div>
+          <div class="wn-desc">See exactly who recorded each sale, expense and restock — with the author verified and stamped by the server, so it can't be edited or faked. Owners &amp; admins find it in More → Audit log.</div>
         </div>
       </div>
     </div>
@@ -2065,7 +2075,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.29.0";
+const APP_VER    = "2.30.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3890,6 +3900,7 @@ function doRestock(){
   s.startStock   = Math.max(s.startStock||0, ns);
   s.restockTotal = round((s.restockTotal||0) + addAmt);
   s.logs.unshift({ id:Date.now(), type:"restock", w:addAmt, date:now(), after:ns, ..._actorStamp() });
+  _logActivity("restock", { product:D.cur, amount:addAmt, after:ns }, null);
   showToast("+" + restockAmt + " " + unitSingular(s) + " added", "ok");
   closeModal("restock");
   persist(); renderAll();
@@ -3905,6 +3916,7 @@ function doUse(){
   s.stock = ns;
   s.useTotal = round((s.useTotal||0) + useAmt_);
   s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns, ..._actorStamp() });
+  _logActivity("use", { product:D.cur, amount:useAmt_, after:ns }, null);
   showToast(useAmt + " " + unitSingular(s) + " logged");
   persist(); renderAll();
 }
@@ -3951,6 +3963,7 @@ function confirmSale(){
     }
     st.logs.unshift(entry);
   });
+  try{ const _stot = isBatch ? batchTotal : items.reduce((a,it)=>a+(it.total!=null?it.total:it.price*it.qty),0); _logActivity("sale", { total:_stot, items:items.length, payment:salePayment }, isBatch?String(batchId):("s"+Date.now())); }catch(e){}
   // Restore the product the modal opened on, reset state, close.
   bulkCart = []; saleDiscount = 0; salePartialPaid = 0;
   if(saleOpenStrain && D.strains[saleOpenStrain]) D.cur = saleOpenStrain;
@@ -4022,6 +4035,7 @@ function confirmExp(){
   } else {
     s.expenses = (s.expenses||0) + val;
     s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, category:expCategory, date:now(), ..._actorStamp() });
+    _logActivity("expense", { amount:val, category:expCategory, note:note }, null);
     showToast(fmtDollar(val) + " expense logged");
   }
   closeModal("exp"); persist(); renderAll();
@@ -5288,6 +5302,7 @@ const SUBPAGES = {
   customers:   { el:"customersPage",   render: () => renderCustomers() },
   business:    { el:"businessPage",     render: () => renderBusinessPage() },
   team:        { el:"teamPage",         render: () => renderTeam() },
+  audit:       { el:"auditPage",        render: () => renderAudit() },
   invoices:    { el:"invoicesPage",     render: () => renderInvoicesPage() },
   invoice:     { el:"invoicePage",      render: () => renderInvoiceEditor() },
 };
@@ -5377,7 +5392,9 @@ function renderSettings(){
   // Team & roles: only owners/admins see the Team entry. Show everyone their own role
   // (when signed into a shared business) so non-owners know their access level.
   try{
-    const tr=document.getElementById("teamRow"); if(tr) tr.style.display = canManage() && SB && Repo.getBusinessId() ? "flex" : "none";
+    const _showMgr = canManage() && SB && Repo.getBusinessId();
+    const tr=document.getElementById("teamRow"); if(tr) tr.style.display = _showMgr ? "flex" : "none";
+    const ar=document.getElementById("auditRow"); if(ar) ar.style.display = _showMgr ? "flex" : "none";
     const rp=document.getElementById("acctRolePill");
     if(rp){ const showRole = SB && Repo.getBusinessId() && _role()!=="owner"; rp.style.display = showRole?"inline-block":"none"; rp.textContent = (ROLE_LABELS[_role()]||"")+" access"; }
   }catch(e){}
@@ -5693,7 +5710,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:"#appearanceCard", icon:"theme", title:"Make it your own", body:"Twelve themes, multiple fonts, a custom app icon and ten languages — the whole app restyles instantly." },
   { tab:"settings", sel:"#businessRow", icon:"business", title:"Set up your business", body:"Add your logo, contact and tax details, payment info and invoice style once — it flows onto every invoice automatically." },
   { tab:"settings", sel:"#invoicesRow", icon:"invoices", title:"Create & send invoices", body:"Build a polished invoice in seconds — from a sale, from credit owed, or from scratch. Choose a layout and date style, then share a clean PDF." },
-  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Activity log shows who recorded each sale and expense, so you have a clear record of who did what." },
+  { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Audit log records who entered each sale, expense and restock, with the author verified by the server so it can't be faked." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
   { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice", body:"The free AI Advisor can be slow; add a free key (about a minute to set up) to make it instant. Entirely optional." },
@@ -5875,6 +5892,8 @@ function isOwner(){ return _role()==="owner"; }
 function isViewer(){ return _role()==="viewer"; }
 const ROLE_LABELS = { owner:"Owner", admin:"Admin", staff:"Staff", viewer:"Viewer" };
 function _actorStamp(){ return (SB && Repo.getBusinessId() && _me.id) ? { by:_me.label, byId:_me.id } : {}; }
+// Tamper-proof audit: best-effort, fire-and-forget event with a server-stamped author (auth.uid()).
+function _logActivity(type, summary, clientId){ try{ if(!SB || !Repo.getBusinessId()) return; SB.rpc("log_activity", { p_business_id:Repo.getBusinessId(), p_type:String(type), p_summary:summary||{}, p_client_id:(clientId!=null?String(clientId):null) }).then(()=>{}, ()=>{}); }catch(e){} }
 // ── TEAM management UI ──
 function openTeam(){
   if(!canManage()){ try{ showToast("Only owners and admins can manage the team","err"); }catch(e){} return; }
@@ -5924,6 +5943,55 @@ async function cancelInvite(email){
   if(!confirm("Cancel the invite to "+email+"?")) return;
   try{ const r=await SB.rpc("cancel_invite",{p_business_id:Repo.getBusinessId(), p_email:email}); if(r.error) showToast(r.error.message||"Couldn't cancel","err"); }catch(e){}
   renderTeam();
+}
+// ── AUDIT LOG (tamper-proof, server-stamped) ──
+function openAudit(){ if(!canManage()){ try{ showToast("Owners and admins only","err"); }catch(e){} return; } openSubpage('audit'); renderAudit(); }
+function _auditSummary(type, s){
+  s=s||{};
+  if(type==="sale") return (s.total!=null?fmtDollar(s.total):"")+(s.items>1?(" · "+s.items+" items"):"");
+  if(type==="expense") return (s.amount!=null?fmtDollar(s.amount):"")+(s.category?(" · "+escHtml(String(s.category))):"");
+  if(type==="restock"||type==="use") return (s.amount!=null?String(s.amount):"")+(s.product?(" · "+escHtml(String(s.product))):"");
+  return "";
+}
+function _fmtAuditTime(t){ try{ return new Date(t).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+async function renderAudit(){
+  const body=document.getElementById("auditBody"); if(!body) return;
+  if(!SB || !Repo.getBusinessId()){ body.innerHTML='<div class="team-grp">Create an account to use the audit log.</div>'; return; }
+  body.innerHTML='<div class="team-grp">Loading…</div>';
+  let rows=[];
+  try{ const r=await SB.from("activity_events").select("actor_label,type,summary,source,created_at").eq("business_id",Repo.getBusinessId()).order("created_at",{ascending:false}).limit(300); if(!r.error && r.data) rows=r.data; }catch(e){}
+  if(!rows.length){ body.innerHTML='<div class="team-member-sub" style="padding:2px">No recorded activity yet. New sales, expenses and restocks will appear here with a verified author. Tap "Import past entries" to bring in your existing history.</div>'; return; }
+  body.innerHTML = rows.map(r=>{
+    const verified = r.source==="live";
+    const who = r.actor_label || (verified?"member":"(unknown)");
+    const sum = _auditSummary(r.type, r.summary);
+    return `<div class="team-member"><div style="min-width:0"><div class="team-member-email">${escHtml(who)}${verified?"":' <span style="opacity:.55;font-weight:400">· imported</span>'}</div><div class="team-member-sub">${escHtml(String(r.type||""))}${sum?(" · "+sum):""} · ${_fmtAuditTime(r.created_at)}</div></div>${verified?'<span class="team-badge" title="Server-verified author">✓</span>':""}</div>`;
+  }).join("");
+}
+function _buildBackfillEvents(){
+  const evs=[];
+  Object.values(D.strains||{}).forEach(s=>{ (s.logs||[]).forEach(l=>{
+    if(!l || l.id==null) return;
+    let summary={};
+    if(l.type==="sale") summary={ total:l.total, items:(l.batchItems?l.batchItems.length:1), pack:l.pack, payment:l.payment };
+    else if(l.type==="expense") summary={ amount:l.amount, category:l.category, note:l.note };
+    else if(l.type==="restock"||l.type==="use") summary={ amount:l.w, product:null, after:l.after };
+    evs.push({ client_id:String(l.id), type:l.type||"entry", by:(l.by||""), summary, at:new Date(+l.id||Date.now()).toISOString() });
+  }); });
+  return evs;
+}
+async function backfillAudit(){
+  if(!canManage()){ showToast("Owners and admins only","err"); return; }
+  if(!SB || !Repo.getBusinessId()){ showToast("Sign in first","err"); return; }
+  const evs=_buildBackfillEvents();
+  if(!evs.length){ showToast("No past entries to import","ok"); return; }
+  const btn=document.getElementById("auditImportBtn"); if(btn){ btn.disabled=true; btn.textContent="Importing…"; }
+  try{
+    const r=await SB.rpc("import_activity",{ p_business_id:Repo.getBusinessId(), p_events:evs });
+    if(r.error){ showToast(r.error.message||"Import failed","err"); }
+    else { showToast("Imported "+(r.data||0)+" past entries","ok"); renderAudit(); }
+  }catch(e){ showToast("Import failed","err"); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent="Import past entries"; } }
 }
 const authRepo = {
   signUp(email, pw){ return SB.auth.signUp({ email, password: pw, options:{ emailRedirectTo: location.origin + location.pathname } }); },

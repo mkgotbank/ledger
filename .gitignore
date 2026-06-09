@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# ruflo / claude-flow tooling artifacts (local only — never publish)
+.ruflo/
+.claude-flow/
+.swarm/
+.hive-mind/
+.ruvector/
+.agents/
+memory/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+ruflo.config.json
+claude-flow.config.json
+.mcp.json
+
+# Claude Code local project config (agents, commands, settings)
+.claude/
+CLAUDE.md
+AGENTS.md
