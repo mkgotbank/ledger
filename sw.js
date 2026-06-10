@@ -59,17 +59,19 @@ self.addEventListener('fetch', event => {
 
   if (isShell) {
     // Cache-First for HTML shell — app JS explicitly updates the cache when
-    // a new version is found, then reloads so SW serves the fresh cached HTML
+    // a new version is found, then reloads so SW serves the fresh cached HTML.
+    // ignoreSearch: auth-return links arrive with query strings (?code=...) and
+    // must still hit the cached shell — they otherwise bypass it and fail offline.
     event.respondWith(
-      caches.match(event.request).then(cached => {
+      caches.match('/ledger/index.html', { ignoreSearch: true }).then(cached => {
         if (cached) return cached;
         // First visit — no cache yet, fetch from network
         return fetch(event.request).then(response => {
           if (response.ok) {
-            caches.open(CACHE).then(c => c.put(event.request, response.clone()));
+            caches.open(CACHE).then(c => c.put('/ledger/index.html', response.clone()));
           }
           return response;
-        });
+        }).catch(() => caches.match('/ledger/index.html'));
       })
     );
   } else {
@@ -90,15 +92,18 @@ self.addEventListener('fetch', event => {
 // App can message the SW to update the cached HTML directly
 self.addEventListener('message', event => {
   if (event.data?.type === 'CACHE_UPDATE' && event.data.html) {
-    caches.open(CACHE).then(cache => {
+    // waitUntil keeps the SW alive until both puts land — without it the browser may
+    // kill the worker mid-write, leaving '/ledger/' and '/ledger/index.html' skewed.
+    const work = caches.open(CACHE).then(cache => {
       const r = new Response(event.data.html, {
         status: 200,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
-      Promise.all([
+      return Promise.all([
         cache.put('/ledger/', r.clone()),
         cache.put('/ledger/index.html', r.clone())
       ]);
     });
+    if (event.waitUntil) event.waitUntil(work);
   }
 });

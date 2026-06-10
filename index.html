@@ -116,13 +116,13 @@ const THEMES = [
           "--acc":"#9a6410","--acc-hi":"#b87820","--acc-a":"#b87820","--acc-b":"#7a4e10",
           "--acc-glow":"rgba(184,120,32,0.3)","--acc-bdr":"rgba(184,120,32,0.35)","--acc-dim":"rgba(184,120,32,0.12)",
           "--txt":"#1a1630","--txt-b":"#1a1630","--txt-d":"#605060","--bdr":"rgba(0,0,0,0.1)",
-          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(40,30,10,0.13)"} },
+          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(40,30,10,0.13)","--err-txt":"#b03030","--warn":"#8a5808"} },
   { id:"sunrise",       name:"Sunrise",       dots:["#fff4e8","#c84a10","#ffffff"],
     vars:{"--bg":"#fff4e8","--card":"#ffffff","--modal":"#fef0e0","--hdr-bg":"rgba(255,244,232,0.94)",
           "--acc":"#c84a10","--acc-hi":"#e06020","--acc-a":"#e06020","--acc-b":"#a83008",
           "--acc-glow":"rgba(224,96,32,0.3)","--acc-bdr":"rgba(224,96,32,0.35)","--acc-dim":"rgba(224,96,32,0.12)",
           "--txt":"#1a100a","--txt-b":"#1a100a","--txt-d":"#706050","--bdr":"rgba(0,0,0,0.12)",
-          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(60,30,10,0.13)"} },
+          "--fill-1":"rgba(0,0,0,0.045)","--fill-2":"rgba(0,0,0,0.09)","--fill-3":"rgba(0,0,0,0.025)","--hairline":"rgba(0,0,0,0.07)","--shadow":"rgba(60,30,10,0.13)","--err-txt":"#b03030","--warn":"#a05808"} },
   { id:"rose",    name:"Rose",    dots:["#1a0d12","#e05878","#2a1520"],
     vars:{"--bg":"#1a0d12","--card":"#2a1520","--modal":"#221018","--hdr-bg":"rgba(26,13,18,0.9)",
           "--acc":"#e05878","--acc-hi":"#f07090","--acc-a":"#c03858","--acc-b":"#801830",
@@ -136,13 +136,13 @@ const THEMES = [
           "--acc":"#0a6dba","--acc-hi":"#2b8fd4","--acc-a":"#0a5c9e","--acc-b":"#08487e",
           "--acc-glow":"rgba(10,109,186,0.24)","--acc-bdr":"rgba(10,109,186,0.30)","--acc-dim":"rgba(10,109,186,0.10)",
           "--txt":"#1a2a3a","--txt-b":"#0a1828","--txt-d":"#4a6880","--bdr":"rgba(0,0,0,0.09)",
-          "--fill-1":"rgba(10,40,70,0.05)","--fill-2":"rgba(10,40,70,0.1)","--fill-3":"rgba(10,40,70,0.03)","--hairline":"rgba(10,40,70,0.08)","--shadow":"rgba(10,50,90,0.12)"} },
+          "--fill-1":"rgba(10,40,70,0.05)","--fill-2":"rgba(10,40,70,0.1)","--fill-3":"rgba(10,40,70,0.03)","--hairline":"rgba(10,40,70,0.08)","--shadow":"rgba(10,50,90,0.12)","--err-txt":"#c03838","--warn":"#8a6410"} },
   { id:"mint",    name:"Mint",    dots:["#effaf7","#00a878","#ffffff"],
     vars:{"--bg":"#effaf7","--card":"#ffffff","--modal":"#eaf7f3","--hdr-bg":"rgba(239,250,247,0.95)",
           "--acc":"#00a878","--acc-hi":"#00c890","--acc-a":"#008f66","--acc-b":"#005a40",
           "--acc-glow":"rgba(0,168,120,0.28)","--acc-bdr":"rgba(0,168,120,0.35)","--acc-dim":"rgba(0,168,120,0.12)",
           "--txt":"#0a2018","--txt-b":"#041410","--txt-d":"#3a7060","--bdr":"rgba(0,0,0,0.08)",
-          "--fill-1":"rgba(0,50,35,0.05)","--fill-2":"rgba(0,50,35,0.1)","--fill-3":"rgba(0,50,35,0.03)","--hairline":"rgba(0,50,35,0.08)","--shadow":"rgba(0,60,40,0.12)"} },
+          "--fill-1":"rgba(0,50,35,0.05)","--fill-2":"rgba(0,50,35,0.1)","--fill-3":"rgba(0,50,35,0.03)","--hairline":"rgba(0,50,35,0.08)","--shadow":"rgba(0,60,40,0.12)","--err-txt":"#c03838","--warn":"#7a6008"} },
 ];
 const FONTS = [
   { id:"terminal", name:"Terminal", font:"'Courier New',monospace" },
@@ -156,7 +156,7 @@ const FONTS = [
   { id:"optima",      name:"Optima",       font:"Optima,'Segoe UI',Candara,sans-serif" },
   { id:"trebuchet",   name:"Trebuchet",    font:"'Trebuchet MS',Tahoma,Verdana,sans-serif" },
 ];
-const ALL_VARS = ["--bg","--card","--modal","--hdr-bg","--acc","--acc-hi","--acc-a","--acc-b","--acc-glow","--acc-bdr","--acc-dim","--txt","--txt-b","--txt-d","--bdr","--fill-1","--fill-2","--fill-3","--hairline","--shadow"];
+const ALL_VARS = ["--bg","--card","--modal","--hdr-bg","--acc","--acc-hi","--acc-a","--acc-b","--acc-glow","--acc-bdr","--acc-dim","--txt","--txt-b","--txt-d","--bdr","--fill-1","--fill-2","--fill-3","--hairline","--shadow","--err-txt","--warn"];
 
 function _applyThemeVars(id){
   const t = THEMES.find(t => t.id === id) || THEMES[0];
@@ -203,6 +203,9 @@ if('serviceWorker' in navigator){
       window.location.reload();
     }
   });
+  // An installed-PWA "session" can span days — clear the once-only reload guard after
+  // the post-update load settles, so a FUTURE SW update can still reload once.
+  window.addEventListener('load', ()=>{ setTimeout(()=>{ try{ sessionStorage.removeItem('_swr'); }catch(e){} }, 10000); });
 }
 </script>
 <title>The Ledger</title>
@@ -211,6 +214,7 @@ if('serviceWorker' in navigator){
   --bg:#111120;--card:#1c1c2e;--modal:#1a1a2e;--hdr-bg:rgba(17,17,32,0.88);
   --acc:#c9a040;--acc-hi:#d4b04a;--acc-a:#c49c44;--acc-b:#8a6824;
   --acc-glow:rgba(180,140,60,0.35);--acc-bdr:rgba(180,140,60,0.3);--acc-dim:rgba(180,140,60,0.18);
+  --err-txt:#f08080;--warn:#e0a830;
   --txt:#e8e4d9;--txt-b:#ffffff;--txt-d:#7878a0;--bdr:rgba(255,255,255,0.1);
   --font:'Courier New',monospace;
   /* Semantic surface tokens — flip per theme so light themes stay crisp */
@@ -233,7 +237,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(16px) scale(0.96);background:var(--card);border:1px solid var(--bdr);color:var(--txt);padding:12px 18px;border-radius:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity 0.32s cubic-bezier(0.2,0.8,0.2,1),transform 0.32s cubic-bezier(0.2,0.8,0.2,1);pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 44px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
 #toast.interactive{pointer-events:auto;}
-#toast.err{border-color:rgba(224,92,92,0.45);color:#f08080;}
+#toast.err{border-color:rgba(224,92,92,0.45);color:var(--err-txt);}
 #toast.ok{border-color:var(--acc-bdr);color:var(--acc);background:linear-gradient(180deg,var(--acc-dim),var(--card));}
 .toast-undo-btn{background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;color:#0a0a0f;border-radius:10px;padding:5px 14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:11px;font-family:var(--font);vertical-align:middle;box-shadow:0 2px 12px var(--acc-glow),inset 0 1px 0 rgba(255,255,255,0.25);transition:transform 0.15s ease,box-shadow 0.2s ease;}
 .toast-undo-btn:active{transform:scale(0.92);box-shadow:0 1px 6px var(--acc-glow);}
@@ -314,12 +318,12 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .hdr-save{font-size:8px;letter-spacing:3px;margin-top:4px;transition:color 0.4s;}
 .hdr-save.saving{color:var(--acc);}
 .hdr-save.saved{color:var(--txt-d);}
-.hdr-save.offline{color:#e0a830;}
+.hdr-save.offline{color:var(--warn);}
 .hdr-stock{text-align:right;}
 .hdr-stock-lbl{font-size:8px;color:var(--txt-d);letter-spacing:3px;margin-bottom:1px;}
 .hdr-stock-val{font-size:36px;font-weight:700;line-height:1;letter-spacing:-1.5px;}
 .hdr-stock-val.ok{color:var(--acc-hi);text-shadow:0 0 26px var(--acc-glow);}
-.hdr-stock-val.amber{color:#e0a84a;}
+.hdr-stock-val.amber{color:var(--warn);}
 .hdr-stock-val.low{color:#e05c5c;}
 .hdr-stock-unit{font-size:12px;color:var(--txt-d);margin-left:2px;}
 
@@ -441,8 +445,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .ai-body{font-size:12px;color:var(--txt);line-height:2;white-space:pre-wrap;}
 .ai-body.idle{color:var(--txt-d);font-style:italic;}
 .ai-body.loading{color:var(--txt-d);font-style:italic;}
-.btn-ai{width:100%;background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:12px;padding:12px;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;cursor:pointer;transition:background 0.2s;}
-.btn-ai:active{background:var(--acc-bdr);}
+.btn-ai{width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04) 50%,rgba(255,255,255,0)),linear-gradient(135deg,var(--acc-hi),var(--acc));border:none;border-radius:13px;padding:13px;color:#0a0a0f;font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;cursor:pointer;box-shadow:0 4px 22px var(--acc-glow),0 0 0 1px var(--acc-hi) inset;transition:opacity 0.2s;}
+.btn-ai:active{opacity:0.85;}
 .btn-ai:disabled{opacity:0.4;cursor:not-allowed;}
 @keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
 .dot{display:inline-block;animation:blink 1.2s infinite;}
@@ -478,7 +482,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
 /* iOS sheet with drag handle */
-.mbox{width:100%;max-width:480px;background:var(--modal);border:1px solid var(--bdr);border-radius:24px 24px 0 0;padding:8px 18px 52px;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 40px rgba(0,0,0,0.6);}
+.mbox{width:100%;max-width:480px;background:var(--modal);border:1px solid var(--bdr);border-radius:24px 24px 0 0;padding:8px 18px 52px;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 40px rgba(0,0,0,0.6);overscroll-behavior:contain;}
+.overlay{overscroll-behavior:contain;}
 .mbox::before{content:'';display:block;width:36px;height:4px;background:var(--fill-2);border-radius:2px;margin:0 auto 16px;}
 .mbox-red{border-color:rgba(224,92,92,0.2);}
 .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
@@ -573,6 +578,9 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 
 /* ── AI CHAT ── */
 .chat-wrap{margin-bottom:16px;}
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;padding:2px 0 4px;}
+.q-chip{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:999px;padding:8px 13px;font-size:11px;font-family:var(--font);cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:border-color 0.15s,background 0.15s;text-align:left;}
+.q-chip:active{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .chat-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .chat-hdr-lbl{font-size:7px;letter-spacing:3px;color:var(--txt-d);text-transform:uppercase;}
 .chat-clear{background:none;border:none;color:var(--txt-d);font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:0;font-family:var(--font);transition:color 0.15s;}
@@ -634,7 +642,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .ls-best b{color:var(--acc);font-weight:700;}
 
 /* ── LOG ACTIONS ── */
-.log-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:6px;}
+.log-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:1px;}
 .log-edit-btn{background:none;border:none;color:var(--txt-d);font-size:13px;cursor:pointer;padding:2px 4px;line-height:1;transition:color 0.15s;font-family:var(--font);}
 .log-edit-btn:hover,.log-edit-btn:active{color:var(--acc);}
 .log-del{background:none;border:none;color:var(--txt-d);font-size:14px;cursor:pointer;padding:2px 2px;line-height:1;transition:color 0.15s;font-family:var(--font);}
@@ -699,9 +707,9 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 /* ── PERFORMANCE DASHBOARD ── */
 .perf-wrap{margin-bottom:14px;}
 .perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.perf-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 12px;box-shadow:0 2px 10px var(--shadow);}
-.perf-val{font-size:18px;font-weight:700;line-height:1.2;}
-.perf-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-top:3px;}
+.perf-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:11px 13px;box-shadow:0 2px 10px var(--shadow);}
+.perf-val{font-size:17px;font-weight:700;line-height:1.2;}
+.perf-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin-bottom:4px;}
 
 /* ── PROFIT MARGIN COLUMN ── */
 .pref-margin{font-size:9px;color:#4caf7a;text-align:right;}
@@ -1175,7 +1183,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="scard"><div class="scard-lbl">Earned</div><div class="scard-val" id="s-earned" style="color:#4caf7a">$0</div></div>
       <div class="scard"><div class="scard-lbl">Net Profit</div><div class="scard-val" id="s-profit">$0</div></div>
       <div class="scard"><div class="scard-lbl">Expenses</div><div class="scard-val" id="s-exp" style="color:#c05050">$0</div></div>
-      <div class="scard"><div class="scard-lbl">Est. Value</div><div class="scard-val" id="s-est" style="color:#c9a040">$0</div></div>
+      <div class="scard"><div class="scard-lbl">Est. Value</div><div class="scard-val" id="s-est" style="color:var(--acc)">$0</div></div>
     </div>
 
     <div id="healthStrip" class="health-strip"></div>
@@ -1566,7 +1574,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="subpage-body">
     <div class="exp-card">
       <div class="exp-top">Expenses Covered <span id="expFrac">$0 / $0</span></div>
-      <div class="prog-bg"><div class="prog-fill" id="expBar" style="width:0%;background:linear-gradient(90deg,#c05050,#b48c3c)"></div></div>
+      <div class="prog-bg"><div class="prog-fill" id="expBar" style="width:0%;background:linear-gradient(90deg,#c05050,var(--acc))"></div></div>
       <div class="exp-btns">
         <button class="exp-btn add" onclick="openExpModal('add')">+ Add Expense</button>
         <button class="exp-btn edit" onclick="openExpModal('edit')">Edit Total</button>
@@ -1778,27 +1786,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.37.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.38.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
         <div>
-          <div class="wn-title">Ask the AI anything</div>
-          <div class="wn-desc">The AI chat is now always available in the AI Advisor — ask about your numbers, or how to use any part of the app, and get a direct answer.</div>
+          <div class="wn-title">One-tap AI questions</div>
+          <div class="wn-desc">The AI chat now greets you with ready-made questions — tap one to ask about your numbers or how to use the app. The Get AI Advice button got a bolder new look too.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 0-20 8 8 0 0 1 8 8 5 5 0 0 1-5 5h-2a2 2 0 0 0-1 3.5A2 2 0 0 1 12 22z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg></div>
         <div>
-          <div class="wn-title">A cleaner, calmer look</div>
-          <div class="wn-desc">Emojis across the app — reports, smart tips, logs and more — have been replaced with elegant icons that match your theme in both dark and light mode.</div>
+          <div class="wn-title">Faster and smoother</div>
+          <div class="wn-desc">Typing in Business settings, searching your activity, and editing invoices are noticeably snappier — heavy work now happens off the typing path.</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
         <div>
-          <div class="wn-title">Easier for everyone</div>
-          <div class="wn-desc">Full keyboard support: every page, picker and setting can now be reached without touch, dialogs announce themselves to screen readers, and Esc closes any popup.</div>
+          <div class="wn-title">Safer data, better offline</div>
+          <div class="wn-desc">Switching businesses now waits for your edits to finish saving, the app opens straight to your data when offline, resets keep a restore point, and you're warned if device storage ever fills up.</div>
         </div>
       </div>
     </div>
@@ -2134,7 +2142,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.37.0";
+const APP_VER    = "2.38.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2174,7 +2182,9 @@ async function checkForUpdate(){
     }
     if(!isNewer) return;
 
-    // Write new HTML into SW cache so the reload serves the new version
+    // Write new HTML into SW cache so the reload serves the new version. Also refresh
+    // i18n.js in the same breath — updating only the HTML would skew the dictionary
+    // behind new UI strings until the network happened to refresh it.
     try {
       if('serviceWorker' in navigator && navigator.serviceWorker.controller){
         navigator.serviceWorker.controller.postMessage({ type:'CACHE_UPDATE', html });
@@ -2186,10 +2196,36 @@ async function checkForUpdate(){
         cache.put('/ledger/',           resp.clone()),
         cache.put('/ledger/index.html', resp.clone())
       ]);
+      try {
+        const ir = await fetch("https://raw.githubusercontent.com/mkgotbank/ledger/main/i18n.js?t=" + Date.now(), { cache:"no-store" });
+        if(ir.ok){
+          const itxt = await ir.text();
+          await cache.put('/ledger/i18n.js', new Response(itxt, {status:200, headers:{'Content-Type':'application/javascript;charset=utf-8'}}));
+        }
+      } catch(e){}
+    } catch(e){}
+
+    // VERIFY the cache write actually landed before reloading — if storage is full or
+    // the write failed, an unconditional reload would serve the OLD cached HTML, see
+    // "newer version available" again, and loop forever.
+    try {
+      const cache = await caches.open('ledger-v5');
+      const cached = await cache.match('/ledger/index.html');
+      const ctext = cached ? await cached.text() : "";
+      const cm = ctext.match(/const APP_VER\s*=\s*"([^"]+)"/);
+      if(!cm || cm[1] !== m[1]){
+        // Cache didn't take the new version — don't reload (and don't retry-loop).
+        if(sessionStorage.getItem("_updFail") !== m[1]){
+          sessionStorage.setItem("_updFail", m[1]);
+          try{ showToast("Update downloaded but couldn't be applied — free up storage and reopen the app.","err"); }catch(e){}
+        }
+        return;
+      }
     } catch(e){}
 
     // Flush data to localStorage immediately before reloading
     try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
+    try { _flushHistory(); } catch(e){}
     // Apply silently — reload straight into the new version; the What's New
     // popup greets the user instead of an "updating" toast.
     setTimeout(() => location.reload(), 200);
@@ -2386,11 +2422,14 @@ function setDateFilter(f, btn){
 }
 
 // ── LOG SEARCH ──
+let _logSearchTimer = null;
 function onLogSearch(v){
   logSearch = v.trim().toLowerCase();
   const cl = document.getElementById("logSearchClear");
   if(cl) cl.style.display = v ? "block" : "none";
-  renderLog();
+  // Debounce — renderLog rebuilds the whole list DOM, too heavy per keystroke
+  clearTimeout(_logSearchTimer);
+  _logSearchTimer = setTimeout(renderLog, 180);
 }
 function clearLogSearch(){
   logSearch = "";
@@ -2741,6 +2780,9 @@ const SK_BAK = SK + "_bak";
 const UNSYNCED_KEY = SK + "_unsynced";
 function _markUnsynced(){ try{ const b=Repo.getBusinessId(); if(b) localStorage.setItem(UNSYNCED_KEY, String(b)); }catch(e){} }
 function _clearUnsynced(){ try{ localStorage.removeItem(UNSYNCED_KEY); }catch(e){} }
+// Clear the marker ONLY when it belongs to the given business — booting/syncing business B
+// must never erase business A's "pending edits" trail (multi-business switching).
+function _clearUnsyncedFor(bizId){ try{ if(_unsyncedBiz()===String(bizId)) _clearUnsynced(); }catch(e){} }
 function _unsyncedBiz(){ try{ return localStorage.getItem(UNSYNCED_KEY); }catch(e){ return null; } }
 // The cloud `updated_at` we last CONFIRMED a sync against, persisted across reloads. Lets boot
 // tell "local is strictly newer" (cloud unchanged since our last sync) apart from a genuine
@@ -2781,6 +2823,22 @@ function _pushHistory(d){
     while(arr.length > 7) arr.pop();
     localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
   }catch(e){}
+}
+// Debounced history writer — _pushHistory costs multiple whole-document stringify/parse
+// passes (it rewrites a blob holding up to 7 full snapshots), which is far too heavy to run
+// synchronously inside every persist(). Trailing 3s debounce; _flushNow() flushes it on
+// hide/close so a swipe-away never loses the day's restore point.
+let _histTimer = null, _histPending = false;
+function _schedHistory(){
+  _histPending = true;
+  clearTimeout(_histTimer);
+  _histTimer = setTimeout(_flushHistory, 3000);
+}
+function _flushHistory(){
+  if(!_histPending) return;
+  _histPending = false;
+  clearTimeout(_histTimer);
+  try{ _pushHistory(D); }catch(e){}
 }
 // Restore points available to the CURRENT context (this business, or account-less local snapshots).
 function _availableRestorePoints(){
@@ -2826,27 +2884,36 @@ function _setSaveStatus(state){
   const el = document.getElementById("saveStatus"); if(!el) return;
   const map = { saving:["● SAVING…","hdr-save saving"], synced:["● SYNCED","hdr-save saved"],
                 saved:["● SAVED","hdr-save saved"], device:["● SAVED ON DEVICE","hdr-save saved"],
-                offline:["● SAVED ON DEVICE","hdr-save offline"] };
+                offline:["● SAVED ON DEVICE","hdr-save offline"],
+                error:["● NOT SAVED — STORAGE FULL","hdr-save offline"] };
   const m = map[state] || map.saved;
   el.textContent = m[0]; el.className = m[1];
 }
 let _persistTimer = null, _cloudDirty = false;
+let _quotaErrAt = 0;
 function persist(){
+  let wroteLocal = true;
   try {
     const json = JSON.stringify(D);
     localStorage.setItem(SK, json);     // instant, offline cache + source of truth
     localStorage.setItem(SK_BAK, json); // safety backup — survives update reloads
-  } catch(e){}
-  _pushHistory(D);                      // rolling on-device backup the sync logic can never overwrite
+  } catch(e){
+    // Storage full / blocked: the write FAILED — never claim "saved". Tell the user
+    // (throttled) so they can export a backup before anything is lost.
+    wroteLocal = false;
+    const now = Date.now();
+    if(now - _quotaErrAt > 30000){ _quotaErrAt = now; try{ showToast("Device storage is full — your last change was NOT saved. Export a backup now.","err"); }catch(_){ } }
+  }
+  _schedHistory();                      // rolling on-device backup, debounced off the hot path
   // Debounced cloud write-through (no-op in local-only mode / before login).
   if(SB && Repo.getBusinessId()){
     _cloudDirty = true;
     _markUnsynced();                    // mark BEFORE the write so an interruption leaves a trail
-    _setSaveStatus("saving");
+    _setSaveStatus(wroteLocal ? "saving" : "error");
     clearTimeout(_persistTimer);
     _persistTimer = setTimeout(flushToCloud, 800);
   } else {
-    _setSaveStatus("device");           // local-only mode (no account yet) → on this device only
+    _setSaveStatus(wroteLocal ? "device" : "error"); // local-only mode (no account yet) → on this device only
   }
 }
 // Mirror the in-memory D to localStorage WITHOUT scheduling a cloud write. Used when
@@ -2858,14 +2925,14 @@ async function flushToCloud(){
   _flushing = true;
   // Snapshot at flush time so a concurrent edit can't tear the doc mid-serialize, and so we
   // can tell whether new edits arrived during the await (then we must NOT mark synced).
-  let snap; try{ snap = JSON.parse(JSON.stringify(D)); }catch(e){ snap = D; }
+  let snap; try{ snap = (typeof structuredClone==="function") ? structuredClone(D) : JSON.parse(JSON.stringify(D)); }catch(e){ snap = D; }
   _cloudDirty = false;
   try {
     await Repo.saveDoc(snap);
     if(_cloudDirty){
       _setSaveStatus("saving");         // an edit landed during the write → leave unsynced, re-flush below
     } else {
-      _clearUnsynced();                 // cloud confirmed AND nothing newer pending → fully in sync
+      _clearUnsyncedFor(Repo.getBusinessId()); // cloud confirmed AND nothing newer pending → fully in sync
       _setSaveStatus("synced");
       _maybeCloudBackup();              // best-effort daily server-side snapshot (fire-and-forget)
     }
@@ -2884,7 +2951,7 @@ async function flushToCloud(){
             _cloudDirty = true; _setSaveStatus("saving");   // the finally-block re-flush pushes the merged doc
             try{ showToast(__("Merged changes from your other device"),"ok"); }catch(_){ }
           } else {
-            _clearUnsynced(); _setSaveStatus("synced");
+            _clearUnsyncedFor(Repo.getBusinessId()); _setSaveStatus("synced");
             try{ showToast(__("Synced from your other device"),"ok"); }catch(_){ }
           }
           try{ renderAll(); }catch(_){ }
@@ -2910,6 +2977,8 @@ try{ window.addEventListener("online", _retrySync); }catch(e){}
 // (a swipe-close would otherwise kill the pending timer and lose the last edits).
 function _flushNow(){
   try{ _cacheLocalD(); }catch(e){}
+  try{ _flushHistory(); }catch(e){}     // write the pending daily snapshot before we may be killed
+  try{ _flushBizField(); }catch(e){}    // commit any debounced Business-settings typing
   if(SB && _cloudDirty && Repo.getBusinessId()){ try{ clearTimeout(_persistTimer); }catch(e){} try{ flushToCloud(); }catch(e){} }
 }
 try{
@@ -3125,7 +3194,7 @@ function renderStrainMgr(){
     }
     return `<div class="strain-item">
       <div style="flex:1;min-width:0;overflow:hidden">
-        <div class="si-name">${nd}${active?'<span style="color:#555;font-size:8px;font-weight:400;margin-left:6px">● ACTIVE</span>':''}</div>
+        <div class="si-name">${nd}${active?'<span style="color:var(--acc);font-size:8px;font-weight:400;margin-left:6px">● ACTIVE</span>':''}</div>
         <div class="si-sub">${fmtQty(s.stock, s)} remaining · ${fmtDollar(s.earned||0)} earned</div>
       </div>
       <div class="si-btns">
@@ -3767,8 +3836,13 @@ function renderInvoiceEditor(){
 }
 // Re-render the live paper preview AND keep the Total / paid / owed read-outs in
 // sync (without rebuilding the editor, so the field you're typing in keeps focus).
+// The paper rebuild is rAF-coalesced — every editor field fires this per keystroke.
+let _invPaperRaf = 0;
 function _invRefreshPaper(){
-  const paper=document.getElementById("invoicePaper"); if(paper) paper.innerHTML=renderInvoicePaper(_inv);
+  const paper=document.getElementById("invoicePaper");
+  if(paper && !_invPaperRaf){
+    _invPaperRaf = requestAnimationFrame(()=>{ _invPaperRaf = 0; const p=document.getElementById("invoicePaper"); if(p && _inv) p.innerHTML=renderInvoicePaper(_inv); });
+  }
   const t=invTotals(_inv), owed=_round2(Math.max(0, t.total-(+_inv.paid||0)));
   const td=document.getElementById("invTotalDisp"); if(td) td.value=invMoney(t.total);
   const pi=document.getElementById("invPaidInput"); if(pi && document.activeElement!==pi) pi.value=_round2(+_inv.paid||0);
@@ -3989,7 +4063,7 @@ function renderInvoicesPage(){
   const el=document.getElementById("invoicesList"); if(!el) return;
   const list=D.invoices||[];
   if(!list.length){ el.innerHTML=`<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:26px 0">No invoices yet</div>`; return; }
-  el.innerHTML=list.map(inv=>{ const t=invTotals(inv), st=invStatus(inv); const c=st==="paid"?"#4caf7a":st==="partial"?"#c9a040":"#e05c5c";
+  el.innerHTML=list.map(inv=>{ const t=invTotals(inv), st=invStatus(inv); const c=st==="paid"?"#4caf7a":st==="partial"?"var(--acc)":"#e05c5c";
     return `<div class="settings-card" style="padding:0;margin-bottom:10px"><div class="settings-row" onclick="openSavedInvoice(${inv.num})" style="cursor:pointer">
       <div style="min-width:0"><div class="settings-row-lbl">${inv.no?escHtml(inv.no)+" · ":""}${escHtml(inv.customer||"—")}</div>
       <div style="font-size:9px;color:var(--txt-d);margin-top:2px">${escHtml(_fmtInvDate(inv.date))} · <span style="color:${c}">${invMoney(t.total)}</span></div></div>
@@ -4020,7 +4094,18 @@ function onBusinessLogo(evt){
   };
   rd.readAsDataURL(f);
 }
-function saveBusinessField(k,v){ if(!D.business||typeof D.business!=="object") D.business={}; D.business[k] = (k==="taxRate")?(parseFloat(v)||0):v; persist(); }
+// Business fields fire oninput (per keystroke). D is updated immediately so reads stay
+// consistent, but the heavy persist() is debounced ~500ms; _flushBizField() commits on
+// hide/close via _flushNow so at most half a second of typing is ever at risk.
+let _bizFieldTimer = null, _bizFieldPending = false;
+function _flushBizField(){ if(!_bizFieldPending) return; _bizFieldPending = false; clearTimeout(_bizFieldTimer); persist(); }
+function saveBusinessField(k,v){
+  if(!D.business||typeof D.business!=="object") D.business={};
+  D.business[k] = (k==="taxRate")?(parseFloat(v)||0):v;
+  _bizFieldPending = true;
+  clearTimeout(_bizFieldTimer);
+  _bizFieldTimer = setTimeout(_flushBizField, 500);
+}
 function toggleEtransfer(){ if(!D.business||typeof D.business!=="object") D.business={}; D.business.etransfer = !D.business.etransfer; if(D.business.etransfer && !D.business.etransferEmail) D.business.etransferEmail = D.business.email||""; persist(); renderBusinessPage(); }
 function clearBusinessLogo(){ if(D.business) D.business.logo=""; persist(); renderBusinessPage(); }
 function renderBusinessPage(){
@@ -4234,6 +4319,9 @@ function confirmExp(){
   closeModal("exp"); persist(); renderAll();
 }
 function doReset(){
+  // A reset persists immediately, which would COLLAPSE today's history slot into the
+  // post-reset state — stash the pre-reset copy in recovery so it stays restorable.
+  try{ _saveRecovery(JSON.parse(JSON.stringify(D)), "pre-reset"); }catch(e){}
   // Preserve unitCfg so count products stay count after reset
   const cfg = D.strains[D.cur]?.unitCfg;
   D.strains[D.cur] = fresh(0, 0, cfg);
@@ -4241,6 +4329,8 @@ function doReset(){
   persist(); renderAll();
 }
 async function doResetAll(){
+  // (No recovery stash here: Reset All intentionally erases RECOVERY_KEY below, and the
+  // empty-state guard in _pushHistory means today's history slot keeps the pre-reset data.)
   // If signed in, wipe the CLOUD document too — otherwise loadDoc resurrects everything on
   // the next boot and the reset appears to do nothing for cloud accounts.
   if(SB && Repo.getBusinessId()){
@@ -4561,11 +4651,29 @@ function stripEmoji(str){
 const APP_GUIDE =
 "THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under Team with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business. Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit shows who recorded each entry. Install as app: More → Install App. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
+// Starter questions shown as tappable chips while the chat is empty —
+// half about the user's numbers, half about using the app itself.
+const AI_STARTERS = [
+  "What should I restock next?",
+  "Which pack size makes me the most money?",
+  "How do I create an invoice?",
+  "How do I back up my data?"
+];
+function askStarter(el){
+  const input = document.getElementById("chatInput"); if(!input) return;
+  input.value = el.textContent.trim();
+  sendChatMsg();
+}
 function renderChat(){
   const s = cur(); if(!s) return;
   const box = document.getElementById("chatMsgs"); if(!box) return;
   const msgs = s.aiChat || [];
-  if(!msgs.length){ box.innerHTML = ""; return; }
+  if(!msgs.length){
+    box.innerHTML = `<div class="chip-row">${AI_STARTERS.map(q => `<button class="q-chip">${q}</button>`).join("")}</div>`;
+    box.querySelectorAll(".q-chip").forEach(b => b.onclick = () => askStarter(b));
+    try{ i18nApply(); }catch(e){}
+    return;
+  }
   box.innerHTML = msgs.map(m => {
     if(m.role === "user")
       return `<div class="cm cm-u">${escHtml(m.content)}</div>`;
@@ -4903,7 +5011,12 @@ try{
   "Merged changes from your other device": {"es":"Cambios de tu otro dispositivo fusionados","zh":"已合并来自您其他设备的更改","hi":"आपके दूसरे डिवाइस के बदलाव मर्ज कर दिए गए","ar":"تم دمج التغييرات من جهازك الآخر","fr":"Modifications de votre autre appareil fusionnées","pt":"Alterações do seu outro dispositivo mescladas","ru":"Изменения с другого устройства объединены","de":"Änderungen von Ihrem anderen Gerät zusammengeführt","ja":"他のデバイスからの変更を統合しました"},
   "Synced from your other device": {"es":"Sincronizado desde tu otro dispositivo","zh":"已从您的其他设备同步","hi":"आपके दूसरे डिवाइस से सिंक हो गया","ar":"تمت المزامنة من جهازك الآخر","fr":"Synchronisé depuis votre autre appareil","pt":"Sincronizado do seu outro dispositivo","ru":"Синхронизировано с другого устройства","de":"Von Ihrem anderen Gerät synchronisiert","ja":"他のデバイスから同期しました"},
   "Ask the AI": {"es":"Pregunta a la IA","zh":"问 AI","hi":"एआई से पूछें","ar":"اسأل الذكاء الاصطناعي","fr":"Demandez à l'IA","pt":"Pergunte à IA","ru":"Спросите ИИ","de":"Frag die KI","ja":"AIに質問"},
-  "Ask about your numbers or how to use the app...": {"es":"Pregunta sobre tus números o cómo usar la app...","zh":"询问您的数据或如何使用应用…","hi":"अपने आँकड़ों या ऐप के उपयोग के बारे में पूछें...","ar":"اسأل عن أرقامك أو عن كيفية استخدام التطبيق...","fr":"Posez une question sur vos chiffres ou l'utilisation de l'app...","pt":"Pergunte sobre seus números ou como usar o app...","ru":"Спросите о ваших цифрах или о работе приложения...","de":"Fragen Sie zu Ihren Zahlen oder zur App...","ja":"数字やアプリの使い方について質問..."}
+  "Ask about your numbers or how to use the app...": {"es":"Pregunta sobre tus números o cómo usar la app...","zh":"询问您的数据或如何使用应用…","hi":"अपने आँकड़ों या ऐप के उपयोग के बारे में पूछें...","ar":"اسأل عن أرقامك أو عن كيفية استخدام التطبيق...","fr":"Posez une question sur vos chiffres ou l'utilisation de l'app...","pt":"Pergunte sobre seus números ou como usar o app...","ru":"Спросите о ваших цифрах или о работе приложения...","de":"Fragen Sie zu Ihren Zahlen oder zur App...","ja":"数字やアプリの使い方について質問..."},
+  "What should I restock next?": {"es":"¿Qué debería reponer ahora?","zh":"我接下来应该补什么货？","hi":"मुझे आगे क्या रीस्टॉक करना चाहिए?","ar":"ما الذي يجب أن أعيد تخزينه الآن؟","fr":"Que devrais-je réapprovisionner ensuite ?","pt":"O que devo repor agora?","ru":"Что мне пополнить в первую очередь?","de":"Was sollte ich als Nächstes auffüllen?","ja":"次は何を仕入れるべき？"},
+  "Which pack size makes me the most money?": {"es":"¿Qué tamaño de paquete me da más dinero?","zh":"哪种包装规格最赚钱？","hi":"कौन सा पैक साइज़ सबसे ज़्यादा कमाई करता है?","ar":"أي حجم عبوة يحقق لي أكبر ربح؟","fr":"Quel format me rapporte le plus ?","pt":"Qual tamanho de pacote me rende mais?","ru":"Какая фасовка приносит больше всего денег?","de":"Welche Packungsgröße bringt am meisten ein?","ja":"どのパックサイズが一番儲かる？"},
+  "How do I create an invoice?": {"es":"¿Cómo creo una factura?","zh":"如何创建发票？","hi":"मैं इनवॉइस कैसे बनाऊँ?","ar":"كيف أنشئ فاتورة؟","fr":"Comment créer une facture ?","pt":"Como crio uma fatura?","ru":"Как создать счёт?","de":"Wie erstelle ich eine Rechnung?","ja":"請求書はどうやって作る？"},
+  "How do I back up my data?": {"es":"¿Cómo respaldo mis datos?","zh":"如何备份我的数据？","hi":"मैं अपना डेटा बैकअप कैसे करूँ?","ar":"كيف أنسخ بياناتي احتياطيًا؟","fr":"Comment sauvegarder mes données ?","pt":"Como faço backup dos meus dados?","ru":"Как сделать резервную копию данных?","de":"Wie sichere ich meine Daten?","ja":"データのバックアップ方法は？"},
+  "No matches — adjust your filters or search": {"es":"Sin coincidencias — ajusta tus filtros o búsqueda","zh":"无匹配结果 — 请调整筛选或搜索","hi":"कोई मेल नहीं — फ़िल्टर या खोज बदलें","ar":"لا نتائج — عدّل عوامل التصفية أو البحث","fr":"Aucun résultat — ajustez vos filtres ou votre recherche","pt":"Sem resultados — ajuste seus filtros ou busca","ru":"Нет совпадений — измените фильтры или поиск","de":"Keine Treffer — Filter oder Suche anpassen","ja":"一致なし — フィルターや検索を調整してください"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -4928,12 +5041,18 @@ function __(s){
   return out;
 }
 const _i18nNode = new WeakMap();   // text node → original English value
+let _lastAppliedLang = null;       // last language a FULL pass ran for (fast-path bookkeeping)
 function i18nApply(){
   try{
     const root = document.documentElement;
     root.setAttribute("lang", LANG);
     root.setAttribute("dir", _langObj(LANG).rtl ? "rtl" : "ltr");
     if(!document.body) return;
+    // Fast path: an English→English pass has nothing to translate or restore, and this
+    // runs after nearly every render — skip the full-document TreeWalker + attribute
+    // scans. (Switching BACK from another language still gets one full restore pass,
+    // because _lastAppliedLang isn't "en" yet.) Keyboard decoration must always run.
+    if(LANG === "en" && _lastAppliedLang === "en"){ a11yDecorate(); return; }
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
       acceptNode(n){
         const p = n.parentNode; if(!p) return NodeFilter.FILTER_REJECT;
@@ -4965,6 +5084,7 @@ function i18nApply(){
         el.setAttribute(attr, tr || orig);
       });
     });
+    _lastAppliedLang = LANG;
     a11yDecorate();   // keyboard reachability piggybacks on the same after-render pass
   }catch(e){}
 }
@@ -5149,7 +5269,13 @@ function renderLog(){
     ? logs.length + " " + __("of") + " " + allLogs.length + " " + __("entries")
     : logs.length + " " + __("Entries");
   renderLogSummary(logs); updateFiltersChip();
-  if(!logs.length){ document.getElementById("logList").innerHTML = '<div class="log-empty">No entries yet</div>'; return; }
+  if(!logs.length){
+    // Distinguish "nothing recorded yet" from "your filters/search matched nothing"
+    document.getElementById("logList").innerHTML = filtered
+      ? '<div class="log-empty">' + __("No matches — adjust your filters or search") + '</div>'
+      : '<div class="log-empty">' + __("No entries yet") + '</div>';
+    return;
+  }
   const seenBatch = {};
   document.getElementById("logList").innerHTML = logs.map(l => {
     if(l.batchId){ if(seenBatch[l.batchId]) return ""; seenBatch[l.batchId] = 1; return renderBatchCard(l, s); }
@@ -5291,10 +5417,10 @@ function renderQS(){
   document.getElementById("qsGrid").innerHTML = [
     { l:"All Products Earned", v:fmtDollar(te),                                                         c:"#4caf7a" },
     { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                               c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Current Stock",       v:fmtQty(stock,s),                                                       c:"#c9a040" },
-    { l:"Sales Logged",        v:tsl,                                                                   c:"#e8e4d9" },
+    { l:"Current Stock",       v:fmtQty(stock,s),                                                       c:"var(--acc)" },
+    { l:"Sales Logged",        v:tsl,                                                                   c:"var(--txt-b)" },
     { l:"Internal Use (All)",  v:allWeight ? tu.toFixed(1)+"g" : tu.toFixed(0)+" "+unitPlural(s),       c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"#c9a040" },
+    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"var(--acc)" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [];
@@ -5487,20 +5613,20 @@ function renderPerf(){
   const p = calcPerformance(s);
   el.innerHTML = `<div class="perf-grid">
     <div class="perf-card">
-      <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? `<span class="ic">${_li("bolt")}</span> `+p.currentStreak : "—"}</div>
       <div class="perf-lbl">${__("Day Streak")}${p.longestStreak>1?" · Best "+p.longestStreak:""}</div>
+      <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? `<span class="ic">${_li("bolt")}</span> `+p.currentStreak : "—"}</div>
     </div>
     <div class="perf-card">
-      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestDay)}</div>
       <div class="perf-lbl">Best Day</div>
+      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestDay)}</div>
     </div>
     <div class="perf-card">
-      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestWeek)}</div>
       <div class="perf-lbl">Best Week</div>
+      <div class="perf-val" style="color:#4caf7a">${fmtDollar(p.bestWeek)}</div>
     </div>
     <div class="perf-card">
-      <div class="perf-val" style="color:var(--txt-b)">${p.lifetimeSales}</div>
       <div class="perf-lbl">All-Time Sales</div>
+      <div class="perf-val" style="color:var(--txt-b)">${p.lifetimeSales}</div>
     </div>
   </div>`;
 }
@@ -6170,12 +6296,22 @@ async function renderBizSwitch(){
   }).join("") || '<div class="team-member-sub">'+__("No businesses found.")+'</div>';
   try{ i18nApply(); }catch(e){}
 }
-function switchBusiness(id){
+async function switchBusiness(id){
   if(String(id)===String(Repo.getBusinessId()||"")){ closeSubpage('bizswitch'); return; }
-  try{ _flushNow(); }catch(e){}                                   // push pending edits for the CURRENT business
   try{ localStorage.setItem("ledger_pref_biz", String(id)); }catch(e){}
   try{ showToast(__("Switching business…"),"ok"); }catch(e){}
-  setTimeout(()=>location.reload(), 250);                         // boot resolves the new preference
+  // Push pending edits for the CURRENT business and AWAIT the cloud confirm — the old
+  // fire-and-forget + 250ms reload killed the in-flight write and stranded those edits.
+  try{ _cacheLocalD(); }catch(e){}
+  if(SB && _cloudDirty && Repo.getBusinessId()){
+    try{ clearTimeout(_persistTimer); await flushToCloud(); }catch(e){}
+  }
+  // Flush didn't confirm (offline / error)? Keep a recovery copy so nothing is stranded —
+  // the UNSYNCED marker plus this snapshot let the next boot of THIS business reconcile.
+  if(_cloudDirty || _unsyncedBiz()===String(Repo.getBusinessId()||"")){
+    try{ _saveRecovery(D, "biz-switch-pending"); }catch(e){}
+  }
+  location.reload();                                              // boot resolves the new preference
 }
 // ── TEAM management UI ──
 function openTeam(){
@@ -6185,7 +6321,7 @@ function openTeam(){
 async function renderTeam(){
   const body=document.getElementById("teamBody"); if(!body) return;
   if(!SB || !Repo.getBusinessId()){ body.innerHTML='<div class="team-grp">Create an account to add a team.</div>'; return; }
-  body.innerHTML='<div class="team-grp">Loading…</div>';
+  body.innerHTML='<div class="team-grp">'+__("Loading…")+'</div>';
   let members=[], invites=[];
   try{ const r=await SB.rpc("list_members",{p_business_id:Repo.getBusinessId()}); if(!r.error && r.data) members=r.data; }catch(e){}
   try{ const r=await SB.from("pending_invites").select("email,role").eq("business_id",Repo.getBusinessId()); if(!r.error && r.data) invites=r.data; }catch(e){}
@@ -6251,7 +6387,7 @@ let _auditRows=null, _auditFilter="all", _auditSearch="";
 async function renderAudit(){
   const body=document.getElementById("auditBody"); if(!body) return;
   if(!SB || !Repo.getBusinessId()){ body.innerHTML='<div class="team-grp">Create an account to use the audit log.</div>'; return; }
-  body.innerHTML='<div class="team-grp">Loading…</div>';
+  body.innerHTML='<div class="team-grp">'+__("Loading…")+'</div>';
   let rows=[];
   try{ const r=await SB.from("activity_events").select("actor_label,type,summary,source,created_at").eq("business_id",Repo.getBusinessId()).order("created_at",{ascending:false}).limit(500); if(!r.error && r.data) rows=r.data; }catch(e){}
   _auditRows=rows;
@@ -6359,6 +6495,7 @@ function _paintRecoverList(){
   </div>`).join("");
 }
 function renderRecoverList(){
+  try{ _flushHistory(); }catch(e){}               // commit any pending snapshot before listing
   _recoverPoints = _availableRestorePoints();     // on-device restore points — instant
   _paintRecoverList();
   // Append cloud backups when they arrive (best-effort; de-duped against device snapshots).
@@ -6503,7 +6640,16 @@ async function bootAuthedUser(sess){
     // The on-device cache is tagged with the business it belongs to. If it was written for a
     // DIFFERENT business (multi-business switching), it must never be imported into — or
     // pushed over — this one, so treat it as absent. Untagged legacy caches pass through.
-    try{ const cb=localStorage.getItem("ledger_cache_biz"); if(local && cb && cb!==String(biz.id)) local=null; }catch(e){}
+    try{
+      const cb=localStorage.getItem("ledger_cache_biz");
+      if(local && cb && cb!==String(biz.id)){
+        // The cache belongs to ANOTHER business. If that business still has unconfirmed
+        // edits (its UNSYNCED marker survived), stash a recovery copy BEFORE this boot's
+        // _cacheLocalD() overwrites the cache — otherwise those edits would be stranded.
+        if(_unsyncedBiz()===String(cb)) _saveRecovery(local, "biz-switch-pending");
+        local=null;
+      }
+    }catch(e){}
     // This device has edits the cloud never confirmed (UNSYNCED flag for THIS exact business
     // survived a reload). Whether we can safely push them depends on whether the cloud moved
     // since our last confirmed sync.
@@ -6549,7 +6695,7 @@ async function bootAuthedUser(sess){
       }
       _cacheLocalD();
     } else if(cloudData){
-      D = cloudData; _cacheLocalD(); _clearUnsynced();// cloud has real data → authoritative; mirror to offline cache
+      D = cloudData; _cacheLocalD(); _clearUnsyncedFor(biz.id);// cloud has real data → authoritative; mirror to offline cache
     } else if(biz.fresh && local && loadOk){
       // This business was JUST provisioned for THIS user → import their on-device data once.
       // Gated on biz.fresh so we NEVER push a local (or leftover/foreign) cache over an
@@ -6557,7 +6703,7 @@ async function bootAuthedUser(sess){
       D = local;
       try{ if(doc && !doc.migrated_at) await Repo.migrateLocal(local); }catch(e){}
       try{ await Repo.loadDoc(); }catch(e){}          // refresh the LWW base (migrate advanced updated_at)
-      try{ await Repo.saveDoc(D); _clearUnsynced(); _setSaveStatus("synced");
+      try{ await Repo.saveDoc(D); _clearUnsyncedFor(biz.id); _setSaveStatus("synced");
            try{ showToast("Your data is now synced to your account.","ok"); }catch(e){} }
       catch(e){ // first sync did NOT confirm — keep it dirty so retry/reconnect reconciles, and be truthful
         _cloudDirty = true; _markUnsynced(); _setSaveStatus("offline");
@@ -6580,7 +6726,7 @@ async function bootAuthedUser(sess){
       } else {
         // Cloud is authoritative (it has data, or there is no local to preserve).
         D = (doc && doc.data && typeof doc.data==="object") ? doc.data : { strains:{}, cur:"" };
-        _cacheLocalD(); _clearUnsynced();
+        _cacheLocalD(); _clearUnsyncedFor(biz.id);
       }
     } else {
       // Cloud read FAILED → run read-only on the local cache this session. saveDoc() refuses
@@ -6638,6 +6784,11 @@ function initBoot(){
           }
         }
         else {
+          // OFFLINE with no session: an installed PWA can't sign in without a network —
+          // never dead-end on the auth screen when this device already has data to show.
+          if(!navigator.onLine && !_cloudBooted && document.documentElement.classList.contains("has-data")){
+            bootLocalFallback(); return;
+          }
           _cloudBooted=false; showAuthScreen();
           if(window.__authReturn && window.__authReturn.error){
             const msg = window.__authReturn.error; window.__authReturn.error = "";
