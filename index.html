@@ -1786,7 +1786,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.38.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.38.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
@@ -1806,7 +1806,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
         <div>
           <div class="wn-title">Safer data, better offline</div>
-          <div class="wn-desc">Switching businesses now waits for your edits to finish saving, the app opens straight to your data when offline, resets keep a restore point, and you're warned if device storage ever fills up.</div>
+          <div class="wn-desc">Switching businesses now waits for your edits to finish saving, the app opens straight to your data when offline, resets keep a restore point, and a new storage meter in Settings → Data warns you before space runs out — automatic backups also take far less room now.</div>
         </div>
       </div>
     </div>
@@ -2142,7 +2142,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.38.0";
+const APP_VER    = "2.38.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2798,7 +2798,8 @@ function _saveRecovery(d, reason){
   try{
     if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return;
     const arr = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "[]");
-    arr.unshift({ t:Date.now(), reason:reason||"", biz:(Repo&&Repo.getBusinessId&&Repo.getBusinessId())||_unsyncedBiz()||null, data:d });
+    const slim = (d.business && d.business.logo) ? JSON.parse(_stringifySlim(d)) : d; // logo lives in the live doc, not in snapshots
+    arr.unshift({ t:Date.now(), reason:reason||"", biz:(Repo&&Repo.getBusinessId&&Repo.getBusinessId())||_unsyncedBiz()||null, data:slim });
     while(arr.length > 3) arr.pop();              // keep the last 3 only
     localStorage.setItem(RECOVERY_KEY, JSON.stringify(arr));
   }catch(e){}
@@ -2809,10 +2810,21 @@ function _saveRecovery(d, reason){
 // the cloud is empty, the network failed, and the live cache got clobbered all at once.
 const HISTORY_KEY = SK + "_history";
 function _readHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }catch(e){ return []; } }
+// Serialize WITHOUT the business logo blob — it's by far the largest single item in the
+// document (a base64 PNG) and would otherwise be duplicated into every history/recovery
+// snapshot, multiplying storage use ~12x. Restore carries the live logo back over.
+function _stringifySlim(d){
+  if(d && d.business && d.business.logo){
+    const logo = d.business.logo;
+    d.business.logo = "";
+    try{ return JSON.stringify(d); } finally { d.business.logo = logo; }
+  }
+  return JSON.stringify(d);
+}
 function _pushHistory(d){
   try{
     if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return; // never snapshot an empty state
-    const j = JSON.stringify(d);
+    const j = _stringifySlim(d);
     const arr = _readHistory();
     if(arr[0] && arr[0].j === j) return;                 // unchanged → skip
     const now = Date.now();
@@ -5016,7 +5028,8 @@ try{
   "Which pack size makes me the most money?": {"es":"¿Qué tamaño de paquete me da más dinero?","zh":"哪种包装规格最赚钱？","hi":"कौन सा पैक साइज़ सबसे ज़्यादा कमाई करता है?","ar":"أي حجم عبوة يحقق لي أكبر ربح؟","fr":"Quel format me rapporte le plus ?","pt":"Qual tamanho de pacote me rende mais?","ru":"Какая фасовка приносит больше всего денег?","de":"Welche Packungsgröße bringt am meisten ein?","ja":"どのパックサイズが一番儲かる？"},
   "How do I create an invoice?": {"es":"¿Cómo creo una factura?","zh":"如何创建发票？","hi":"मैं इनवॉइस कैसे बनाऊँ?","ar":"كيف أنشئ فاتورة؟","fr":"Comment créer une facture ?","pt":"Como crio uma fatura?","ru":"Как создать счёт?","de":"Wie erstelle ich eine Rechnung?","ja":"請求書はどうやって作る？"},
   "How do I back up my data?": {"es":"¿Cómo respaldo mis datos?","zh":"如何备份我的数据？","hi":"मैं अपना डेटा बैकअप कैसे करूँ?","ar":"كيف أنسخ بياناتي احتياطيًا؟","fr":"Comment sauvegarder mes données ?","pt":"Como faço backup dos meus dados?","ru":"Как сделать резервную копию данных?","de":"Wie sichere ich meine Daten?","ja":"データのバックアップ方法は？"},
-  "No matches — adjust your filters or search": {"es":"Sin coincidencias — ajusta tus filtros o búsqueda","zh":"无匹配结果 — 请调整筛选或搜索","hi":"कोई मेल नहीं — फ़िल्टर या खोज बदलें","ar":"لا نتائج — عدّل عوامل التصفية أو البحث","fr":"Aucun résultat — ajustez vos filtres ou votre recherche","pt":"Sem resultados — ajuste seus filtros ou busca","ru":"Нет совпадений — измените фильтры или поиск","de":"Keine Treffer — Filter oder Suche anpassen","ja":"一致なし — フィルターや検索を調整してください"}
+  "No matches — adjust your filters or search": {"es":"Sin coincidencias — ajusta tus filtros o búsqueda","zh":"无匹配结果 — 请调整筛选或搜索","hi":"कोई मेल नहीं — फ़िल्टर या खोज बदलें","ar":"لا نتائج — عدّل عوامل التصفية أو البحث","fr":"Aucun résultat — ajustez vos filtres ou votre recherche","pt":"Sem resultados — ajuste seus filtros ou busca","ru":"Нет совпадений — измените фильтры или поиск","de":"Keine Treffer — Filter oder Suche anpassen","ja":"一致なし — フィルターや検索を調整してください"},
+  "On-device storage": {"es":"Almacenamiento en el dispositivo","zh":"设备存储","hi":"डिवाइस स्टोरेज","ar":"التخزين على الجهاز","fr":"Stockage sur l'appareil","pt":"Armazenamento no dispositivo","ru":"Хранилище на устройстве","de":"Gerätespeicher","ja":"端末ストレージ"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -5840,10 +5853,23 @@ function renderSettings(){
   // Data & Sync
   const dsEl = document.getElementById("dataSyncSettings");
   if(dsEl){
+    const stBytes = _lsUsage(), stPct = Math.round(stBytes / (5*1024*1024) * 100);
+    const stCol = stPct > 85 ? "var(--err-txt)" : stPct > 60 ? "var(--warn)" : "var(--txt-d)";
+    if(stPct > 85){
+      const tdy = new Date().toDateString();
+      if(localStorage.getItem("ledger_storage_warned") !== tdy){
+        try{ localStorage.setItem("ledger_storage_warned", tdy); }catch(e){}
+        try{ showToast("Device storage for the app is nearly full — export a backup, or sign in so your data also lives in the cloud.","err"); }catch(e){}
+      }
+    }
     dsEl.innerHTML = `<div class="settings-card">
       <div class="settings-row">
         <span class="settings-row-lbl" id="backupStatus" style="color:${daysSinceBackup()!==null&&daysSinceBackup()<=7?'var(--acc)':'var(--txt-d)'}">${backupStatusText()}</span>
         <span style="font-size:7px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase">Backup status</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-lbl">On-device storage</span>
+        <span data-noi18n style="font-size:11px;font-weight:700;color:${stCol}">${(stBytes/1048576).toFixed(1)} MB · ~${Math.min(stPct,100)}%</span>
       </div>
       <div class="settings-row">
         <span class="settings-row-lbl">Restore from an automatic backup</span>
@@ -6513,7 +6539,11 @@ function recoverRestore(i){
   const p = _recoverPoints[i]; if(!p) return;
   let d; try{ d = JSON.parse(p.j); }catch(e){ d = null; }
   if(!d || !d.strains || !Object.keys(d.strains).length){ showToast("That backup looks empty","err"); return; }
-  D = d; _normalizeD(); _cacheLocalD(); _pushHistory(D);
+  // Snapshots are stored without the logo blob (storage) — carry the live one across.
+  const prevLogo = (D && D.business && D.business.logo) || "";
+  D = d;
+  if(prevLogo && D.business && typeof D.business==="object" && !D.business.logo) D.business.logo = prevLogo;
+  _normalizeD(); _cacheLocalD(); _pushHistory(D);
   // Push the restored data up so the cloud matches the device again.
   if(SB && Repo.getBusinessId()){ _cloudDirty = true; _markUnsynced(); try{ flushToCloud(); }catch(e){} }
   syncUnitDefaults();
@@ -6801,7 +6831,22 @@ function initBoot(){
   } else { bootLocalFallback(); }
 }
 
+// Approximate localStorage footprint in bytes (UTF-16 → 2 bytes/char), for the
+// Settings → Data storage meter. Browsers give this origin roughly 5 MB.
+function _lsUsage(){
+  let bytes = 0;
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      bytes += (k.length + (localStorage.getItem(k)||"").length) * 2;
+    }
+  }catch(e){}
+  return bytes;
+}
 // ── INIT ──
+// Ask the browser to mark this origin's storage persistent (best-effort) — without it,
+// the OS may evict an installed PWA's localStorage under storage pressure.
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
 // Apply theme and font FIRST from independent keys — they survive data resets
 try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e){}
 try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
