@@ -453,7 +453,19 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .qs-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);margin-bottom:4px;text-transform:uppercase;}
 .qs-val{font-size:17px;font-weight:700;}
 .qs-tips{margin-bottom:12px;}
-.qs-tip{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 13px;margin-bottom:6px;font-size:11px;color:var(--txt-d);line-height:1.6;box-shadow:0 2px 10px var(--shadow);}
+.qs-tip{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 13px;margin-bottom:6px;font-size:11px;color:var(--txt-d);line-height:1.6;box-shadow:0 2px 10px var(--shadow);display:flex;align-items:flex-start;gap:9px;}
+.tip-ic{flex-shrink:0;width:15px;height:15px;margin-top:2px;color:var(--acc);}
+.tip-ic svg{width:100%;height:100%;display:block;}
+.ic{display:inline-block;width:12px;height:12px;vertical-align:-2px;color:inherit;}
+.ic svg{width:100%;height:100%;display:block;}
+.wn-icon svg{width:20px;height:20px;color:var(--acc);margin:0 auto;}
+.log-swipe-bg svg{width:18px;height:18px;color:#fff;}
+.log-edit-btn svg{width:14px;height:14px;display:block;}
+.btn-gear svg{width:15px;height:15px;display:block;}
+.chat-hdr-lbl svg{width:10px;height:10px;vertical-align:-2px;margin-right:4px;}
+.pay-btn svg{width:13px;height:13px;vertical-align:-3px;margin-right:5px;}
+.ro-banner svg{width:13px;height:13px;vertical-align:-3px;margin-right:5px;}
+.lang-code{width:36px;height:25px;border-radius:7px;background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);font-size:10px;font-weight:800;letter-spacing:1px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .pref{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--bdr);box-shadow:0 3px 14px var(--shadow);}
 .pref-row{display:grid;grid-template-columns:1fr 1fr 1fr 28px;padding:9px 14px;font-size:10px;border-bottom:1px solid var(--hairline);align-items:center;}
 .pref-row:last-child{border-bottom:none;}
@@ -1070,8 +1082,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="setup-field">
     <label class="setup-label">Unit Type</label>
     <div class="utype-row">
-      <button class="utype-btn on" id="ss-wbtn" onclick="ssSetUnit('weight',this)">⚖️ Weight<br><span style="font-size:8px;font-weight:400">g / oz / lb</span></button>
-      <button class="utype-btn" id="ss-cbtn" onclick="ssSetUnit('count',this)">📦 Count<br><span style="font-size:8px;font-weight:400">bottles, pieces…</span></button>
+      <button class="utype-btn on" id="ss-wbtn" onclick="ssSetUnit('weight',this)">Weight<br><span style="font-size:8px;font-weight:400">g / oz / lb</span></button>
+      <button class="utype-btn" id="ss-cbtn" onclick="ssSetUnit('count',this)">Count<br><span style="font-size:8px;font-weight:400">bottles, pieces…</span></button>
     </div>
     <div class="setup-hint">Track by weight (g, oz, lb) or by count (bottles, pieces).</div>
   </div>
@@ -1123,7 +1135,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="strain-sel-wrap">
         <select class="strain-sel" id="strainSel" onchange="switchStrain(this.value)"></select>
       </div>
-      <button class="btn-gear" onclick="openModal('strainMgr')">⚙</button>
+      <button class="btn-gear" onclick="openModal('strainMgr')" aria-label="Manage products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.4"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7 5.6 5.6"/></svg></button>
     </div>
     <div class="prog-wrap">
       <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
@@ -1145,7 +1157,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div id="lowStockBanner" class="low-stock-banner" style="display:none"></div>
 
   <div id="backupBanner" class="backup-banner" style="display:none">
-    <span class="backup-banner-txt" id="backupBannerTxt">⚠ Back up your data</span>
+    <span class="backup-banner-txt" id="backupBannerTxt">Back up your data</span>
     <span class="backup-banner-actions">
       <button class="backup-banner-btn" onclick="doQuickBackup()">Back up now</button>
       <button class="backup-banner-x" onclick="snoozeBackup()" aria-label="Dismiss">✕</button>
@@ -1174,7 +1186,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <button class="btn-sale qa-sale" onclick="openSaleModal()">+ Record Sale</button>
       <button class="qa-restock" onclick="openModal('restock')"><span>↑</span> Restock</button>
     </div>
-    <div id="roReadonly" class="ro-banner" style="display:none">👁 View-only access — ask the owner if you need to record sales.</div>
+    <div id="roReadonly" class="ro-banner" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View-only access — ask the owner if you need to record sales.</div>
 
     <div id="manageGroups"></div>
   </div>
@@ -1339,7 +1351,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         </div>
         <div class="settings-row">
           <span class="settings-row-lbl">Wipe all data &amp; restart</span>
-          <button class="btn-sm-danger" onclick="openModal('resetAll')">⚠ Reset All</button>
+          <button class="btn-sm-danger" onclick="openModal('resetAll')">Reset All</button>
         </div>
       </div>
     </div>
@@ -1397,14 +1409,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="subpage-body">
     <div style="font-size:12px;color:var(--txt-d);line-height:1.65;margin-bottom:18px">Add The Ledger to your home screen — it opens full-screen and works completely offline, just like an app from the store. No download needed.</div>
 
-    <div class="sec-lbl" style="margin-top:0">📱 iPhone &amp; iPad — Safari</div>
+    <div class="sec-lbl" style="margin-top:0">iPhone &amp; iPad — Safari</div>
     <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:15px 15px 7px;margin-bottom:18px">
       <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Open this page in Safari, then tap the Share button (the square with an up arrow) at the bottom of the screen.</span></div>
       <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Scroll down and tap “Add to Home Screen”.</span></div>
       <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>Tap “Add” in the top corner — the Ledger icon lands on your home screen.</span></div>
     </div>
 
-    <div class="sec-lbl">🤖 Android — Chrome</div>
+    <div class="sec-lbl">Android — Chrome</div>
     <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:15px 15px 7px;margin-bottom:18px">
       <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Open this page in Chrome, then tap the menu (three dots) in the top-right corner.</span></div>
       <div style="display:flex;gap:11px;margin-bottom:11px;font-size:12px;color:var(--txt);line-height:1.5"><span style="flex:none;width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Tap “Install app”, or “Add to Home screen” if you don’t see it.</span></div>
@@ -1531,14 +1543,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="ai-body idle" id="aiBody">Tap below to get a live AI analysis of your real data...</div>
     </div>
     <button class="btn-ai" id="aiBtn" onclick="getAI()">✦ Get AI Advice</button>
-    <div id="chatSection" style="display:none" class="chat-wrap">
+    <div id="chatSection" class="chat-wrap">
       <div class="chat-hdr">
-        <span class="chat-hdr-lbl">💬 Ask a Follow-Up</span>
+        <span class="chat-hdr-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Ask the AI</span>
         <button class="chat-clear" onclick="clearChat()">Clear</button>
       </div>
       <div class="chat-msgs" id="chatMsgs"></div>
       <div class="chat-row">
-        <input class="chat-in" id="chatInput" placeholder="Ask anything about your numbers..." maxlength="300" autocomplete="off"/>
+        <input class="chat-in" id="chatInput" aria-label="Ask the AI a question" placeholder="Ask about your numbers or how to use the app..." maxlength="300" autocomplete="off"/>
         <button class="chat-btn" id="chatSend" onclick="sendChatMsg()">↑</button>
       </div>
     </div>
@@ -1578,7 +1590,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div class="acard-ctrl">
           <button class="btn-pm" onclick="adjUse(-1)">−</button>
           <div class="acard-disp">
-            <input type="number" id="useAmt" value="2" inputmode="decimal" class="use-input"/>
+            <input type="number" id="useAmt" aria-label="Internal use amount" value="2" inputmode="decimal" class="use-input"/>
             <div class="sm" style="margin-top:3px;" id="useUnitLbl">Grams</div>
           </div>
           <button class="btn-pm" onclick="adjUse(1)">+</button>
@@ -1766,20 +1778,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.36.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.37.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon">🔀</div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
         <div>
-          <div class="wn-title">Two devices, nothing lost</div>
-          <div class="wn-desc">When two devices record sales at the same time, The Ledger now merges both sides automatically — every sale, expense, restock and invoice from each device is kept, and stock totals come out right.</div>
+          <div class="wn-title">Ask the AI anything</div>
+          <div class="wn-desc">The AI chat is now always available in the AI Advisor — ask about your numbers, or how to use any part of the app, and get a direct answer.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon">⇄</div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 0-20 8 8 0 0 1 8 8 5 5 0 0 1-5 5h-2a2 2 0 0 0-1 3.5A2 2 0 0 1 12 22z"/></svg></div>
         <div>
-          <div class="wn-title">Switch between businesses</div>
-          <div class="wn-desc">Part of more than one business? A new "Switch business" row appears in More — tap to jump between them. Each business's data stays completely separate.</div>
+          <div class="wn-title">A cleaner, calmer look</div>
+          <div class="wn-desc">Emojis across the app — reports, smart tips, logs and more — have been replaced with elegant icons that match your theme in both dark and light mode.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
+        <div>
+          <div class="wn-title">Easier for everyone</div>
+          <div class="wn-desc">Full keyboard support: every page, picker and setting can now be reached without touch, dialogs announce themselves to screen readers, and Esc closes any popup.</div>
         </div>
       </div>
     </div>
@@ -1799,7 +1818,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div class="acard-ctrl">
           <button class="btn-pm" onclick="adjRestock(-1)">−</button>
           <div class="acard-disp">
-            <input type="number" id="restockAmt" value="14" inputmode="decimal" class="restock-input"/>
+            <input type="number" id="restockAmt" aria-label="Restock amount" value="14" inputmode="decimal" class="restock-input"/>
             <div class="sm" style="margin-top:3px;" id="restockUnitLbl">Grams</div>
           </div>
           <button class="btn-pm" onclick="adjRestock(1)">+</button>
@@ -1849,21 +1868,21 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="m-sec">
       <span class="m-lbl">Payment</span>
       <div class="pay-btns" id="payBtns">
-        <button class="pay-btn on" onclick="setPayment('Cash',this)">💵 Cash</button>
-        <button class="pay-btn" onclick="setPayment('Card',this)">💳 Card</button>
+        <button class="pay-btn on" onclick="setPayment('Cash',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5"/><path d="M16.5 11.5h5v4h-5a2 2 0 0 1 0-4z"/></svg>Cash</button>
+        <button class="pay-btn" onclick="setPayment('Card',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2.5"/><line x1="1" y1="9.5" x2="23" y2="9.5"/></svg>Card</button>
         <button class="pay-btn" id="payBtnEtransfer" onclick="setPayment('e-Transfer',this)" style="display:none">⇄ e-Transfer</button>
         <button class="pay-btn" onclick="setPayment('Other',this)">⋯ Other</button>
       </div>
     </div>
     <div class="m-sec">
       <span class="m-lbl">Note (optional)</span>
-      <input class="m-input" id="saleNote" placeholder="e.g. regular, cash..."/>
+      <input class="m-input" id="saleNote" aria-label="Sale note (optional)" placeholder="e.g. regular, cash..."/>
     </div>
     <div id="saleDiscWrap" style="margin-bottom:12px">
       <button id="saleDiscToggle" onclick="toggleDiscPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleDiscToggleIcon">＋</span> Add discount</button>
       <div id="saleDiscPanel" style="display:none;margin-top:8px">
         <div class="disc-row">
-          <input class="disc-in" id="saleDiscIn" type="number" inputmode="decimal" placeholder="0" oninput="onDiscInput()"/>
+          <input class="disc-in" id="saleDiscIn" aria-label="Discount" type="number" inputmode="decimal" placeholder="0" oninput="onDiscInput()"/>
           <button class="disc-type on" id="discTypeAmt" onclick="setDiscType('amt')">$</button>
           <button class="disc-type" id="discTypePct" onclick="setDiscType('pct')">%</button>
           <button class="disc-clear" onclick="clearDiscount()">Clear</button>
@@ -1873,11 +1892,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div id="saleCustWrap" style="margin-bottom:12px">
       <button id="saleCustToggle" onclick="toggleCustPanel()" style="background:none;border:none;color:var(--txt-d);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:var(--font);padding:0;display:flex;align-items:center;gap:5px"><span id="saleCustToggleIcon">＋</span> Add customer</button>
       <div id="saleCustPanel" style="display:none;margin-top:8px">
-        <input class="m-input" id="saleCustIn" placeholder="Customer name" autocomplete="off" oninput="onCustInput()"/>
+        <input class="m-input" id="saleCustIn" aria-label="Customer name" placeholder="Customer name" autocomplete="off" oninput="onCustInput()"/>
         <button class="unpaid-btn" id="saleUnpaidBtn" onclick="toggleUnpaid()">Mark unpaid · they owe this</button>
         <div id="salePaidRow" style="display:none;margin-top:9px">
           <div class="disc-row">
-            <input class="disc-in" id="salePaidIn" type="number" inputmode="decimal" placeholder="Paid now (optional)" oninput="onPaidInput()" style="flex:1"/>
+            <input class="disc-in" id="salePaidIn" aria-label="Amount paid now (optional)" type="number" inputmode="decimal" placeholder="Paid now (optional)" oninput="onPaidInput()" style="flex:1"/>
             <span id="salePaidOwe" style="font-size:10px;color:var(--acc);white-space:nowrap;align-self:center;padding:0 6px"></span>
           </div>
         </div>
@@ -1916,14 +1935,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div id="strainList"></div>
     <div style="margin-top:14px">
       <div class="utype-row" style="margin-bottom:8px">
-        <button class="utype-btn on" id="ns-wbtn" onclick="nsSetUnit('weight',this)">⚖️ Weight</button>
-        <button class="utype-btn" id="ns-cbtn" onclick="nsSetUnit('count',this)">📦 Count/Units</button>
+        <button class="utype-btn on" id="ns-wbtn" onclick="nsSetUnit('weight',this)">Weight</button>
+        <button class="utype-btn" id="ns-cbtn" onclick="nsSetUnit('count',this)">Count/Units</button>
       </div>
       <div id="ns-unitname-wrap" style="display:none;margin-bottom:8px">
-        <input class="ns-in" id="nsUnitName" placeholder="Unit name (e.g. bottles)" autocomplete="off" style="width:100%"/>
+        <input class="ns-in" id="nsUnitName" aria-label="Unit name" placeholder="Unit name (e.g. bottles)" autocomplete="off" style="width:100%"/>
       </div>
       <div class="ns-row">
-        <input class="ns-in" id="nsInput" placeholder="New product name..." autocomplete="off"/>
+        <input class="ns-in" id="nsInput" aria-label="New product name" placeholder="New product name..." autocomplete="off"/>
         <button class="ns-add" onclick="addStrain()">+ Add</button>
       </div>
     </div>
@@ -1947,10 +1966,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       </div>
     </div>
     <span class="m-lbl" id="expMLabel">Amount ($)</span>
-    <input class="m-input-lg" id="expMInput" type="number" placeholder="0" inputmode="decimal"/>
+    <input class="m-input-lg" id="expMInput" aria-label="Expense amount" type="number" placeholder="0" inputmode="decimal"/>
     <div class="m-sec" id="expNoteWrap" style="margin-top:12px">
       <span class="m-lbl">Note (optional)</span>
-      <input class="m-input" id="expMNote" placeholder="e.g. restock cost, supplies..."/>
+      <input class="m-input" id="expMNote" aria-label="Expense note (optional)" placeholder="e.g. restock cost, supplies..."/>
     </div>
     <button class="btn-confirm-red" id="expMConfirm" onclick="confirmExp()">Confirm</button>
   </div>
@@ -1981,11 +2000,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     </div>
     <div class="m-sec">
       <span class="m-lbl">Low Price ($)</span>
-      <input class="m-input" id="editPriceLo" type="number" placeholder="0" inputmode="decimal"/>
+      <input class="m-input" id="editPriceLo" aria-label="Low price" type="number" placeholder="0" inputmode="decimal"/>
     </div>
     <div class="m-sec">
       <span class="m-lbl">High Price ($) — same as low for a single price</span>
-      <input class="m-input" id="editPriceHi" type="number" placeholder="0" inputmode="decimal"/>
+      <input class="m-input" id="editPriceHi" aria-label="High price" type="number" placeholder="0" inputmode="decimal"/>
     </div>
     <button class="btn-confirm" onclick="confirmEditPrice()">Update Price</button>
   </div>
@@ -2061,7 +2080,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 <div class="overlay" id="modal-resetAll" onclick="overlayClose(event,'modal-resetAll')">
   <div class="mbox mbox-red">
     <div class="modal-hdr">
-      <div class="m-title danger">⚠ Reset All Data</div>
+      <div class="m-title danger">Reset All Data</div>
       <button class="modal-close" onclick="closeModal('resetAll')">✕</button>
     </div>
     <div class="reset-warning">This will permanently delete <strong style="color:#e05c5c;">all products, sales, logs and expenses</strong>. The app will restart from scratch.</div>
@@ -2115,7 +2134,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.36.0";
+const APP_VER    = "2.37.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3224,10 +3243,16 @@ function updateFiltersChip(){
 }
 
 // ── MODALS ──
+let _modalReturnFocus = null;
 function openModal(id){
   if(id === "strainMgr"){ _renamingStrain = null; renderStrainMgr(); }
   if(id === "resetProduct"){ const el = document.getElementById("resetProductName"); if(el) el.textContent = D.cur; }
-  document.getElementById("modal-"+id).classList.add("open");
+  const ov = document.getElementById("modal-"+id);
+  ov.classList.add("open");
+  // a11y: move focus into the dialog and remember where to send it back
+  _modalReturnFocus = document.activeElement;
+  const box = ov.querySelector(".mbox");
+  if(box){ if(!box.hasAttribute("tabindex")) box.setAttribute("tabindex","-1"); try{ box.focus({preventScroll:true}); }catch(e){} }
 }
 function closeModal(id){
   document.getElementById("modal-"+id).classList.remove("open");
@@ -3236,8 +3261,52 @@ function closeModal(id){
   if(id === "sale" && saleOpenStrain && D.strains[saleOpenStrain] && D.cur !== saleOpenStrain){
     D.cur = saleOpenStrain; syncUnitDefaults(); syncPricesFromRef(); persist(); renderAll();
   }
+  // a11y: return focus to whatever opened the dialog
+  if(_modalReturnFocus && _modalReturnFocus.focus){ try{ _modalReturnFocus.focus({preventScroll:true}); }catch(e){} }
+  _modalReturnFocus = null;
 }
-function overlayClose(e, id){ if(e.target.id === "modal-"+id) closeModal(id); }
+// Callers pass both "sale" and "modal-sale" style ids — normalize so
+// tap-outside-to-close works for every modal.
+function overlayClose(e, id){ id = String(id).replace(/^modal-/,""); if(e.target.id === "modal-"+id) closeModal(id); }
+// a11y: dialog semantics for every modal + Escape-to-close + focus trap +
+// keyboard activation for the app's clickable rows (event delegation).
+(function(){
+  document.querySelectorAll(".overlay > .mbox").forEach(box => {
+    box.setAttribute("role","dialog");
+    box.setAttribute("aria-modal","true");
+    const t = box.querySelector(".m-title");
+    if(t){ if(!t.id) t.id = "mt-" + Math.random().toString(36).slice(2,8); box.setAttribute("aria-labelledby", t.id); }
+  });
+  document.addEventListener("keydown", e => {
+    // Enter/Space activates clickable div/span rows (they get tabindex via a11yDecorate)
+    if((e.key === "Enter" || e.key === " ") && e.target && e.target.matches &&
+       e.target.matches('div[onclick]:not(.overlay),span[onclick]') ){
+      e.preventDefault(); e.target.click(); return;
+    }
+    const open = document.querySelector(".overlay.open");
+    if(!open) return;
+    if(e.key === "Escape"){
+      e.preventDefault();
+      if(open.id === "modal-whatsNew" && typeof dismissWhatsNew === "function"){ dismissWhatsNew(); return; }
+      closeModal(open.id.replace(/^modal-/,""));
+    } else if(e.key === "Tab"){
+      const f = open.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(!f.length) return;
+      const first = f[0], last = f[f.length-1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  });
+})();
+// Make every clickable row reachable by keyboard. Re-run after each render.
+function a11yDecorate(){
+  try{
+    document.querySelectorAll('div[onclick]:not(.overlay),span[onclick]').forEach(el => {
+      if(!el.hasAttribute("tabindex")) el.setAttribute("tabindex","0");
+      if(!el.hasAttribute("role")) el.setAttribute("role","button");
+    });
+  }catch(e){}
+}
 function openSaleModal(){
   const s = cur(); if(!s) return;
   document.getElementById("saleNote").value = "";
@@ -3453,7 +3522,12 @@ const LI = {
   edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
   settings:'<circle cx="12" cy="12" r="3.4"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7 5.6 5.6"/>',
   cloud:'<path d="M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
-  check:'<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14 9 11"/>'
+  check:'<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14 9 11"/>',
+  alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  chat:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'
 };
 function _li(name){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${LI[name]||""}</svg>`; }
 // ── MANAGE INDEX + HISTORY (drill-down pages) ──
@@ -3514,7 +3588,7 @@ function renderCustomers(){
   const el = document.getElementById("customersList"); if(!el) return;
   const map = owedByCustomer();
   const entries = Object.entries(map).sort((a,b)=>b[1].owed-a[1].owed);
-  if(!entries.length){ el.innerHTML = `<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:30px 0">No one owes you 🎉</div>`; return; }
+  if(!entries.length){ el.innerHTML = `<div style="text-align:center;color:var(--txt-d);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:30px 0">No one owes you</div>`; return; }
   const total = entries.reduce((a,[,c])=>a+c.owed,0);
   el.innerHTML = `<div class="ls-range" style="margin-bottom:11px">Total outstanding · ${fmtDollar(total)}</div>` +
     entries.map(([name,c])=>`<div class="cust-row">
@@ -4139,7 +4213,7 @@ function renderBulkCart(){
   const showProd = strains.size > 1 || (bulkCart[0] && (bulkCart[0].strain||D.cur) !== D.cur);
   bl.innerHTML = bulkCart.map((item,i)=>{
     const prod = showProd ? `<span style="color:var(--txt-d)">${escHtml(item.strain||D.cur)} · </span>` : "";
-    return `<div class="bulk-item"><span>${prod}${item.qty}× ${item.type} — ${fmtDollar(lineTot(item))}${item.disc?" 🏷️":""}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`;
+    return `<div class="bulk-item"><span>${prod}${item.qty}× ${item.type} — ${fmtDollar(lineTot(item))}${item.disc?` <span class="ic">${_li("pricetag")}</span>`:""}</span><button class="bulk-item-rm" onclick="removeBulkItem(${i})">✕</button></div>`;
   }).join("");
   bt.textContent = "Cart total: " + fmtDollar(total);
 }
@@ -4429,7 +4503,7 @@ async function getAI(){
 
   const focusUnitPlural = unitPlural(D.strains[focus.name]);
   const prompt =
-`You are an elite, number-driven business advisor. Analyze the real data below and give exactly 5 specific, actionable tips, ordered from highest to lowest impact. Each tip must start with an emoji and be 2-3 sentences. Cite the actual numbers — never give generic advice. Blank line between tips. Plain text only, no bold, no headers. All monetary values are in ${getCurrency()}; use that symbol in your reply.
+`You are an elite, number-driven business advisor. Analyze the real data below and give exactly 5 specific, actionable tips, ordered from highest to lowest impact. Start each tip with a short uppercase topic label followed by a colon (e.g. PRICING:, STOCK:, RESTOCK:) and keep each tip 2-3 sentences. Cite the actual numbers — never give generic advice. Blank line between tips. Plain text only, no bold, no headers, and never use emojis. All monetary values are in ${getCurrency()}; use that symbol in your reply.
 
 FOCUS PRODUCT: ${focus.name}
   Stock remaining : ${focus.stock.toFixed(1)} ${focusUnitPlural}
@@ -4454,14 +4528,15 @@ Address exactly these 5 areas using the numbers above:
 5. Honest product outlook — is this worth scaling, maintaining, or cutting relative to the portfolio`;
 
   try {
-    const sysmsg = "You are an elite, no-nonsense business advisor analyzing this seller's real ledger data. Lead with the highest-impact move, cite the exact numbers, and never pad with generic filler. Plain text only — no markdown or bullet characters except a single emoji at the start of each tip.";
+    const sysmsg = "You are an elite, no-nonsense business advisor analyzing this seller's real ledger data. Lead with the highest-impact move, cite the exact numbers, and never pad with generic filler. Plain text only — no markdown, no bullet characters, and never use emojis.";
     const txt = await streamAI({
       messages:[{ role:"system", content:sysmsg },{ role:"user", content:prompt }],
       max_tokens:1200, statusEl:body,
-      onToken:(full)=>{ body.className = "ai-body"; body.textContent = full; }
+      onToken:(full)=>{ body.className = "ai-body"; body.textContent = stripEmoji(full); }
     });
-    body.className = "ai-body"; body.textContent = txt;
-    const cs2 = cur(); if(cs2){ cs2.aiTips = txt; cs2.aiChat = []; }
+    const cleanTxt = stripEmoji(txt);
+    body.className = "ai-body"; body.textContent = cleanTxt;
+    const cs2 = cur(); if(cs2){ cs2.aiTips = cleanTxt; cs2.aiChat = []; }
     persist();
     // Show chat input now that advice is ready
     const chatSec = document.getElementById("chatSection");
@@ -4469,7 +4544,7 @@ Address exactly these 5 areas using the numbers above:
     renderChat();
   } catch(e){
     body.className = "ai-body idle";
-    body.textContent = "⚠️ " + (e.message || "Unknown error");
+    body.textContent = (e.message || "Unknown error");
   }
   aiLoading = false; btn.disabled = false; btn.innerHTML = "✦ Refresh AI Advice";
 }
@@ -4478,6 +4553,13 @@ Address exactly these 5 areas using the numbers above:
 function escHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+// The app is emoji-free by design — scrub any emoji the AI sneaks in.
+function stripEmoji(str){
+  return String(str).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2705}\u{2728}\u{274C}\u{274E}\u{2753}-\u{2757}\u{2764}\u{2B50}\u{2B55}\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}]/gu,"").replace(/ {2,}/g," ").replace(/^[ \t]+/gm,"");
+}
+// What the AI knows about using The Ledger itself (for "how do I…" questions).
+const APP_GUIDE =
+"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under Team with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business. Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit shows who recorded each entry. Install as app: More → Install App. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
 function renderChat(){
   const s = cur(); if(!s) return;
@@ -4503,7 +4585,7 @@ function clearChat(){
 
 async function sendChatMsg(){
   if(chatLoading) return;
-  const s = cur(); if(!s || !s.aiTips) return;
+  const s = cur(); if(!s) return;
 
   const input   = document.getElementById("chatInput");
   const sendBtn = document.getElementById("chatSend");
@@ -4552,7 +4634,7 @@ async function sendChatMsg(){
     : "";
 
   const prompt =
-`You are an elite business advisor with full access to this seller's data. Answer the question directly, using the specific numbers. Be concise (2-4 sentences). Plain text only, no markdown. All monetary values are in ${getCurrency()}; use that symbol.
+`You are an elite business advisor with full access to this seller's data, and you also know The Ledger app inside out. Answer the question directly. For business questions use the specific numbers; for questions about using the app, answer from the APP GUIDE. Be concise (2-4 sentences). Plain text only, no markdown, never use emojis. All monetary values are in ${getCurrency()}; use that symbol.
 
 ACTIVE PRODUCT: ${D.cur}
   Stock: ${fmtQty(s.stock||0,s)} | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
@@ -4562,14 +4644,14 @@ ACTIVE PRODUCT: ${D.cur}
 ALL PRODUCTS:
 ${allProducts}
 
-ORIGINAL ADVICE:
-${s.aiTips}
+${APP_GUIDE}
+${s.aiTips ? "\nORIGINAL ADVICE:\n"+s.aiTips : ""}
 ${convoStr}
 
 USER QUESTION: ${question}`;
 
   const chatMessages = [
-    { role:"system", content:"You are an elite business advisor with full access to this seller's ledger data. Answer directly and specifically, citing the exact numbers. Be concise. Plain text only, no markdown." },
+    { role:"system", content:"You are an elite business advisor with full access to this seller's ledger data, and a helpful expert on The Ledger app itself. Answer directly and specifically — cite exact numbers for business questions, and use the provided app guide for how-to questions. Be concise. Plain text only, no markdown, never use emojis." },
     ...history.filter(m => m.content !== null).map(m => ({ role: m.role, content: m.content })),
     { role:"user", content: prompt }
   ];
@@ -4578,13 +4660,14 @@ USER QUESTION: ${question}`;
   try {
     response = await streamAI({
       messages: chatMessages, max_tokens:700,
-      onToken:(full)=>{ s.aiChat[s.aiChat.length - 1] = { role:"assistant", content: full }; renderChat(); }
+      onToken:(full)=>{ s.aiChat[s.aiChat.length - 1] = { role:"assistant", content: stripEmoji(full) }; renderChat(); }
     });
   } catch(e){ response = null; }
+  if(response) response = stripEmoji(response);
 
   s.aiChat[s.aiChat.length - 1] = {
     role: "assistant",
-    content: (response && response.trim()) || "⚠️ Couldn't reach the AI — please try again."
+    content: (response && response.trim()) || "Couldn't reach the AI — please try again."
   };
 
   chatLoading = false;
@@ -4789,16 +4872,16 @@ function _w(id, w){ const e = _el(id); if(e) e.style.width = w; }
 // always re-translates from each node's cached original English, so it is
 // reversible and order-independent.
 const LANGS = [
-  { code:"en", name:"English",    native:"English",    flag:"🇬🇧" },
-  { code:"es", name:"Spanish",    native:"Español",    flag:"🇪🇸" },
-  { code:"zh", name:"Chinese",    native:"简体中文",     flag:"🇨🇳" },
-  { code:"hi", name:"Hindi",      native:"हिन्दी",      flag:"🇮🇳" },
-  { code:"ar", name:"Arabic",     native:"العربية",    flag:"🇸🇦", rtl:true },
-  { code:"fr", name:"French",     native:"Français",   flag:"🇫🇷" },
-  { code:"pt", name:"Portuguese", native:"Português",  flag:"🇧🇷" },
-  { code:"ru", name:"Russian",    native:"Русский",    flag:"🇷🇺" },
-  { code:"de", name:"German",     native:"Deutsch",    flag:"🇩🇪" },
-  { code:"ja", name:"Japanese",   native:"日本語",       flag:"🇯🇵" },
+  { code:"en", name:"English",    native:"English" },
+  { code:"es", name:"Spanish",    native:"Español" },
+  { code:"zh", name:"Chinese",    native:"简体中文" },
+  { code:"hi", name:"Hindi",      native:"हिन्दी" },
+  { code:"ar", name:"Arabic",     native:"العربية", rtl:true },
+  { code:"fr", name:"French",     native:"Français" },
+  { code:"pt", name:"Portuguese", native:"Português" },
+  { code:"ru", name:"Russian",    native:"Русский" },
+  { code:"de", name:"German",     native:"Deutsch" },
+  { code:"ja", name:"Japanese",   native:"日本語" },
 ];
 // Business-switcher keys (v2.34.0) merged here in-app — they ship with index.html;
 // i18n.js stays the master dictionary for everything else and always wins on conflict.
@@ -4818,7 +4901,9 @@ try{
   "Staff": {"es":"Personal","zh":"员工","hi":"स्टाफ़","ar":"موظف","fr":"Personnel","pt":"Equipe","ru":"Сотрудник","de":"Mitarbeiter","ja":"スタッフ"},
   "Viewer": {"es":"Observador","zh":"查看者","hi":"व्यूअर","ar":"مشاهد","fr":"Lecteur","pt":"Visualizador","ru":"Наблюдатель","de":"Betrachter","ja":"閲覧者"},
   "Merged changes from your other device": {"es":"Cambios de tu otro dispositivo fusionados","zh":"已合并来自您其他设备的更改","hi":"आपके दूसरे डिवाइस के बदलाव मर्ज कर दिए गए","ar":"تم دمج التغييرات من جهازك الآخر","fr":"Modifications de votre autre appareil fusionnées","pt":"Alterações do seu outro dispositivo mescladas","ru":"Изменения с другого устройства объединены","de":"Änderungen von Ihrem anderen Gerät zusammengeführt","ja":"他のデバイスからの変更を統合しました"},
-  "Synced from your other device": {"es":"Sincronizado desde tu otro dispositivo","zh":"已从您的其他设备同步","hi":"आपके दूसरे डिवाइस से सिंक हो गया","ar":"تمت المزامنة من جهازك الآخر","fr":"Synchronisé depuis votre autre appareil","pt":"Sincronizado do seu outro dispositivo","ru":"Синхронизировано с другого устройства","de":"Von Ihrem anderen Gerät synchronisiert","ja":"他のデバイスから同期しました"}
+  "Synced from your other device": {"es":"Sincronizado desde tu otro dispositivo","zh":"已从您的其他设备同步","hi":"आपके दूसरे डिवाइस से सिंक हो गया","ar":"تمت المزامنة من جهازك الآخر","fr":"Synchronisé depuis votre autre appareil","pt":"Sincronizado do seu outro dispositivo","ru":"Синхронизировано с другого устройства","de":"Von Ihrem anderen Gerät synchronisiert","ja":"他のデバイスから同期しました"},
+  "Ask the AI": {"es":"Pregunta a la IA","zh":"问 AI","hi":"एआई से पूछें","ar":"اسأل الذكاء الاصطناعي","fr":"Demandez à l'IA","pt":"Pergunte à IA","ru":"Спросите ИИ","de":"Frag die KI","ja":"AIに質問"},
+  "Ask about your numbers or how to use the app...": {"es":"Pregunta sobre tus números o cómo usar la app...","zh":"询问您的数据或如何使用应用…","hi":"अपने आँकड़ों या ऐप के उपयोग के बारे में पूछें...","ar":"اسأل عن أرقامك أو عن كيفية استخدام التطبيق...","fr":"Posez une question sur vos chiffres ou l'utilisation de l'app...","pt":"Pergunte sobre seus números ou como usar o app...","ru":"Спросите о ваших цифрах или о работе приложения...","de":"Fragen Sie zu Ihren Zahlen oder zur App...","ja":"数字やアプリの使い方について質問..."}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -4871,13 +4956,16 @@ function i18nApply(){
     ["placeholder","aria-label","title","alt"].forEach(attr => {
       document.querySelectorAll("[" + attr + "]").forEach(el => {
         if(el.closest("[data-noi18n]")) return;
-        const dk = "i18n" + attr;
-        if(el.dataset[dk] === undefined) el.dataset[dk] = el.getAttribute(attr) || "";
-        const orig = el.dataset[dk], key = orig.trim();
+        // NB: plain attribute storage — dataset keys can't contain the hyphen
+        // in "aria-label" (it used to throw here and silently kill the pass).
+        const dk = "data-i18n-" + attr;
+        if(!el.hasAttribute(dk)) el.setAttribute(dk, el.getAttribute(attr) || "");
+        const orig = el.getAttribute(dk) || "", key = orig.trim();
         const tr = (LANG !== "en" && I18N[key]) ? I18N[key][LANG] : null;
         el.setAttribute(attr, tr || orig);
       });
     });
+    a11yDecorate();   // keyboard reachability piggybacks on the same after-render pass
   }catch(e){}
 }
 function setLang(code){
@@ -4904,7 +4992,7 @@ function renderLangPickerPage(){
   grid.innerHTML = LANGS.map(l => {
     const active = l.code === LANG;
     return `<div onclick="setLang('${l.code}')" data-noi18n style="display:flex;align-items:center;gap:12px;padding:15px 14px;background:var(--card);border:2px solid ${active?"var(--acc)":"var(--bdr)"};border-radius:14px;cursor:pointer;transition:border-color 0.2s">
-      <div style="font-size:26px;line-height:1">${l.flag}</div>
+      <div class="lang-code">${l.code.toUpperCase()}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:700;color:${active?"var(--acc)":"var(--txt-b)"};line-height:1.15">${l.native}</div>
         <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-top:2px">${l.name}</div>
@@ -5072,7 +5160,7 @@ function renderLog(){
 // Render one non-batched log entry (sale / restock / use / expense).
 function renderSingleLog(l, s){
     const byTag = (l.byId && l.byId !== _me.id && l.by) ? (' · <span class="log-by">'+escHtml(l.by)+'</span>') : "";
-    const invBtn = l.type==="sale" ? `<button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button>` : "";
+    const invBtn = l.type==="sale" ? `<button class="log-edit-btn" onclick="invFromSale(${l.id})" aria-label="Create invoice">${_li("invoices")}</button>` : "";
     const actions = `<div class="log-actions">${invBtn}<button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
@@ -5080,8 +5168,8 @@ function renderSingleLog(l, s){
     const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
     const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
     const unpaidBadge = (l.type==="sale" && l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
-    const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
-    const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)">🏷️ ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
+    const custNote = l.customer ? `<div class="log-note"><span class="ic">${_li("customers")}</span> ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
+    const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)"><span class="ic">${_li("pricetag")}</span> ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
       inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
@@ -5092,7 +5180,7 @@ function renderSingleLog(l, s){
     else if(l.type==="expense")
       inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
-    return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
+    return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">${_li("trash")}</div>${inner}</div>`;
 }
 // Render a batched purchase (multiple bundles / products bought together) as one
 // grouped card. The denormalized batchItems list shows the whole purchase even
@@ -5105,9 +5193,9 @@ function renderBatchCard(l, s){
   const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
   const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
   const unpaidBadge = (l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
-  const custNote = l.customer ? `<div class="log-note">👤 ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
-  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})">🧾</button></div></div>`;
-  return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">🗑️</div>${inner}</div>`;
+  const custNote = l.customer ? `<div class="log-note"><span class="ic">${_li("customers")}</span> ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
+  const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})" aria-label="Create invoice">${_li("invoices")}</button></div></div>`;
+  return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">${_li("trash")}</div>${inner}</div>`;
 }
 
 // Range summary for the currently-filtered log set (revenue, expenses, net, top seller)
@@ -5210,28 +5298,29 @@ function renderQS(){
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [];
-  if(profit < 0) tips.push("⚠️ You're still in the red — hold off on restocking until you cover your expenses.");
-  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push("📈 Expenses covered — margins are slim. Focus on your best-selling pack sizes to maximize revenue.");
-  else if(profit>=exp*0.5 && exp>0) tips.push("💰 Strong profit margin — well past break-even. A bigger restock could scale your earnings.");
-  else if(exp===0 && earned>0) tips.push("✅ No expenses logged yet — add your restock cost to see your real profit picture.");
+  const _tip = (ic, txt) => `<span class="tip-ic">${_li(ic)}</span><span>${txt}</span>`;
+  if(profit < 0) tips.push(_tip("alert","You're still in the red — hold off on restocking until you cover your expenses."));
+  else if(exp>0 && earned>=exp && profit<exp*0.3) tips.push(_tip("pulse","Expenses covered — margins are slim. Focus on your best-selling pack sizes to maximize revenue."));
+  else if(profit>=exp*0.5 && exp>0) tips.push(_tip("money","Strong profit margin — well past break-even. A bigger restock could scale your earnings."));
+  else if(exp===0 && earned>0) tips.push(_tip("check","No expenses logged yet — add your restock cost to see your real profit picture."));
 
   const lowThreshold = isWeight(s) ? 14 : 3;
-  if(stock===0) tips.push("🚨 Out of stock — restock before you lose customers.");
-  else if(stock<lowThreshold) tips.push(`📦 Stock is getting low — plan your next restock soon.`);
+  if(stock===0) tips.push(_tip("alert","Out of stock — restock before you lose customers."));
+  else if(stock<lowThreshold) tips.push(_tip("stock",`Stock is getting low — plan your next restock soon.`));
 
     if(tu>0 && tsl>0){
       const lostVal = Math.round(tu * avgUnitPrice(s));
-      if(lostVal>20) tips.push(`💨 Internal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`);
+      if(lostVal>20) tips.push(_tip("internaluse",`Internal use has cost ~${fmtDollar(lostVal)} in lost sales — worth keeping an eye on.`));
     }
     const salesByPack = {};
     (s.logs||[]).filter(l => l.type==="sale").forEach(l => { salesByPack[l.pack] = (salesByPack[l.pack]||0) + l.qty; });
     const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
-    if(top) tips.push(`🔥 ${top[0]} bundles are your fastest seller — always keep that size available.`);
+    if(top) tips.push(_tip("bolt",`${escHtml(top[0])} bundles are your fastest seller — always keep that size available.`));
 
     const strainKeys = Object.keys(D.strains);
     if(strainKeys.length > 1){
       const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
-      if(best !== D.cur) tips.push(`⭐ ${best} is your top earner overall — consider prioritizing its stock.`);
+      if(best !== D.cur) tips.push(_tip("ai",`${escHtml(best)} is your top earner overall — consider prioritizing its stock.`));
     }
 
     // Restock planner
@@ -5243,9 +5332,9 @@ function renderQS(){
       const perDay = g14 / 14;
       const suggested = Math.round(perDay * 14);
       if(dl < 7){
-        tips.push(`📅 At your current pace, you'll sell out in ~${daysLeft} days — plan your next restock now. Suggested restock: ${fmtQty(suggested,s)}.`);
+        tips.push(_tip("calendar",`At your current pace, you'll sell out in ~${daysLeft} days — plan your next restock now. Suggested restock: ${fmtQty(suggested,s)}.`));
       } else {
-        tips.push(`📅 Stock should last ~${daysLeft} more days at current velocity. Suggested 2-week buffer: ${fmtQty(suggested,s)}.`);
+        tips.push(_tip("calendar",`Stock should last ~${daysLeft} more days at current velocity. Suggested 2-week buffer: ${fmtQty(suggested,s)}.`));
       }
     }
 
@@ -5255,7 +5344,7 @@ function renderQS(){
       const catTotals = {};
       expLogs.forEach(l=>{ catTotals[l.category]=(catTotals[l.category]||0)+(l.amount||0); });
       const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
-      if(topCat) tips.push(`💰 Your biggest expense category is ${topCat[0]} at ${fmtDollar(topCat[1])}.`);
+      if(topCat) tips.push(_tip("expenses",`Your biggest expense category is ${escHtml(topCat[0])} at ${fmtDollar(topCat[1])}.`));
     }
 
     // Top tag
@@ -5264,13 +5353,13 @@ function renderQS(){
       const tagCounts = {};
       taggedSales.forEach(l=>{ tagCounts[l.tag]=(tagCounts[l.tag]||0)+l.total; });
       const topTag = Object.entries(tagCounts).sort((a,b)=>b[1]-a[1])[0];
-      if(topTag) tips.push(`🏷️ Top Tag: ${topTag[0]} — ${fmtDollar(topTag[1])} in tagged sales.`);
+      if(topTag) tips.push(_tip("pricetag",`Top Tag: ${escHtml(topTag[0])} — ${fmtDollar(topTag[1])} in tagged sales.`));
     }
 
   const tipsEl = document.getElementById("qsTips");
   if(tipsEl) tipsEl.innerHTML = tips.length
     ? tips.map(t => `<div class="qs-tip">${t}</div>`).join("")
-    : '<div class="qs-tip" style="color:var(--txt-d);font-style:italic;">Log some sales to unlock smart suggestions.</div>';
+    : '<div class="qs-tip" style="color:var(--txt-d);font-style:italic;"><span>Log some sales to unlock smart suggestions.</span></div>';
 
   // Restore stored AI tips + chat for this product
   const aiBody = document.getElementById("aiBody");
@@ -5286,9 +5375,9 @@ function renderQS(){
     if(aiBtn) aiBtn.innerHTML = s.aiTips ? "✦ Refresh AI Advice" : "✦ Get AI Advice";
   }
 
-  // Show/hide chat section based on whether advice has been loaded
+  // Chat is always available — ask about your numbers or the app itself
   const chatSection = document.getElementById("chatSection");
-  if(chatSection) chatSection.style.display = s.aiTips ? "block" : "none";
+  if(chatSection) chatSection.style.display = "block";
   renderChat();
 
   // Update Quick Stats label with product name
@@ -5311,7 +5400,7 @@ function renderLowStockBanner(){
   });
   if(worst){
     el.style.display = "block";
-    el.textContent = "⚠️ " + worstName + " stock is low (" + fmtQty(worst.stock, worst) + " left)";
+    el.textContent = worstName + " stock is low (" + fmtQty(worst.stock, worst) + " left)";
   } else {
     el.style.display = "none";
   }
@@ -5398,7 +5487,7 @@ function renderPerf(){
   const p = calcPerformance(s);
   el.innerHTML = `<div class="perf-grid">
     <div class="perf-card">
-      <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? "🔥 "+p.currentStreak : "—"}</div>
+      <div class="perf-val" style="color:var(--acc)">${p.currentStreak > 0 ? `<span class="ic">${_li("bolt")}</span> `+p.currentStreak : "—"}</div>
       <div class="perf-lbl">${__("Day Streak")}${p.longestStreak>1?" · Best "+p.longestStreak:""}</div>
     </div>
     <div class="perf-card">
@@ -5776,7 +5865,7 @@ function showBackupBanner(){
   const b = document.getElementById("backupBanner"); if(!b) return;
   const t = document.getElementById("backupBannerTxt");
   const d = daysSinceBackup();
-  if(t) t.textContent = d===null ? "⚠ Protect your data — back up" : ("⚠ Back up — last saved " + d + (d===1?" day ago":" days ago"));
+  if(t) t.textContent = d===null ? "Protect your data — back up" : ("Back up — last saved " + d + (d===1?" day ago":" days ago"));
   b.style.display = "flex";
 }
 function hideBackupBanner(){ const b=document.getElementById("backupBanner"); if(b) b.style.display="none"; }
@@ -5863,7 +5952,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Audit log records who entered each sale, expense and restock, with the author verified by the server so it can't be faked." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
-  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Faster AI advice", body:"The free AI Advisor can be slow; add a free key (about a minute to set up) to make it instant. Entirely optional." },
+  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Your AI advisor & helper", body:"The AI Advisor analyzes your real numbers, and you can ask it anything — about your data or how to use the app. The free service can be slow; add a free key (about a minute) to make it instant." },
   { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"cloud", title:"Back up & sync", body:"Create a free account to back up to the cloud and sync across devices — by email or Google. The app keeps automatic backups too, so you can Restore here any time. Without an account, your data stays on this device only, so export a backup to be safe." },
   { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"That's the essentials", body:"Nicely done — that's the heart of The Ledger. Replay the full Guide here any time to explore every feature." },
   { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — tap here for the quick steps." },
@@ -6260,7 +6349,7 @@ function _fmtBackupDate(t){
   }catch(e){ return ""; }
 }
 let _recoverPoints = [];
-function _recoverSrcLabel(src){ return src==="cloud" ? "☁ cloud" : (src==="recovery" ? "auto-saved" : "on device"); }
+function _recoverSrcLabel(src){ return src==="cloud" ? "cloud" : (src==="recovery" ? "auto-saved" : "on device"); }
 function _paintRecoverList(){
   const el = document.getElementById("recoverList"); if(!el) return;
   if(!_recoverPoints.length){ el.innerHTML = '<div class="recover-meta" style="text-align:center">No backups found.</div>'; return; }
