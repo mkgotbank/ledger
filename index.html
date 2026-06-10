@@ -181,7 +181,9 @@ try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
 // that exists. Tries the main key then the backup, exactly like hydrate().
 try{
   var _erdy = function(raw){ try{ var p=JSON.parse(raw); return !!(p && p.strains && p.cur && p.strains[p.cur]); }catch(e){ return false; } };
-  if(_erdy(localStorage.getItem("ledger_v4")) || _erdy(localStorage.getItem("ledger_v4_bak"))){
+  // ledger_has_data: tiny marker maintained by persist() — the document itself may now
+  // live only in IndexedDB, which can't be read synchronously this early.
+  if(_erdy(localStorage.getItem("ledger_v4")) || _erdy(localStorage.getItem("ledger_v4_bak")) || localStorage.getItem("ledger_has_data")==="1"){
     document.documentElement.classList.add("has-data");
     if(localStorage.getItem("ledger_pin")) document.documentElement.classList.add("has-pin");
   }
@@ -1786,20 +1788,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.39.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.40.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/><path d="M4 11.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
         <div>
-          <div class="wn-title">Beautiful confirmations</div>
-          <div class="wn-desc">Deleting an invoice, importing a backup, removing a teammate and signing out with unsaved changes now ask with an elegant in-app sheet — in your language and your theme — instead of a plain browser popup.</div>
+          <div class="wn-title">Room to grow — years of records</div>
+          <div class="wn-desc">Your books moved to a far larger on-device database. The old storage limit could fill up after a year or two of busy use; now there's space for many years of sales, invoices and backups.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
         <div>
-          <div class="wn-title">Privacy Policy refreshed</div>
-          <div class="wn-desc">Updated to describe the AI chat in more detail (including the ready-made questions) and the new storage protections — read it any time in More → Privacy Policy.</div>
+          <div class="wn-title">Deleted means deleted</div>
+          <div class="wn-desc">When you delete an entry or invoice on one device, syncing no longer brings it back from another device — deletions now travel with your data. Undo still works exactly as before.</div>
         </div>
       </div>
     </div>
@@ -2150,7 +2152,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.39.0";
+const APP_VER    = "2.40.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2232,7 +2234,7 @@ async function checkForUpdate(){
     } catch(e){}
 
     // Flush data to localStorage immediately before reloading
-    try { localStorage.setItem(SK, JSON.stringify(D)); localStorage.setItem(SK_BAK, JSON.stringify(D)); } catch(e){}
+    try { const _j=JSON.stringify(D); _storeSet(SK,_j); _storeSet(SK_BAK,_j); } catch(e){}
     try { _flushHistory(); } catch(e){}
     // Apply silently — reload straight into the new version; the What's New
     // popup greets the user instead of an "updating" toast.
@@ -2710,6 +2712,24 @@ function showToast(msg, type=""){
   _toastTimer = setTimeout(() => t.className = "", 2500);
 }
 
+// ── DELETION TOMBSTONES ──
+// A deleted entry leaves a tombstone in D.voids (entry id → deleted-at) so the
+// field-level sync merge PROPAGATES the deletion instead of resurrecting the entry
+// from another device's copy. Invoices use D.invoiceVoids keyed like the merge does.
+// Tombstones expire after 120 days (far beyond any realistic sync gap) and are
+// capped at 600 so they can never bloat the document.
+function _pruneVoids(m){
+  try{
+    const cut = Date.now() - 120*86400000;
+    for(const k of Object.keys(m)){ if(m[k] < cut) delete m[k]; }
+    const left = Object.keys(m);
+    if(left.length > 600){ left.sort((a,b)=>m[a]-m[b]); left.slice(0, left.length-600).forEach(k=>delete m[k]); }
+  }catch(e){}
+}
+function _void(id){ if(id==null) return; if(!D.voids || typeof D.voids!=="object") D.voids={}; D.voids[String(id)] = Date.now(); _pruneVoids(D.voids); }
+function _unvoid(id){ try{ if(D.voids) delete D.voids[String(id)]; }catch(e){} }
+function _voidInvoice(inv){ if(!inv) return; if(!D.invoiceVoids || typeof D.invoiceVoids!=="object") D.invoiceVoids={}; D.invoiceVoids[String(inv.id!=null?inv.id:inv.no)] = Date.now(); _pruneVoids(D.invoiceVoids); }
+
 // ── UNDO DELETE ──
 // Stack of up to the last 3 deletes (newest first). Undo pops the most recent,
 // which keeps stored indexes/totals valid since we always restore in LIFO order.
@@ -2751,7 +2771,7 @@ function undoDelete(){
       const st = D.strains[key]; if(!st) return;
       st.stock = info.pre.stock; st.earned = info.pre.earned; st.startStock = info.pre.startStock;
       st.restockTotal = info.pre.restockTotal; st.useTotal = info.pre.useTotal; st.expenses = info.pre.expenses;
-      info.removed.slice().sort((a,b)=>a.idx-b.idx).forEach(r => st.logs.splice(r.idx, 0, r.entry));
+      info.removed.slice().sort((a,b)=>a.idx-b.idx).forEach(r => { st.logs.splice(r.idx, 0, r.entry); _unvoid(r.entry && r.entry.id); });
     });
     try{ let _bt=0,_bn=0; Object.values(snap.affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("restore", { was:"sale", total:_bt, items:_bn }, null); }catch(e){}
     persist(); renderAll();
@@ -2769,6 +2789,7 @@ function undoDelete(){
     s.startStock   = snap.startStock;
     // Re-insert the entry at its original position
     s.logs.splice(snap.idx, 0, snap.entry);
+    _unvoid(snap.entry && snap.entry.id);
     try{ const e=snap.entry||{}; const rs={ was:e.type }; if(e.type==="sale"){ rs.total=e.total; rs.items=(e.batchItems?e.batchItems.length:1); } else if(e.type==="expense"){ rs.amount=e.amount; rs.category=e.category; } else if(e.type==="restock"||e.type==="use"){ rs.amount=e.w; rs.product=snap.strainKey; } _logActivity("restore", rs, null); }catch(e){}
   }
   persist(); renderAll();
@@ -2782,6 +2803,77 @@ function undoDelete(){
 
 // ── STORAGE ──
 const SK_BAK = SK + "_bak";
+// ── DURABLE STORE (IndexedDB primary + localStorage mirror) ──────────────────
+// The ledger document and its on-device backups used to live ONLY in localStorage
+// (~5MB origin cap, with everything stored ~12x). The four big keys now live
+// primarily in IndexedDB (effectively GBs), loaded into an in-memory cache at boot
+// so every existing synchronous call path keeps working unchanged. localStorage
+// remains a best-effort mirror — for resilience, and because an OLD cached app
+// version would still write there; at boot, if the two diverge, whichever copy
+// provably contains the newest activity wins.
+const _IDB_KEYS = [SK, SK + "_bak", SK + "_history", SK + "_recovery"];
+let _idb = null;
+const _memStore = {};
+function _idbReq(req){ return new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+function _idbPut(k, v){ try{ if(_idb) _idb.transaction("kv","readwrite").objectStore("kv").put(v, k); }catch(e){} }
+function _idbDel(k){ try{ if(_idb) _idb.transaction("kv","readwrite").objectStore("kv").delete(k); }catch(e){} }
+// Which serialized doc holds the newest activity? (newest log/invoice id, then count)
+function _fresherDoc(a, b){
+  try{
+    const score = j => {
+      const p = JSON.parse(j); let mx = 0, n = 0;
+      for(const s of Object.values(p.strains || {})){ n += (s.logs||[]).length; for(const l of (s.logs||[])){ if(+l.id > mx) mx = +l.id; } }
+      for(const i of (p.invoices || [])){ n++; if(+i.id > mx) mx = +i.id; }
+      return [mx, n];
+    };
+    const [ma, na] = score(a), [mb, nb] = score(b);
+    if(ma !== mb) return ma > mb ? a : b;
+    if(na !== nb) return na > nb ? a : b;
+    return b;                                    // tie → prefer the IndexedDB copy
+  }catch(e){ return b != null ? b : a; }
+}
+async function _storeInit(){
+  const fromIdb = {};
+  try{
+    const req = indexedDB.open("ledger-store", 1);
+    req.onupgradeneeded = () => { try{ req.result.createObjectStore("kv"); }catch(e){} };
+    _idb = await _idbReq(req);
+    const os = _idb.transaction("kv","readonly").objectStore("kv");
+    for(const k of _IDB_KEYS){
+      try{ const v = await _idbReq(os.get(k)); if(typeof v === "string") fromIdb[k] = v; }catch(e){}
+    }
+  }catch(e){ _idb = null; }
+  const ls = {};
+  for(const k of _IDB_KEYS){ try{ const v = localStorage.getItem(k); if(v != null) ls[k] = v; }catch(e){} }
+  // Decide ONE winning side from the live document, then take that side's whole set
+  // (falling back per-key to the other side) so doc/history/recovery stay consistent.
+  let preferLS;
+  if(ls[SK] == null) preferLS = false;
+  else if(fromIdb[SK] == null) preferLS = true;          // first run after this update → migrate
+  else if(ls[SK] === fromIdb[SK]) preferLS = false;
+  else preferLS = _fresherDoc(ls[SK], fromIdb[SK]) === ls[SK];
+  for(const k of _IDB_KEYS){
+    const v = preferLS ? (ls[k] != null ? ls[k] : fromIdb[k]) : (fromIdb[k] != null ? fromIdb[k] : ls[k]);
+    if(v != null){ _memStore[k] = v; if(fromIdb[k] !== v) _idbPut(k, v); }
+  }
+}
+function _store(k){
+  if(k in _memStore) return _memStore[k];
+  try{ return localStorage.getItem(k); }catch(e){ return null; }
+}
+// Returns true when the value is durably held somewhere (IDB open, or localStorage took it).
+function _storeSet(k, v){
+  _memStore[k] = v;
+  _idbPut(k, v);
+  let lsOK = true;
+  try{ localStorage.setItem(k, v); }catch(e){ lsOK = false; }  // mirror full — fine if IDB holds it
+  return lsOK || !!_idb;
+}
+function _storeDel(k){
+  delete _memStore[k];
+  _idbDel(k);
+  try{ localStorage.removeItem(k); }catch(e){}
+}
 // Persisted "this device has edits the cloud has NOT confirmed yet" marker, scoped to the
 // business id. Survives reloads. It's how boot knows the local cache is newer than a stale
 // cloud read (e.g. a cloud write that was interrupted) and must not be overwritten.
@@ -2805,11 +2897,11 @@ const RECOVERY_KEY = SK + "_recovery";
 function _saveRecovery(d, reason){
   try{
     if(!d || typeof d!=="object" || !d.strains || !Object.keys(d.strains).length) return;
-    const arr = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "[]");
+    const arr = JSON.parse(_store(RECOVERY_KEY) || "[]");
     const slim = (d.business && d.business.logo) ? JSON.parse(_stringifySlim(d)) : d; // logo lives in the live doc, not in snapshots
     arr.unshift({ t:Date.now(), reason:reason||"", biz:(Repo&&Repo.getBusinessId&&Repo.getBusinessId())||_unsyncedBiz()||null, data:slim });
     while(arr.length > 3) arr.pop();              // keep the last 3 only
-    localStorage.setItem(RECOVERY_KEY, JSON.stringify(arr));
+    _storeSet(RECOVERY_KEY, JSON.stringify(arr));
   }catch(e){}
 }
 // ── ROLLING ON-DEVICE BACKUPS ──────────────────────────────────────────────
@@ -2817,7 +2909,7 @@ function _saveRecovery(d, reason){
 // REAL snapshots (one per day) so data can always be restored from inside the app, even if
 // the cloud is empty, the network failed, and the live cache got clobbered all at once.
 const HISTORY_KEY = SK + "_history";
-function _readHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }catch(e){ return []; } }
+function _readHistory(){ try{ return JSON.parse(_store(HISTORY_KEY) || "[]"); }catch(e){ return []; } }
 // Serialize WITHOUT the business logo blob — it's by far the largest single item in the
 // document (a base64 PNG) and would otherwise be duplicated into every history/recovery
 // snapshot, multiplying storage use ~12x. Restore carries the live logo back over.
@@ -2841,7 +2933,7 @@ function _pushHistory(d){
     if(arr[0] && new Date(arr[0].t).toDateString() === new Date(now).toDateString()) arr[0] = entry;
     else arr.unshift(entry);
     while(arr.length > 7) arr.pop();
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    _storeSet(HISTORY_KEY, JSON.stringify(arr));
   }catch(e){}
 }
 // Debounced history writer — _pushHistory costs multiple whole-document stringify/parse
@@ -2866,7 +2958,7 @@ function _availableRestorePoints(){
   const hist = _readHistory().filter(e => !biz || !e.biz || String(e.biz)===String(biz))
                              .map(e => ({ t:e.t, n:e.n, j:e.j, src:"backup" }));
   let rec = [];
-  try{ rec = JSON.parse(localStorage.getItem(RECOVERY_KEY)||"[]")
+  try{ rec = JSON.parse(_store(RECOVERY_KEY)||"[]")
               .filter(e => !biz || !e.biz || String(e.biz)===String(biz))
               .map(e => ({ t:e.t, n:(e.data&&e.data.strains?Object.keys(e.data.strains).length:0), j:JSON.stringify(e.data), src:"recovery", reason:e.reason })); }catch(e){}
   return [...hist, ...rec].filter(e => e.n>0).sort((a,b)=>b.t-a.t);
@@ -2915,11 +3007,13 @@ function persist(){
   let wroteLocal = true;
   try {
     const json = JSON.stringify(D);
-    localStorage.setItem(SK, json);     // instant, offline cache + source of truth
-    localStorage.setItem(SK_BAK, json); // safety backup — survives update reloads
+    const ok1 = _storeSet(SK, json);     // instant, offline cache + source of truth (IDB + LS mirror)
+    const ok2 = _storeSet(SK_BAK, json); // safety backup — survives update reloads
+    try{ localStorage.setItem("ledger_has_data", "1"); }catch(_){ }
+    if(!ok1 || !ok2) throw new Error("store-failed");
   } catch(e){
-    // Storage full / blocked: the write FAILED — never claim "saved". Tell the user
-    // (throttled) so they can export a backup before anything is lost.
+    // Neither IndexedDB nor localStorage took the write — never claim "saved". Tell
+    // the user (throttled) so they can export a backup before anything is lost.
     wroteLocal = false;
     const now = Date.now();
     if(now - _quotaErrAt > 30000){ _quotaErrAt = now; try{ showToast("Device storage is full — your last change was NOT saved. Export a backup now.","err"); }catch(_){ } }
@@ -2938,7 +3032,7 @@ function persist(){
 }
 // Mirror the in-memory D to localStorage WITHOUT scheduling a cloud write. Used when
 // adopting cloud data at boot/sync so the offline cache matches what was just loaded.
-function _cacheLocalD(){ try{ const j=JSON.stringify(D); localStorage.setItem(SK,j); localStorage.setItem(SK_BAK,j); if(typeof Repo!=="undefined" && Repo.businessId) localStorage.setItem("ledger_cache_biz", String(Repo.businessId)); }catch(e){} }
+function _cacheLocalD(){ try{ const j=JSON.stringify(D); _storeSet(SK,j); _storeSet(SK_BAK,j); try{ localStorage.setItem("ledger_has_data","1"); }catch(_){ } if(typeof Repo!=="undefined" && Repo.businessId) localStorage.setItem("ledger_cache_biz", String(Repo.businessId)); }catch(e){} }
 async function flushToCloud(){
   if(!SB || !_cloudDirty || !Repo.getBusinessId()) return;
   if(_flushing) return;                 // a save is already in flight — don't start a second on the same base
@@ -3007,7 +3101,7 @@ try{
 }catch(e){}
 // Read a valid local D (>=1 product) from localStorage, or null.
 function _readLocalD(){
-  try { const p = JSON.parse(localStorage.getItem(SK) || localStorage.getItem(SK_BAK) || "null");
+  try { const p = JSON.parse(_store(SK) || _store(SK_BAK) || "null");
         if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
   return null;
 }
@@ -3021,24 +3115,51 @@ function _readLocalD(){
 // un-rounded, matching how recording does it; weights go through round().
 // _mergeDocs(secondary, scaffold) → { doc, added }: doc starts as a deep copy of
 // `scaffold`; `added` counts entries brought over from `secondary`.
+// Remove tombstoned entries from a merged strain and reverse their effect on the
+// running totals — the exact inverse of the delta replay below (mirrors deleteLog).
+function _applyVoidsToStrain(cs, voids){
+  if(!cs || !Array.isArray(cs.logs) || !voids) return 0;
+  let removed = 0;
+  for(let i = cs.logs.length - 1; i >= 0; i--){
+    const e = cs.logs[i];
+    if(!e || e.id == null || !voids[String(e.id)]) continue;
+    const w = +e.w || 0, total = +e.total || 0, amt = +e.amount || 0;
+    if(e.type === "sale"){      cs.stock = round((cs.stock||0) + w); cs.earned = Math.max(0, (cs.earned||0) - total); }
+    else if(e.type === "restock"){ cs.stock = round(Math.max(0, (cs.stock||0) - w)); cs.restockTotal = round(Math.max(0, (cs.restockTotal||0) - w)); }
+    else if(e.type === "use"){  cs.stock = round((cs.stock||0) + w); cs.useTotal = round(Math.max(0, (cs.useTotal||0) - w)); }
+    else if(e.type === "expense"){ cs.expenses = Math.max(0, (cs.expenses||0) - amt); }
+    cs.logs.splice(i, 1); removed++;
+  }
+  if(removed){
+    if((cs.stock||0) < 0) cs.stock = 0;
+    cs.startStock = Math.max(cs.startStock||0, cs.stock||0);
+  }
+  return removed;
+}
 function _mergeDocs(secondary, scaffold){
   const out = JSON.parse(JSON.stringify(scaffold && typeof scaffold==="object" ? scaffold : { strains:{}, cur:"" }));
   out.strains = out.strains || {};
   let added = 0;
   if(!secondary || typeof secondary !== "object") return { doc:out, added:0 };
+  // Tombstones from BOTH sides apply to the merged result — a deletion made on either
+  // device wins over the other device's stale copy of the entry.
+  out.voids = Object.assign({}, (secondary.voids && typeof secondary.voids==="object") ? secondary.voids : {}, (out.voids && typeof out.voids==="object") ? out.voids : {});
+  out.invoiceVoids = Object.assign({}, (secondary.invoiceVoids && typeof secondary.invoiceVoids==="object") ? secondary.invoiceVoids : {}, (out.invoiceVoids && typeof out.invoiceVoids==="object") ? out.invoiceVoids : {});
+  const V = out.voids;
   const sst = secondary.strains || {};
   for(const name in sst){
     const ls = sst[name];
     if(!ls || typeof ls !== "object") continue;
     if(!out.strains[name]){                       // product created on one device only → bring it whole
       out.strains[name] = JSON.parse(JSON.stringify(ls));
-      added += Math.max(1, (ls.logs||[]).length);
+      _applyVoidsToStrain(out.strains[name], V);  // minus anything the other side deleted
+      added += Math.max(1, (out.strains[name].logs||[]).length);
       continue;
     }
     const cs = out.strains[name];
     cs.logs = Array.isArray(cs.logs) ? cs.logs : [];
     const seen = new Set(cs.logs.map(e => String(e && e.id)));
-    const fresh = (Array.isArray(ls.logs) ? ls.logs : []).filter(e => e && e.id != null && !seen.has(String(e.id)));
+    const fresh = (Array.isArray(ls.logs) ? ls.logs : []).filter(e => e && e.id != null && !seen.has(String(e.id)) && !V[String(e.id)]);
     for(const e of fresh){
       const w = +e.w || 0, total = +e.total || 0, amt = +e.amount || 0;
       if(e.type === "sale"){      cs.stock = round((cs.stock||0) - w); cs.earned = (cs.earned||0) + total; }
@@ -3054,13 +3175,19 @@ function _mergeDocs(secondary, scaffold){
       cs.startStock = Math.max(cs.startStock||0, cs.stock||0);
     }
   }
+  // Deletions made on the SECONDARY side remove the scaffold's stale copies too.
+  for(const name in out.strains){ added += _applyVoidsToStrain(out.strains[name], V); }
   // Invoices: append-only, keyed by id (invoice number as fallback for legacy rows).
   const ikey = inv => String(inv && (inv.id != null ? inv.id : inv.no));
+  const IV = out.invoiceVoids;
   out.invoices = Array.isArray(out.invoices) ? out.invoices : [];
+  const beforeInv = out.invoices.length;
+  out.invoices = out.invoices.filter(inv => !IV[ikey(inv)]);   // tombstoned invoices stay deleted
+  added += beforeInv - out.invoices.length;
   const ik = new Set(out.invoices.map(ikey));
   let invAdded = false;
   for(const inv of (Array.isArray(secondary.invoices) ? secondary.invoices : [])){
-    if(inv && !ik.has(ikey(inv))){ out.invoices.push(JSON.parse(JSON.stringify(inv))); ik.add(ikey(inv)); added++; invAdded = true; }
+    if(inv && !ik.has(ikey(inv)) && !IV[ikey(inv)]){ out.invoices.push(JSON.parse(JSON.stringify(inv))); ik.add(ikey(inv)); added++; invAdded = true; }
   }
   if(invAdded) out.invoices.sort((a,b) => (+(b&&b.id)||0) - (+(a&&a.id)||0));
   return { doc:out, added };
@@ -3069,6 +3196,9 @@ function _mergeDocs(secondary, scaffold){
 function _normalizeD(){
   if(!D || typeof D !== "object") D = { strains:{}, cur:"" };
   if(!D.strains || typeof D.strains !== "object") D.strains = {};
+  if(!D.voids || typeof D.voids !== "object") D.voids = {};
+  if(!D.invoiceVoids || typeof D.invoiceVoids !== "object") D.invoiceVoids = {};
+  _pruneVoids(D.voids); _pruneVoids(D.invoiceVoids);
   if(D.theme && !localStorage.getItem("ledger_theme")) try{ localStorage.setItem("ledger_theme", D.theme); _applyThemeVars(D.theme); }catch(e){}
   if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font); _applyFontVar(D.font); }catch(e){}
   if(D.curSym && !localStorage.getItem("ledger_currency")) try{ localStorage.setItem("ledger_currency", D.curSym); }catch(e){}
@@ -3112,7 +3242,7 @@ function doSetup(){
   // transient read failure), recover it now instead of overwriting it.
   if(Object.keys(D.strains).length === 0){
     try {
-      const raw = localStorage.getItem(SK) || localStorage.getItem(SK_BAK);
+      const raw = _store(SK) || _store(SK_BAK);
       if(raw){
         const p = JSON.parse(raw);
         if(p && p.strains && Object.keys(p.strains).length > 0){
@@ -4091,7 +4221,7 @@ function saveCurrentInvoice(){
   persist();
 }
 function openSavedInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); if(inv){ _inv=inv; openSubpage("invoice"); } }
-function deleteInvoice(num){ const _di=(D.invoices||[]).find(x=>x.num===num); try{ if(_di) _logActivity("delete", { was:"invoice", no:(_di.no!=null?_di.no:null), total:invTotals(_di).total }, null); }catch(e){} D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
+function deleteInvoice(num){ const _di=(D.invoices||[]).find(x=>x.num===num); try{ if(_di) _logActivity("delete", { was:"invoice", no:(_di.no!=null?_di.no:null), total:invTotals(_di).total }, null); }catch(e){} if(_di) _voidInvoice(_di); D.invoices=(D.invoices||[]).filter(x=>x.num!==num); persist(); renderInvoicesPage(); showToast("Invoice deleted"); }
 function delInvoice(num){ const inv=(D.invoices||[]).find(x=>x.num===num); confirmModal(__("Delete invoice {0}? This can't be undone.", (inv&&inv.no)||""), ()=>deleteInvoice(num), __("Yes, Delete")); }
 function renderInvoicesPage(){
   const el=document.getElementById("invoicesList"); if(!el) return;
@@ -4372,7 +4502,7 @@ async function doResetAll(){
          if(Repo.lastSeen==null) await Repo.loadDoc();
          await Repo.saveDoc({ strains:{}, cur:"", invoices:[], business:{} }); }catch(e){}
   }
-  try { localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); } catch(e){}
+  try { _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
   try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
@@ -4395,6 +4525,7 @@ function deleteLog(id){
   else if(l.type==="use"){ s.stock = round(s.stock + l.w); s.useTotal = round(Math.max(0, (s.useTotal||0) - l.w)); }
   else if(l.type==="expense"){ s.expenses = Math.max(0, (s.expenses||0) - l.amount); }
   s.logs.splice(idx, 1);
+  _void(l.id);                                   // tombstone: deletion survives sync merges
   const highs = s.logs.filter(ll => ll.type==="restock" && ll.after!=null).map(ll => ll.after);
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
   _pushUndo(snap);
@@ -4425,6 +4556,7 @@ function deleteBatch(batchId){
     st.startStock = highs.length > 0 ? Math.max(...highs, st.stock) : st.stock;
   });
   if(!Object.keys(affected).length) return;
+  Object.values(affected).forEach(a => (a.removed||[]).forEach(r => _void(r.entry && r.entry.id)));
   _pushUndo({ multiBatch:true, affected });
   // Audit: record the batched-purchase removal
   try{ let _bt=0,_bn=0; Object.values(affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("delete", { was:"sale", total:_bt, items:_bn }, null); }catch(e){}
@@ -5888,15 +6020,6 @@ function renderSettings(){
   // Data & Sync
   const dsEl = document.getElementById("dataSyncSettings");
   if(dsEl){
-    const stBytes = _lsUsage(), stPct = Math.round(stBytes / (5*1024*1024) * 100);
-    const stCol = stPct > 85 ? "var(--err-txt)" : stPct > 60 ? "var(--warn)" : "var(--txt-d)";
-    if(stPct > 85){
-      const tdy = new Date().toDateString();
-      if(localStorage.getItem("ledger_storage_warned") !== tdy){
-        try{ localStorage.setItem("ledger_storage_warned", tdy); }catch(e){}
-        try{ showToast("Device storage for the app is nearly full — export a backup, or sign in so your data also lives in the cloud.","err"); }catch(e){}
-      }
-    }
     dsEl.innerHTML = `<div class="settings-card">
       <div class="settings-row">
         <span class="settings-row-lbl" id="backupStatus" style="color:${daysSinceBackup()!==null&&daysSinceBackup()<=7?'var(--acc)':'var(--txt-d)'}">${backupStatusText()}</span>
@@ -5904,7 +6027,7 @@ function renderSettings(){
       </div>
       <div class="settings-row">
         <span class="settings-row-lbl">On-device storage</span>
-        <span data-noi18n style="font-size:11px;font-weight:700;color:${stCol}">${(stBytes/1048576).toFixed(1)} MB · ~${Math.min(stPct,100)}%</span>
+        <span data-noi18n id="storageMeterVal" style="font-size:11px;font-weight:700;color:var(--txt-d)">…</span>
       </div>
       <div class="settings-row">
         <span class="settings-row-lbl">Restore from an automatic backup</span>
@@ -5937,6 +6060,7 @@ function renderSettings(){
     </div>`;
   }
 
+  _updateStorageMeter();
   renderPINSettings();
   try { i18nApply(); } catch(e){}   // translate the freshly-rendered settings content
 }
@@ -6514,7 +6638,7 @@ const authRepo = {
     // or re-upload the previous user's data (cross-account/tenant leak).
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
-    try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
+    try{ _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
@@ -6826,7 +6950,7 @@ async function bootAuthedUser(sess){
 function _resetForAccountSwitch(){
   try{ clearTimeout(_persistTimer); }catch(e){}
   _cloudDirty = false; _flushing = false;
-  try{ localStorage.removeItem(SK); localStorage.removeItem(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); localStorage.removeItem(RECOVERY_KEY); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
+  try{ _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
   D = { strains:{}, cur:"" };
   Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" };
 }
@@ -6871,8 +6995,8 @@ function initBoot(){
   } else { bootLocalFallback(); }
 }
 
-// Approximate localStorage footprint in bytes (UTF-16 → 2 bytes/char), for the
-// Settings → Data storage meter. Browsers give this origin roughly 5 MB.
+// Approximate localStorage footprint in bytes (UTF-16 → 2 bytes/char) — fallback
+// when navigator.storage.estimate() is unavailable.
 function _lsUsage(){
   let bytes = 0;
   try{
@@ -6883,6 +7007,30 @@ function _lsUsage(){
   }catch(e){}
   return bytes;
 }
+// Settings → Data storage meter. With the document in IndexedDB the budget is the
+// origin's whole quota (usually GBs) — show real usage from the browser's estimate.
+function _updateStorageMeter(){
+  const el = document.getElementById("storageMeterVal"); if(!el) return;
+  const paint = (used, quota) => {
+    const pct = quota ? Math.round(used / quota * 100) : 0;
+    el.style.color = pct > 85 ? "var(--err-txt)" : pct > 60 ? "var(--warn)" : "var(--txt-d)";
+    el.textContent = (used/1048576).toFixed(1) + " MB" + (pct >= 1 ? " · ~" + pct + "%" : "");
+    if(pct > 85){
+      const tdy = new Date().toDateString();
+      if(localStorage.getItem("ledger_storage_warned") !== tdy){
+        try{ localStorage.setItem("ledger_storage_warned", tdy); }catch(e){}
+        try{ showToast("Device storage for the app is nearly full — export a backup, or sign in so your data also lives in the cloud.","err"); }catch(e){}
+      }
+    }
+  };
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      navigator.storage.estimate().then(e => paint(e.usage || _lsUsage(), e.quota || 0)).catch(() => paint(_lsUsage(), 5*1024*1024));
+      return;
+    }
+  }catch(e){}
+  paint(_lsUsage(), 5*1024*1024);
+}
 // ── INIT ──
 // Ask the browser to mark this origin's storage persistent (best-effort) — without it,
 // the OS may evict an installed PWA's localStorage under storage pressure.
@@ -6892,10 +7040,14 @@ try{ _applyThemeVars(localStorage.getItem("ledger_theme") || "arctic"); }catch(e
 try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
 // Currency is read at runtime via getCurrency() — no explicit apply needed
 
-initBoot();
-
-// Translate whichever screen is showing (auth / setup / PIN / main) for the chosen language
-try{ i18nApply(); }catch(e){}
+// Boot AFTER the durable store has loaded the document into memory (IndexedDB is
+// async; everything downstream reads the in-memory cache synchronously as before).
+(async () => {
+  try{ await _storeInit(); }catch(e){}
+  initBoot();
+  // Translate whichever screen is showing (auth / setup / PIN / main) for the chosen language
+  try{ i18nApply(); }catch(e){}
+})();
 // Safety net: any async DOM update (banners, late renders) gets translated too.
 // Debounced via rAF; i18nApply only rewrites nodes that differ, so it self-settles.
 try{
