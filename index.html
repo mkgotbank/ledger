@@ -1449,7 +1449,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <p style="margin:0 0 12px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
     <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> your books are yours. They're stored on your device and — if you create an account — backed up to your own private cloud space so you can sync across devices. If you invite teammates, they see your business data based on the role you give them. We don't show ads, we don't track you, and we never sell your data.</p>
     <div class="legal-h">1. Your data: on your device, and in your account</div>
-    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's storage). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
+    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's local storage and on-device database). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. When you <b>delete an entry or invoice</b>, its contents are removed; a small deletion marker (an internal reference number only — no business details) is kept for up to 120 days so your other devices remove their copy too instead of restoring it. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
     <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense, restock or other entry, our servers record which member created it — stamped from their verified sign-in, so the entry's author cannot be altered or faked — and this is shown to owners and admins in the <b>Audit log</b> so there is a reliable record of who did what.</p>
     <p>If you belong to <b>more than one business</b>, you can switch between them from <b>More → Switch business</b>. Each business's data is kept completely separate: switching only changes which business you are viewing, and your access to each is always governed by your role in that business.</p>
@@ -1788,7 +1788,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.40.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.40.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/><path d="M4 11.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
@@ -1801,7 +1801,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
         <div>
           <div class="wn-title">Deleted means deleted</div>
-          <div class="wn-desc">When you delete an entry or invoice on one device, syncing no longer brings it back from another device — deletions now travel with your data. Undo still works exactly as before.</div>
+          <div class="wn-desc">When you delete an entry or invoice on one device, syncing no longer brings it back from another device — deletions now travel with your data. Undo still works exactly as before. The Privacy Policy has been updated to describe this and the new storage.</div>
         </div>
       </div>
     </div>
@@ -2152,7 +2152,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.40.0";
+const APP_VER    = "2.40.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
