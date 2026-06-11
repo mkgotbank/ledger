@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.6</div>
+    <div class="wn-badge" id="wnVersion">Version 2.47.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2199,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.6";
+const APP_VER    = "2.47.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3154,6 +3154,7 @@ let _quotaErrAt = 0;
 let _persistSeq = 0;
 function persist(){
   _persistSeq++;
+  _schedEntryCache();
   let wroteLocal = true;
   try {
     const json = JSON.stringify(D);
@@ -3251,6 +3252,28 @@ try{
   window.addEventListener("pagehide", _flushNow);
 }catch(e){}
 // Read a valid local D (>=1 product) from localStorage, or null.
+// Slim books for instant entry: no logo, last 150 log entries per product, 40 invoices.
+// Totals (earned/expenses/stock) are FIELDS, so the dashboard renders complete and correct;
+// older history streams in when the full document (IDB or cloud) becomes available. The
+// cloud merge is append-only by entry id, so rendering from this cache can never lose data.
+let _ecTimer = null;
+function _writeEntryCache(){
+  try{
+    if(!D || !D.strains || !Object.keys(D.strains).length) return;
+    const slim = { cur: D.cur, __entryCache: true, strains: {}, invoices: (D.invoices||[]).slice(0, 40) };
+    for(const n in D.strains){ const st = D.strains[n]; slim.strains[n] = { ...st, logs: (st.logs||[]).slice(0, 150) }; }
+    if(D.business){ const { logo, ...rest } = D.business; slim.business = rest; }
+    const json = JSON.stringify(slim);
+    if(json.length > 3500000){ for(const n in slim.strains) slim.strains[n].logs = []; }
+    localStorage.setItem("ledger_entry_cache", json.length > 3500000 ? JSON.stringify(slim) : json);
+  }catch(e){}
+}
+function _schedEntryCache(){ clearTimeout(_ecTimer); _ecTimer = setTimeout(_writeEntryCache, 4000); }
+function _readEntryCache(){
+  try{ const p = JSON.parse(localStorage.getItem("ledger_entry_cache") || "null");
+       if(p && p.strains && Object.keys(p.strains).length > 0) return p; }catch(e){}
+  return null;
+}
 function _readLocalD(){
   try { const p = JSON.parse(_store(SK) || _store(SK_BAK) || "null");
         if(p && p.strains && Object.keys(p.strains).length > 0) return p; } catch(e){}
@@ -4682,7 +4705,7 @@ async function doResetAll(){
          if(Repo.lastSeen==null) await Repo.loadDoc();
          await Repo.saveDoc({ strains:{}, cur:"", invoices:[], business:{} }); }catch(e){}
   }
-  try { _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); } catch(e){}
+  try { _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); localStorage.removeItem("ledger_cache_uid"); localStorage.removeItem("ledger_entry_cache"); } catch(e){}
   try { localStorage.removeItem("ledger_theme"); localStorage.removeItem("ledger_font"); localStorage.removeItem("ledger_currency"); localStorage.removeItem("ledger_icon"); } catch(e){}
   // Clear the walkthrough flag so the re-onboarding user gets the tour again after setup
   try { localStorage.removeItem("ledger_tour_done"); } catch(e){}
@@ -7301,7 +7324,7 @@ async function bootAuthedUser(sess){
     } else if(cuid){
       // SAME account returning → open their books instantly from this device; the cloud
       // reconcile below runs behind the open app and re-renders when it lands.
-      const cached = _readLocalD();
+      const cached = _readLocalD() || _readEntryCache();
       if(cached && cached.strains && Object.keys(cached.strains).length){
         D = cached; _normalizeD(); syncUnitDefaults();
         if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
@@ -7457,6 +7480,7 @@ async function bootAuthedUser(sess){
     }
     _bpMark("draw the app");
     _bpDone();
+    _writeEntryCache();
     try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); sessionStorage.removeItem("ledger_oauth_reloaded"); sessionStorage.removeItem("ledger_boot_reloaded"); sessionStorage.removeItem("ledger_splash_reloaded"); }catch(e){}
     try{ i18nApply(); }catch(e){}
     // Arrived here via an email-confirmation link → confirm it plainly.
@@ -7487,7 +7511,7 @@ function isReadyDoc(d){ return !!(d && d.strains && Object.keys(d.strains).lengt
 // magic-link/recovery completion). Tear down the previous tenant's in-memory + on-device
 // state so the new user never sees or overwrites it.
 function _wipeLocalTenant(){
-  try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); localStorage.removeItem("ledger_cache_uid"); }catch(e){}
+  try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); localStorage.removeItem("ledger_cache_uid"); localStorage.removeItem("ledger_entry_cache"); }catch(e){}
 }
 function _resetForAccountSwitch(){
   try{ clearTimeout(_persistTimer); }catch(e){}
@@ -7516,7 +7540,7 @@ function initBoot(){
     if(window.__authReturn && window.__authReturn.pending && !window.__authReturn.recovery){
       try{
         const cuid = localStorage.getItem("ledger_cache_uid");
-        const cached = cuid ? _readLocalD() : null;
+        const cached = cuid ? (_readLocalD() || _readEntryCache()) : null;
         if(cached && cached.strains && Object.keys(cached.strains).length){
           D = cached; _normalizeD(); syncUnitDefaults();
           if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
@@ -7609,7 +7633,10 @@ try{ _applyFontVar(localStorage.getItem("ledger_font") || "clean"); }catch(e){}
 // Boot AFTER the durable store has loaded the document into memory (IndexedDB is
 // async; everything downstream reads the in-memory cache synchronously as before).
 (async () => {
-  try{ await _storeInit(); }catch(e){}
+  // iOS WKWebView can hang indexedDB.open() forever after an app-switch (e.g. the Google
+  // sign-in round trip). NEVER let that hold boot hostage: proceed after 2.5s on the
+  // localStorage + entry-cache copies; _storeInit keeps running and tops up memory later.
+  try{ await Promise.race([ _storeInit(), new Promise(r => setTimeout(r, 2500)) ]); }catch(e){}
   initBoot();
   // Translate whichever screen is showing (auth / setup / PIN / main) for the chosen language
   try{ i18nApply(); }catch(e){}
@@ -7649,7 +7676,7 @@ setInterval(() => {
     if(!window.__splashSince){ window.__splashSince = Date.now(); return; }
     const stuck = Date.now() - window.__splashSince;
     if(stuck < 6000) return;
-    const cached = _readLocalD();
+    const cached = _readLocalD() || _readEntryCache();
     if(cached && cached.strains && Object.keys(cached.strains).length){
       D = cached; _normalizeD(); syncUnitDefaults();
       _fastBoot = true; _liveD = D; _liveSeq = _persistSeq;
