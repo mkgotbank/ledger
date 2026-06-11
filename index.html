@@ -455,6 +455,14 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .dot:nth-child(2){animation-delay:.2s;}
 .dot:nth-child(3){animation-delay:.4s;}
 .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px;}
+.rep-table-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:4px 10px;margin-bottom:14px;overflow-x:auto;}
+.rep-table{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums;}
+.rep-table th{text-align:right;font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--txt-d);font-weight:600;padding:8px 4px 6px;border-bottom:1px solid var(--hairline);}
+.rep-table th:first-child{text-align:left;}
+.rep-table td{text-align:right;padding:7px 4px;border-bottom:1px solid var(--hairline);color:var(--txt);white-space:nowrap;}
+.rep-table td.rt-name{text-align:left;color:var(--txt-b);font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
+.rep-table tbody tr:last-child td{border-bottom:1px solid var(--bdr);}
+.rep-table tfoot td{border-bottom:none;font-weight:700;color:var(--txt-b);padding-top:8px;}
 .qs-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:11px 13px;box-shadow:0 3px 14px var(--shadow);}
 .qs-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);margin-bottom:4px;text-transform:uppercase;}
 .qs-val{font-size:17px;font-weight:700;}
@@ -1337,6 +1345,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
           <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7.5 10.5 12 15 16.5 10.5"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Install on your phone</span>
           <span style="color:var(--acc);font-size:14px">›</span>
         </div>
+        <div class="settings-row" id="websiteRow" onclick="window.open('https://mkgotbank.github.io/ledger-site/','_blank','noopener')" style="cursor:pointer">
+          <span class="settings-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg>Visit our website</span>
+          <span style="color:var(--acc);font-size:14px">›</span>
+        </div>
       </div>
     </div>
     <div class="settings-sec">
@@ -1456,7 +1468,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">3. Third-party services the App contacts</div>
     <p>To work, the App connects to a few outside services:</p>
     <ul style="margin:6px 0 12px;padding-left:18px">
-      <li style="margin-bottom:6px"><b>Hosting &amp; updates (GitHub):</b> the App is delivered from, and checks for updates against, GitHub. Like any website visit, this involves standard technical data such as your IP address and device/browser type, handled under GitHub's privacy policy.</li>
+      <li style="margin-bottom:6px"><b>Hosting &amp; updates (GitHub):</b> the App is delivered from, and checks for updates against, GitHub. Like any website visit, this involves standard technical data such as your IP address and device/browser type, handled under GitHub's privacy policy. Our informational website (linked from <b>More → Visit our website</b>) is hosted the same way; it has no accounts, no forms and no analytics of ours, and nothing you do in the App is sent to it.</li>
       <li style="margin-bottom:6px"><b>Accounts &amp; cloud sync (Supabase):</b> if you create an account, your email address and the business data you enter are stored in our cloud database and authentication provider (Supabase) so you can sign in and sync across devices. Your data is isolated from other businesses by database-level security and handled under Supabase's privacy policy.</li>
       <li style="margin-bottom:6px"><b>Google sign-in (optional):</b> if you choose "Continue with Google", Google verifies your identity and shares basic profile information (such as your name and email) to create or sign you into your account, under Google's privacy policy. You can always use an email and password instead.</li>
       <li style="margin-bottom:6px"><b>AI Advisor (optional):</b> if you use the AI Advisor or its chat — including the ready-made questions and questions about how to use the App — your question, the recent messages in that conversation, and the figures needed to answer are sent to a third-party AI provider to generate a reply, handled under that provider's policy. Do not enter anything you are not comfortable sending. If you add your own AI key, your requests go to that provider instead; the key itself is stored only on your device.</li>
@@ -1483,7 +1495,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Terms of Service</div>
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
-    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 8, 2026 · The Ledger</div>
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 10, 2026 · The Ledger</div>
     <p style="margin:0 0 12px">By using The Ledger (the "App"), you agree to these Terms. If you do not agree, please do not use the App.</p>
     <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> use The Ledger for your own record-keeping, keep your own backups, and understand it's a tool to help you track your business — not professional accounting, tax or legal advice.</p>
     <div class="legal-h">1. Licence to use</div>
@@ -1503,7 +1515,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">8. Limitation of liability</div>
     <p>To the maximum extent permitted by law, we are not liable for any indirect, incidental, special or consequential damages, or for any loss of data, profits or revenue, arising from your use of (or inability to use) the App. Some jurisdictions do not allow certain limitations, so some of the above may not apply to you.</p>
     <div class="legal-h">9. Third-party services</div>
-    <p>The App relies on third-party services — including hosting, cloud accounts and sync, authentication (including optional Google sign-in), and optional AI features — that are governed by their own terms and privacy policies.</p>
+    <p>The App relies on third-party services — including hosting, cloud accounts and sync, authentication (including optional Google sign-in), and optional AI features — that are governed by their own terms and privacy policies. The App may also link to our informational website, which is provided for information only.</p>
     <div class="legal-h">10. Changes and availability</div>
     <p>We may update, change or discontinue the App or these Terms at any time. Continued use after a change means you accept the updated Terms.</p>
     <div class="legal-h">11. Governing law</div>
@@ -1529,7 +1541,12 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Reports</div>
   </div>
   <div class="subpage-body">
-    <div id="chartContainer"></div>
+    <div class="log-filters" id="reportScopeBar" style="margin-bottom:10px">
+      <button class="lf-btn on" data-rs="biz" onclick="setReportScope('biz',this)">Whole business</button>
+      <button class="lf-btn" data-rs="product" onclick="setReportScope('product',this)">This product</button>
+    </div>
+    <div id="bizReport"></div>
+    <div id="chartContainer" style="display:none"></div>
     <div class="sec-lbl" id="qsLbl">Quick Stats</div>
     <div class="perf-wrap" id="perfWrap"></div>
     <div class="qs-grid" id="qsGrid"></div>
@@ -1788,20 +1805,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.40.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.41.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/><path d="M4 11.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="5"/></svg></div>
         <div>
-          <div class="wn-title">Room to grow — years of records</div>
-          <div class="wn-desc">Your books moved to a far larger on-device database. The old storage limit could fill up after a year or two of busy use; now there's space for many years of sales, invoices and backups.</div>
+          <div class="wn-title">Your whole business, one report</div>
+          <div class="wn-desc">Reports now opens on a whole-business view: total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a product-by-product breakdown. Flip back to a single product any time.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
         <div>
-          <div class="wn-title">Deleted means deleted</div>
-          <div class="wn-desc">When you delete an entry or invoice on one device, syncing no longer brings it back from another device — deletions now travel with your data. Undo still works exactly as before. The Privacy Policy has been updated to describe this and the new storage.</div>
+          <div class="wn-title">Audit log: nothing escapes the book</div>
+          <div class="wn-desc">Adding or removing a product is now recorded in the Audit log too — alongside every sale, expense, restock, invoice, edit, deletion and restore across your whole business, each with a verified author.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg></div>
+        <div>
+          <div class="wn-title">The Ledger has a website</div>
+          <div class="wn-desc">Meet the app's new home on the web — what The Ledger is and why it exists. Find it under More → Visit our website, and share it with anyone who should be keeping better books.</div>
         </div>
       </div>
     </div>
@@ -2152,7 +2176,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.40.1";
+const APP_VER    = "2.41.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2421,6 +2445,97 @@ function renderChart(){
     <div class="chart-x-labels">${xLabels}</div>`
     :`<div class="chart-empty-txt">No sales recorded yet — log a sale to see your chart</div>`}
   </div>`;
+}
+
+// ── BUSINESS REPORT (every product, whole business) ──
+let reportScope = "biz";
+function setReportScope(sc, btn){
+  reportScope = sc;
+  const bar = document.getElementById("reportScopeBar");
+  if(bar) bar.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("data-rs")===sc));
+  renderReports();
+}
+function renderReports(){
+  const biz = reportScope === "biz";
+  const bizEl = document.getElementById("bizReport");
+  const chartEl = document.getElementById("chartContainer");
+  if(bizEl)   bizEl.style.display   = biz ? "block" : "none";
+  if(chartEl) chartEl.style.display = biz ? "none"  : "block";
+  if(biz) renderBizReport(); else renderChart();
+  renderQS();
+}
+function getDailyEarningsAll(days){
+  const now = Date.now();
+  const keys = Object.keys(D.strains||{});
+  return Array.from({length:days},(_,i)=>{
+    const start = now-(days-i)*86400000, end = start+86400000;
+    let earned = 0;
+    keys.forEach(k=>{ earned += (D.strains[k].logs||[]).filter(l=>l.type==="sale"&&l.id>=start&&l.id<end).reduce((a,l)=>a+l.total,0); });
+    return { i, earned, ts:start };
+  });
+}
+function renderBizReport(){
+  const el = document.getElementById("bizReport"); if(!el) return;
+  const all = Object.entries(D.strains||{});
+  if(!all.length){ el.innerHTML=""; return; }
+  const rows = all.map(([n,st])=>{
+    const earned = st.earned||0, exp = st.expenses||0;
+    return { n, sales:(st.logs||[]).filter(l=>l.type==="sale").length, earned, exp, profit:earned-exp };
+  }).sort((a,b)=>b.earned-a.earned);
+  const te  = rows.reduce((a,r)=>a+r.earned,0);
+  const tx  = rows.reduce((a,r)=>a+r.exp,0);
+  const tp  = te-tx;
+  const tsl = rows.reduce((a,r)=>a+r.sales,0);
+  const data      = getDailyEarningsAll(14);
+  const total14   = data.reduce((a,d)=>a+d.earned,0);
+  const thisWeek  = data.slice(7).reduce((a,d)=>a+d.earned,0);
+  const lastWeek  = data.slice(0,7).reduce((a,d)=>a+d.earned,0);
+  const weekPct   = lastWeek>0 ? ((thisWeek-lastWeek)/lastWeek*100) : (thisWeek>0?100:0);
+  const maxVal    = Math.max(...data.map(d=>d.earned),1);
+  const W=300,H=65,PX=6,PY=6;
+  const pts = data.map((d,i)=>({ x:PX+(i/(data.length-1))*(W-PX*2), y:PY+(1-d.earned/maxVal)*(H-PY*2) }));
+  let lp = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+    lp+=` C${(p1.x+(p2.x-p0.x)/6).toFixed(1)},${(p1.y+(p2.y-p0.y)/6).toFixed(1)} ${(p2.x-(p3.x-p1.x)/6).toFixed(1)},${(p2.y-(p3.y-p1.y)/6).toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  const ap = lp+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
+  const xLabels = [0,6,13].map(i=>{ const d=new Date(data[i].ts+43200000); return `<span>${(d.getMonth()+1)+'/'+d.getDate()}</span>`; }).join("");
+  const tRows = rows.map(r=>`<tr><td class="rt-name">${escHtml(r.n)}</td><td>${r.sales}</td><td style="color:#4caf7a">${fmtDollar(r.earned)}</td><td style="color:#c05050">${fmtDollar(r.exp)}</td><td style="color:${r.profit>=0?'#4caf7a':'#c05050'}">${(r.profit>=0?"+":"-")+fmtDollar(Math.abs(r.profit))}</td></tr>`).join("");
+  el.innerHTML = `
+    <div class="sgrid" style="margin-bottom:10px">
+      <div class="scard"><div class="scard-lbl">Earned</div><div class="scard-val" style="color:#4caf7a">${fmtDollar(te)}</div></div>
+      <div class="scard"><div class="scard-lbl">Net Profit</div><div class="scard-val" style="color:${tp>=0?'#4caf7a':'#c05050'}">${(tp>=0?"+":"-")+fmtDollar(Math.abs(tp))}</div></div>
+      <div class="scard"><div class="scard-lbl">Expenses</div><div class="scard-val" style="color:#c05050">${fmtDollar(tx)}</div></div>
+      <div class="scard"><div class="scard-lbl">Sales</div><div class="scard-val" style="color:var(--acc)">${tsl}</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hdr">14-Day Earnings · All products</div>
+      <div class="chart-meta-row">
+        <div class="chart-meta-item"><div class="chart-meta-val" style="color:#4caf7a">${fmtDollar(thisWeek)}</div><div class="chart-meta-lbl">This Week</div></div>
+        <div class="chart-meta-sep"></div>
+        <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#e05c5c'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
+        <div class="chart-meta-sep"></div>
+        <div class="chart-meta-item"><div class="chart-meta-val" style="color:var(--acc)">${rows.length}</div><div class="chart-meta-lbl">Products</div></div>
+      </div>
+      ${total14>0?`
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:65px;display:block;overflow:visible">
+        <defs><linearGradient id="cgb" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style="stop-color:var(--acc);stop-opacity:0.4"/>
+          <stop offset="100%" style="stop-color:var(--acc);stop-opacity:0.02"/>
+        </linearGradient></defs>
+        <path d="${ap}" fill="url(#cgb)"/>
+        <path d="${lp}" fill="none" style="stroke:var(--acc);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>
+      </svg>
+      <div class="chart-x-labels">${xLabels}</div>`
+      :`<div class="chart-empty-txt">No sales recorded yet — log a sale to see your chart</div>`}
+    </div>
+    <div class="sec-lbl">By Product</div>
+    <div class="rep-table-wrap"><table class="rep-table">
+      <thead><tr><th>Product</th><th>Sales</th><th>Earned</th><th>Expenses</th><th>Profit</th></tr></thead>
+      <tbody>${tRows}</tbody>
+      <tfoot><tr><td class="rt-name">Total</td><td>${tsl}</td><td style="color:#4caf7a">${fmtDollar(te)}</td><td style="color:#c05050">${fmtDollar(tx)}</td><td style="color:${tp>=0?'#4caf7a':'#c05050'}">${(tp>=0?"+":"-")+fmtDollar(Math.abs(tp))}</td></tr></tfoot>
+    </table></div>`;
 }
 
 // ── LOG DATE FILTER ──
@@ -3314,6 +3429,7 @@ function addStrain(){
   document.getElementById("ns-unitname-wrap").style.display = "none";
   document.getElementById("nsUnitName").value = "";
   persist(); renderStrainSel(); renderStrainMgr();
+  try{ _logActivity("product", { action:"added", product:n }, null); }catch(e){}
   showToast("Product added", "ok");
 }
 function deleteStrain(n){
@@ -3321,6 +3437,7 @@ function deleteStrain(n){
   delete D.strains[n];
   if(D.cur === n) D.cur = Object.keys(D.strains)[0];
   persist(); renderAll(); renderStrainMgr();
+  try{ _logActivity("product", { action:"removed", product:n }, null); }catch(e){}
   showToast("Product deleted");
 }
 function renderStrainSel(){
@@ -4815,7 +4932,7 @@ function stripEmoji(str){
 }
 // What the AI knows about using The Ledger itself (for "how do I…" questions).
 const APP_GUIDE =
-"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under Team with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business. Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit shows who recorded each entry. Install as app: More → Install App. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
+"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under Team with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business. Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit shows who recorded each entry. Install as app: More → Install App. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
 // Starter questions shown as tappable chips while the chat is empty —
 // half about the user's numbers, half about using the app itself.
@@ -5197,6 +5314,16 @@ try{
   "Remove {0} from your business?": {"es":"¿Quitar a {0} de tu negocio?","zh":"将 {0} 从您的商家中移除？","hi":"{0} को आपके व्यवसाय से हटाएँ?","ar":"إزالة {0} من نشاطك التجاري؟","fr":"Retirer {0} de votre entreprise ?","pt":"Remover {0} do seu negócio?","ru":"Удалить {0} из вашего бизнеса?","de":"{0} aus Ihrem Unternehmen entfernen?","ja":"{0} をビジネスから削除しますか？"},
   "Cancel the invite to {0}?": {"es":"¿Cancelar la invitación a {0}?","zh":"取消向 {0} 发出的邀请？","hi":"{0} का निमंत्रण रद्द करें?","ar":"إلغاء دعوة {0}؟","fr":"Annuler l'invitation de {0} ?","pt":"Cancelar o convite para {0}?","ru":"Отменить приглашение для {0}?","de":"Die Einladung an {0} stornieren?","ja":"{0} への招待を取り消しますか？"},
   "Some changes haven't finished backing up to the cloud yet. Sign out anyway? Those unsynced changes on this device could be lost.": {"es":"Algunos cambios aún no terminaron de respaldarse en la nube. ¿Cerrar sesión de todos modos? Esos cambios sin sincronizar podrían perderse.","zh":"部分更改尚未完成云端备份。仍要退出登录吗？此设备上未同步的更改可能会丢失。","hi":"कुछ बदलाव अभी क्लाउड में बैकअप नहीं हुए हैं। फिर भी साइन आउट करें? इस डिवाइस के असिंक बदलाव खो सकते हैं।","ar":"بعض التغييرات لم تكتمل نسخها احتياطيًا إلى السحابة بعد. تسجيل الخروج على أي حال؟ قد تُفقد التغييرات غير المتزامنة على هذا الجهاز.","fr":"Certaines modifications ne sont pas encore sauvegardées dans le cloud. Se déconnecter quand même ? Ces modifications non synchronisées pourraient être perdues.","pt":"Algumas alterações ainda não terminaram o backup na nuvem. Sair mesmo assim? Essas alterações não sincronizadas podem ser perdidas.","ru":"Некоторые изменения ещё не сохранены в облаке. Всё равно выйти? Несинхронизированные изменения на этом устройстве могут быть потеряны.","de":"Einige Änderungen sind noch nicht in der Cloud gesichert. Trotzdem abmelden? Diese nicht synchronisierten Änderungen könnten verloren gehen.","ja":"一部の変更はまだクラウドにバックアップされていません。それでもサインアウトしますか？この端末の未同期の変更は失われる可能性があります。"}
+  ,
+  "Whole business": {"es":"Todo el negocio","zh":"整个商家","hi":"पूरा व्यवसाय","ar":"النشاط التجاري بأكمله","fr":"Toute l'entreprise","pt":"Negócio inteiro","ru":"Весь бизнес","de":"Gesamtes Unternehmen","ja":"ビジネス全体"},
+  "This product": {"es":"Este producto","zh":"当前商品","hi":"यह उत्पाद","ar":"هذا المنتج","fr":"Ce produit","pt":"Este produto","ru":"Этот товар","de":"Dieses Produkt","ja":"この商品"},
+  "Visit our website": {"es":"Visita nuestro sitio web","zh":"访问我们的网站","hi":"हमारी वेबसाइट देखें","ar":"زر موقعنا الإلكتروني","fr":"Visitez notre site web","pt":"Visite nosso site","ru":"Посетите наш сайт","de":"Besuche unsere Website","ja":"公式サイトを見る"},
+  "14-Day Earnings · All products": {"es":"Ingresos de 14 días · Todos los productos","zh":"14天收入 · 全部商品","hi":"14 दिन की कमाई · सभी उत्पाद","ar":"أرباح 14 يومًا · جميع المنتجات","fr":"Revenus sur 14 jours · Tous les produits","pt":"Ganhos de 14 dias · Todos os produtos","ru":"Доход за 14 дней · Все товары","de":"Einnahmen 14 Tage · Alle Produkte","ja":"14日間の収益 · 全商品"},
+  "Products": {"es":"Productos","zh":"商品数","hi":"उत्पाद","ar":"المنتجات","fr":"Produits","pt":"Produtos","ru":"Товары","de":"Produkte","ja":"商品数"},
+  "By Product": {"es":"Por producto","zh":"按商品","hi":"उत्पाद के अनुसार","ar":"حسب المنتج","fr":"Par produit","pt":"Por produto","ru":"По товарам","de":"Nach Produkt","ja":"商品別"},
+  "Profit": {"es":"Ganancia","zh":"利润","hi":"लाभ","ar":"الربح","fr":"Bénéfice","pt":"Lucro","ru":"Прибыль","de":"Gewinn","ja":"利益"},
+  "vs Last Week": {"es":"vs semana pasada","zh":"对比上周","hi":"पिछले सप्ताह की तुलना","ar":"مقارنة بالأسبوع الماضي","fr":"vs semaine dernière","pt":"vs semana passada","ru":"к прошлой неделе","de":"ggü. Vorwoche","ja":"先週比"},
+  "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports now opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes ahora abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表现在默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स अब आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح الآن على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre désormais sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios agora abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты теперь открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet jetzt mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開くようになりました — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -5834,7 +5961,7 @@ const SUBPAGES = {
   install:  { el:"installPage",     render: () => {} },
   privacy:  { el:"privacyPage",     render: () => {} },
   terms:    { el:"termsPage",       render: () => {} },
-  reports:     { el:"reportsPage",     render: () => { renderChart(); renderQS(); } },
+  reports:     { el:"reportsPage",     render: () => { renderReports(); } },
   ai:          { el:"aiPage",          render: () => { try{ renderChat(); }catch(e){} } },
   priceref:    { el:"priceRefPage",    render: () => renderPriceRef() },
   expenses:    { el:"expensesPage",    render: () => renderExpenseHistory() },
@@ -6254,7 +6381,7 @@ const TOUR_STEPS = [
   { essential:true, tab:"stock", sel:".sgrid", icon:"money", title:"Money at a glance", body:"Earned, net profit, expenses and estimated stock value — the four numbers that matter, always front and centre." },
   { tab:"stock", sel:"#healthStrip", icon:"pulse", title:"Today at a glance", body:"A live read on today: revenue so far, sales count and your current top seller — a quick gut-check any time." },
   { essential:true, tab:"stock", sel:".qa-strip", icon:"bolt", title:"Your two everyday actions", body:"Record a sale — bundles, discounts, payment type, even on credit — or restock your inventory. These are your daily taps." },
-  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, reports, the AI advisor and more — all one tap away." },
+  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports now opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown." },
   { essential:true, tab:"log", sel:null, icon:"receipt", title:"Activity — your full history", body:"Every sale, restock, expense and internal use, in order — the complete running record of your business." },
   { tab:"log", sel:".log-search-wrap", icon:"search", title:"Find anything fast", body:"Search by product, customer, note or amount to jump straight to any transaction — no scrolling required." },
   { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
@@ -6562,9 +6689,10 @@ function _auditSummary(type, s){
   if(type==="invoice") return (s.no!=null&&s.no!==""?("#"+escHtml(String(s.no))):"no number")+(s.total!=null?(" · "+fmtDollar(s.total)):"");
   if(type==="delete"||type==="restore"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(inner?(" · "+inner):""); }
   if(type==="edit"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(s.field?(" "+escHtml(String(s.field))):"")+(inner?(" · "+inner):""); }
+  if(type==="product") return escHtml(String(s.action||""))+(s.product?(" · "+escHtml(String(s.product))):"");
   return "";
 }
-function _auditTypeLabel(t){ const m={ sale:"sale", restock:"restock", use:"internal use", expense:"expense", invoice:"invoice", delete:"removed", restore:"restored", edit:"edited" }; return escHtml(String(m[t]||t||"")); }
+function _auditTypeLabel(t){ const m={ sale:"sale", restock:"restock", use:"internal use", expense:"expense", invoice:"invoice", delete:"removed", restore:"restored", edit:"edited", product:"product" }; return escHtml(String(m[t]||t||"")); }
 function _fmtAuditTime(t){ try{ return new Date(t).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
 function _fmtAuditClock(t){ try{ return new Date(t).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
 function _auditDayLabel(t){ try{ const d=new Date(t),n=new Date(); const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()),b=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const diff=Math.round((a-b)/86400000); if(diff===0)return "Today"; if(diff===1)return "Yesterday"; return d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"}); }catch(e){ return ""; } }
