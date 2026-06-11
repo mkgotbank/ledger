@@ -1056,6 +1056,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="border-radius:20px"/>
   <div class="splash-dots"><span></span><span></span><span></span></div>
   <div id="splashStatus" aria-live="polite" style="margin-top:14px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);min-height:14px"></div>
+  <div id="splashVer" style="position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1px;color:var(--txt-d);opacity:.6"></div>
 </div>
 
 <!-- Auth (Phase 2): sign in / sign up / reset -->
@@ -1807,7 +1808,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2191,7 +2192,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.2";
+const APP_VER    = "2.46.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7204,9 +7205,18 @@ let _bp = null;
 function _bpStart(){ _bp = { t0: performance.now(), last: performance.now(), steps: {} };
   if(window.__tTap){ _bp.steps["password check (auth server)"] = Math.round((window.__tGrant||performance.now()) - window.__tTap); _bp.t0 = window.__tTap; window.__tTap = null; }
   else { _bp.t0 = 0; _bp.steps["sign-in handshake (before loading starts)"] = Math.round(performance.now()); } }
-function _bpMark(name){ if(!_bp) return; const n = performance.now(); _bp.steps[name] = Math.round(n - _bp.last); _bp.last = n; }
+function _bpMark(name){ if(!_bp) return; const n = performance.now(); _bp.steps[name] = Math.round(n - _bp.last); _bp.last = n; _bpTrace(name); }
+function _bpTrace(step){ try{ localStorage.setItem("ledger_boot_trace", JSON.stringify({ step, t: Date.now(), ver: APP_VER, done: false })); }catch(e){} }
 function _bpDone(){
   if(!_bp) return;
+  try{
+    localStorage.setItem("ledger_boot_trace", JSON.stringify({ step:"done", t:Date.now(), ver:APP_VER, done:true }));
+    const prev = JSON.parse(localStorage.getItem("ledger_boot_laststall")||"null");
+    if(prev && !prev.reported){
+      prev.reported = true; localStorage.setItem("ledger_boot_laststall", JSON.stringify(prev));
+      try{ showToast("Last sign-in stalled at: "+prev.step+" (v"+(prev.ver||"?")+")", "err"); }catch(e){}
+    }
+  }catch(e){}
   const total = Math.round(performance.now() - _bp.t0);
   const profile = { total_ms: total, steps: _bp.steps, at: new Date().toISOString(), ver: APP_VER };
   try{ localStorage.setItem("ledger_boot_profile", JSON.stringify(profile)); }catch(e){}
@@ -7241,6 +7251,7 @@ async function bootAuthedUser(sess){
   // on this device verifiably belong to this account (the guard above just ran).
   try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); }catch(e){}
   _bpStart();
+  _bpTrace("boot started (session received)");
   _bootedUid = sess.user.id;
   try{ const _md=(sess.user.user_metadata)||{}; _me = { id:sess.user.id, label:String(_md.full_name||_md.name||(sess.user.email||"").split("@")[0]||"member").trim() }; }catch(e){ _me={id:sess.user.id,label:""}; }
   // Capture the sync-base from BEFORE this boot's loadDoc overwrites it — lets us tell
@@ -7550,6 +7561,12 @@ try{
   }).observe(document.body, { childList:true, subtree:true, characterData:true });
 }catch(e){}
 
+try{ const _sv=document.getElementById("splashVer"); if(_sv) _sv.textContent = "v"+APP_VER; }catch(e){}
+try{
+  const _tr = JSON.parse(localStorage.getItem("ledger_boot_trace")||"null");
+  if(_tr && !_tr.done){ _tr.reported = false; localStorage.setItem("ledger_boot_laststall", JSON.stringify(_tr)); }
+  localStorage.removeItem("ledger_boot_trace");
+}catch(e){}
 // checkVersion retries on its own if isReady() is briefly false
 setTimeout(checkVersion,   300);
 setTimeout(checkForUpdate, 1500);
@@ -7574,8 +7591,9 @@ setInterval(() => {
       try{ _setSaveStatus("saving"); }catch(e){}
       return;
     }
-    if(stuck > 12000 && !sessionStorage.getItem("ledger_splash_reloaded")){
-      try{ sessionStorage.setItem("ledger_splash_reloaded","1"); }catch(e){}
+    const n = parseInt(sessionStorage.getItem("ledger_splash_reloaded")||"0", 10);
+    if(stuck > 12000 && n < 3){
+      try{ sessionStorage.setItem("ledger_splash_reloaded", String(n+1)); }catch(e){}
       location.reload();
     }
   }catch(e){}
