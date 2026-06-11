@@ -1806,27 +1806,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.42.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.43.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18v3h3l5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
         <div>
-          <div class="wn-title">A deep polish, top to bottom</div>
-          <div class="wn-desc">A full review of the app fixed a long list of small things: the Team remove and cancel-invite buttons work again, names with apostrophes like O'Brien no longer pick up stray marks, day-streak stats are accurate every day of the month, and Activity's "Today" filter now matches Home exactly.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
-        <div>
-          <div class="wn-title">Deleting a product now sticks everywhere</div>
-          <div class="wn-desc">When you delete, rename or reset a product, that change now travels with your sync — another device's older copy can no longer quietly bring it back. The Privacy Policy was updated to describe the small deletion markers that make this work.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
-        <div>
-          <div class="wn-title">Faster and safer</div>
-          <div class="wn-desc">The app launches faster (translations no longer wait on the network), checks for updates less wastefully, each business gets its own daily cloud restore point, the storage indicator is more honest about failed saves, and signing out now clears the previous account's local snapshots from shared devices.</div>
+          <div class="wn-title">The Audit log now names the product</div>
+          <div class="wn-desc">Every new sale, expense, restock, deletion and restore in the Audit log now says exactly which product it touched — multi-product purchases list each one. Importing past entries carries product names in too.</div>
         </div>
       </div>
     </div>
@@ -2177,7 +2163,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.42.1";
+const APP_VER    = "2.43.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2897,7 +2883,7 @@ function undoDelete(){
       st.restockTotal = info.pre.restockTotal; st.useTotal = info.pre.useTotal; st.expenses = info.pre.expenses;
       info.removed.slice().sort((a,b)=>a.idx-b.idx).forEach(r => { st.logs.splice(r.idx, 0, r.entry); _unvoid(r.entry && r.entry.id); });
     });
-    try{ let _bt=0,_bn=0; Object.values(snap.affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("restore", { was:"sale", total:_bt, items:_bn }, null); }catch(e){}
+    try{ let _bt=0,_bn=0; Object.values(snap.affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("restore", { was:"sale", total:_bt, items:_bn, products:Object.keys(snap.affected) }, null); }catch(e){}
     persist(); renderAll();
     if(_undoStack.length > 0){ _showUndoToast(); } else { clearTimeout(_undoTimer); showToast("Restored", "ok"); }
     return;
@@ -2914,7 +2900,7 @@ function undoDelete(){
     // Re-insert the entry at its original position
     s.logs.splice(snap.idx, 0, snap.entry);
     _unvoid(snap.entry && snap.entry.id);
-    try{ const e=snap.entry||{}; const rs={ was:e.type }; if(e.type==="sale"){ rs.total=e.total; rs.items=(e.batchItems?e.batchItems.length:1); } else if(e.type==="expense"){ rs.amount=e.amount; rs.category=e.category; } else if(e.type==="restock"||e.type==="use"){ rs.amount=e.w; rs.product=snap.strainKey; } _logActivity("restore", rs, null); }catch(e){}
+    try{ const e=snap.entry||{}; const rs={ was:e.type, product:snap.strainKey }; if(e.type==="sale"){ rs.total=e.total; rs.items=(e.batchItems?e.batchItems.length:1); } else if(e.type==="expense"){ rs.amount=e.amount; rs.category=e.category; } else if(e.type==="restock"||e.type==="use"){ rs.amount=e.w; } _logActivity("restore", rs, null); }catch(e){}
   }
   persist(); renderAll();
   if(_undoStack.length > 0){
@@ -4558,7 +4544,7 @@ function confirmSale(){
     }
     st.logs.unshift(entry);
   });
-  try{ const _stot = isBatch ? batchTotal : items.reduce((a,it)=>a+(it.total!=null?it.total:it.price*it.qty),0); _logActivity("sale", { total:_stot, items:items.length, payment:salePayment }, isBatch?String(batchId):("s"+Date.now())); }catch(e){}
+  try{ const _stot = isBatch ? batchTotal : items.reduce((a,it)=>a+(it.total!=null?it.total:it.price*it.qty),0); const _prods=[...new Set(items.map(it=>it.strain||D.cur))]; _logActivity("sale", { total:_stot, items:items.length, payment:salePayment, products:_prods }, isBatch?String(batchId):("s"+Date.now())); }catch(e){}
   // Restore the product the modal opened on, reset state, close.
   bulkCart = []; saleDiscount = 0; salePartialPaid = 0;
   if(saleOpenStrain && D.strains[saleOpenStrain]) D.cur = saleOpenStrain;
@@ -4630,7 +4616,7 @@ function confirmExp(){
   } else {
     s.expenses = (s.expenses||0) + val;
     s.logs.unshift({ id:Date.now(), type:"expense", amount:val, note:note, category:expCategory, date:now(), ..._actorStamp() });
-    _logActivity("expense", { amount:val, category:expCategory, note:note }, null);
+    _logActivity("expense", { amount:val, category:expCategory, note:note, product:D.cur }, null);
     showToast(fmtDollar(val) + " expense logged");
   }
   closeModal("exp"); persist(); renderAll();
@@ -4686,7 +4672,7 @@ function deleteLog(id){
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
   _pushUndo(snap);
   // Audit: record the removal (append-only — the original entry stays logged too)
-  try{ const ds={ was:l.type }; if(l.type==="sale"){ ds.total=l.total; ds.items=(l.batchItems?l.batchItems.length:1); } else if(l.type==="expense"){ ds.amount=l.amount; ds.category=l.category; } else if(l.type==="restock"||l.type==="use"){ ds.amount=l.w; ds.product=D.cur; } _logActivity("delete", ds, null); }catch(e){}
+  try{ const ds={ was:l.type, product:D.cur }; if(l.type==="sale"){ ds.total=l.total; ds.items=(l.batchItems?l.batchItems.length:1); if(l.batchItems) ds.products=[...new Set(l.batchItems.map(b=>b.strain))]; } else if(l.type==="expense"){ ds.amount=l.amount; ds.category=l.category; } else if(l.type==="restock"||l.type==="use"){ ds.amount=l.w; } _logActivity("delete", ds, null); }catch(e){}
   persist(); renderAll();
   _showUndoToast();
 }
@@ -4715,7 +4701,7 @@ function deleteBatch(batchId){
   Object.values(affected).forEach(a => (a.removed||[]).forEach(r => _void(r.entry && r.entry.id)));
   _pushUndo({ multiBatch:true, affected });
   // Audit: record the batched-purchase removal
-  try{ let _bt=0,_bn=0; Object.values(affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("delete", { was:"sale", total:_bt, items:_bn }, null); }catch(e){}
+  try{ let _bt=0,_bn=0; Object.values(affected).forEach(a=>{ (a.removed||[]).forEach(r=>{ _bn++; _bt += (r.entry&&r.entry.total)||0; }); }); _logActivity("delete", { was:"sale", total:_bt, items:_bn, products:Object.keys(affected) }, null); }catch(e){}
   persist(); renderAll();
   _showUndoToast();
 }
@@ -6735,10 +6721,16 @@ function cancelInvite(email){
 }
 // ── AUDIT LOG (tamper-proof, server-stamped) ──
 function openAudit(){ if(!canManage()){ try{ showToast("Owners and admins only","err"); }catch(e){} return; } _auditFilter="all"; _auditSearch=""; const _as=document.getElementById("auditSearch"); if(_as) _as.value=""; const _ac=document.getElementById("auditSearchClear"); if(_ac) _ac.style.display="none"; const _ar=document.getElementById("auditFilterRow"); if(_ar) _ar.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("data-af")==="all")); openSubpage('audit'); renderAudit(); }
+// " · Candles, Soaps +2" — the product name(s) an event touched (multi-product sales list up to 3)
+function _audProds(s){
+  const arr = Array.isArray(s.products) && s.products.length ? s.products : (s.product ? [s.product] : []);
+  if(!arr.length) return "";
+  return " · " + arr.slice(0,3).map(x=>escHtml(String(x))).join(", ") + (arr.length>3 ? " +"+(arr.length-3) : "");
+}
 function _auditSummary(type, s){
   s=s||{};
-  if(type==="sale") return (s.total!=null?fmtDollar(s.total):"")+(s.items>1?(" · "+s.items+" items"):"");
-  if(type==="expense") return (s.amount!=null?fmtDollar(s.amount):"")+(s.category?(" · "+escHtml(String(s.category))):"");
+  if(type==="sale") return (s.total!=null?fmtDollar(s.total):"")+(s.items>1?(" · "+s.items+" items"):"")+_audProds(s);
+  if(type==="expense") return (s.amount!=null?fmtDollar(s.amount):"")+(s.category?(" · "+escHtml(String(s.category))):"")+_audProds(s);
   if(type==="restock"||type==="use") return (s.amount!=null?String(s.amount):"")+(s.product?(" · "+escHtml(String(s.product))):"");
   if(type==="invoice") return (s.no!=null&&s.no!==""?("#"+escHtml(String(s.no))):"no number")+(s.total!=null?(" · "+fmtDollar(s.total)):"");
   if(type==="delete"||type==="restore"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(inner?(" · "+inner):""); }
@@ -6789,12 +6781,12 @@ function _renderAuditList(){
 }
 function _buildBackfillEvents(){
   const evs=[];
-  Object.values(D.strains||{}).forEach(s=>{ (s.logs||[]).forEach(l=>{
+  Object.entries(D.strains||{}).forEach(([name, s])=>{ (s.logs||[]).forEach(l=>{
     if(!l || l.id==null) return;
     let summary={};
-    if(l.type==="sale") summary={ total:l.total, items:(l.batchItems?l.batchItems.length:1), pack:l.pack, payment:l.payment };
-    else if(l.type==="expense") summary={ amount:l.amount, category:l.category, note:l.note };
-    else if(l.type==="restock"||l.type==="use") summary={ amount:l.w, product:null, after:l.after };
+    if(l.type==="sale") summary={ total:l.total, items:(l.batchItems?l.batchItems.length:1), pack:l.pack, payment:l.payment, product:name };
+    else if(l.type==="expense") summary={ amount:l.amount, category:l.category, note:l.note, product:name };
+    else if(l.type==="restock"||l.type==="use") summary={ amount:l.w, product:name, after:l.after };
     evs.push({ client_id:String(l.id), type:l.type||"entry", by:(l.by||""), summary, at:new Date(+l.id||Date.now()).toISOString() });
   }); });
   return evs;
