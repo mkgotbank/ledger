@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.5</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2199,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.4";
+const APP_VER    = "2.46.5";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7022,6 +7022,19 @@ const authRepo = {
   resendConfirm(email){ return SB.auth.resend({ type:"signup", email, options:{ emailRedirectTo: location.origin + location.pathname } }); }
 };
 async function doSignOut(){
+  // RETENTION GUARANTEE: whatever code path runs during sign-out (including a stale cached
+  // page's old wipe logic), the books MUST still be on this device afterwards — verify & restore.
+  let _snapDoc = null, _snapUid = null;
+  try{ const d = _readLocalD(); if(d && d.strains && Object.keys(d.strains).length){ _snapDoc = _stringifySlim(d); _snapUid = _bootedUid; } }catch(e){}
+  setTimeout(() => {
+    try{
+      if(_snapDoc && !_readLocalD()){
+        _storeSet(SK, _snapDoc);
+        localStorage.setItem("ledger_has_data","1");
+        if(_snapUid) localStorage.setItem("ledger_cache_uid", String(_snapUid));
+      }
+    }catch(e){}
+  }, 1200);
   // Give a stuck write a last chance, then warn before wiping the device if anything is still unsynced.
   try{ await flushToCloud(); }catch(e){}
   if(_cloudDirty || _unsyncedBiz()){
@@ -7636,11 +7649,16 @@ setInterval(() => {
       return;
     }
     const n = parseInt(sessionStorage.getItem("ledger_splash_reloaded")||"0", 10);
-    if(stuck > 12000 && n < 3){
-      try{ sessionStorage.setItem("ledger_splash_reloaded", String(n+1)); }catch(e){}
+    // iOS can leave the app's network connection half-dead after an app-switch; it revives on
+    // its own within ~2 minutes. Reloads are free — keep calmly retrying PAST that window
+    // (first three quickly, then spaced), so the user gets in without ever touching anything.
+    const lastR = parseInt(sessionStorage.getItem("ledger_splash_lastreload")||"0", 10);
+    const gap = n < 3 ? 12000 : 25000;
+    if(stuck > 12000 && n < 8 && (Date.now() - lastR) > gap){
+      try{ sessionStorage.setItem("ledger_splash_reloaded", String(n+1)); sessionStorage.setItem("ledger_splash_lastreload", String(Date.now())); }catch(e){}
       location.reload();
-    } else if(stuck > 12000){
-      _splash(__("Connection is stuck — close the app fully and reopen it."));
+    } else if(stuck > 12000 && n >= 3){
+      _splash(__("Connection is slow — retrying…") + " (" + n + ")");
     }
   }catch(e){}
 }, 1500);
