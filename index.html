@@ -1806,7 +1806,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.43.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.43.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
@@ -2163,7 +2163,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.43.0";
+const APP_VER    = "2.43.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -6721,11 +6721,12 @@ function cancelInvite(email){
 }
 // ── AUDIT LOG (tamper-proof, server-stamped) ──
 function openAudit(){ if(!canManage()){ try{ showToast("Owners and admins only","err"); }catch(e){} return; } _auditFilter="all"; _auditSearch=""; const _as=document.getElementById("auditSearch"); if(_as) _as.value=""; const _ac=document.getElementById("auditSearchClear"); if(_ac) _ac.style.display="none"; const _ar=document.getElementById("auditFilterRow"); if(_ar) _ar.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("data-af")==="all")); openSubpage('audit'); renderAudit(); }
-// " · Candles, Soaps +2" — the product name(s) an event touched (multi-product sales list up to 3)
+// " · Candles, Soaps, Wicks" — EVERY product the event touched, no truncation: an owner
+// auditing a 9-product sale needs to see all 9. The row simply wraps for long lists.
 function _audProds(s){
   const arr = Array.isArray(s.products) && s.products.length ? s.products : (s.product ? [s.product] : []);
   if(!arr.length) return "";
-  return " · " + arr.slice(0,3).map(x=>escHtml(String(x))).join(", ") + (arr.length>3 ? " +"+(arr.length-3) : "");
+  return " · " + arr.map(x=>escHtml(String(x))).join(", ");
 }
 function _auditSummary(type, s){
   s=s||{};
