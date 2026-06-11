@@ -1806,7 +1806,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.42.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.42.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18v3h3l5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3z"/></svg></div>
@@ -2125,7 +2125,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox mbox-red">
     <div class="modal-hdr">
       <div class="m-title danger">Are you sure?</div>
-      <button class="modal-close" aria-label="Close" onclick="closeModal('confirm')" aria-label="Close">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('confirm')">✕</button>
     </div>
     <div class="reset-warning" id="confirmMsg" data-noi18n></div>
     <div class="confirm-btns">
@@ -2177,7 +2177,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.42.0";
+const APP_VER    = "2.42.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
