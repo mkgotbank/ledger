@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.5</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.6</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2199,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.5";
+const APP_VER    = "2.46.6";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7202,7 +7202,11 @@ async function authSubmit(){
   try{
     if(_authMode==="reset"){
       if(!email){ _authMsg(__("Enter your email."),"err"); return; }
-      lock(true); const r=await authRepo.requestReset(email); lock(false);
+      lock(true);
+      let r;
+      try{ r = await _withTimeout(authRepo.requestReset(email), 15000, "reset"); }
+      catch(_te){ lock(false); _authMsg(__("The connection stalled. Please check your internet and try again."),"err"); return; }
+      lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
       _authMsg(__("Check your email for a reset link."),"ok"); return;
     }
@@ -7222,7 +7226,14 @@ async function authSubmit(){
     if(!email || pw.length<6){ _authMsg(__("Enter your email and a password (6+ characters)."),"err"); return; }
     lock(true);
     if(_authMode==="signup"){
-      const r=await authRepo.signUp(email, pw); lock(false);
+      let r;
+      try{ r = await _withTimeout(authRepo.signUp(email, pw), 15000, "sign-up"); }
+      catch(_te){
+        _authMsg(__("Connection is slow — retrying…"),"ok");
+        try{ r = await _withTimeout(authRepo.signUp(email, pw), 15000, "sign-up"); }
+        catch(_te2){ lock(false); _authMsg(__("The connection stalled. Please check your internet and try again."),"err"); return; }
+      }
+      lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
       if(!(r.data && r.data.session)){ _authMsg(__("Account created! Check your email and tap the confirmation link — it'll bring you right back here, signed in."),"ok"); authSetMode("signin"); }
     } else {
