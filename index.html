@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.47.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.47.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2199,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.47.0";
+const APP_VER    = "2.47.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2846,12 +2846,12 @@ function syncUnitDefaults(){
 
 // ── TOAST ──
 let _toastTimer;
-function showToast(msg, type=""){
+function showToast(msg, type="", ms){
   const t = document.getElementById("toast");
   if(LANG !== "en" && I18N[msg] && I18N[msg][LANG]) msg = I18N[msg][LANG]; // translate fixed messages
   t.textContent = msg; t.className = "show" + (type ? " "+type : "");
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.className = "", 2500);
+  _toastTimer = setTimeout(() => t.className = "", ms || 2500);
 }
 
 // ── DELETION TOMBSTONES ──
@@ -7088,6 +7088,7 @@ function _splashTap(){
       "books on device: " + (d && d.strains ? Object.keys(d.strains).length + " products" : "NONE"),
       "account tag: " + (localStorage.getItem("ledger_cache_uid") ? "set" : "none"),
       "boot trace: " + (tr || "—"),
+      "last boot profile: " + (localStorage.getItem("ledger_boot_profile") || "—"),
       "last stall: " + (st || "—"),
       "auto-reloads used: " + (sessionStorage.getItem("ledger_splash_reloaded") || "0")
     ];
@@ -7301,7 +7302,7 @@ function _bpDone(){
     const prev = JSON.parse(localStorage.getItem("ledger_boot_laststall")||"null");
     if(prev && !prev.reported){
       prev.reported = true; localStorage.setItem("ledger_boot_laststall", JSON.stringify(prev));
-      try{ showToast("Last sign-in stalled at: "+prev.step+" (v"+(prev.ver||"?")+", books:"+(prev.books!=null?prev.books:"?")+", tag:"+(prev.tag?"y":"n")+")", "err"); }catch(e){}
+      try{ showToast("Last sign-in stalled at: "+prev.step+" (v"+(prev.ver||"?")+", books:"+(prev.books!=null?prev.books:"?")+", tag:"+(prev.tag?"y":"n")+")", "err", 9000); }catch(e){}
     }
   }catch(e){}
   const total = Math.round(performance.now() - _bp.t0);
@@ -7310,7 +7311,7 @@ function _bpDone(){
   try{ console.log("[Ledger] sign-in profile:", profile); }catch(e){}
   if(total > 20000 && !_fastBoot){
     const worst = Object.entries(_bp.steps).sort((x,y)=>y[1]-x[1])[0];
-    try{ showToast("Slow sign-in: "+Math.round(total/1000)+"s — slowest step: "+(worst?worst[0]+" ("+Math.round(worst[1]/1000)+"s)":"?"), "err"); }catch(e){}
+    try{ showToast("Slow sign-in: "+Math.round(total/1000)+"s — slowest step: "+(worst?worst[0]+" ("+Math.round(worst[1]/1000)+"s)":"?"), "err", 9000); }catch(e){}
   }
   _bp = null;
 }
