@@ -1806,7 +1806,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.44.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.44.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5c0 1.4-.6 2.7-1.5 3.6.9.9 1.5 2.2 1.5 3.6a5 5 0 0 1-10 0c0-1.4.6-2.7 1.5-3.6A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/><path d="M12 7v10"/></svg></div>
@@ -2170,7 +2170,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.44.0";
+const APP_VER    = "2.44.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -6310,10 +6310,11 @@ function renderSettings(){
               ? `<div style="font-size:9px;color:var(--txt-d);line-height:1.6" data-noi18n>Connected to ${p.name} — the AI Advisor and chat now answer with it. Your key is stored only on this device.</div>`
               : `<div style="font-size:9px;color:var(--txt-d);line-height:1.75;width:100%" data-noi18n>
                   <div style="margin-bottom:7px">${tab==="anthropic"
-                    ? `<b style="color:var(--txt)">Claude</b> (by Anthropic) gives the smartest, most reliable business advice. The API is pay-as-you-go — a question typically costs a few cents.`
+                    ? `<b style="color:var(--txt)">Claude</b> (by Anthropic) gives the smartest, most reliable business advice. The API is pay-as-you-go — a question typically costs a few cents, so a small credit balance lasts months.`
                     : tab==="openai"
-                    ? `<b style="color:var(--txt)">ChatGPT</b> (by OpenAI), connected by API key. Pay-as-you-go — a question typically costs a few cents.`
+                    ? `<b style="color:var(--txt)">ChatGPT</b> (by OpenAI), connected by API key. Pay-as-you-go — a question typically costs a few cents, so a small credit balance lasts months.`
                     : `<b style="color:var(--txt)">Groq</b> is free and fast — no card required. A solid upgrade over the free shared service.`}</div>
+                  ${tab!=="groq"?`<div style="margin-bottom:7px;padding:7px 9px;background:var(--fill-1);border:1px solid var(--bdr);border-radius:8px">Heads up: a ${tab==="anthropic"?"Claude Pro":"ChatGPT Plus"} subscription does <b style="color:var(--txt)">not</b> include API access. The key below comes from a separate pay-as-you-go developer account (minimum credit is about $5). Your subscription keeps working in ${tab==="anthropic"?"the Claude app":"ChatGPT"} as usual.</div>`:''}
                   <div style="font-weight:700;color:var(--acc);letter-spacing:1px;text-transform:uppercase;font-size:8px;margin-bottom:5px">How to connect</div>
                   <div style="margin-bottom:3px">1. Open <a href="${p.url}" target="_blank" rel="noopener noreferrer" style="color:var(--acc);font-weight:700;text-decoration:none">${p.urlLabel} ↗</a></div>
                   <div style="margin-bottom:3px">2. Sign in and create an API key${p.paid?' (add a small credit balance if asked)':' (free)'}</div>
