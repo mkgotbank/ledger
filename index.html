@@ -1463,7 +1463,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <p style="margin:0 0 12px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
     <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> your books are yours. They're stored on your device and — if you create an account — backed up to your own private cloud space so you can sync across devices. If you invite teammates, they see your business data based on the role you give them. We don't show ads, we don't track you, and we never sell your data.</p>
     <div class="legal-h">1. Your data: on your device, and in your account</div>
-    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's local storage and on-device database). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. When you <b>delete an entry, invoice or product</b> (or rename or reset a product), its contents are removed; a small deletion marker (an internal reference number or the former product name only — no other business details) is kept for up to 120 days so your other devices remove their copy too instead of restoring it. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
+    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's local storage and on-device database). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. When you <b>delete an entry, invoice or product</b> (or rename or reset a product), its contents are removed; a small deletion marker (an internal reference number or the former product name only — no other business details) is kept for up to 120 days so your other devices remove their copy too instead of restoring it. If you are signed in, your data remains in your cloud account even if you remove the App from a device. <b>Signing out keeps a copy of your books on that device</b> so signing back in is instant; it is shown again only after the same account signs in, and it is removed automatically if a different account signs in on that device. To clear a device completely (for example before lending or selling it), use <b>Wipe all data</b> under More. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
     <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense, restock or other entry, our servers record which member created it — stamped from their verified sign-in, so the entry's author cannot be altered or faked — and this is shown to owners and admins in the <b>Audit log</b> so there is a reliable record of who did what.</p>
     <p>If you belong to <b>more than one business</b>, you can switch between them from <b>More → Switch business</b>. Each business's data is kept completely separate: switching only changes which business you are viewing, and your access to each is always governed by your role in that business.</p>
@@ -1807,27 +1807,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.45.4</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.0</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
         <div>
-          <div class="wn-title">Much faster sign-in</div>
-          <div class="wn-desc">Signing back in no longer re-downloads every business on your account — the app remembers which business this device uses and goes straight to it. Invite-claiming now runs in parallel too, and the loading screen tells you what it's doing.</div>
+          <div class="wn-title">Sign in: boom, you're in</div>
+          <div class="wn-desc">Signing back in on the same device now opens your books instantly from the device copy, while the cloud syncs quietly in the background. No more staring at a loading screen — and if the connection ever stalls on a fresh device, the app now recovers by itself instead of needing a manual refresh.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
         <div>
-          <div class="wn-title">Google sign-in fixed for everyone</div>
-          <div class="wn-desc">Google doesn't allow its sign-in inside installed apps on iPhone and iPad. Google sign-in is back to one tap everywhere. The earlier blocks were a Google-side setting that has been fixed — if you ever see Google refuse inside the installed app, email sign-in always works.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
-        <div>
-          <div class="wn-title">Instant sign-out</div>
-          <div class="wn-desc">Signing out responds immediately, even on a weak connection — and it now signs out only this device, so your other devices stay signed in.</div>
+          <div class="wn-title">Same safety, explained in the Privacy Policy</div>
+          <div class="wn-desc">Your books stay protected: the device copy is only shown after the same account signs back in, and it's wiped automatically the moment a different account signs in on that device. Handing a device away? More → Wipe all data clears everything.</div>
         </div>
       </div>
     </div>
@@ -2197,7 +2190,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.45.4";
+const APP_VER    = "2.46.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -3149,7 +3142,9 @@ function _setSaveStatus(state){
 }
 let _persistTimer = null, _cloudDirty = false;
 let _quotaErrAt = 0;
+let _persistSeq = 0;
 function persist(){
+  _persistSeq++;
   let wroteLocal = true;
   try {
     const json = JSON.stringify(D);
@@ -6999,11 +6994,11 @@ const authRepo = {
   async signOut(){
     try{ await flushToCloud(); }catch(e){}
     const _serverSignOut = () => SB.auth.signOut({ scope: "local" }); // this device only; instant, and other devices stay signed in
-    // Wipe per-user state so the NEXT person to sign in on this device can never inherit
-    // or re-upload the previous user's data (cross-account/tenant leak).
+    // The on-device copy STAYS through sign-out so signing back in is instant. It is shown
+    // again only after the SAME account authenticates — boot wipes everything the moment a
+    // different user id appears (_wipeLocalTenant), so cross-tenant safety is preserved.
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
-    try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     // Local scope = no server-side revoke round trip, so the button responds instantly even
@@ -7028,7 +7023,7 @@ async function doSignOut(){
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
-function _splash(msg){ try{ const e=document.getElementById("splashStatus"); if(e) e.textContent = msg||""; }catch(e){} }
+function _splash(msg){ try{ const sp=document.getElementById("splashScreen"); if(sp && sp.style.display==="none") return; const e=document.getElementById("splashStatus"); if(e) e.textContent = msg||""; }catch(e){} }
 function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); setTimeout(()=>{ try{ document.getElementById("authEmail").focus(); }catch(e){} }, 50);}
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
 function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
@@ -7206,14 +7201,32 @@ function _bpDone(){
   const profile = { total_ms: total, steps: _bp.steps, at: new Date().toISOString(), ver: APP_VER };
   try{ localStorage.setItem("ledger_boot_profile", JSON.stringify(profile)); }catch(e){}
   try{ console.log("[Ledger] sign-in profile:", profile); }catch(e){}
-  if(total > 20000){
+  if(total > 20000 && !_fastBoot){
     const worst = Object.entries(_bp.steps).sort((x,y)=>y[1]-x[1])[0];
     try{ showToast("Slow sign-in: "+Math.round(total/1000)+"s — slowest step: "+(worst?worst[0]+" ("+Math.round(worst[1]/1000)+"s)":"?"), "err"); }catch(e){}
   }
   _bp = null;
 }
+let _fastBoot = false, _liveD = null, _liveSeq = 0;
 async function bootAuthedUser(sess){
-  showSplash();
+  _fastBoot = false; _liveD = null;
+  try{
+    const cuid = localStorage.getItem("ledger_cache_uid");
+    if(cuid && cuid !== String(sess.user.id)){
+      _wipeLocalTenant();                       // different account → nothing of the old tenant survives
+    } else if(cuid){
+      // SAME account returning → open their books instantly from this device; the cloud
+      // reconcile below runs behind the open app and re-renders when it lands.
+      const cached = _readLocalD();
+      if(cached && cached.strains && Object.keys(cached.strains).length){
+        D = cached; _normalizeD(); syncUnitDefaults();
+        if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
+        else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} }
+        _fastBoot = true; _liveD = D; _liveSeq = _persistSeq;
+      }
+    }
+  }catch(e){}
+  if(!_fastBoot) showSplash();
   _bpStart();
   _bootedUid = sess.user.id;
   try{ const _md=(sess.user.user_metadata)||{}; _me = { id:sess.user.id, label:String(_md.full_name||_md.name||(sess.user.email||"").split("@")[0]||"member").trim() }; }catch(e){ _me={id:sess.user.id,label:""}; }
@@ -7338,8 +7351,16 @@ async function bootAuthedUser(sess){
       D = local || { strains:{}, cur:"" };
     }
     _normalizeD();
+    if(_fastBoot && _liveD && D !== _liveD && _persistSeq !== _liveSeq){
+      // entries were recorded while the background sync ran — fold them into the fresh doc
+      try{ const m = _mergeDocs(_liveD, D); D = m.doc; _normalizeD(); }catch(e){}
+      try{ persist(); }catch(e){}
+    }
     _bpMark("merge & sync");
-    if(isReady()){
+    if(_fastBoot){
+      try{ _cacheLocalD(); renderAll(); updateSaleModal(); }catch(e){}
+      checkVersion();
+    } else if(isReady()){
       syncUnitDefaults();
       if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
       else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} checkVersion(); }
@@ -7348,6 +7369,7 @@ async function bootAuthedUser(sess){
     }
     _bpMark("draw the app");
     _bpDone();
+    try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); }catch(e){}
     try{ i18nApply(); }catch(e){}
     // Arrived here via an email-confirmation link → confirm it plainly.
     if(window.__authReturn && window.__authReturn.confirmed){
@@ -7355,10 +7377,16 @@ async function bootAuthedUser(sess){
       try{ showToast(__("✓ Email verified — you're signed in."),"ok"); }catch(e){}
     }
   }catch(e){
+    if(_fastBoot){ _setSaveStatus("offline"); return; }   // books are already on screen — sync catches up later
     // Boot failed (stalled/failed network). If this device has data, use it. Otherwise do
-    // what a manual refresh does — try again, with backoff, and SAY so on the splash.
+    // what a manual refresh does — try again; after 3 stalls, actually refresh the page once
+    // (a fresh page gets a fresh connection, which demonstrably clears the stall).
     if(_readLocalD() && isReadyDoc(_readLocalD())){ bootLocalFallback(); return; }
     _bootTries++;
+    if(_bootTries >= 3 && !sessionStorage.getItem("ledger_boot_reloaded")){
+      try{ sessionStorage.setItem("ledger_boot_reloaded","1"); }catch(_){ }
+      location.reload(); return;
+    }
     const delay = Math.min(10000, 1500 * _bootTries);
     _splash(__("Connection is slow — retrying…") + " (" + _bootTries + ")");
     setTimeout(() => bootAuthedUser(sess), delay);
@@ -7370,10 +7398,13 @@ function isReadyDoc(d){ return !!(d && d.strains && Object.keys(d.strains).lengt
 // A DIFFERENT account became active without a sign-out in between (multi-tab sign-in,
 // magic-link/recovery completion). Tear down the previous tenant's in-memory + on-device
 // state so the new user never sees or overwrites it.
+function _wipeLocalTenant(){
+  try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); localStorage.removeItem("ledger_cache_uid"); }catch(e){}
+}
 function _resetForAccountSwitch(){
   try{ clearTimeout(_persistTimer); }catch(e){}
   _cloudDirty = false; _flushing = false;
-  try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
+  _wipeLocalTenant();
   D = { strains:{}, cur:"" };
   Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" };
 }
