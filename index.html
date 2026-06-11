@@ -1807,7 +1807,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.45.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.45.3</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2164,7 +2164,26 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   try {
     if (window.supabase && SUPA_URL && SUPA_ANON) {
       SB = window.supabase.createClient(SUPA_URL, SUPA_ANON, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        auth: {
+          persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
+          // supabase-js serializes every auth call behind a navigator.locks browser lock. On
+          // installed PWAs a zombie context (old tab, the OAuth tab, the installed shell) can
+          // hold that lock for MINUTES, making sign-in hang silently until it's released.
+          // Take the lock only if it's free; if another context holds it, proceed anyway —
+          // a rare double token-refresh self-heals, an invisible multi-minute hang doesn't.
+          lock: async (name, acquireTimeout, fn) => {
+            try{
+              if(navigator.locks && navigator.locks.request){
+                let ran = false, result;
+                await navigator.locks.request(name, { ifAvailable: true }, async (lock) => {
+                  if(lock){ ran = true; result = await fn(); }
+                });
+                if(ran) return result;
+              }
+            }catch(e){}
+            return await fn();
+          }
+        }
       });
     }
   } catch(e){ SB = null; }
@@ -2178,7 +2197,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.45.2";
+const APP_VER    = "2.45.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7168,7 +7187,8 @@ let _me = { id:null, label:"" };
 // culprit. Last profile kept in localStorage("ledger_boot_profile"); totals >20s show a toast.
 let _bp = null;
 function _bpStart(){ _bp = { t0: performance.now(), last: performance.now(), steps: {} };
-  if(window.__tTap){ _bp.steps["password check (auth server)"] = Math.round((window.__tGrant||performance.now()) - window.__tTap); _bp.t0 = window.__tTap; window.__tTap = null; } }
+  if(window.__tTap){ _bp.steps["password check (auth server)"] = Math.round((window.__tGrant||performance.now()) - window.__tTap); _bp.t0 = window.__tTap; window.__tTap = null; }
+  else { _bp.t0 = 0; _bp.steps["sign-in handshake (before loading starts)"] = Math.round(performance.now()); } }
 function _bpMark(name){ if(!_bp) return; const n = performance.now(); _bp.steps[name] = Math.round(n - _bp.last); _bp.last = n; }
 function _bpDone(){
   if(!_bp) return;
