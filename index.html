@@ -1055,6 +1055,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 <div id="splashScreen">
   <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="border-radius:20px"/>
   <div class="splash-dots"><span></span><span></span><span></span></div>
+  <div id="splashStatus" aria-live="polite" style="margin-top:14px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);min-height:14px"></div>
 </div>
 
 <!-- Auth (Phase 2): sign in / sign up / reset -->
@@ -1806,20 +1807,27 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.44.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.45.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5c0 1.4-.6 2.7-1.5 3.6.9.9 1.5 2.2 1.5 3.6a5 5 0 0 1-10 0c0-1.4.6-2.7 1.5-3.6A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/><path d="M12 7v10"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
         <div>
-          <div class="wn-title">A much smarter AI Advisor</div>
-          <div class="wn-desc">You can now pick the Advisor's brain under More → AI settings: keep the free service, use a free Groq key, or connect Claude (Anthropic) or ChatGPT (OpenAI) with your own API key for the smartest business advice. Keys stay on your device only.</div>
+          <div class="wn-title">Much faster sign-in</div>
+          <div class="wn-desc">Signing back in no longer re-downloads every business on your account — the app remembers which business this device uses and goes straight to it. Invite-claiming now runs in parallel too, and the loading screen tells you what it's doing.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg></div>
         <div>
-          <div class="wn-title">No more wrong numbers from the AI</div>
-          <div class="wn-desc">The app now calculates every figure itself — profit, margins, coverage, averages — and the AI is required to quote your exact numbers instead of doing its own math. Estimates it used to get wrong are now your real, precomputed figures.</div>
+          <div class="wn-title">Clear guidance when Google blocks sign-in</div>
+          <div class="wn-desc">Google doesn't allow its sign-in inside installed apps on iPhone and iPad. Instead of a confusing Google error, the app now explains it and points you to email sign-in — or to Safari, where Google sign-in works.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+        <div>
+          <div class="wn-title">Instant sign-out</div>
+          <div class="wn-desc">Signing out responds immediately, even on a weak connection — and it now signs out only this device, so your other devices stay signed in.</div>
         </div>
       </div>
     </div>
@@ -2170,7 +2178,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.44.1";
+const APP_VER    = "2.45.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5483,6 +5491,9 @@ try{
   "How to connect": {"es":"Cómo conectar","zh":"如何连接","hi":"कनेक्ट कैसे करें","ar":"كيفية الربط","fr":"Comment connecter","pt":"Como conectar","ru":"Как подключить","de":"So verbinden","ja":"接続方法"},
   "AI key saved": {"es":"Clave de IA guardada","zh":"AI 密钥已保存","hi":"एआई कुंजी सहेजी गई","ar":"تم حفظ مفتاح الذكاء الاصطناعي","fr":"Clé IA enregistrée","pt":"Chave de IA salva","ru":"Ключ ИИ сохранён","de":"KI-Schlüssel gespeichert","ja":"AIキーを保存しました"},
   "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
+  "Signing you in…": {"es":"Iniciando tu sesión…","zh":"正在登录…","hi":"साइन इन हो रहा है…","ar":"جارٍ تسجيل دخولك…","fr":"Connexion en cours…","pt":"Entrando…","ru":"Выполняем вход…","de":"Sie werden angemeldet…","ja":"サインイン中…"},
+  "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
+  "Google blocks sign-in inside installed apps. Sign in here with your email and password — or open The Ledger in Safari once to use Google.": {"es":"Google bloquea el inicio de sesión dentro de apps instaladas. Inicia sesión aquí con tu correo y contraseña — o abre The Ledger en Safari una vez para usar Google.","zh":"Google 不允许在已安装的应用内登录。请在此使用邮箱和密码登录 — 或在 Safari 中打开 The Ledger 一次以使用 Google。","hi":"Google इंस्टॉल किए गए ऐप्स के अंदर साइन-इन ब्लॉक करता है। यहाँ अपने ईमेल और पासवर्ड से साइन इन करें — या Google उपयोग करने के लिए एक बार Safari में The Ledger खोलें।","ar":"تحظر Google تسجيل الدخول داخل التطبيقات المثبّتة. سجّل الدخول هنا بالبريد الإلكتروني وكلمة المرور — أو افتح The Ledger في Safari مرة واحدة لاستخدام Google.","fr":"Google bloque la connexion dans les apps installées. Connectez-vous ici avec votre e-mail et mot de passe — ou ouvrez The Ledger dans Safari une fois pour utiliser Google.","pt":"O Google bloqueia o login dentro de apps instalados. Entre aqui com seu e-mail e senha — ou abra o The Ledger no Safari uma vez para usar o Google.","ru":"Google блокирует вход внутри установленных приложений. Войдите здесь по почте и паролю — или откройте The Ledger в Safari, чтобы войти через Google.","de":"Google blockiert die Anmeldung in installierten Apps. Melden Sie sich hier mit E-Mail und Passwort an — oder öffnen Sie The Ledger einmal in Safari, um Google zu nutzen.","ja":"Google はインストール済みアプリ内でのサインインをブロックします。ここでメールとパスワードでサインインするか、一度 Safari で The Ledger を開いて Google をご利用ください。"},
   "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
@@ -6685,7 +6696,7 @@ const Repo = {
   businessId:null, lastSeen:null, role:"owner",
   setBusiness(id){ this.businessId = id; },
   getBusinessId(){ return this.businessId; },
-  async resolveActiveBusiness(user){
+  async resolveActiveBusiness(user, invitesDone){
     // A failed lookup (network/RLS) must NOT fall through to provisioning a new empty
     // business — that would strand the user's real business + data. Throw so boot falls
     // back to the read-only local cache. A momentarily-EMPTY read (read-replica lag right
@@ -6696,6 +6707,9 @@ const Repo = {
       const r = await SB.from("memberships").select("business_id,role").eq("user_id", user.id);
       if(r.error) throw r.error;
       if(r.data && r.data.length){ rows = r.data; break; }
+      // Empty so far: a just-invited teammate's membership may still be landing — make sure
+      // the parallel invite-claim has finished before concluding "no membership".
+      if(invitesDone){ try{ await invitesDone; }catch(e){} invitesDone = null; }
       if(attempt < 2) await new Promise(res => setTimeout(res, 400 * (attempt+1)));
     }
     if(rows){
@@ -6708,6 +6722,19 @@ const Repo = {
           const hit = rows.find(m => String(m.business_id) === pref);
           if(hit) return { id:hit.business_id, fresh:false, role:hit.role };
           localStorage.removeItem("ledger_pref_biz");
+        }
+      }catch(e){}
+      // This device already resolved a business for THIS user once — reuse it and skip the
+      // expensive disambiguation below (which downloads every candidate's full doc). The key
+      // survives sign-out on purpose: it's just a pointer, and we only honor it after the
+      // memberships query confirms the user still belongs to that business.
+      try{
+        const uKey = "ledger_biz_u_" + user.id;
+        const saved = localStorage.getItem(uKey);
+        if(saved){
+          const hit = rows.find(m => String(m.business_id) === saved);
+          if(hit) return { id:hit.business_id, fresh:false, role:hit.role };
+          localStorage.removeItem(uKey);
         }
       }catch(e){}
       const owners = rows.filter(m => m.role === "owner");
@@ -6794,7 +6821,7 @@ async function renderBizSwitch(){
 }
 async function switchBusiness(id){
   if(String(id)===String(Repo.getBusinessId()||"")){ closeSubpage('bizswitch'); return; }
-  try{ localStorage.setItem("ledger_pref_biz", String(id)); }catch(e){}
+  try{ localStorage.setItem("ledger_pref_biz", String(id)); if(_me && _me.id) localStorage.setItem("ledger_biz_u_" + _me.id, String(id)); }catch(e){}
   try{ showToast(__("Switching business…"),"ok"); }catch(e){}
   // Push pending edits for the CURRENT business and AWAIT the cloud confirm — the old
   // fire-and-forget + 250ms reload killed the in-flight write and stranded those edits.
@@ -6952,6 +6979,7 @@ const authRepo = {
   signIn(email, pw){ return SB.auth.signInWithPassword({ email, password: pw }); },
   async signOut(){
     try{ await flushToCloud(); }catch(e){}
+    const _serverSignOut = () => SB.auth.signOut({ scope: "local" }); // this device only; instant, and other devices stay signed in
     // Wipe per-user state so the NEXT person to sign in on this device can never inherit
     // or re-upload the previous user's data (cross-account/tenant leak).
     try{ clearTimeout(_persistTimer); }catch(e){}
@@ -6959,7 +6987,9 @@ const authRepo = {
     try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
-    return SB.auth.signOut();
+    // Local scope = no server-side revoke round trip, so the button responds instantly even
+    // on a bad connection; race a timeout so a hung request can never freeze sign-out.
+    return Promise.race([ _serverSignOut(), new Promise(res => setTimeout(res, 4000)) ]);
   },
   requestReset(email){ return SB.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); },
   setNewPassword(pw){ return SB.auth.updateUser({ password: pw }); },
@@ -6979,6 +7009,7 @@ async function doSignOut(){
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
+function _splash(msg){ try{ const e=document.getElementById("splashStatus"); if(e) e.textContent = msg||""; }catch(e){} }
 function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); setTimeout(()=>{ try{ document.getElementById("authEmail").focus(); }catch(e){} }, 50);}
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
 function showMain(){ hideAllScreens(); _scr("mainApp","block"); }
@@ -7068,6 +7099,15 @@ function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
 async function authGoogle(){
   if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
+  // Google rejects OAuth inside installed-app shells ("disallowed_useragent" / "this browser
+  // or app may not be secure"). On an installed iOS PWA the redirect runs in the standalone
+  // shell, so guide the user instead of letting Google show a dead-end error page.
+  const _standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  const _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if(_standalone && _isIOS){
+    _authMsg(__("Google blocks sign-in inside installed apps. Sign in here with your email and password — or open The Ledger in Safari once to use Google."),"err");
+    return;
+  }
   _authMsg(__("Opening Google…"),"ok");
   try{
     const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
@@ -7139,10 +7179,14 @@ async function bootAuthedUser(sess){
   // "cloud moved on" (a real multi-device conflict).
   const priorBase = _readBase();
   try{
-    // Claim any pending email invites for this user FIRST, so a freshly-invited teammate
-    // is a member before we resolve which business to load. Best-effort.
-    try{ await SB.rpc("accept_my_invites"); }catch(e){}
-    const biz = await Repo.resolveActiveBusiness(sess.user);
+    _splash(__("Signing you in…"));
+    // Claim pending email invites IN PARALLEL with the membership lookup — existing members
+    // shouldn't pay a serial round trip for it. resolveActiveBusiness awaits it only if the
+    // first membership read comes back empty (the freshly-invited-teammate case).
+    const invitesDone = SB.rpc("accept_my_invites").then(()=>{}, ()=>{});
+    const biz = await Repo.resolveActiveBusiness(sess.user, invitesDone);
+    try{ localStorage.setItem("ledger_biz_u_" + sess.user.id, String(biz.id)); }catch(e){}
+    _splash(__("Loading your books…"));
     Repo.setBusiness(biz.id);
     Repo.role = biz.role || "owner";   // the current user's role in the active business
     try{ const ae=document.getElementById("acctEmail"); if(ae) ae.textContent = sess.user.email||""; const as=document.getElementById("accountSec"); if(as) as.style.display="block"; }catch(e){}
