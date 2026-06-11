@@ -463,6 +463,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .rep-table td.rt-name{text-align:left;color:var(--txt-b);font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
 .rep-table tbody tr:last-child td{border-bottom:1px solid var(--bdr);}
 .rep-table tfoot td{border-bottom:none;font-weight:700;color:var(--txt-b);padding-top:8px;}
+#reportScopeBar .lf-btn{padding:7px 14px;font-size:11px;}
 .qs-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:11px 13px;box-shadow:0 3px 14px var(--shadow);}
 .qs-lbl{font-size:7px;letter-spacing:2px;color:var(--txt-d);margin-bottom:4px;text-transform:uppercase;}
 .qs-val{font-size:17px;font-weight:700;}
@@ -1212,7 +1213,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="panel" id="panel-log">
     <div class="log-search-wrap">
       <input class="log-search-in" id="logSearch" placeholder="Search notes, bundles, tags…" autocomplete="off" oninput="onLogSearch(this.value)"/>
-      <button class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" style="display:none">✕</button>
+      <button class="log-search-clear" id="logSearchClear" aria-label="Clear search" onclick="clearLogSearch()" style="display:none">✕</button>
     </div>
     <div class="filters-bar">
       <button class="filters-toggle" onclick="toggleFilters()">
@@ -1457,11 +1458,11 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="subpage-title">Privacy Policy</div>
   </div>
   <div class="subpage-body" style="font-size:12px;color:var(--txt);line-height:1.7">
-    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 10, 2026 · The Ledger</div>
+    <div style="font-size:9px;letter-spacing:1px;color:var(--txt-d);text-transform:uppercase;margin-bottom:14px">Effective June 11, 2026 · The Ledger</div>
     <p style="margin:0 0 12px">The Ledger ("we", "us", the "App") is built privacy-first. This policy explains what happens to your information when you use it.</p>
     <p style="margin:0 0 16px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;color:var(--txt-d);font-size:11px;line-height:1.65"><b style="color:var(--txt)">In plain terms:</b> your books are yours. They're stored on your device and — if you create an account — backed up to your own private cloud space so you can sync across devices. If you invite teammates, they see your business data based on the role you give them. We don't show ads, we don't track you, and we never sell your data.</p>
     <div class="legal-h">1. Your data: on your device, and in your account</div>
-    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's local storage and on-device database). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. When you <b>delete an entry or invoice</b>, its contents are removed; a small deletion marker (an internal reference number only — no business details) is kept for up to 120 days so your other devices remove their copy too instead of restoring it. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
+    <p>Until you create an account, the products, sales, expenses, invoices, business profile and settings you enter are stored <b>only on your device</b> (in your browser's local storage and on-device database). <b>When you create an account and sign in</b>, that data also syncs to <b>your private space in our cloud database (Supabase)</b> so you can reach it across devices. Each business's data is isolated from every other business's by database-level security. The App also keeps <b>automatic on-device backups</b>, and (when you're signed in) recent <b>cloud backups</b>, so your data can be restored if something goes wrong. When you <b>delete an entry, invoice or product</b> (or rename or reset a product), its contents are removed; a small deletion marker (an internal reference number or the former product name only — no other business details) is kept for up to 120 days so your other devices remove their copy too instead of restoring it. If you are signed in, your data remains in your cloud account even if you remove the App from a device. If you use the App <b>without an account</b> and then clear your browser data or remove the App, the on-device copy is deleted — so create an account or export a backup to keep your data safe.</p>
     <div class="legal-h">2. Team members and shared access</div>
     <p>You can <b>invite people to your business by email</b> and give each one a role — <b>Owner</b>, <b>Admin</b>, <b>Staff</b> or <b>Viewer</b>. Anyone you invite can access your business's data to the extent their role allows (for example, a Viewer can only read; a Staff member can record sales and expenses). We store each member's <b>email address and role</b> so the App can enforce those permissions. You are responsible for who you invite and the role you grant them; you can change a member's role or remove them at any time from <b>Team &amp; roles</b>. Removing a member ends their access going forward. When a team member records a sale, expense, restock or other entry, our servers record which member created it — stamped from their verified sign-in, so the entry's author cannot be altered or faked — and this is shown to owners and admins in the <b>Audit log</b> so there is a reliable record of who did what.</p>
     <p>If you belong to <b>more than one business</b>, you can switch between them from <b>More → Switch business</b>. Each business's data is kept completely separate: switching only changes which business you are viewing, and your access to each is always governed by your role in that business.</p>
@@ -1542,8 +1543,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   </div>
   <div class="subpage-body">
     <div class="log-filters" id="reportScopeBar" style="margin-bottom:10px">
-      <button class="lf-btn on" data-rs="biz" onclick="setReportScope('biz',this)">Whole business</button>
-      <button class="lf-btn" data-rs="product" onclick="setReportScope('product',this)">This product</button>
+      <button class="lf-btn on" data-rs="biz" aria-pressed="true" onclick="setReportScope('biz',this)">Whole business</button>
+      <button class="lf-btn" data-rs="product" aria-pressed="false" onclick="setReportScope('product',this)">This product</button>
     </div>
     <div id="bizReport"></div>
     <div id="chartContainer" style="display:none"></div>
@@ -1718,7 +1719,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <button class="btn-sm-acc" id="auditImportBtn" onclick="backfillAudit()" style="margin-bottom:14px">Import past entries</button>
     <div class="log-search-wrap">
       <input class="log-search-in" id="auditSearch" placeholder="Search by person, type or amount…" autocomplete="off" oninput="onAuditSearch(this.value)"/>
-      <button class="log-search-clear" id="auditSearchClear" onclick="clearAuditSearch()" style="display:none">✕</button>
+      <button class="log-search-clear" id="auditSearchClear" aria-label="Clear search" onclick="clearAuditSearch()" style="display:none">✕</button>
     </div>
     <div id="auditFilterRow" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:5px;margin-bottom:8px;-webkit-overflow-scrolling:touch">
       <button class="lf-btn on" data-af="all"     onclick="setAuditFilter('all',this)">All</button>
@@ -1803,29 +1804,29 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title">✦ What's New</div>
-      <button class="modal-close" onclick="dismissWhatsNew()">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.41.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.42.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="5"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18v3h3l5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3z"/></svg></div>
         <div>
-          <div class="wn-title">Your whole business, one report</div>
-          <div class="wn-desc">Reports now opens on a whole-business view: total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a product-by-product breakdown. Flip back to a single product any time.</div>
+          <div class="wn-title">A deep polish, top to bottom</div>
+          <div class="wn-desc">A full review of the app fixed a long list of small things: the Team remove and cancel-invite buttons work again, names with apostrophes like O'Brien no longer pick up stray marks, day-streak stats are accurate every day of the month, and Activity's "Today" filter now matches Home exactly.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
         <div>
-          <div class="wn-title">Audit log: nothing escapes the book</div>
-          <div class="wn-desc">Adding or removing a product is now recorded in the Audit log too — alongside every sale, expense, restock, invoice, edit, deletion and restore across your whole business, each with a verified author.</div>
+          <div class="wn-title">Deleting a product now sticks everywhere</div>
+          <div class="wn-desc">When you delete, rename or reset a product, that change now travels with your sync — another device's older copy can no longer quietly bring it back. The Privacy Policy was updated to describe the small deletion markers that make this work.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
         <div>
-          <div class="wn-title">The Ledger has a website</div>
-          <div class="wn-desc">Meet the app's new home on the web — what The Ledger is and why it exists. Find it under More → Visit our website, and share it with anyone who should be keeping better books.</div>
+          <div class="wn-title">Faster and safer</div>
+          <div class="wn-desc">The app launches faster (translations no longer wait on the network), checks for updates less wastefully, each business gets its own daily cloud restore point, the storage indicator is more honest about failed saves, and signing out now clears the previous account's local snapshots from shared devices.</div>
         </div>
       </div>
     </div>
@@ -1838,7 +1839,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title">Add / Restock Inventory</div>
-      <button class="modal-close" onclick="closeModal('restock')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('restock')">✕</button>
     </div>
     <div class="acard g" style="box-shadow:none;border:none;padding:0;margin:0">
       <div class="acard-row">
@@ -1864,7 +1865,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title">Record Sale</div>
-      <button class="modal-close" onclick="closeModal('sale')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('sale')">✕</button>
     </div>
     <div class="m-sec" id="saleProductSec" style="display:none">
       <span class="m-lbl">Product</span>
@@ -1957,7 +1958,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title">Manage Products</div>
-      <button class="modal-close" onclick="closeModal('strainMgr')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('strainMgr')">✕</button>
     </div>
     <div id="strainList"></div>
     <div style="margin-top:14px">
@@ -1981,7 +1982,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox mbox-red">
     <div class="modal-hdr">
       <div class="m-title" id="expMTitle">Add Expense</div>
-      <button class="modal-close" onclick="closeModal('exp')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('exp')">✕</button>
     </div>
     <div class="m-sec" id="expCatWrap">
       <span class="m-lbl">Category</span>
@@ -2007,7 +2008,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox mbox-red">
     <div class="modal-hdr">
       <div class="m-title danger">↺ Reset Product</div>
-      <button class="modal-close" onclick="closeModal('resetProduct')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('resetProduct')">✕</button>
     </div>
     <div class="reset-warning">This will clear all data for <strong style="color:#e05c5c;" id="resetProductName">this product</strong> — stock, logs and earnings will be wiped.</div>
     <div class="reset-confirm-lbl">Are you sure?</div>
@@ -2023,7 +2024,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div class="m-title" id="editPriceMTitle">Edit Price</div>
-      <button class="modal-close" onclick="closeModal('editPrice')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('editPrice')">✕</button>
     </div>
     <div class="m-sec">
       <span class="m-lbl">Low Price ($)</span>
@@ -2042,7 +2043,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox">
     <div class="modal-hdr">
       <div><span class="m-title" id="el-title">Edit Entry</span><span class="el-type-badge" id="el-badge"></span></div>
-      <button class="modal-close" onclick="closeModal('editLog')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('editLog')">✕</button>
     </div>
     <div id="el-sale-sec">
       <div class="m-sec">
@@ -2108,7 +2109,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox mbox-red">
     <div class="modal-hdr">
       <div class="m-title danger">Reset All Data</div>
-      <button class="modal-close" onclick="closeModal('resetAll')">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('resetAll')">✕</button>
     </div>
     <div class="reset-warning">This will permanently delete <strong style="color:#e05c5c;">all products, sales, logs and expenses</strong>. The app will restart from scratch.</div>
     <div class="reset-confirm-lbl">Are you sure?</div>
@@ -2124,7 +2125,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
   <div class="mbox mbox-red">
     <div class="modal-hdr">
       <div class="m-title danger">Are you sure?</div>
-      <button class="modal-close" onclick="closeModal('confirm')" aria-label="Close">✕</button>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('confirm')" aria-label="Close">✕</button>
     </div>
     <div class="reset-warning" id="confirmMsg" data-noi18n></div>
     <div class="confirm-btns">
@@ -2176,7 +2177,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.41.0";
+const APP_VER    = "2.42.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2199,8 +2200,11 @@ async function _fetchLatestHTML(){
   } catch(e){}
   return null;
 }
+let _lastUpdCheck = 0;
 async function checkForUpdate(){
   if(_checkingUpdate) return;
+  if(Date.now() - _lastUpdCheck < 110000) return; // focus/visibility re-checks shouldn't re-download ~0.5MB; 110s keeps the 120s interval working
+  _lastUpdCheck = Date.now();
   _checkingUpdate = true;
   try {
     const html = await _fetchLatestHTML();
@@ -2425,11 +2429,11 @@ function renderChart(){
     return `<span>${(d.getMonth()+1)+'/'+(d.getDate())}</span>`;
   }).join('');
   el.innerHTML = `<div class="chart-wrap">
-    <div class="chart-hdr">14-Day Earnings · ${D.cur}</div>
+    <div class="chart-hdr"><span>14-Day Earnings</span><span data-noi18n> · ${escHtml(D.cur)}</span></div>
     <div class="chart-meta-row">
       <div class="chart-meta-item"><div class="chart-meta-val" style="color:#4caf7a">${fmtDollar(thisWeek)}</div><div class="chart-meta-lbl">This Week</div></div>
       <div class="chart-meta-sep"></div>
-      <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#e05c5c'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
+      <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#c05050'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
       <div class="chart-meta-sep"></div>
       <div class="chart-meta-item"><div class="chart-meta-val" style="color:var(--acc)">${daysLeft!==null?daysLeft+'d':'—'}</div><div class="chart-meta-lbl">Est. Days Left</div></div>
     </div>
@@ -2452,7 +2456,7 @@ let reportScope = "biz";
 function setReportScope(sc, btn){
   reportScope = sc;
   const bar = document.getElementById("reportScopeBar");
-  if(bar) bar.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b.getAttribute("data-rs")===sc));
+  if(bar) bar.querySelectorAll(".lf-btn").forEach(b=>{ const on = b.getAttribute("data-rs")===sc; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on?"true":"false"); });
   renderReports();
 }
 function renderReports(){
@@ -2501,7 +2505,7 @@ function renderBizReport(){
   }
   const ap = lp+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
   const xLabels = [0,6,13].map(i=>{ const d=new Date(data[i].ts+43200000); return `<span>${(d.getMonth()+1)+'/'+d.getDate()}</span>`; }).join("");
-  const tRows = rows.map(r=>`<tr><td class="rt-name">${escHtml(r.n)}</td><td>${r.sales}</td><td style="color:#4caf7a">${fmtDollar(r.earned)}</td><td style="color:#c05050">${fmtDollar(r.exp)}</td><td style="color:${r.profit>=0?'#4caf7a':'#c05050'}">${(r.profit>=0?"+":"-")+fmtDollar(Math.abs(r.profit))}</td></tr>`).join("");
+  const tRows = rows.map(r=>`<tr><td class="rt-name" title="${escHtml(r.n)}">${escHtml(r.n)}</td><td>${r.sales}</td><td style="color:#4caf7a">${fmtDollar(r.earned)}</td><td style="color:#c05050">${fmtDollar(r.exp)}</td><td style="color:${r.profit>=0?'#4caf7a':'#c05050'}">${(r.profit>=0?"+":"-")+fmtDollar(Math.abs(r.profit))}</td></tr>`).join("");
   el.innerHTML = `
     <div class="sgrid" style="margin-bottom:10px">
       <div class="scard"><div class="scard-lbl">Earned</div><div class="scard-val" style="color:#4caf7a">${fmtDollar(te)}</div></div>
@@ -2514,7 +2518,7 @@ function renderBizReport(){
       <div class="chart-meta-row">
         <div class="chart-meta-item"><div class="chart-meta-val" style="color:#4caf7a">${fmtDollar(thisWeek)}</div><div class="chart-meta-lbl">This Week</div></div>
         <div class="chart-meta-sep"></div>
-        <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#e05c5c'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
+        <div class="chart-meta-item"><div class="chart-meta-val" style="color:${weekPct>=0?'#4caf7a':'#c05050'}">${weekPct>=0?'+':''}${weekPct.toFixed(0)}%</div><div class="chart-meta-lbl">vs Last Week</div></div>
         <div class="chart-meta-sep"></div>
         <div class="chart-meta-item"><div class="chart-meta-val" style="color:var(--acc)">${rows.length}</div><div class="chart-meta-lbl">Products</div></div>
       </div>
@@ -2753,7 +2757,8 @@ function fresh(stock, expenses, unitCfg){
     stock:+stock||0, startStock:+stock||0, expenses:+expenses||0,
     earned:0, useTotal:0, restockTotal:0, logs:[],
     priceRef: isW ? PRICE_REF_DEFAULTS.map(r=>({...r})) : COUNT_PACK_DEFAULTS.map(r=>({...r})),
-    unitCfg: unitCfg || { type:"weight" }
+    unitCfg: unitCfg || { type:"weight" },
+    created: Date.now()   // lets a product re-created after deletion outrank the old name-tombstone in merges
   };
 }
 // ── Unit helpers ──
@@ -2771,7 +2776,7 @@ function fmtQty(qty, s){
 // avgUnitPrice: used to estimate lost revenue for internal use on count products
 function avgUnitPrice(s){
   s=s||cur(); if(!s) return 0;
-  if(isWeight(s)) return 27.5/3.5;
+  if(isWeight(s)){ const ref=(s.priceRef||[])[0]; return ref ? ref.hi/Math.max(0.001, packW(ref)) : 27.5/3.5; }
   const ref = (s.priceRef||[])[0]; if(!ref) return 0;
   return ref.hi / Math.max(1, packW(ref));
 }
@@ -2838,12 +2843,16 @@ function _pruneVoids(m){
     const cut = Date.now() - 120*86400000;
     for(const k of Object.keys(m)){ if(m[k] < cut) delete m[k]; }
     const left = Object.keys(m);
-    if(left.length > 600){ left.sort((a,b)=>m[a]-m[b]); left.slice(0, left.length-600).forEach(k=>delete m[k]); }
+    if(left.length > 2000){ left.sort((a,b)=>m[a]-m[b]); left.slice(0, left.length-2000).forEach(k=>delete m[k]); }
   }catch(e){}
 }
 function _void(id){ if(id==null) return; if(!D.voids || typeof D.voids!=="object") D.voids={}; D.voids[String(id)] = Date.now(); _pruneVoids(D.voids); }
 function _unvoid(id){ try{ if(D.voids) delete D.voids[String(id)]; }catch(e){} }
 function _voidInvoice(inv){ if(!inv) return; if(!D.invoiceVoids || typeof D.invoiceVoids!=="object") D.invoiceVoids={}; D.invoiceVoids[String(inv.id!=null?inv.id:inv.no)] = Date.now(); _pruneVoids(D.invoiceVoids); }
+// Product-name tombstone: a deleted/renamed-away product must not resurrect via merge.
+function _voidStrainName(n){ if(!n) return; if(!D.strainVoids || typeof D.strainVoids!=="object") D.strainVoids={}; D.strainVoids[n] = Date.now(); _pruneVoids(D.strainVoids); }
+// newest activity timestamp a strain carries — a tombstone only beats data OLDER than itself
+function _strainNewest(st){ let mx = +(st && st.created) || 0; ((st && st.logs) || []).forEach(e => { const t = +(e && e.id) || 0; if(t > mx) mx = t; }); return mx; }
 
 // ── UNDO DELETE ──
 // Stack of up to the last 3 deletes (newest first). Undo pops the most recent,
@@ -2930,7 +2939,8 @@ const _IDB_KEYS = [SK, SK + "_bak", SK + "_history", SK + "_recovery"];
 let _idb = null;
 const _memStore = {};
 function _idbReq(req){ return new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
-function _idbPut(k, v){ try{ if(_idb) _idb.transaction("kv","readwrite").objectStore("kv").put(v, k); }catch(e){} }
+let _idbWriteFailed = false;
+function _idbPut(k, v){ try{ if(!_idb) return; const tx=_idb.transaction("kv","readwrite"); tx.onabort=tx.onerror=()=>{ _idbWriteFailed=true; }; tx.objectStore("kv").put(v, k); }catch(e){ _idbWriteFailed=true; } }
 function _idbDel(k){ try{ if(_idb) _idb.transaction("kv","readwrite").objectStore("kv").delete(k); }catch(e){} }
 // Which serialized doc holds the newest activity? (newest log/invoice id, then count)
 function _fresherDoc(a, b){
@@ -2982,7 +2992,7 @@ function _storeSet(k, v){
   _idbPut(k, v);
   let lsOK = true;
   try{ localStorage.setItem(k, v); }catch(e){ lsOK = false; }  // mirror full — fine if IDB holds it
-  return lsOK || !!_idb;
+  return lsOK || (!!_idb && !_idbWriteFailed);
 }
 function _storeDel(k){
   delete _memStore[k];
@@ -3088,9 +3098,10 @@ async function _maybeCloudBackup(){
     if(!SB || !Repo.getBusinessId()) return;
     if(!D || !D.strains || !Object.keys(D.strains).length) return;     // never snapshot empty
     const today = new Date().toDateString();
-    if(localStorage.getItem(CLOUD_BK_KEY) === today) return;            // once per day is plenty
+    const bkKey = CLOUD_BK_KEY + ":" + (Repo.getBusinessId() || "");     // per business — each gets its own daily restore point
+    if(localStorage.getItem(bkKey) === today) return;                    // once per day is plenty
     const r = await SB.rpc("save_business_backup", { p_business_id: Repo.getBusinessId(), p_data: D });
-    if(r && !r.error){ try{ localStorage.setItem(CLOUD_BK_KEY, today); }catch(e){} }
+    if(r && !r.error){ try{ localStorage.setItem(bkKey, today); }catch(e){} }
   }catch(e){}
 }
 // Cloud restore points for the current business, normalized like device ones.
@@ -3173,8 +3184,9 @@ async function flushToCloud(){
       try {
         const doc = await Repo.loadDoc();              // also refreshes the LWW base
         if(doc && doc.data){
-          _saveRecovery(snap, "stale_write");
-          const m = _mergeDocs(snap, doc.data);        // scaffold = cloud, bring over our appends
+          _saveRecovery(D, "stale_write");             // D ⊇ snap: it also holds edits made while the save was in flight
+          const m = _mergeDocs(D, doc.data);           // scaffold = cloud, bring over our appends — merge LIVE D, not the
+                                                       // pre-flight snap, so in-flight edits aren't dropped (merge is sync, no tear risk)
           D = m.doc; _normalizeD(); _cacheLocalD();
           if(m.added){
             _cloudDirty = true; _setSaveStatus("saving");   // the finally-block re-flush pushes the merged doc
@@ -3260,12 +3272,18 @@ function _mergeDocs(secondary, scaffold){
   // device wins over the other device's stale copy of the entry.
   out.voids = Object.assign({}, (secondary.voids && typeof secondary.voids==="object") ? secondary.voids : {}, (out.voids && typeof out.voids==="object") ? out.voids : {});
   out.invoiceVoids = Object.assign({}, (secondary.invoiceVoids && typeof secondary.invoiceVoids==="object") ? secondary.invoiceVoids : {}, (out.invoiceVoids && typeof out.invoiceVoids==="object") ? out.invoiceVoids : {});
-  const V = out.voids;
+  out.strainVoids = Object.assign({}, (secondary.strainVoids && typeof secondary.strainVoids==="object") ? secondary.strainVoids : {}, (out.strainVoids && typeof out.strainVoids==="object") ? out.strainVoids : {});
+  const V = out.voids, SV = out.strainVoids;
   const sst = secondary.strains || {};
   for(const name in sst){
     const ls = sst[name];
     if(!ls || typeof ls !== "object") continue;
     if(!out.strains[name]){                       // product created on one device only → bring it whole
+      const tv = SV[name];
+      if(tv){
+        if(tv >= _strainNewest(ls)) continue;     // deleted on the other side and nothing newer here → stays deleted
+        delete SV[name];                          // product was re-created after the deletion → tombstone is obsolete
+      }
       out.strains[name] = JSON.parse(JSON.stringify(ls));
       _applyVoidsToStrain(out.strains[name], V);  // minus anything the other side deleted
       added += Math.max(1, (out.strains[name].logs||[]).length);
@@ -3292,6 +3310,13 @@ function _mergeDocs(secondary, scaffold){
   }
   // Deletions made on the SECONDARY side remove the scaffold's stale copies too.
   for(const name in out.strains){ added += _applyVoidsToStrain(out.strains[name], V); }
+  // Product deletions: drop scaffold strains whose name-tombstone is newer than anything they hold.
+  for(const name of Object.keys(out.strains)){
+    const tv = SV[name]; if(!tv) continue;
+    if(tv >= _strainNewest(out.strains[name])){ delete out.strains[name]; added++; }
+    else delete SV[name];                          // re-created since — tombstone is obsolete
+  }
+  if(!out.strains[out.cur]) out.cur = Object.keys(out.strains)[0] || "";
   // Invoices: append-only, keyed by id (invoice number as fallback for legacy rows).
   const ikey = inv => String(inv && (inv.id != null ? inv.id : inv.no));
   const IV = out.invoiceVoids;
@@ -3313,7 +3338,8 @@ function _normalizeD(){
   if(!D.strains || typeof D.strains !== "object") D.strains = {};
   if(!D.voids || typeof D.voids !== "object") D.voids = {};
   if(!D.invoiceVoids || typeof D.invoiceVoids !== "object") D.invoiceVoids = {};
-  _pruneVoids(D.voids); _pruneVoids(D.invoiceVoids);
+  if(!D.strainVoids || typeof D.strainVoids !== "object") D.strainVoids = {};
+  _pruneVoids(D.voids); _pruneVoids(D.invoiceVoids); _pruneVoids(D.strainVoids);
   if(D.theme && !localStorage.getItem("ledger_theme")) try{ localStorage.setItem("ledger_theme", D.theme); _applyThemeVars(D.theme); }catch(e){}
   if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font); _applyFontVar(D.font); }catch(e){}
   if(D.curSym && !localStorage.getItem("ledger_currency")) try{ localStorage.setItem("ledger_currency", D.curSym); }catch(e){}
@@ -3422,6 +3448,7 @@ function addStrain(){
     unitCfg = { type:"count", plural: raw, singular: raw.endsWith("s") ? raw.slice(0,-1) : raw };
   }
   D.strains[n] = fresh(0, 0, unitCfg); inp.value = "";
+  try{ if(D.strainVoids) delete D.strainVoids[n]; }catch(e){}  // re-creating a deleted name lifts its tombstone
   // Reset add-product form
   _nsUnitType = "weight";
   document.getElementById("ns-wbtn").classList.add("on");
@@ -3434,6 +3461,8 @@ function addStrain(){
 }
 function deleteStrain(n){
   if(Object.keys(D.strains).length <= 1){ showToast("Can't delete your only product!", "err"); return; }
+  // Tombstone the entries AND the name so the deletion sticks across sync merges
+  try{ (D.strains[n].logs||[]).forEach(l=>{ if(l && l.id!=null) _void(l.id); }); _voidStrainName(n); }catch(e){}
   delete D.strains[n];
   if(D.cur === n) D.cur = Object.keys(D.strains)[0];
   persist(); renderAll(); renderStrainMgr();
@@ -3442,7 +3471,7 @@ function deleteStrain(n){
 }
 function renderStrainSel(){
   document.getElementById("strainSel").innerHTML = Object.keys(D.strains)
-    .map(n => `<option value="${n}"${n===D.cur?" selected":""}>${n}</option>`).join("");
+    .map(n => { const nd = n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); return `<option value="${nd}"${n===D.cur?" selected":""}>${nd}</option>`; }).join("");
 }
 function renderStrainMgr(){
   const keys = Object.keys(D.strains);
@@ -3486,9 +3515,13 @@ function confirmRename(){
   if(D.strains[newName]){ showToast("That name is already used","err"); inp.focus(); return; }
   D.strains[newName] = D.strains[oldName];
   delete D.strains[oldName];
+  // Tombstone the OLD name (entries move with the product — do NOT void them) and refresh
+  // `created` so the new name outranks any old tombstone for it on other devices.
+  try{ _voidStrainName(oldName); if(D.strainVoids) delete D.strainVoids[newName]; D.strains[newName].created = Date.now(); }catch(e){}
   if(D.cur === oldName) D.cur = newName;
   _renamingStrain = null;
   persist(); renderStrainSel(); renderStrainMgr();
+  try{ _logActivity("product", { action:"renamed", product:oldName+" → "+newName }, null); }catch(e){}
   showToast("Renamed to \"" + newName + "\"","ok");
 }
 function cancelRename(){
@@ -3643,6 +3676,8 @@ function overlayClose(e, id){ id = String(id).replace(/^modal-/,""); if(e.target
       const f = open.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       if(!f.length) return;
       const first = f[0], last = f[f.length-1];
+      // focus starts on the .mbox (tabindex=-1), which the wrap checks below never match — capture it into the trap
+      if(Array.prototype.indexOf.call(f, document.activeElement) === -1){ e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
       if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
       else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
     }
@@ -3667,7 +3702,7 @@ function openSaleModal(){
   saleOpenStrain = D.cur;
   const psel = document.getElementById("saleStrainSel");
   const pkeys = Object.keys(D.strains);
-  if(psel) psel.innerHTML = pkeys.map(k=>`<option value="${escAttr(k)}"${k===D.cur?" selected":""}>${escHtml(k)}</option>`).join("");
+  if(psel) psel.innerHTML = pkeys.map(k=>`<option value="${escVal(k)}"${k===D.cur?" selected":""}>${escHtml(k)}</option>`).join("");
   const psec = document.getElementById("saleProductSec");
   if(psec) psec.style.display = pkeys.length>1 ? "block" : "none";
   document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("on"));
@@ -3959,7 +3994,8 @@ function markCustomerPaid(name){
   });
   if(count){ persist(); renderAll(); renderCustomers(); showToast(name + " marked paid", "ok"); }
 }
-function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
+function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); } // for inline single-quoted JS args ONLY (onclick="fn('…')")
+function escVal(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); } // for plain HTML attribute values (value="…", placeholder="…")
 
 // ── INVOICING ────────────────────────────────────────────────────────────────
 // Generate professional, print-ready invoices (Save as PDF via the browser).
@@ -4060,12 +4096,12 @@ function _invItemRows(){
   // Works for any business: free-text description + qty + a flexible unit
   // (hrs, sq ft, visits, ea, mo…) + price. Leave qty 1 / unit blank for a flat fee.
   return (_inv.items||[]).map((it,i)=>`<div class="inv-erow2">
-    <input class="inv-ein" value="${escAttr(it.desc)}" placeholder="Service or item description" oninput="invSetItem(${i},'desc',this.value)"/>
+    <input class="inv-ein" value="${escVal(it.desc)}" placeholder="Service or item description" oninput="invSetItem(${i},'desc',this.value)"/>
     <div class="inv-erow-b">
       <input class="inv-ein qty" type="number" inputmode="decimal" value="${it.qty}" placeholder="Qty" oninput="invSetItem(${i},'qty',this.value)"/>
-      <input class="inv-ein unit" value="${escAttr(it.unit||'')}" placeholder="unit" oninput="invSetItem(${i},'unit',this.value)"/>
+      <input class="inv-ein unit" value="${escVal(it.unit||'')}" placeholder="unit" oninput="invSetItem(${i},'unit',this.value)"/>
       <input class="inv-ein price" type="number" inputmode="decimal" value="${it.price}" placeholder="Price" oninput="invSetItem(${i},'price',this.value)"/>
-      <button class="inv-erm" onclick="invRemoveItem(${i})">✕</button>
+      <button class="inv-erm" aria-label="Remove item" onclick="invRemoveItem(${i})">✕</button>
     </div>
   </div>`).join("");
 }
@@ -4080,19 +4116,19 @@ function renderInvoiceEditor(){
   const _b = getBusiness();
   const _autoNo = (_b.prefix||"") + String(_b.next||1).padStart(4,"0");
   if(ed) ed.innerHTML = `
-    <div class="inv-frow"><span class="m-lbl">Invoice No. (optional — clear to hide)</span><input class="m-input" value="${escAttr(_inv.no!=null?_inv.no:_autoNo)}" placeholder="${escAttr(_autoNo)}" oninput="invSetField('no',this.value)"/></div>
-    <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escAttr(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
-    <div class="inv-frow"><span class="m-lbl">Customer address (optional)</span><input class="m-input" value="${escAttr(_inv.customerAddress||'')}" placeholder="Street, city" oninput="invSetField('customerAddress',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Invoice No. (optional — clear to hide)</span><input class="m-input" value="${escVal(_inv.no!=null?_inv.no:_autoNo)}" placeholder="${escVal(_autoNo)}" oninput="invSetField('no',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Bill to (customer)</span><input class="m-input" value="${escVal(_inv.customer)}" placeholder="Customer name" oninput="invSetField('customer',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Customer address (optional)</span><input class="m-input" value="${escVal(_inv.customerAddress||'')}" placeholder="Street, city" oninput="invSetField('customerAddress',this.value)"/></div>
     <div class="inv-frow2">
-      <div><span class="m-lbl">Customer phone (optional)</span><input class="m-input" value="${escAttr(_inv.customerPhone||'')}" placeholder="Phone" oninput="invSetField('customerPhone',this.value)"/></div>
-      <div><span class="m-lbl">Customer email (optional)</span><input class="m-input" value="${escAttr(_inv.customerEmail||'')}" placeholder="Email" oninput="invSetField('customerEmail',this.value)"/></div>
+      <div><span class="m-lbl">Customer phone (optional)</span><input class="m-input" value="${escVal(_inv.customerPhone||'')}" placeholder="Phone" oninput="invSetField('customerPhone',this.value)"/></div>
+      <div><span class="m-lbl">Customer email (optional)</span><input class="m-input" value="${escVal(_inv.customerEmail||'')}" placeholder="Email" oninput="invSetField('customerEmail',this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Customer Tax/VAT ID (optional)</span><input class="m-input" value="${escAttr(_inv.customerTaxId||'')}" placeholder="Client tax / VAT ID" oninput="invSetField('customerTaxId',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Customer Tax/VAT ID (optional)</span><input class="m-input" value="${escVal(_inv.customerTaxId||'')}" placeholder="Client tax / VAT ID" oninput="invSetField('customerTaxId',this.value)"/></div>
     <div class="inv-frow2">
-      <div><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escAttr(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
-      <div><span class="m-lbl">Reference / PO (optional)</span><input class="m-input" value="${escAttr(_inv.poNumber||'')}" placeholder="PO or reference #" oninput="invSetField('poNumber',this.value)"/></div>
+      <div><span class="m-lbl">Due date (optional)</span><input class="m-input" value="${escVal(_inv.dueDate)}" placeholder="e.g. Net 30 / Jul 1" oninput="invSetField('dueDate',this.value)"/></div>
+      <div><span class="m-lbl">Reference / PO (optional)</span><input class="m-input" value="${escVal(_inv.poNumber||'')}" placeholder="PO or reference #" oninput="invSetField('poNumber',this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Title (optional)</span><input class="m-input" value="${escAttr(_inv.title||'')}" placeholder="e.g. project, matter or job title" oninput="invSetField('title',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Title (optional)</span><input class="m-input" value="${escVal(_inv.title||'')}" placeholder="e.g. project, matter or job title" oninput="invSetField('title',this.value)"/></div>
     <span class="m-lbl" style="margin-top:4px">Line items</span>
     <div id="invItemRows">${_invItemRows()}</div>
     <button class="inv-add" onclick="invAddItem()">＋ Add line</button>
@@ -4111,7 +4147,7 @@ function renderInvoiceEditor(){
       <div><span class="m-lbl">Amount paid</span><input class="m-input" id="invPaidInput" type="number" inputmode="decimal" value="${_round2(+_inv.paid||0)}" oninput="invOnPaid(this.value)"/></div>
       <div><span class="m-lbl">Amount owed</span><input class="m-input" id="invOwedInput" type="number" inputmode="decimal" value="${_t.balance}" oninput="invOnOwed(this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escAttr(_inv.note)}" placeholder="Thank you / short note…" oninput="invSetField('note',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Note (optional)</span><input class="m-input" value="${escVal(_inv.note)}" placeholder="Thank you / short note…" oninput="invSetField('note',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Payment details (shown on invoice)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 …  ·  or a payment link" oninput="invSetField('payInfo',this.value)">${escHtml(_inv.payInfo||'')}</textarea></div>
     <div class="inv-frow"><span class="m-lbl">Terms (shown at the bottom)</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="invSetField('terms',this.value)">${escHtml(_inv.terms||'')}</textarea></div>`;
 }
@@ -4400,17 +4436,17 @@ function renderBusinessPage(){
         ${b.logo?`<button class="btn-sm-danger" onclick="clearBusinessLogo()">Remove</button>`:""}
       </div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Business name</span><input class="m-input" value="${escAttr(b.name)}" placeholder="Your business name" oninput="saveBusinessField('name',this.value)"/></div>
-    <div class="inv-frow"><span class="m-lbl">Address</span><input class="m-input" value="${escAttr(b.address)}" placeholder="Street, city" oninput="saveBusinessField('address',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Business name</span><input class="m-input" value="${escVal(b.name)}" placeholder="Your business name" oninput="saveBusinessField('name',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Address</span><input class="m-input" value="${escVal(b.address)}" placeholder="Street, city" oninput="saveBusinessField('address',this.value)"/></div>
     <div class="inv-frow2">
-      <div><span class="m-lbl">Phone</span><input class="m-input" value="${escAttr(b.phone)}" placeholder="Phone" oninput="saveBusinessField('phone',this.value)"/></div>
-      <div><span class="m-lbl">Email</span><input class="m-input" value="${escAttr(b.email)}" placeholder="Email" oninput="saveBusinessField('email',this.value)"/></div>
+      <div><span class="m-lbl">Phone</span><input class="m-input" value="${escVal(b.phone)}" placeholder="Phone" oninput="saveBusinessField('phone',this.value)"/></div>
+      <div><span class="m-lbl">Email</span><input class="m-input" value="${escVal(b.email)}" placeholder="Email" oninput="saveBusinessField('email',this.value)"/></div>
     </div>
     <div class="inv-frow2">
-      <div><span class="m-lbl">Tax ID (optional)</span><input class="m-input" value="${escAttr(b.taxId)}" placeholder="Tax / VAT ID" oninput="saveBusinessField('taxId',this.value)"/></div>
+      <div><span class="m-lbl">Tax ID (optional)</span><input class="m-input" value="${escVal(b.taxId)}" placeholder="Tax / VAT ID" oninput="saveBusinessField('taxId',this.value)"/></div>
       <div><span class="m-lbl">Default tax %</span><input class="m-input" type="number" inputmode="decimal" value="${b.taxRate||0}" oninput="saveBusinessField('taxRate',this.value)"/></div>
     </div>
-    <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escAttr(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>
+    <div class="inv-frow"><span class="m-lbl">Invoice prefix</span><input class="m-input" value="${escVal(b.prefix)}" placeholder="INV-" oninput="saveBusinessField('prefix',this.value)"/></div>
     <div class="inv-frow"><span class="m-lbl">Default payment details</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Bank: Acme Bank · IBAN: FR76 1234 …  ·  PayPal / payment link" oninput="saveBusinessField('payInfo',this.value)">${escHtml(b.payInfo||'')}</textarea></div>
     <div class="inv-frow" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px">
       <div style="min-width:0">
@@ -4419,7 +4455,7 @@ function renderBusinessPage(){
       </div>
       <button class="lf-btn${b.etransfer?' on':''}" id="etToggle" onclick="toggleEtransfer()" style="flex:none">${b.etransfer?'On':'Off'}</button>
     </div>
-    ${b.etransfer?`<div class="inv-frow"><span class="m-lbl">e-Transfer email</span><input class="m-input" value="${escAttr(b.etransferEmail||b.email||'')}" placeholder="you@email.com" inputmode="email" oninput="saveBusinessField('etransferEmail',this.value)"/></div>`:''}
+    ${b.etransfer?`<div class="inv-frow"><span class="m-lbl">e-Transfer email</span><input class="m-input" value="${escVal(b.etransferEmail||b.email||'')}" placeholder="you@email.com" inputmode="email" oninput="saveBusinessField('etransferEmail',this.value)"/></div>`:''}
     <div class="inv-frow"><span class="m-lbl">Default invoice terms</span><textarea class="m-input inv-ta" rows="3" placeholder="e.g. Payment due within 30 days. 1.5% monthly interest on overdue balances." oninput="saveBusinessField('terms',this.value)">${escHtml(b.terms||'')}</textarea></div>
     <div class="sec-lbl" style="margin-top:18px">Invoice design</div>
     <div class="inv-stylebar" style="margin-top:8px">${invStyleBarHTML()}</div>`;
@@ -4603,10 +4639,13 @@ function doReset(){
   // A reset persists immediately, which would COLLAPSE today's history slot into the
   // post-reset state — stash the pre-reset copy in recovery so it stays restorable.
   try{ _saveRecovery(JSON.parse(JSON.stringify(D)), "pre-reset"); }catch(e){}
+  // Tombstone the discarded entries so other devices' copies don't merge the history back in
+  try{ (D.strains[D.cur]?.logs||[]).forEach(l=>{ if(l && l.id!=null) _void(l.id); }); }catch(e){}
   // Preserve unitCfg so count products stay count after reset
   const cfg = D.strains[D.cur]?.unitCfg;
   D.strains[D.cur] = fresh(0, 0, cfg);
   closeModal("resetProduct"); showToast("Product data cleared");
+  try{ _logActivity("product", { action:"reset", product:D.cur }, null); }catch(e){}
   persist(); renderAll();
 }
 async function doResetAll(){
@@ -4932,7 +4971,7 @@ function stripEmoji(str){
 }
 // What the AI knows about using The Ledger itself (for "how do I…" questions).
 const APP_GUIDE =
-"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under Team with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business. Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit shows who recorded each entry. Install as app: More → Install App. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
+"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you; the Customers row appears once someone owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data & Sync lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under More → Team & roles with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business (appears when you belong to more than one). Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit log (owners and admins only) shows who recorded each entry. Install as app: More → Install on your phone. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
 // Starter questions shown as tappable chips while the chat is empty —
 // half about the user's numbers, half about using the app itself.
@@ -5323,7 +5362,14 @@ try{
   "By Product": {"es":"Por producto","zh":"按商品","hi":"उत्पाद के अनुसार","ar":"حسب المنتج","fr":"Par produit","pt":"Por produto","ru":"По товарам","de":"Nach Produkt","ja":"商品別"},
   "Profit": {"es":"Ganancia","zh":"利润","hi":"लाभ","ar":"الربح","fr":"Bénéfice","pt":"Lucro","ru":"Прибыль","de":"Gewinn","ja":"利益"},
   "vs Last Week": {"es":"vs semana pasada","zh":"对比上周","hi":"पिछले सप्ताह की तुलना","ar":"مقارنة بالأسبوع الماضي","fr":"vs semaine dernière","pt":"vs semana passada","ru":"к прошлой неделе","de":"ggü. Vorwoche","ja":"先週比"},
-  "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports now opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes ahora abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表现在默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स अब आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح الآن على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre désormais sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios agora abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты теперь открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet jetzt mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開くようになりました — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
+  "14-Day Earnings": {"es":"Ingresos de 14 días","zh":"14天收入","hi":"14 दिन की कमाई","ar":"أرباح 14 يومًا","fr":"Revenus sur 14 jours","pt":"Ganhos de 14 dias","ru":"Доход за 14 дней","de":"Einnahmen 14 Tage","ja":"14日間の収益"},
+  "Est. Days Left": {"es":"Días restantes est.","zh":"预计剩余天数","hi":"अनुमानित शेष दिन","ar":"الأيام المتبقية تقديريًا","fr":"Jours restants est.","pt":"Dias restantes est.","ru":"Осталось дней (оценка)","de":"Gesch. Resttage","ja":"残り日数（推定）"},
+  "No sales recorded yet — log a sale to see your chart": {"es":"Aún no hay ventas registradas — registra una venta para ver tu gráfico","zh":"尚未记录销售 — 记录一笔销售即可查看图表","hi":"अभी कोई बिक्री दर्ज नहीं — चार्ट देखने के लिए एक बिक्री दर्ज करें","ar":"لا مبيعات مسجلة بعد — سجّل عملية بيع لرؤية الرسم البياني","fr":"Aucune vente enregistrée — enregistrez une vente pour voir votre graphique","pt":"Nenhuma venda registrada ainda — registre uma venda para ver seu gráfico","ru":"Продаж пока нет — запишите продажу, чтобы увидеть график","de":"Noch keine Verkäufe — erfassen Sie einen Verkauf, um Ihr Diagramm zu sehen","ja":"まだ売上がありません — 売上を記録するとグラフが表示されます"},
+  "Close": {"es":"Cerrar","zh":"关闭","hi":"बंद करें","ar":"إغلاق","fr":"Fermer","pt":"Fechar","ru":"Закрыть","de":"Schließen","ja":"閉じる"},
+  "Clear search": {"es":"Borrar búsqueda","zh":"清除搜索","hi":"खोज साफ़ करें","ar":"مسح البحث","fr":"Effacer la recherche","pt":"Limpar busca","ru":"Очистить поиск","de":"Suche löschen","ja":"検索をクリア"},
+  "Remove item": {"es":"Quitar artículo","zh":"移除项目","hi":"आइटम हटाएँ","ar":"إزالة العنصر","fr":"Retirer l'article","pt":"Remover item","ru":"Удалить позицию","de":"Position entfernen","ja":"項目を削除"},
+  "Total Stock (All)": {"es":"Stock total (todos)","zh":"总库存（全部）","hi":"कुल स्टॉक (सभी)","ar":"إجمالي المخزون (الكل)","fr":"Stock total (tous)","pt":"Estoque total (todos)","ru":"Весь запас (все)","de":"Gesamtbestand (alle)","ja":"総在庫（全商品）"},
+  "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -5554,7 +5600,9 @@ function renderAll(){
     }).join(""));
   }
 
-  renderLog(); renderQS(); renderOwedCard();
+  renderLog();
+  { const _rp = document.getElementById("reportsPage"); if(_rp && _rp.classList.contains("open")) renderReports(); else renderQS(); }
+  renderOwedCard();
   renderHealthStrip(); renderManageGroups(); renderExpenseHistory(); renderUseHistory();
   renderLowStockBanner();
   i18nApply();
@@ -5565,7 +5613,8 @@ function renderLog(){
   const s = cur(); if(!s) return;
   const u = getUnit();
   const now = Date.now();
-  const cutoffs = { today:now-86400000, week:now-7*86400000, month:now-30*86400000, all:0 };
+  const _t0 = new Date(); _t0.setHours(0,0,0,0); // "Today" = since midnight, matching the Home health strip
+  const cutoffs = { today:_t0.getTime(), week:now-7*86400000, month:now-30*86400000, all:0 };
   const cutoff = cutoffs[logDateFilter]||0;
   const allLogs = s.logs||[];
   let logs = allLogs.filter(l => logFilter==="all" || l.type===logFilter);
@@ -5711,6 +5760,7 @@ function renderQS(){
   const use    = s.useTotal || 0;
   const sales  = (s.logs||[]).filter(l => l.type==="sale");
 
+  const _bizScope = (typeof reportScope !== "undefined" && reportScope === "biz");
   // All-products aggregates for quick stats grid
   const all = Object.values(D.strains);
   const te  = all.reduce((a,x) => a+(x.earned||0), 0);
@@ -5724,7 +5774,8 @@ function renderQS(){
   document.getElementById("qsGrid").innerHTML = [
     { l:"All Products Earned", v:fmtDollar(te),                                                         c:"#4caf7a" },
     { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                               c:tp>=0?"#4caf7a":"#c05050" },
-    { l:"Current Stock",       v:fmtQty(stock,s),                                                       c:"var(--acc)" },
+    _bizScope && allWeight ? { l:"Total Stock (All)", v:ts.toFixed(1)+"g", c:"var(--acc)" }
+                           : { l:_bizScope ? "Current Stock — "+D.cur : "Current Stock", v:fmtQty(stock,s), c:"var(--acc)" },
     { l:"Sales Logged",        v:tsl,                                                                   c:"var(--txt-b)" },
     { l:"Internal Use (All)",  v:allWeight ? tu.toFixed(1)+"g" : tu.toFixed(0)+" "+unitPlural(s),       c:"#c05050" },
     { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"var(--acc)" },
@@ -5815,7 +5866,7 @@ function renderQS(){
 
   // Update Quick Stats label with product name
   const qsLbl = document.getElementById("qsLbl");
-  if(qsLbl) qsLbl.textContent = `${__("Quick Stats")} — ${D.cur}`;
+  if(qsLbl) qsLbl.textContent = _bizScope ? __("Quick Stats") : `${__("Quick Stats")} — ${D.cur}`;
 
   renderPerf();
   renderPriceRef();
@@ -5843,11 +5894,14 @@ function renderLowStockBanner(){
 function calcPerformance(s){
   const logs = s ? (s.logs||[]) : [];
   const saleLogs = logs.filter(l => l.type === "sale");
-  // Group by date string (day key)
+  // Group by date string (day key) — keys MUST be zero-padded so lexicographic sort = date sort
+  const _dayKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  // parse back via components — new Date("YYYY-MM-DD") is UTC and skews local day math
+  const _keyDate = k => { const p = k.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); };
   const dayMap = {};
   saleLogs.forEach(l => {
     const d = new Date(l.id);
-    const key = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    const key = _dayKey(d);
     if(!dayMap[key]) dayMap[key] = 0;
     dayMap[key] += l.total;
   });
@@ -5856,7 +5910,7 @@ function calcPerformance(s){
   const today = new Date();
   for(let i=0; i<365; i++){
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()-i);
-    const key = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    const key = _dayKey(d);
     if(dayMap[key] > 0) currentStreak++;
     else if(i > 0) break; // allow today to be 0 (we check yesterday's streak starting at i=1)
     else if(i === 0 && !dayMap[key]){
@@ -5870,14 +5924,14 @@ function calcPerformance(s){
   if(sortedDays.length > 0){
     let expected = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     // allow gap of 1 day (today might not have sales yet)
-    const mostRecentDay = new Date(sortedDays[0]);
+    const mostRecentDay = _keyDate(sortedDays[0]);
     const diffMs = expected - mostRecentDay;
     const diffDays = Math.floor(diffMs / 86400000);
     if(diffDays <= 1){
       currentStreak = 1;
       for(let i=1; i<sortedDays.length; i++){
-        const prev = new Date(sortedDays[i-1]);
-        const curr = new Date(sortedDays[i]);
+        const prev = _keyDate(sortedDays[i-1]);
+        const curr = _keyDate(sortedDays[i]);
         const gap  = Math.floor((prev - curr) / 86400000);
         if(gap === 1) currentStreak++;
         else break;
@@ -5888,7 +5942,7 @@ function calcPerformance(s){
   let longestStreak = 0, run = 0;
   for(let i=0; i<sortedDays.length; i++){
     if(i===0){ run=1; } else {
-      const prev=new Date(sortedDays[i-1]), curr=new Date(sortedDays[i]);
+      const prev=_keyDate(sortedDays[i-1]), curr=_keyDate(sortedDays[i]);
       const gap=Math.floor((prev-curr)/86400000);
       if(gap===1) run++;
       else run=1;
@@ -5901,11 +5955,11 @@ function calcPerformance(s){
   let bestWeek = 0;
   const allDays = Object.keys(dayMap).sort();
   for(let i=0; i<allDays.length; i++){
-    const start = new Date(allDays[i]);
+    const start = _keyDate(allDays[i]);
     const end   = new Date(start.getTime() + 7*86400000);
     let weekTotal = 0;
     allDays.forEach(k => {
-      const d = new Date(k);
+      const d = _keyDate(k);
       if(d >= start && d < end) weekTotal += dayMap[k];
     });
     if(weekTotal > bestWeek) bestWeek = weekTotal;
@@ -6381,7 +6435,7 @@ const TOUR_STEPS = [
   { essential:true, tab:"stock", sel:".sgrid", icon:"money", title:"Money at a glance", body:"Earned, net profit, expenses and estimated stock value — the four numbers that matter, always front and centre." },
   { tab:"stock", sel:"#healthStrip", icon:"pulse", title:"Today at a glance", body:"A live read on today: revenue so far, sales count and your current top seller — a quick gut-check any time." },
   { essential:true, tab:"stock", sel:".qa-strip", icon:"bolt", title:"Your two everyday actions", body:"Record a sale — bundles, discounts, payment type, even on credit — or restock your inventory. These are your daily taps." },
-  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports now opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown." },
+  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown." },
   { essential:true, tab:"log", sel:null, icon:"receipt", title:"Activity — your full history", body:"Every sale, restock, expense and internal use, in order — the complete running record of your business." },
   { tab:"log", sel:".log-search-wrap", icon:"search", title:"Find anything fast", body:"Search by product, customer, note or amount to jump straight to any transaction — no scrolling required." },
   { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
@@ -6644,10 +6698,10 @@ async function renderTeam(){
     const isOwn=m.user_id===_bootedUid, owner=m.role==="owner";
     const right = owner ? `<span class="team-badge">Owner</span>`
       : isOwn ? `<span class="team-badge">${ROLE_LABELS[m.role]||m.role}</span>`
-      : `<select class="team-role-edit" onchange="changeMemberRole('${m.user_id}',this.value)">${roleOpts(m.role)}</select><button class="team-x" title="Remove" onclick="removeMember('${m.user_id}',${JSON.stringify(m.email||"")})">✕</button>`;
+      : `<select class="team-role-edit" onchange="changeMemberRole('${m.user_id}',this.value)">${roleOpts(m.role)}</select><button class="team-x" title="Remove" data-email="${escHtml(m.email||"")}" onclick="removeMember('${m.user_id}',this.dataset.email)">✕</button>`;
     return `<div class="team-member"><div style="min-width:0"><div class="team-member-email">${escHtml(m.email||"—")}${isOwn?" · you":""}</div><div class="team-member-sub">${ROLE_LABELS[m.role]||m.role}</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0">${right}</div></div>`;
   }).join("");
-  const inviteRows=invites.map(iv=>`<div class="team-member team-pending"><div style="min-width:0"><div class="team-member-email">${escHtml(iv.email)}</div><div class="team-member-sub">Invited · ${ROLE_LABELS[iv.role]||iv.role}</div></div><button class="team-x" title="Cancel" onclick="cancelInvite(${JSON.stringify(iv.email)})">✕</button></div>`).join("");
+  const inviteRows=invites.map(iv=>`<div class="team-member team-pending"><div style="min-width:0"><div class="team-member-email">${escHtml(iv.email)}</div><div class="team-member-sub">Invited · ${ROLE_LABELS[iv.role]||iv.role}</div></div><button class="team-x" title="Cancel" data-email="${escHtml(iv.email)}" onclick="cancelInvite(this.dataset.email)">✕</button></div>`).join("");
   body.innerHTML = `<div class="team-grp">Members</div>${memberRows||'<div class="team-member-sub" style="padding:2px">Just you so far.</div>'}`
     + (inviteRows?`<div class="team-grp">Pending invites</div>${inviteRows}`:"");
 }
@@ -6711,7 +6765,8 @@ async function renderAudit(){
   _renderAuditList();
 }
 function setAuditFilter(f, btn){ _auditFilter=f; const row=document.getElementById("auditFilterRow"); if(row) row.querySelectorAll(".lf-btn").forEach(b=>b.classList.toggle("on", b===btn)); _renderAuditList(); }
-function onAuditSearch(v){ _auditSearch=(v||"").trim().toLowerCase(); const c=document.getElementById("auditSearchClear"); if(c) c.style.display=_auditSearch?"block":"none"; _renderAuditList(); }
+let _auditSearchTimer=null;
+function onAuditSearch(v){ _auditSearch=(v||"").trim().toLowerCase(); const c=document.getElementById("auditSearchClear"); if(c) c.style.display=_auditSearch?"block":"none"; clearTimeout(_auditSearchTimer); _auditSearchTimer=setTimeout(_renderAuditList,180); }
 function clearAuditSearch(){ _auditSearch=""; const el=document.getElementById("auditSearch"); if(el) el.value=""; const c=document.getElementById("auditSearchClear"); if(c) c.style.display="none"; _renderAuditList(); }
 function _renderAuditList(){
   const body=document.getElementById("auditBody"); if(!body) return;
@@ -6766,7 +6821,7 @@ const authRepo = {
     // or re-upload the previous user's data (cross-account/tenant leak).
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
-    try{ _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
+    try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     return SB.auth.signOut();
@@ -7078,7 +7133,7 @@ async function bootAuthedUser(sess){
 function _resetForAccountSwitch(){
   try{ clearTimeout(_persistTimer); }catch(e){}
   _cloudDirty = false; _flushing = false;
-  try{ _storeDel(SK); _storeDel(SK_BAK); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
+  try{ _storeDel(SK); _storeDel(SK_BAK); _storeDel(HISTORY_KEY); localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(PIN_SK); _clearUnsynced(); _clearBase(); _storeDel(RECOVERY_KEY); localStorage.removeItem("ledger_has_data"); localStorage.removeItem("ledger_cache_biz"); localStorage.removeItem("ledger_pref_biz"); }catch(e){}
   D = { strains:{}, cur:"" };
   Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" };
 }

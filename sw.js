@@ -53,6 +53,22 @@ self.addEventListener('fetch', event => {
 
   if (url.origin !== location.origin) return;
 
+  // i18n.js is 270KB+ and parser-blocking: stale-while-revalidate so PWA launches never
+  // wait on the network for it. checkForUpdate force-refreshes it on version bumps anyway.
+  if (url.pathname === '/ledger/i18n.js') {
+    event.respondWith(
+      caches.open(CACHE).then(cache =>
+        cache.match(event.request).then(cached => {
+          const net = fetch(event.request)
+            .then(resp => { if (resp && resp.ok) cache.put(event.request, resp.clone()); return resp; })
+            .catch(() => cached);
+          return cached || net;
+        })
+      )
+    );
+    return;
+  }
+
   const isShell = url.pathname === '/ledger/' ||
                   url.pathname === '/ledger/index.html' ||
                   url.pathname === '/ledger';
