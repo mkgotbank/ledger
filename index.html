@@ -1807,7 +1807,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.45.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.45.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -1820,7 +1820,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z"/></svg></div>
         <div>
           <div class="wn-title">Clear guidance when Google blocks sign-in</div>
-          <div class="wn-desc">Google doesn't allow its sign-in inside installed apps on iPhone and iPad. Instead of a confusing Google error, the app now explains it and points you to email sign-in — or to Safari, where Google sign-in works.</div>
+          <div class="wn-desc">Google doesn't allow its sign-in inside installed apps on iPhone and iPad. The app now warns you first and lets you try anyway — and if Google blocks it, points you to email sign-in or to Safari, where Google sign-in works.</div>
         </div>
       </div>
       <div class="wn-item">
@@ -2178,7 +2178,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.45.0";
+const APP_VER    = "2.45.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5493,7 +5493,7 @@ try{
   "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
   "Signing you in…": {"es":"Iniciando tu sesión…","zh":"正在登录…","hi":"साइन इन हो रहा है…","ar":"جارٍ تسجيل دخولك…","fr":"Connexion en cours…","pt":"Entrando…","ru":"Выполняем вход…","de":"Sie werden angemeldet…","ja":"サインイン中…"},
   "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
-  "Google blocks sign-in inside installed apps. Sign in here with your email and password — or open The Ledger in Safari once to use Google.": {"es":"Google bloquea el inicio de sesión dentro de apps instaladas. Inicia sesión aquí con tu correo y contraseña — o abre The Ledger en Safari una vez para usar Google.","zh":"Google 不允许在已安装的应用内登录。请在此使用邮箱和密码登录 — 或在 Safari 中打开 The Ledger 一次以使用 Google。","hi":"Google इंस्टॉल किए गए ऐप्स के अंदर साइन-इन ब्लॉक करता है। यहाँ अपने ईमेल और पासवर्ड से साइन इन करें — या Google उपयोग करने के लिए एक बार Safari में The Ledger खोलें।","ar":"تحظر Google تسجيل الدخول داخل التطبيقات المثبّتة. سجّل الدخول هنا بالبريد الإلكتروني وكلمة المرور — أو افتح The Ledger في Safari مرة واحدة لاستخدام Google.","fr":"Google bloque la connexion dans les apps installées. Connectez-vous ici avec votre e-mail et mot de passe — ou ouvrez The Ledger dans Safari une fois pour utiliser Google.","pt":"O Google bloqueia o login dentro de apps instalados. Entre aqui com seu e-mail e senha — ou abra o The Ledger no Safari uma vez para usar o Google.","ru":"Google блокирует вход внутри установленных приложений. Войдите здесь по почте и паролю — или откройте The Ledger в Safari, чтобы войти через Google.","de":"Google blockiert die Anmeldung in installierten Apps. Melden Sie sich hier mit E-Mail und Passwort an — oder öffnen Sie The Ledger einmal in Safari, um Google zu nutzen.","ja":"Google はインストール済みアプリ内でのサインインをブロックします。ここでメールとパスワードでサインインするか、一度 Safari で The Ledger を開いて Google をご利用ください。"},
+  "Heads up: Google sometimes refuses sign-in inside installed apps. Tap the Google button again to try anyway — if Google blocks it, sign in with email here, or use Google once in Safari.": {"es":"Atención: Google a veces rechaza el inicio de sesión dentro de apps instaladas. Toca el botón de Google de nuevo para intentarlo — si Google lo bloquea, inicia sesión aquí con tu correo, o usa Google una vez en Safari.","zh":"注意：Google 有时会拒绝在已安装的应用内登录。再点一次 Google 按钮即可尝试 — 如果被 Google 拦截，请在此用邮箱登录，或在 Safari 中使用一次 Google。","hi":"ध्यान दें: Google कभी-कभी इंस्टॉल किए गए ऐप्स में साइन-इन अस्वीकार करता है। फिर भी आज़माने के लिए Google बटन दोबारा दबाएँ — अगर Google रोक दे, तो यहाँ ईमेल से साइन इन करें, या एक बार Safari में Google उपयोग करें।","ar":"تنبيه: ترفض Google أحيانًا تسجيل الدخول داخل التطبيقات المثبّتة. انقر زر Google مرة أخرى للمحاولة — وإذا حظرته Google، سجّل الدخول هنا بالبريد الإلكتروني، أو استخدم Google مرة واحدة في Safari.","fr":"Attention : Google refuse parfois la connexion dans les apps installées. Touchez à nouveau le bouton Google pour essayer — si Google bloque, connectez-vous ici par e-mail, ou utilisez Google une fois dans Safari.","pt":"Atenção: o Google às vezes recusa o login dentro de apps instalados. Toque no botão do Google novamente para tentar — se o Google bloquear, entre aqui com seu e-mail, ou use o Google uma vez no Safari.","ru":"Внимание: Google иногда отклоняет вход внутри установленных приложений. Нажмите кнопку Google ещё раз, чтобы попробовать — если Google заблокирует, войдите здесь по почте или один раз используйте Google в Safari.","de":"Hinweis: Google lehnt die Anmeldung in installierten Apps manchmal ab. Tippen Sie erneut auf die Google-Schaltfläche, um es zu versuchen — falls Google blockiert, melden Sie sich hier per E-Mail an oder nutzen Sie Google einmal in Safari.","ja":"ご注意：Google はインストール済みアプリ内でのサインインを拒否することがあります。もう一度 Google ボタンをタップしてお試しください — ブロックされた場合は、ここでメールでサインインするか、一度 Safari で Google をご利用ください。"},
   "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
@@ -7097,15 +7097,16 @@ function authSetMode(m){
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
 // Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
+let _googleWarned = false;
 async function authGoogle(){
   if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
-  // Google rejects OAuth inside installed-app shells ("disallowed_useragent" / "this browser
-  // or app may not be secure"). On an installed iOS PWA the redirect runs in the standalone
-  // shell, so guide the user instead of letting Google show a dead-end error page.
+  // Google sometimes rejects OAuth inside installed-app shells ("disallowed_useragent") — but
+  // NOT always, so never hard-block: warn once, and the next tap proceeds normally.
   const _standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
   const _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if(_standalone && _isIOS){
-    _authMsg(__("Google blocks sign-in inside installed apps. Sign in here with your email and password — or open The Ledger in Safari once to use Google."),"err");
+  if(_standalone && _isIOS && !_googleWarned){
+    _googleWarned = true;
+    _authMsg(__("Heads up: Google sometimes refuses sign-in inside installed apps. Tap the Google button again to try anyway — if Google blocks it, sign in with email here, or use Google once in Safari."),"ok");
     return;
   }
   _authMsg(__("Opening Google…"),"ok");
