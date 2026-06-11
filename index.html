@@ -1806,13 +1806,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.43.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.44.0</div>
     <div class="wn-list">
+      <div class="wn-item">
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5c0 1.4-.6 2.7-1.5 3.6.9.9 1.5 2.2 1.5 3.6a5 5 0 0 1-10 0c0-1.4.6-2.7 1.5-3.6A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/><path d="M12 7v10"/></svg></div>
+        <div>
+          <div class="wn-title">A much smarter AI Advisor</div>
+          <div class="wn-desc">You can now pick the Advisor's brain under More → AI settings: keep the free service, use a free Groq key, or connect Claude (Anthropic) or ChatGPT (OpenAI) with your own API key for the smartest business advice. Keys stay on your device only.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
         <div>
-          <div class="wn-title">The Audit log now names the product</div>
-          <div class="wn-desc">Every new sale, expense, restock, deletion and restore in the Audit log now says exactly which product it touched — multi-product purchases list each one. Importing past entries carries product names in too.</div>
+          <div class="wn-title">No more wrong numbers from the AI</div>
+          <div class="wn-desc">The app now calculates every figure itself — profit, margins, coverage, averages — and the AI is required to quote your exact numbers instead of doing its own math. Estimates it used to get wrong are now your real, precomputed figures.</div>
         </div>
       </div>
     </div>
@@ -2163,7 +2170,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.43.1";
+const APP_VER    = "2.44.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4730,21 +4737,51 @@ const AI_REFERRER = "ledger-app";
 // Optional Groq key (stored on-device) → fast, reliable, real streaming.
 const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODELS = ["llama-3.3-70b-versatile","llama-3.1-8b-instant"];
+const ANTHROPIC_URL   = "https://api.anthropic.com/v1/messages";
+const ANTHROPIC_MODEL = "claude-opus-4-8";
+const OPENAI_URL      = "https://api.openai.com/v1/chat/completions";
+const OPENAI_MODEL    = "gpt-5.1";
+// Premium AI brains the user can connect with their own key (stored on-device only).
+const AI_PROVIDERS = {
+  anthropic: { name:"Claude",  prefix:"sk-ant-…", url:"https://console.anthropic.com/settings/keys", urlLabel:"console.anthropic.com", maker:"Anthropic", paid:true  },
+  openai:    { name:"ChatGPT", prefix:"sk-…",     url:"https://platform.openai.com/api-keys",        urlLabel:"platform.openai.com",   maker:"OpenAI",    paid:true  },
+  groq:      { name:"Groq",    prefix:"gsk_…",    url:"https://console.groq.com/keys",               urlLabel:"console.groq.com",      maker:"Groq",      paid:false },
+};
 // Free keyless fallback. The POST routes are deprecated/broken (ENOSPC); the
 // GET prompt route still serves anonymous requests, so we use that.
 const POLLI_GET    = "https://text.pollinations.ai/";
 const POLLI_MODELS = ["openai","openai-fast","mistral"];
 
-function getGroqKey(){ try { return (localStorage.getItem("ledger_groq_key") || "").trim(); } catch(e){ return ""; } }
-function saveGroqKey(){
-  const inp = document.getElementById("groqKeyIn"); if(!inp) return;
+function getAIKey(p){ try { return (localStorage.getItem(p==="groq" ? "ledger_groq_key" : "ledger_"+p+"_key") || "").trim(); } catch(e){ return ""; } }
+function getGroqKey(){ return getAIKey("groq"); }
+// Which brain answers: the user's explicit pick (if its key is present), else any saved key, else the free service.
+function _aiProvider(){
+  let p = ""; try { p = localStorage.getItem("ledger_ai_provider") || ""; } catch(e){}
+  if(p === "free") return "free";
+  if(p && AI_PROVIDERS[p] && getAIKey(p)) return p;
+  for(const k of ["anthropic","openai","groq"]){ if(getAIKey(k)) return k; }
+  return "free";
+}
+// UI-selected provider tab (may not have a key saved yet)
+function _aiUITab(){
+  let p = ""; try { p = localStorage.getItem("ledger_ai_provider") || ""; } catch(e){}
+  if(p === "free" || (p && AI_PROVIDERS[p])) return p;
+  for(const k of ["anthropic","openai","groq"]){ if(getAIKey(k)) return k; }
+  return "free";
+}
+function setAIProvider(p){
+  try { localStorage.setItem("ledger_ai_provider", p); } catch(e){}
+  renderSettings();
+}
+function saveAIKey(p){
+  const inp = document.getElementById("aiKeyIn"); if(!inp) return;
   const v = inp.value.trim();
   if(!v){ showToast("Enter a key first", "err"); return; }
-  try { localStorage.setItem("ledger_groq_key", v); } catch(e){}
+  try { localStorage.setItem(p==="groq" ? "ledger_groq_key" : "ledger_"+p+"_key", v); localStorage.setItem("ledger_ai_provider", p); } catch(e){}
   showToast("AI key saved", "ok"); renderSettings();
 }
-function clearGroqKey(){
-  try { localStorage.removeItem("ledger_groq_key"); } catch(e){}
+function clearAIKey(p){
+  try { localStorage.removeItem(p==="groq" ? "ledger_groq_key" : "ledger_"+p+"_key"); } catch(e){}
   showToast("AI key removed"); renderSettings();
 }
 
@@ -4802,6 +4839,85 @@ async function _groq({ key, messages, max_tokens, onToken, statusEl }){
   throw lastErr || new Error("Groq unavailable");
 }
 
+// Claude (Anthropic Messages API) — browser streaming with the documented CORS opt-in header.
+// The user's key is stored only on this device; requests go directly from the device to Anthropic.
+async function _anthropic({ key, messages, max_tokens, onToken, statusEl }){
+  if(statusEl) statusEl.textContent = "Analyzing your data…";
+  const sys   = messages.find(m => m.role === "system")?.content || "";
+  const convo = messages.filter(m => m.role !== "system").map(m => ({ role:m.role, content:m.content }));
+  const ctrl = new AbortController();
+  let timer = null;
+  const arm = () => { if(timer) clearTimeout(timer); timer = setTimeout(() => ctrl.abort(), 30000); };
+  arm();
+  try {
+    const body = { model:ANTHROPIC_MODEL, max_tokens:8000, thinking:{ type:"adaptive" }, messages:convo, stream:true };
+    if(sys) body.system = sys;
+    const res = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify(body),
+      signal: ctrl.signal
+    });
+    if(res.status === 401){ clearTimeout(timer); const e = new Error("Invalid Claude API key — check it in More → AI settings"); e.fatal = true; throw e; }
+    if(!res.ok || !res.body){ clearTimeout(timer); throw new Error("Claude " + res.status); }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = "", full = "", apiErr = null;
+    while(true){
+      const { done, value } = await reader.read();
+      if(done) break;
+      arm();
+      buf += dec.decode(value, { stream:true });
+      let nl;
+      while((nl = buf.indexOf("\n")) >= 0){
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if(!line.startsWith("data:")) continue;
+        try {
+          const j = JSON.parse(line.slice(5).trim());
+          if(j.type === "content_block_delta" && j.delta && j.delta.type === "text_delta" && j.delta.text){
+            full += j.delta.text; if(onToken) onToken(full);
+          } else if(j.type === "error"){
+            apiErr = new Error((j.error && j.error.message) || "Claude error");
+          }
+        } catch(_){ /* partial / non-JSON line — skip */ }
+      }
+    }
+    clearTimeout(timer);
+    if(apiErr && !full) throw apiErr;
+    if(full) return full.trim();
+    throw new Error("empty");
+  } catch(e){ if(timer) clearTimeout(timer); throw e; }
+}
+
+// ChatGPT (OpenAI) — OpenAI streaming; same SSE shape as Groq.
+async function _openai({ key, messages, max_tokens, onToken, statusEl }){
+  if(statusEl) statusEl.textContent = "Analyzing your data…";
+  const ctrl = new AbortController();
+  let timer = null;
+  const arm = () => { if(timer) clearTimeout(timer); timer = setTimeout(() => ctrl.abort(), 30000); };
+  arm();
+  try {
+    const res = await fetch(OPENAI_URL, {
+      method: "POST",
+      headers: { "Content-Type":"application/json", "Authorization":"Bearer "+key },
+      body: JSON.stringify({ model:OPENAI_MODEL, messages, max_completion_tokens:8000, stream:true }),
+      signal: ctrl.signal
+    });
+    if(res.status === 401){ clearTimeout(timer); const e = new Error("Invalid OpenAI API key — check it in More → AI settings"); e.fatal = true; throw e; }
+    if(!res.ok || !res.body){ clearTimeout(timer); throw new Error("OpenAI " + res.status); }
+    const full = await _readSSE(res, onToken, arm);
+    clearTimeout(timer);
+    if(full) return full;
+    throw new Error("empty");
+  } catch(e){ if(timer) clearTimeout(timer); throw e; }
+}
+
 // Flatten chat messages into a single prompt for the GET route.
 function _flatten(messages){
   const sys = messages.find(m => m.role === "system")?.content || "";
@@ -4841,12 +4957,16 @@ async function _polli({ messages, onToken, statusEl }){
   throw new Error("The AI service is briefly unavailable — please try again in a moment.");
 }
 
-// Entry point: prefer Groq (if a key is set), else fall back to the free service.
+// Entry point: route to the user's chosen brain (Claude / ChatGPT / Groq), else the free service.
 async function streamAI({ messages, max_tokens = 900, onToken, statusEl }){
-  const key = getGroqKey();
-  if(key){
-    try { return await _groq({ key, messages, max_tokens, onToken, statusEl }); }
-    catch(e){
+  const prov = _aiProvider();
+  if(prov !== "free"){
+    const key = getAIKey(prov);
+    try {
+      if(prov === "anthropic") return await _anthropic({ key, messages, max_tokens, onToken, statusEl });
+      if(prov === "openai")    return await _openai({ key, messages, max_tokens, onToken, statusEl });
+      return await _groq({ key, messages, max_tokens, onToken, statusEl });
+    } catch(e){
       if(e.fatal){ throw e; } // bad key — tell the user instead of silently falling back
       if(statusEl) statusEl.textContent = "Switching to backup…";
     }
@@ -4896,12 +5016,14 @@ async function getAI(){
     .join("\n") || "    no sales yet";
 
   const otherLines = others.length
-    ? others.map(p => { const st=D.strains[p.name]; return `  ${p.name}: $${p.earned.toFixed(0)} earned / ${p.profit>=0?"+":""}$${p.profit.toFixed(0)} profit / ${p.stock.toFixed(1)} ${unitPlural(st)} left`; }).join("\n")
+    ? others.map(p => { const st=D.strains[p.name]; return `  ${p.name}: $${p.earned.toFixed(0)} earned / ${p.profit>=0?"+":""}$${p.profit.toFixed(0)} profit (${p.marginPct}% margin) / ${p.salesCount} sales / ${p.stock.toFixed(1)} ${unitPlural(st)} left`; }).join("\n")
     : "  none";
 
   const focusUnitPlural = unitPlural(D.strains[focus.name]);
   const prompt =
 `You are an elite, number-driven business advisor. Analyze the real data below and give exactly 5 specific, actionable tips, ordered from highest to lowest impact. Start each tip with a short uppercase topic label followed by a colon (e.g. PRICING:, STOCK:, RESTOCK:) and keep each tip 2-3 sentences. Cite the actual numbers — never give generic advice. Blank line between tips. Plain text only, no bold, no headers, and never use emojis. All monetary values are in ${getCurrency()}; use that symbol in your reply.
+
+CRITICAL — NUMBERS: every figure below (profit, margin %, coverage %, averages, totals) is precomputed and exact. Quote them VERBATIM. Do not recalculate, re-derive, round differently, or combine figures into new ones; do not estimate or invent any number not shown. If a figure you want is not provided, say it is not tracked.
 
 FOCUS PRODUCT: ${focus.name}
   Stock remaining : ${focus.stock.toFixed(1)} ${focusUnitPlural}
@@ -4926,7 +5048,7 @@ Address exactly these 5 areas using the numbers above:
 5. Honest product outlook — is this worth scaling, maintaining, or cutting relative to the portfolio`;
 
   try {
-    const sysmsg = "You are an elite, no-nonsense business advisor analyzing this seller's real ledger data. Lead with the highest-impact move, cite the exact numbers, and never pad with generic filler. Plain text only — no markdown, no bullet characters, and never use emojis.";
+    const sysmsg = "You are an elite, no-nonsense business advisor analyzing this seller's real ledger data. Lead with the highest-impact move, cite the exact numbers, and never pad with generic filler. All figures in the data are precomputed and exact — quote them verbatim and NEVER do your own arithmetic (no recomputed profits, margins, percentages, totals or projections); if a figure is not provided, say it is not tracked rather than estimating. Plain text only — no markdown, no bullet characters, and never use emojis.";
     const txt = await streamAI({
       messages:[{ role:"system", content:sysmsg },{ role:"user", content:prompt }],
       max_tokens:1200, statusEl:body,
@@ -4957,7 +5079,7 @@ function stripEmoji(str){
 }
 // What the AI knows about using The Ledger itself (for "how do I…" questions).
 const APP_GUIDE =
-"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you; the Customers row appears once someone owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data & Sync lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under More → Team & roles with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business (appears when you belong to more than one). Customization: theme, font, app icon, currency and 10 languages under Settings. Audit log: More → Audit log (owners and admins only) shows who recorded each entry. Install as app: More → Install on your phone. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
+"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you; the Customers row appears once someone owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data & Sync lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under More → Team & roles with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business (appears when you belong to more than one). Customization: theme, font, app icon, currency and 10 languages under Settings. AI brain: under More → AI settings the advisor can run on the free service, a free Groq key, or the user's own Claude (Anthropic) or ChatGPT (OpenAI) API key for the smartest answers — keys are stored only on the device. Audit log: More → Audit log (owners and admins only) shows who recorded each entry. Install as app: More → Install on your phone. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
 // Starter questions shown as tappable chips while the chat is empty —
 // half about the user's numbers, half about using the app itself.
@@ -5040,7 +5162,8 @@ async function sendChatMsg(){
   const allProducts = Object.entries(D.strains)
     .map(([n, st]) => {
       const e = st.earned||0, x = st.expenses||0, p = e-x;
-      return `  ${n}${n===D.cur?" (active)":""}: $${e.toFixed(0)} earned / ${p>=0?"+":""}$${p.toFixed(0)} profit / ${(st.stock||0).toFixed(1)} ${unitPlural(st)} left`;
+      const mp = e > 0 ? Math.round((p / e) * 100) : 0;
+      return `  ${n}${n===D.cur?" (active)":""}: $${e.toFixed(0)} earned / $${x.toFixed(0)} expenses / ${p>=0?"+":""}$${p.toFixed(0)} profit (${mp}% margin) / ${(st.stock||0).toFixed(1)} ${unitPlural(st)} left`;
     }).join("\n");
 
   // ── Conversation history — last 10 messages ──
@@ -5050,7 +5173,7 @@ async function sendChatMsg(){
     : "";
 
   const prompt =
-`You are an elite business advisor with full access to this seller's data, and you also know The Ledger app inside out. Answer the question directly. For business questions use the specific numbers; for questions about using the app, answer from the APP GUIDE. Be concise (2-4 sentences). Plain text only, no markdown, never use emojis. All monetary values are in ${getCurrency()}; use that symbol.
+`You are an elite business advisor with full access to this seller's data, and you also know The Ledger app inside out. Answer the question directly. For business questions use the specific numbers; for questions about using the app, answer from the APP GUIDE. Be concise (2-4 sentences). Plain text only, no markdown, never use emojis. All monetary values are in ${getCurrency()}; use that symbol. The figures below are precomputed and exact — quote them verbatim, never do your own arithmetic, and never invent a number that is not shown; if something is not provided, say it is not tracked.
 
 ACTIVE PRODUCT: ${D.cur}
   Stock: ${fmtQty(s.stock||0,s)} | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
@@ -5355,6 +5478,11 @@ try{
   "Clear search": {"es":"Borrar búsqueda","zh":"清除搜索","hi":"खोज साफ़ करें","ar":"مسح البحث","fr":"Effacer la recherche","pt":"Limpar busca","ru":"Очистить поиск","de":"Suche löschen","ja":"検索をクリア"},
   "Remove item": {"es":"Quitar artículo","zh":"移除项目","hi":"आइटम हटाएँ","ar":"إزالة العنصر","fr":"Retirer l'article","pt":"Remover item","ru":"Удалить позицию","de":"Position entfernen","ja":"項目を削除"},
   "Total Stock (All)": {"es":"Stock total (todos)","zh":"总库存（全部）","hi":"कुल स्टॉक (सभी)","ar":"إجمالي المخزون (الكل)","fr":"Stock total (tous)","pt":"Estoque total (todos)","ru":"Весь запас (все)","de":"Gesamtbestand (alle)","ja":"総在庫（全商品）"},
+  "AI brain": {"es":"Cerebro de IA","zh":"AI 引擎","hi":"एआई ब्रेन","ar":"عقل الذكاء الاصطناعي","fr":"Cerveau IA","pt":"Cérebro de IA","ru":"Мозг ИИ","de":"KI-Gehirn","ja":"AIブレイン"},
+  "Free service": {"es":"Servicio gratuito","zh":"免费服务","hi":"मुफ़्त सेवा","ar":"الخدمة المجانية","fr":"Service gratuit","pt":"Serviço gratuito","ru":"Бесплатный сервис","de":"Kostenloser Dienst","ja":"無料サービス"},
+  "How to connect": {"es":"Cómo conectar","zh":"如何连接","hi":"कनेक्ट कैसे करें","ar":"كيفية الربط","fr":"Comment connecter","pt":"Como conectar","ru":"Как подключить","de":"So verbinden","ja":"接続方法"},
+  "AI key saved": {"es":"Clave de IA guardada","zh":"AI 密钥已保存","hi":"एआई कुंजी सहेजी गई","ar":"تم حفظ مفتاح الذكاء الاصطناعي","fr":"Clé IA enregistrée","pt":"Chave de IA salva","ru":"Ключ ИИ сохранён","de":"KI-Schlüssel gespeichert","ja":"AIキーを保存しました"},
+  "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
   "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
@@ -6157,29 +6285,42 @@ function renderSettings(){
     </div>`;
   }
 
-  // AI Advisor — optional Groq API key for reliable, fast responses
+  // AI Advisor — choose the brain: free service, or the user's own Claude / ChatGPT / Groq key
   const aiEl = document.getElementById("aiSettings");
   if(aiEl){
-    const hasKey = !!getGroqKey();
+    const tab    = _aiUITab();                       // which provider tab is selected in the UI
+    const active = _aiProvider();                    // which brain actually answers right now
+    const chip = (id, lbl) => `<button class="lf-btn${tab===id?' on':''}" aria-pressed="${tab===id?'true':'false'}" onclick="setAIProvider('${id}')">${lbl}</button>`;
+    const p = tab !== "free" ? AI_PROVIDERS[tab] : null;
+    const hasKey = p ? !!getAIKey(tab) : false;
     aiEl.innerHTML = `<div class="settings-card">
       <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:7px;padding-bottom:11px">
-        <span class="settings-row-lbl">Groq API key ${hasKey?'<span style="color:var(--acc)">· active</span>':'<span style="color:var(--txt-d)">· optional</span>'}</span>
-        <div style="display:flex;gap:8px;width:100%">
-          <input type="password" id="groqKeyIn" placeholder="${hasKey?'•••••••••• saved':'gsk_…'}" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;background:var(--fill-1);border:1px solid var(--bdr);border-radius:8px;padding:8px 11px;color:var(--txt);font-size:11px;outline:none;font-family:var(--font)"/>
-          <button class="btn-sm-acc" onclick="saveGroqKey()">Save</button>
-          ${hasKey?'<button class="btn-sm-danger" onclick="clearGroqKey()">Clear</button>':''}
+        <span class="settings-row-lbl">AI brain <span style="color:var(--acc)" data-noi18n>· ${active==="free"?"Free service":AI_PROVIDERS[active].name}</span></span>
+        <div class="log-filters" style="margin-bottom:0">
+          ${chip("free","Free service")}${chip("anthropic","Claude")}${chip("openai","ChatGPT")}${chip("groq","Groq")}
         </div>
-        ${hasKey
-          ? '<div style="font-size:9px;color:var(--txt-d);line-height:1.6">✓ Connected to Groq — the AI Advisor now uses fast, reliable responses. Your key is stored only on this device.</div>'
-          : `<div style="font-size:9px;color:var(--txt-d);line-height:1.75;width:100%">
-              <div style="margin-bottom:7px"><b style="color:var(--txt)">What's this?</b> The AI Advisor runs on a free shared service that can be slow or unavailable. Connecting your own free Groq key makes it fast and reliable. It's free, takes a minute, and no card is required.</div>
-              <div style="font-weight:700;color:var(--acc);letter-spacing:1px;text-transform:uppercase;font-size:8px;margin-bottom:5px">How to connect</div>
-              <div style="margin-bottom:3px">1. Open <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" style="color:var(--acc);font-weight:700;text-decoration:none">console.groq.com/keys ↗</a></div>
-              <div style="margin-bottom:3px">2. Sign in (free) and tap <b style="color:var(--txt)">Create API Key</b></div>
-              <div style="margin-bottom:3px">3. Copy the key — it starts with <b style="color:var(--txt)">gsk_</b></div>
-              <div>4. Paste it in the box above and tap <b style="color:var(--txt)">Save</b></div>
-              <div style="margin-top:7px;opacity:0.85">Your key is stored only on this device and is never shared.</div>
-            </div>`}
+        ${tab==="free"
+          ? `<div style="font-size:9px;color:var(--txt-d);line-height:1.75;width:100%">The free shared service costs nothing but can be slow, unavailable, or give weaker advice. For the smartest answers, connect <b style="color:var(--txt)">Claude</b> (best quality, pennies per question) or <b style="color:var(--txt)">ChatGPT</b> — or <b style="color:var(--txt)">Groq</b> for a free, fast upgrade. Keys are stored only on this device.</div>`
+          : `<div style="display:flex;gap:8px;width:100%">
+              <input type="password" id="aiKeyIn" placeholder="${hasKey?'•••••••••• saved':escVal(p.prefix)}" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;background:var(--fill-1);border:1px solid var(--bdr);border-radius:8px;padding:8px 11px;color:var(--txt);font-size:11px;outline:none;font-family:var(--font)"/>
+              <button class="btn-sm-acc" onclick="saveAIKey('${tab}')">Save</button>
+              ${hasKey?`<button class="btn-sm-danger" onclick="clearAIKey('${tab}')">Clear</button>`:''}
+            </div>
+            ${hasKey
+              ? `<div style="font-size:9px;color:var(--txt-d);line-height:1.6" data-noi18n>Connected to ${p.name} — the AI Advisor and chat now answer with it. Your key is stored only on this device.</div>`
+              : `<div style="font-size:9px;color:var(--txt-d);line-height:1.75;width:100%" data-noi18n>
+                  <div style="margin-bottom:7px">${tab==="anthropic"
+                    ? `<b style="color:var(--txt)">Claude</b> (by Anthropic) gives the smartest, most reliable business advice. The API is pay-as-you-go — a question typically costs a few cents.`
+                    : tab==="openai"
+                    ? `<b style="color:var(--txt)">ChatGPT</b> (by OpenAI), connected by API key. Pay-as-you-go — a question typically costs a few cents.`
+                    : `<b style="color:var(--txt)">Groq</b> is free and fast — no card required. A solid upgrade over the free shared service.`}</div>
+                  <div style="font-weight:700;color:var(--acc);letter-spacing:1px;text-transform:uppercase;font-size:8px;margin-bottom:5px">How to connect</div>
+                  <div style="margin-bottom:3px">1. Open <a href="${p.url}" target="_blank" rel="noopener noreferrer" style="color:var(--acc);font-weight:700;text-decoration:none">${p.urlLabel} ↗</a></div>
+                  <div style="margin-bottom:3px">2. Sign in and create an API key${p.paid?' (add a small credit balance if asked)':' (free)'}</div>
+                  <div style="margin-bottom:3px">3. Copy the key — it starts with <b style="color:var(--txt)">${escHtml(p.prefix.replace("…",""))}</b></div>
+                  <div>4. Paste it above and tap <b style="color:var(--txt)">Save</b></div>
+                  <div style="margin-top:7px;opacity:0.85">Your key is stored only on this device and is never shared — requests go straight from your device to ${p.maker}.</div>
+                </div>`}`}
       </div>
     </div>`;
   }
@@ -6432,7 +6573,7 @@ const TOUR_STEPS = [
   { tab:"settings", sel:null, icon:"customers", title:"Invite your team", body:"Add teammates by email and give each a role: Staff records sales & expenses, Viewer is read-only (ideal for an accountant), Admin manages everything. Everyone sees only what their role allows — and the Audit log records who entered each sale, expense and restock, with the author verified by the server so it can't be faked." },
   { tab:"settings", sel:"#currencySettings", icon:"currency", title:"Currency & low-stock alerts", body:"Set your currency once, and a low-stock threshold so you're warned before a product runs out." },
   { tab:"settings", sel:"#pinSettings", icon:"lock", title:"Lock it with a PIN", body:"Keep your numbers private — set a PIN and The Ledger asks for it every time it opens." },
-  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Your AI advisor & helper", body:"The AI Advisor analyzes your real numbers, and you can ask it anything — about your data or how to use the app. The free service can be slow; add a free key (about a minute) to make it instant." },
+  { tab:"settings", sel:"#aiSettings", icon:"ai2", title:"Your AI advisor & helper", body:"The AI Advisor analyzes your real numbers, and you can ask it anything — about your data or how to use the app. Pick its brain here: the free service, a free Groq key, or connect Claude or ChatGPT with your own key for the smartest advice." },
   { essential:true, tab:"settings", sel:"#dataSyncSettings", icon:"cloud", title:"Back up & sync", body:"Create a free account to back up to the cloud and sync across devices — by email or Google. The app keeps automatic backups too, so you can Restore here any time. Without an account, your data stays on this device only, so export a backup to be safe." },
   { essential:true, shortOnly:true, tab:"settings", sel:"#replayRow", icon:"welcome", title:"That's the essentials", body:"Nicely done — that's the heart of The Ledger. Replay the full Guide here any time to explore every feature." },
   { tab:"settings", sel:"#installRow", icon:"install", title:"Add it to your phone", body:"Install The Ledger to your home screen for a full-screen app that works offline — tap here for the quick steps." },
