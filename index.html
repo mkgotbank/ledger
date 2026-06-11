@@ -1807,7 +1807,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2191,7 +2191,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.1";
+const APP_VER    = "2.46.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7382,7 +7382,7 @@ async function bootAuthedUser(sess){
     }
     _bpMark("draw the app");
     _bpDone();
-    try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); sessionStorage.removeItem("ledger_oauth_reloaded"); sessionStorage.removeItem("ledger_boot_reloaded"); }catch(e){}
+    try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); sessionStorage.removeItem("ledger_oauth_reloaded"); sessionStorage.removeItem("ledger_boot_reloaded"); sessionStorage.removeItem("ledger_splash_reloaded"); }catch(e){}
     try{ i18nApply(); }catch(e){}
     // Arrived here via an email-confirmation link → confirm it plainly.
     if(window.__authReturn && window.__authReturn.confirmed){
@@ -7553,6 +7553,33 @@ try{
 // checkVersion retries on its own if isReady() is briefly false
 setTimeout(checkVersion,   300);
 setTimeout(checkForUpdate, 1500);
+// ── SPLASH WATCHDOG — the loading screen is never allowed to stick, no matter where a
+// stall hides (token exchange, auth event that never fires, a stalled query, anything).
+// 6s with books on this device → show them; boot finishing later MERGES instead of
+// clobbering (_fastBoot machinery). 12s with nothing to show → one self-refresh.
+setInterval(() => {
+  try{
+    const sp = document.getElementById("splashScreen");
+    if(!sp || sp.style.display === "none"){ window.__splashSince = 0; return; }
+    if(!window.__splashSince){ window.__splashSince = Date.now(); return; }
+    const stuck = Date.now() - window.__splashSince;
+    if(stuck < 6000) return;
+    const cached = _readLocalD();
+    if(cached && cached.strains && Object.keys(cached.strains).length){
+      D = cached; _normalizeD(); syncUnitDefaults();
+      _fastBoot = true; _liveD = D; _liveSeq = _persistSeq;
+      if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
+      else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} }
+      window.__splashSince = 0;
+      try{ _setSaveStatus("saving"); }catch(e){}
+      return;
+    }
+    if(stuck > 12000 && !sessionStorage.getItem("ledger_splash_reloaded")){
+      try{ sessionStorage.setItem("ledger_splash_reloaded","1"); }catch(e){}
+      location.reload();
+    }
+  }catch(e){}
+}, 1500);
 setTimeout(checkBackupReminder, 2200);
 // Re-check when the app is brought back to the foreground, and periodically while
 // open — so updates land without needing a full quit-and-relaunch.
