@@ -1807,7 +1807,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2149,9 +2149,10 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       return {
         confirmed: (type === "signup" || type === "magiclink" || type === "email") && !err && (!!p.get("access_token") || !!p.get("code")),
         recovery:  type === "recovery",
+        pending:   !err && (!!p.get("access_token") || !!p.get("code")),
         error:     err ? (p.get("error_description") || err).replace(/\+/g, " ") : ""
       };
-    }catch(e){ return { confirmed:false, recovery:false, error:"" }; }
+    }catch(e){ return { confirmed:false, recovery:false, pending:false, error:"" }; }
   })();
   let SB = null;
   try {
@@ -2190,7 +2191,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.0";
+const APP_VER    = "2.46.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5506,6 +5507,7 @@ try{
   "AI key saved": {"es":"Clave de IA guardada","zh":"AI 密钥已保存","hi":"एआई कुंजी सहेजी गई","ar":"تم حفظ مفتاح الذكاء الاصطناعي","fr":"Clé IA enregistrée","pt":"Chave de IA salva","ru":"Ключ ИИ сохранён","de":"KI-Schlüssel gespeichert","ja":"AIキーを保存しました"},
   "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
   "Signing you in…": {"es":"Iniciando tu sesión…","zh":"正在登录…","hi":"साइन इन हो रहा है…","ar":"جارٍ تسجيل دخولك…","fr":"Connexion en cours…","pt":"Entrando…","ru":"Выполняем вход…","de":"Sie werden angemeldet…","ja":"サインイン中…"},
+  "The connection stalled. Please check your internet and try again.": {"es":"La conexión se detuvo. Comprueba tu internet e inténtalo de nuevo.","zh":"连接中断。请检查网络后重试。","hi":"कनेक्शन रुक गया। कृपया इंटरनेट जाँचें और फिर कोशिश करें।","ar":"توقف الاتصال. يرجى التحقق من الإنترنت والمحاولة مرة أخرى.","fr":"La connexion s'est interrompue. Vérifiez votre internet et réessayez.","pt":"A conexão travou. Verifique sua internet e tente novamente.","ru":"Соединение прервалось. Проверьте интернет и попробуйте снова.","de":"Die Verbindung ist abgebrochen. Bitte Internet prüfen und erneut versuchen.","ja":"接続が停止しました。インターネットを確認して再試行してください。"},
   "Connection is slow — retrying…": {"es":"La conexión va lenta — reintentando…","zh":"网络较慢 — 正在重试…","hi":"कनेक्शन धीमा है — फिर कोशिश हो रही है…","ar":"الاتصال بطيء — تتم إعادة المحاولة…","fr":"Connexion lente — nouvelle tentative…","pt":"Conexão lenta — tentando novamente…","ru":"Медленное соединение — повторяем…","de":"Langsame Verbindung — neuer Versuch…","ja":"接続が遅いため再試行中…"},
   "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
     "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
@@ -6999,6 +7001,7 @@ const authRepo = {
     // different user id appears (_wipeLocalTenant), so cross-tenant safety is preserved.
     try{ clearTimeout(_persistTimer); }catch(e){}
     _cloudDirty = false;
+    try{ if(_bootedUid) localStorage.setItem("ledger_cache_uid", String(_bootedUid)); }catch(e){}
     D = { strains:{}, cur:"" };
     Repo.setBusiness(null); Repo.lastSeen = null; Repo.role = "owner"; _me = { id:null, label:"" }; _cloudBooted = false; _bootedUid = null;
     // Local scope = no server-side revoke round trip, so the button responds instantly even
@@ -7170,7 +7173,14 @@ async function authSubmit(){
       if(!(r.data && r.data.session)){ _authMsg(__("Account created! Check your email and tap the confirmation link — it'll bring you right back here, signed in."),"ok"); authSetMode("signin"); }
     } else {
       window.__tTap = performance.now();   // sign-in tapped — boot profiler measures from here
-      const r=await authRepo.signIn(email, pw); lock(false);
+      let r;
+      try{ r = await _withTimeout(authRepo.signIn(email, pw), 15000, "sign-in"); }
+      catch(_te){
+        _authMsg(__("Connection is slow — retrying…"),"ok");
+        try{ r = await _withTimeout(authRepo.signIn(email, pw), 15000, "sign-in"); }
+        catch(_te2){ lock(false); _authMsg(__("The connection stalled. Please check your internet and try again."),"err"); return; }
+      }
+      lock(false);
       if(r.error){ _authMsg(r.error.message,"err"); return; }
       window.__tGrant = performance.now(); // credentials accepted by the auth server
     }
@@ -7227,6 +7237,9 @@ async function bootAuthedUser(sess){
     }
   }catch(e){}
   if(!_fastBoot) showSplash();
+  // Arm the instant path for the NEXT sign-in right now — even if this boot stalls, the books
+  // on this device verifiably belong to this account (the guard above just ran).
+  try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); }catch(e){}
   _bpStart();
   _bootedUid = sess.user.id;
   try{ const _md=(sess.user.user_metadata)||{}; _me = { id:sess.user.id, label:String(_md.full_name||_md.name||(sess.user.email||"").split("@")[0]||"member").trim() }; }catch(e){ _me={id:sess.user.id,label:""}; }
@@ -7369,7 +7382,7 @@ async function bootAuthedUser(sess){
     }
     _bpMark("draw the app");
     _bpDone();
-    try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); }catch(e){}
+    try{ localStorage.setItem("ledger_cache_uid", String(sess.user.id)); sessionStorage.removeItem("ledger_oauth_reloaded"); sessionStorage.removeItem("ledger_boot_reloaded"); }catch(e){}
     try{ i18nApply(); }catch(e){}
     // Arrived here via an email-confirmation link → confirm it plainly.
     if(window.__authReturn && window.__authReturn.confirmed){
@@ -7419,7 +7432,31 @@ function bootLocalFallback(){
 }
 function initBoot(){
   if(SB){
-    showSplash();
+    // Returning from Google (or an email link): the token exchange occasionally stalls on the
+    // freshly-resumed page and ONLY a page refresh clears it. Two defenses:
+    // (1) if this device's books belong to a signed-in-before account, show them IMMEDIATELY
+    //     (the exchange + boot continue behind the open app; a different account still wipes);
+    // (2) if the exchange hasn't produced a session within 7s, refresh the page once for the user.
+    let _optimistic = false;
+    if(window.__authReturn && window.__authReturn.pending && !window.__authReturn.recovery){
+      try{
+        const cuid = localStorage.getItem("ledger_cache_uid");
+        const cached = cuid ? _readLocalD() : null;
+        if(cached && cached.strains && Object.keys(cached.strains).length){
+          D = cached; _normalizeD(); syncUnitDefaults();
+          if(hasPIN()){ hideAllScreens(); showPINScreen("verify","Enter PIN","Locked · Enter your PIN to continue"); }
+          else { showMain(); try{ renderAll(); updateSaleModal(); }catch(e){} }
+          _optimistic = true;
+        }
+      }catch(e){}
+      setTimeout(()=>{
+        if(!_cloudBooted && !sessionStorage.getItem("ledger_oauth_reloaded")){
+          try{ sessionStorage.setItem("ledger_oauth_reloaded","1"); }catch(_){ }
+          location.reload();
+        }
+      }, 7000);
+    }
+    if(!_optimistic) showSplash();
     try{
       SB.auth.onAuthStateChange((event, sess)=>{
         if(event==="PASSWORD_RECOVERY"){ _inRecovery=true; showAuthScreen(); authSetMode("reset-new"); return; }
