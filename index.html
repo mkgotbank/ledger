@@ -1053,10 +1053,17 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 
 <!-- Splash: covers everything until auth resolves (no flash of the wrong screen) -->
 <div id="splashScreen">
-  <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="border-radius:20px"/>
+  <img data-app-icon src="icon.svg" width="84" height="84" alt="" style="border-radius:20px" onclick="_splashTap()"/>
   <div class="splash-dots"><span></span><span></span><span></span></div>
   <div id="splashStatus" aria-live="polite" style="margin-top:14px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);min-height:14px"></div>
   <div id="splashVer" style="position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1px;color:var(--txt-d);opacity:.6"></div>
+  <div id="splashDiag" style="display:none;margin-top:18px;max-width:320px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:12px 14px;text-align:left">
+    <div id="splashDiagBody" style="font-family:monospace;font-size:10px;line-height:1.7;color:var(--txt);word-break:break-all"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-sm-acc" onclick="location.reload()">Reload</button>
+      <button class="btn-sm-acc" onclick="_splashFix()">Clear cache &amp; reload</button>
+    </div>
+  </div>
 </div>
 
 <!-- Auth (Phase 2): sign in / sign up / reset -->
@@ -1808,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.46.3</div>
+    <div class="wn-badge" id="wnVersion">Version 2.46.4</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2192,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.46.3";
+const APP_VER    = "2.46.4";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5508,6 +5515,7 @@ try{
   "AI key saved": {"es":"Clave de IA guardada","zh":"AI 密钥已保存","hi":"एआई कुंजी सहेजी गई","ar":"تم حفظ مفتاح الذكاء الاصطناعي","fr":"Clé IA enregistrée","pt":"Chave de IA salva","ru":"Ключ ИИ сохранён","de":"KI-Schlüssel gespeichert","ja":"AIキーを保存しました"},
   "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
   "Signing you in…": {"es":"Iniciando tu sesión…","zh":"正在登录…","hi":"साइन इन हो रहा है…","ar":"جارٍ تسجيل دخولك…","fr":"Connexion en cours…","pt":"Entrando…","ru":"Выполняем вход…","de":"Sie werden angemeldet…","ja":"サインイン中…"},
+  "Connection is stuck — close the app fully and reopen it.": {"es":"La conexión está bloqueada — cierra la app por completo y vuelve a abrirla.","zh":"连接已卡住 — 请完全关闭应用后重新打开。","hi":"कनेक्शन अटक गया है — ऐप को पूरी तरह बंद करके दोबारा खोलें।","ar":"الاتصال عالق — أغلق التطبيق تمامًا وأعد فتحه.","fr":"La connexion est bloquée — fermez complètement l'app et rouvrez-la.","pt":"A conexão travou — feche o app completamente e abra de novo.","ru":"Соединение зависло — полностью закройте приложение и откройте снова.","de":"Verbindung hängt — App vollständig schließen und neu öffnen.","ja":"接続が固まりました — アプリを完全に終了して開き直してください。"},
   "The connection stalled. Please check your internet and try again.": {"es":"La conexión se detuvo. Comprueba tu internet e inténtalo de nuevo.","zh":"连接中断。请检查网络后重试。","hi":"कनेक्शन रुक गया। कृपया इंटरनेट जाँचें और फिर कोशिश करें।","ar":"توقف الاتصال. يرجى التحقق من الإنترنت والمحاولة مرة أخرى.","fr":"La connexion s'est interrompue. Vérifiez votre internet et réessayez.","pt":"A conexão travou. Verifique sua internet e tente novamente.","ru":"Соединение прервалось. Проверьте интернет и попробуйте снова.","de":"Die Verbindung ist abgebrochen. Bitte Internet prüfen und erneut versuchen.","ja":"接続が停止しました。インターネットを確認して再試行してください。"},
   "Connection is slow — retrying…": {"es":"La conexión va lenta — reintentando…","zh":"网络较慢 — 正在重试…","hi":"कनेक्शन धीमा है — फिर कोशिश हो रही है…","ar":"الاتصال بطيء — تتم إعادة المحاولة…","fr":"Connexion lente — nouvelle tentative…","pt":"Conexão lenta — tentando novamente…","ru":"Медленное соединение — повторяем…","de":"Langsame Verbindung — neuer Versuch…","ja":"接続が遅いため再試行中…"},
   "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
@@ -7027,6 +7035,38 @@ async function doSignOut(){
 function _scr(id, disp){ const e = document.getElementById(id); if(e) e.style.display = disp; }
 function hideAllScreens(){ _scr("splashScreen","none"); _scr("authScreen","none"); _scr("setupScreen","none"); _scr("recoverScreen","none"); _scr("mainApp","none"); }
 function showSplash(){ hideAllScreens(); _scr("splashScreen","flex"); }
+let _splashTaps = 0, _splashTapAt = 0;
+function _splashTap(){
+  const now = Date.now();
+  if(now - _splashTapAt > 2500) _splashTaps = 0;
+  _splashTapAt = now; _splashTaps++;
+  if(_splashTaps < 5) return;
+  _splashTaps = 0;
+  try{
+    const d = _readLocalD();
+    const tr = localStorage.getItem("ledger_boot_trace");
+    const st = localStorage.getItem("ledger_boot_laststall");
+    const lines = [
+      "ver: " + APP_VER,
+      "online: " + navigator.onLine,
+      "books on device: " + (d && d.strains ? Object.keys(d.strains).length + " products" : "NONE"),
+      "account tag: " + (localStorage.getItem("ledger_cache_uid") ? "set" : "none"),
+      "boot trace: " + (tr || "—"),
+      "last stall: " + (st || "—"),
+      "auto-reloads used: " + (sessionStorage.getItem("ledger_splash_reloaded") || "0")
+    ];
+    const el = document.getElementById("splashDiagBody"); if(el) el.textContent = lines.join("\n");
+    const box = document.getElementById("splashDiag"); if(box) box.style.display = "block";
+  }catch(e){}
+}
+async function _splashFix(){
+  // strongest in-page recovery: drop the service worker + all caches → next load is 100% fresh
+  try{
+    if(navigator.serviceWorker){ const regs = await navigator.serviceWorker.getRegistrations(); for(const r of regs){ try{ await r.unregister(); }catch(e){} } }
+    if(window.caches){ const ks = await caches.keys(); for(const k of ks){ try{ await caches.delete(k); }catch(e){} } }
+  }catch(e){}
+  location.reload();
+}
 function _splash(msg){ try{ const sp=document.getElementById("splashScreen"); if(sp && sp.style.display==="none") return; const e=document.getElementById("splashStatus"); if(e) e.textContent = msg||""; }catch(e){} }
 function showAuthScreen(){ hideAllScreens(); _scr("authScreen","flex"); authSetMode("signin"); setTimeout(()=>{ try{ document.getElementById("authEmail").focus(); }catch(e){} }, 50);}
 function showSetup(){ hideAllScreens(); _scr("setupScreen","flex"); }
@@ -7214,7 +7254,7 @@ function _bpDone(){
     const prev = JSON.parse(localStorage.getItem("ledger_boot_laststall")||"null");
     if(prev && !prev.reported){
       prev.reported = true; localStorage.setItem("ledger_boot_laststall", JSON.stringify(prev));
-      try{ showToast("Last sign-in stalled at: "+prev.step+" (v"+(prev.ver||"?")+")", "err"); }catch(e){}
+      try{ showToast("Last sign-in stalled at: "+prev.step+" (v"+(prev.ver||"?")+", books:"+(prev.books!=null?prev.books:"?")+", tag:"+(prev.tag?"y":"n")+")", "err"); }catch(e){}
     }
   }catch(e){}
   const total = Math.round(performance.now() - _bp.t0);
@@ -7564,7 +7604,11 @@ try{
 try{ const _sv=document.getElementById("splashVer"); if(_sv) _sv.textContent = "v"+APP_VER; }catch(e){}
 try{
   const _tr = JSON.parse(localStorage.getItem("ledger_boot_trace")||"null");
-  if(_tr && !_tr.done){ _tr.reported = false; localStorage.setItem("ledger_boot_laststall", JSON.stringify(_tr)); }
+  if(_tr && !_tr.done){
+    _tr.reported = false;
+    try{ const _d=_readLocalD(); _tr.books = (_d && _d.strains) ? Object.keys(_d.strains).length : 0; _tr.tag = !!localStorage.getItem("ledger_cache_uid"); }catch(e){}
+    localStorage.setItem("ledger_boot_laststall", JSON.stringify(_tr));
+  }
   localStorage.removeItem("ledger_boot_trace");
 }catch(e){}
 // checkVersion retries on its own if isReady() is briefly false
@@ -7595,6 +7639,8 @@ setInterval(() => {
     if(stuck > 12000 && n < 3){
       try{ sessionStorage.setItem("ledger_splash_reloaded", String(n+1)); }catch(e){}
       location.reload();
+    } else if(stuck > 12000){
+      _splash(__("Connection is stuck — close the app fully and reopen it."));
     }
   }catch(e){}
 }, 1500);
