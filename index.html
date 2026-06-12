@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.48.0</div>
+    <div class="wn-badge" id="wnVersion">Version 2.48.1</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2210,7 +2210,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.48.0";
+const APP_VER    = "2.48.1";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7204,26 +7204,12 @@ function authSetMode(m){
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
 // Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
-// In-app webviews (Snapchat, Instagram, Messenger, TikTok…): Google rejects OAuth there
-// SERVER-side (403 disallowed_useragent) — no button can change that. So the SAME tap
-// escapes to the phone's real browser with ?google=1, where sign-in starts automatically.
-// One tap, no warnings; real browsers and the installed app are completely untouched.
-function _inAppBrowser(){
-  return /(Snapchat|Instagram|FBAN|FBAV|FB_IAB|musical_ly|TikTok|Line\/|MicroMessenger|Twitter)/i.test(navigator.userAgent || "");
-}
-function _googleEscapeURL(){
-  const bare = (location.origin + location.pathname).replace(/^https?:\/\//, "") + "?google=1";
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent || "")
-    ? "x-safari-https://" + bare
-    : "intent://" + bare + "#Intent;scheme=https;action=android.intent.action.VIEW;end;";
-}
 async function authGoogle(){
   if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
-  if(_inAppBrowser()){
-    _authMsg(__("Opening your browser…"),"ok");
-    location.href = _googleEscapeURL();
-    return;
-  }
+  // PERMANENT: one unconditional tap → straight to Google, in every context. No detection,
+  // no gating, no escapes — modern Snapchat/Instagram webviews pass Google's checks, and
+  // the rare device Google itself rejects (403 disallowed_useragent is SERVER-side) can use
+  // email sign-up. The owner has ruled on this three times; do not touch this function.
   _authMsg(__("Opening Google…"),"ok");
   try{
     const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
@@ -7603,7 +7589,7 @@ function initBoot(){
             bootLocalFallback(); return;
           }
           _cloudBooted=false; showAuthScreen();
-          if(window.__startGoogle && !_inAppBrowser()){ window.__startGoogle = false; setTimeout(() => { try{ authGoogle(); }catch(e){} }, 400); }
+          if(window.__startGoogle){ window.__startGoogle = false; setTimeout(() => { try{ authGoogle(); }catch(e){} }, 400); }
           if(window.__authReturn && window.__authReturn.error){
             const msg = window.__authReturn.error; window.__authReturn.error = "";
             _authMsg(__("This verification link is invalid or has expired. Please sign in, or sign up again to get a fresh link."),"err");
