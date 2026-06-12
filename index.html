@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.47.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.47.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2199,7 +2199,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.47.1";
+const APP_VER    = "2.47.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5539,6 +5539,7 @@ try{
   "AI key removed": {"es":"Clave de IA eliminada","zh":"AI 密钥已移除","hi":"एआई कुंजी हटाई गई","ar":"تمت إزالة مفتاح الذكاء الاصطناعي","fr":"Clé IA supprimée","pt":"Chave de IA removida","ru":"Ключ ИИ удалён","de":"KI-Schlüssel entfernt","ja":"AIキーを削除しました"},
   "Signing you in…": {"es":"Iniciando tu sesión…","zh":"正在登录…","hi":"साइन इन हो रहा है…","ar":"جارٍ تسجيل دخولك…","fr":"Connexion en cours…","pt":"Entrando…","ru":"Выполняем вход…","de":"Sie werden angemeldet…","ja":"サインイン中…"},
   "Connection is stuck — close the app fully and reopen it.": {"es":"La conexión está bloqueada — cierra la app por completo y vuelve a abrirla.","zh":"连接已卡住 — 请完全关闭应用后重新打开。","hi":"कनेक्शन अटक गया है — ऐप को पूरी तरह बंद करके दोबारा खोलें।","ar":"الاتصال عالق — أغلق التطبيق تمامًا وأعد فتحه.","fr":"La connexion est bloquée — fermez complètement l'app et rouvrez-la.","pt":"A conexão travou — feche o app completamente e abra de novo.","ru":"Соединение зависло — полностью закройте приложение и откройте снова.","de":"Verbindung hängt — App vollständig schließen und neu öffnen.","ja":"接続が固まりました — アプリを完全に終了して開き直してください。"},
+  "Google doesn't allow sign-in inside this app's built-in browser. Tap the menu and choose \"Open in browser\" — or sign up here with your email and password instead.": {"es":"Google no permite iniciar sesión dentro del navegador integrado de esta app. Toca el menú y elige \"Abrir en el navegador\" — o regístrate aquí con tu correo y contraseña.","zh":"Google 不允许在此应用的内置浏览器中登录。请点按菜单选择\"在浏览器中打开\"，或在此使用邮箱和密码注册。","hi":"Google इस ऐप के बिल्ट-इन ब्राउज़र में साइन-इन की अनुमति नहीं देता। मेनू से \"ब्राउज़र में खोलें\" चुनें — या यहाँ ईमेल और पासवर्ड से साइन अप करें।","ar":"لا تسمح Google بتسجيل الدخول داخل متصفح هذا التطبيق المدمج. انقر على القائمة واختر \"فتح في المتصفح\" — أو سجّل هنا بالبريد الإلكتروني وكلمة المرور.","fr":"Google n'autorise pas la connexion dans le navigateur intégré de cette app. Touchez le menu puis \"Ouvrir dans le navigateur\" — ou inscrivez-vous ici avec e-mail et mot de passe.","pt":"O Google não permite login no navegador embutido deste app. Toque no menu e escolha \"Abrir no navegador\" — ou cadastre-se aqui com e-mail e senha.","ru":"Google не разрешает вход во встроенном браузере этого приложения. Нажмите меню и выберите \"Открыть в браузере\" — или зарегистрируйтесь здесь по почте и паролю.","de":"Google erlaubt die Anmeldung im integrierten Browser dieser App nicht. Tippen Sie aufs Menü und wählen Sie \"Im Browser öffnen\" — oder registrieren Sie sich hier mit E-Mail und Passwort.","ja":"Google はこのアプリ内ブラウザでのサインインを許可していません。メニューから「ブラウザで開く」を選ぶか、ここでメールとパスワードで登録してください。"},
   "The connection stalled. Please check your internet and try again.": {"es":"La conexión se detuvo. Comprueba tu internet e inténtalo de nuevo.","zh":"连接中断。请检查网络后重试。","hi":"कनेक्शन रुक गया। कृपया इंटरनेट जाँचें और फिर कोशिश करें।","ar":"توقف الاتصال. يرجى التحقق من الإنترنت والمحاولة مرة أخرى.","fr":"La connexion s'est interrompue. Vérifiez votre internet et réessayez.","pt":"A conexão travou. Verifique sua internet e tente novamente.","ru":"Соединение прервалось. Проверьте интернет и попробуйте снова.","de":"Die Verbindung ist abgebrochen. Bitte Internet prüfen und erneut versuchen.","ja":"接続が停止しました。インターネットを確認して再試行してください。"},
   "Connection is slow — retrying…": {"es":"La conexión va lenta — reintentando…","zh":"网络较慢 — 正在重试…","hi":"कनेक्शन धीमा है — फिर कोशिश हो रही है…","ar":"الاتصال بطيء — تتم إعادة المحاولة…","fr":"Connexion lente — nouvelle tentative…","pt":"Conexão lenta — tentando novamente…","ru":"Медленное соединение — повторяем…","de":"Langsame Verbindung — neuer Versuch…","ja":"接続が遅いため再試行中…"},
   "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
@@ -7192,10 +7193,22 @@ function authSetMode(m){
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
 // Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
+// In-app mini-browsers (Instagram, Messenger, Snapchat, TikTok…) are ALWAYS refused by
+// Google OAuth ("this browser or app may not be secure"). Detect them precisely by UA and
+// guide the user out instead of letting Google dead-end them. Real browsers and the
+// installed PWA are NOT matched here — they go straight through (one tap).
+function _inAppBrowser(){
+  const ua = navigator.userAgent || "";
+  const m = ua.match(/(Instagram|FBAN|FBAV|FB_IAB|Snapchat|musical_ly|TikTok|Line\/|MicroMessenger|Twitter)/i);
+  return m ? m[1].replace(/FBAN|FBAV|FB_IAB/i, "Facebook/Messenger").replace(/musical_ly/i, "TikTok") : null;
+}
 async function authGoogle(){
   if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
-  // One tap, no guard. The "Google blocks some users" reports were caused by the OAuth consent
-  // screen sitting in Testing mode (server-side; fixed by publishing it) — not by the app.
+  const iab = _inAppBrowser();
+  if(iab){
+    _authMsg(__("Google doesn't allow sign-in inside this app's built-in browser. Tap the menu and choose \"Open in browser\" — or sign up here with your email and password instead."),"err");
+    return;
+  }
   _authMsg(__("Opening Google…"),"ok");
   try{
     const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
