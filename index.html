@@ -1815,7 +1815,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.48.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.48.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
@@ -2210,7 +2210,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.48.1";
+const APP_VER    = "2.48.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -5543,6 +5543,7 @@ try{
   "Clear search": {"es":"Borrar búsqueda","zh":"清除搜索","hi":"खोज साफ़ करें","ar":"مسح البحث","fr":"Effacer la recherche","pt":"Limpar busca","ru":"Очистить поиск","de":"Suche löschen","ja":"検索をクリア"},
   "Remove item": {"es":"Quitar artículo","zh":"移除项目","hi":"आइटम हटाएँ","ar":"إزالة العنصر","fr":"Retirer l'article","pt":"Remover item","ru":"Удалить позицию","de":"Position entfernen","ja":"項目を削除"},
   "Total Stock (All)": {"es":"Stock total (todos)","zh":"总库存（全部）","hi":"कुल स्टॉक (सभी)","ar":"إجمالي المخزون (الكل)","fr":"Stock total (tous)","pt":"Estoque total (todos)","ru":"Весь запас (все)","de":"Gesamtbestand (alle)","ja":"総在庫（全商品）"},
+  "Google requires a full browser. Tap the menu and choose Open in Browser — or sign in with your email below.": {"es":"Google requiere un navegador completo. Toca el menú y elige Abrir en el navegador — o inicia sesión con tu correo abajo.","zh":"Google 需要完整的浏览器。请点按菜单选择\u201c在浏览器中打开\u201d，或在下方使用邮箱登录。","hi":"Google को पूर्ण ब्राउज़र चाहिए। मेनू से Open in Browser चुनें — या नीचे ईमेल से साइन इन करें।","ar":"يتطلب Google متصفحًا كاملاً. انقر على القائمة واختر الفتح في المتصفح — أو سجّل الدخول بالبريد الإلكتروني أدناه.","fr":"Google requiert un navigateur complet. Touchez le menu puis Ouvrir dans le navigateur — ou connectez-vous avec votre e-mail ci-dessous.","pt":"O Google exige um navegador completo. Toque no menu e escolha Abrir no navegador — ou entre com seu e-mail abaixo.","ru":"Google требует полноценный браузер. Нажмите меню и выберите Открыть в браузере — или войдите по почте ниже.","de":"Google erfordert einen vollständigen Browser. Tippen Sie aufs Menü und wählen Sie Im Browser öffnen — oder melden Sie sich unten per E-Mail an.","ja":"Google は完全なブラウザを必要とします。メニューから「ブラウザで開く」を選ぶか、下のメールでサインインしてください。"},
   "Opening your browser…": {"es":"Abriendo tu navegador…","zh":"正在打开浏览器…","hi":"आपका ब्राउज़र खुल रहा है…","ar":"جارٍ فتح المتصفح…","fr":"Ouverture de votre navigateur…","pt":"Abrindo seu navegador…","ru":"Открываем браузер…","de":"Browser wird geöffnet…","ja":"ブラウザを開いています…"},
   "AI brain": {"es":"Cerebro de IA","zh":"AI 引擎","hi":"एआई ब्रेन","ar":"عقل الذكاء الاصطناعي","fr":"Cerveau IA","pt":"Cérebro de IA","ru":"Мозг ИИ","de":"KI-Gehirn","ja":"AIブレイン"},
   "Free service": {"es":"Servicio gratuito","zh":"免费服务","hi":"मुफ़्त सेवा","ar":"الخدمة المجانية","fr":"Service gratuit","pt":"Serviço gratuito","ru":"Бесплатный сервис","de":"Kostenloser Dienst","ja":"無料サービス"},
@@ -7204,12 +7205,39 @@ function authSetMode(m){
 function authToggleMode(){ authSetMode(_authMode==="signin" ? "signup" : "signin"); }
 // Continue with Google (OAuth). Requires the Google provider enabled in the Supabase dashboard.
 // Redirects back to this exact app URL; the returning session boots via onAuthStateChange.
+// Context (2026-06-12): while the OAuth consent screen was in Testing, Google tolerated
+// webviews for test users — once PUBLISHED, Google's "use secure browsers" policy rejects
+// ALL webviews server-side (403 disallowed_useragent). Verified on the owner's own device.
+// So in webviews the tap hands off to the real browser (3 escalating techniques), where
+// ?google=1 auto-starts the sign-in. Real browsers and the installed app: untouched.
+function _inAppBrowser(){
+  return /(Snapchat|Instagram|FBAN|FBAV|FB_IAB|musical_ly|TikTok|Line\/|MicroMessenger)/i.test(navigator.userAgent || "");
+}
 async function authGoogle(){
   if(!SB){ _authMsg(__("Cloud sign-in isn't available right now."),"err"); return; }
-  // PERMANENT: one unconditional tap → straight to Google, in every context. No detection,
-  // no gating, no escapes — modern Snapchat/Instagram webviews pass Google's checks, and
-  // the rare device Google itself rejects (403 disallowed_useragent is SERVER-side) can use
-  // email sign-up. The owner has ruled on this three times; do not touch this function.
+  if(_inAppBrowser()){
+    const url  = location.origin + location.pathname + "?google=1";
+    const bare = url.replace(/^https?:\/\//, "");
+    _authMsg(__("Opening your browser…"),"ok");
+    // 1) _blank anchor — many webviews hand these to the system browser / Safari view (which Google allows)
+    try{ const aEl = document.createElement("a"); aEl.href = url; aEl.target = "_blank"; aEl.rel = "noopener";
+         document.body.appendChild(aEl); aEl.click(); aEl.remove(); }catch(e){}
+    // 2) still here after a beat → force the browser by URL scheme
+    setTimeout(() => {
+      if(document.visibilityState !== "visible") return;
+      try{
+        location.href = /iPhone|iPad|iPod/i.test(navigator.userAgent || "")
+          ? "x-safari-https://" + bare
+          : "intent://" + bare + "#Intent;scheme=https;action=android.intent.action.VIEW;end;";
+      }catch(e){}
+    }, 900);
+    // 3) the webview swallowed both → say exactly what to do instead of spinning
+    setTimeout(() => {
+      if(document.visibilityState !== "visible") return;
+      _authMsg(__("Google requires a full browser. Tap the menu and choose Open in Browser — or sign in with your email below."),"err");
+    }, 2400);
+    return;
+  }
   _authMsg(__("Opening Google…"),"ok");
   try{
     const r = await SB.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
