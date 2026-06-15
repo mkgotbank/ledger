@@ -1,0 +1,11 @@
+{
+  // This is a PostgreSQL / Supabase project. The installed ms-mssql extension
+  // validates .sql with a T-SQL (SQL Server) parser, which flags valid PL/pgSQL
+  // (CREATE OR REPLACE FUNCTION, $$ dollar-quoting, language plpgsql, RAISE ...
+  // USING errcode, etc.) as syntax errors. There is no SQL Server here, so turn
+  // its IntelliSense engine off entirely to silence those false positives in
+  // the Problems tab. (enableIntelliSense:false is the hard kill; the
+  // enableErrorChecking flag is the surgical one — both set for certainty.)
+  "mssql.intelliSense.enableIntelliSense": false,
+  "mssql.intelliSense.enableErrorChecking": false
+}
