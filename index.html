@@ -699,6 +699,18 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .cust-owed{font-size:15px;font-weight:700;color:#e05c5c;text-align:right;}
 .cust-paid-btn{background:rgba(76,175,122,0.14);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:8px;padding:7px 12px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);flex-shrink:0;transition:background 0.15s;}
 .cust-paid-btn:active{background:rgba(76,175,122,0.25);}
+.cpay-head{margin-bottom:14px;}
+.cpay-name{font-size:15px;font-weight:800;color:var(--txt-b);margin-bottom:9px;}
+.cpay-owed-row,.cpay-remain-row{display:flex;align-items:center;justify-content:space-between;}
+.cpay-owed{font-size:15px;font-weight:700;color:#e05c5c;}
+.cpay-remain-row{margin:13px 0 2px;}
+.cpay-remain{font-size:15px;font-weight:700;color:#4caf7a;transition:color 0.15s;}
+.cpay-remain.zero{color:#4caf7a;}
+.m-input-lg.cpay-in{border-color:var(--bdr);}
+.m-input-lg.cpay-in:focus{border-color:var(--acc-bdr);}
+.cpay-full-btn{width:100%;background:var(--fill-2);border:1px solid var(--bdr);color:var(--txt-b);border-radius:12px;padding:11px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:var(--font);margin:13px 0 0;transition:background 0.15s;}
+.cpay-full-btn:active{background:var(--fill-3);}
+.btn-confirm:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
 .tag-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .log-badge{display:inline-block;font-size:7px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
 .log-badge-tag{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);}
@@ -1519,7 +1531,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <div class="legal-h">5. Not professional advice</div>
     <p>The App is <b>not</b> accounting, bookkeeping, tax, financial, or legal advice and is not a substitute for a qualified professional. You are responsible for your own business decisions and for meeting your tax and legal obligations.</p>
     <div class="legal-h">6. Invoices and payments</div>
-    <p>The App helps you create invoices and record how you were paid (for example by Interac e-Transfer, card, cash or other methods). The App does <b>not</b> process payments or handle funds: any payment arrangement — including an e-Transfer — is made directly between you and your customer through your own bank or payment provider, and we are not a party to it. You are responsible for the payment details you choose to display on your invoices and for confirming you have actually been paid before marking an invoice as paid.</p>
+    <p>The App helps you create invoices and record how you were paid (for example by Interac e-Transfer, card, cash or other methods). The App does <b>not</b> process payments or handle funds: any payment arrangement — including an e-Transfer — is made directly between you and your customer through your own bank or payment provider, and we are not a party to it. You are responsible for the payment details you choose to display on your invoices and for confirming you have actually been paid before marking an invoice as paid, recording a payment against a customer's outstanding balance, or marking that balance paid in full or in part.</p>
     <div class="legal-h">7. "As is" — no warranty</div>
     <p>The App is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, accuracy, and uninterrupted availability. We do not guarantee the App will be error-free or available at all times.</p>
     <div class="legal-h">8. Limitation of liability</div>
@@ -1815,20 +1827,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.48.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.49.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 9.5h-6.5z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5"/><path d="M16.5 11.5h5v4h-5a2 2 0 0 1 0-4z"/></svg></div>
         <div>
-          <div class="wn-title">Sign in: boom, you're in</div>
-          <div class="wn-desc">Signing back in on the same device now opens your books instantly from the device copy, while the cloud syncs quietly in the background. No more staring at a loading screen — and if the connection ever stalls on a fresh device, the app now recovers by itself instead of needing a manual refresh.</div>
+          <div class="wn-title">Record part-payments on credit</div>
+          <div class="wn-desc">When someone who owes you pays back only part of it, you no longer have to mark the whole thing paid. Open More → Customers, tap Payment, and enter what they handed you — say $50 of a $100 tab. The balance drops to $50 and keeps showing until it's cleared. The "Paid in full" button is right there for when they settle the rest.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5.5L12 2.5 4 5.5V12c0 6 8 10 8 10z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
         <div>
-          <div class="wn-title">Same safety, explained in the Privacy Policy</div>
-          <div class="wn-desc">Your books stay protected: the device copy is only shown after the same account signs back in, and it's wiped automatically the moment a different account signs in on that device. Handing a device away? More → Wipe all data clears everything.</div>
+          <div class="wn-title">Payments pay off the oldest debt first</div>
+          <div class="wn-desc">If a customer has several unpaid sales, a payment is applied to their oldest purchase first and rolls forward from there — so their running balance and "Owed to you" total always stay accurate.</div>
         </div>
       </div>
     </div>
@@ -2002,6 +2014,25 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <input class="m-input" id="expMNote" aria-label="Expense note (optional)" placeholder="e.g. restock cost, supplies..."/>
     </div>
     <button class="btn-confirm-red" id="expMConfirm" onclick="confirmExp()">Confirm</button>
+  </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL (partial or full payment against a customer's credit) -->
+<div class="overlay" id="modal-custPay" onclick="overlayClose(event,'custPay')">
+  <div class="mbox">
+    <div class="modal-hdr">
+      <div class="m-title">Record Payment</div>
+      <button class="modal-close" aria-label="Close" onclick="closeModal('custPay')">✕</button>
+    </div>
+    <div class="cpay-head">
+      <div class="cpay-name" id="custPayName"></div>
+      <div class="cpay-owed-row"><span class="m-lbl">Currently owes</span><span class="cpay-owed" id="custPayOwed">$0</span></div>
+    </div>
+    <span class="m-lbl">Amount received now</span>
+    <input class="m-input-lg cpay-in" id="custPayInput" aria-label="Amount received" type="number" placeholder="0" inputmode="decimal" oninput="custPayRefresh()"/>
+    <div class="cpay-remain-row"><span class="m-lbl">Remaining after</span><span class="cpay-remain" id="custPayRemain">$0</span></div>
+    <button class="cpay-full-btn" onclick="custPayFull()">Paid in full</button>
+    <button class="btn-confirm" id="custPayConfirm" onclick="confirmCustPay()">Record Payment</button>
   </div>
 </div>
 
@@ -2210,7 +2241,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.48.2";
+const APP_VER    = "2.49.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4039,18 +4070,100 @@ function renderCustomers(){
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div class="cust-owed">${fmtDollar(c.owed)}</div>
         <button class="cust-paid-btn" style="background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc)" onclick="invFromCustomer('${escAttr(name)}')">Invoice</button>
-        <button class="cust-paid-btn" onclick="markCustomerPaid('${escAttr(name)}')">Mark paid</button>
+        <button class="cust-paid-btn" onclick="openCustPay('${escAttr(name)}')">Payment</button>
       </div>
     </div>`).join("");
 }
-function markCustomerPaid(name){
-  let count = 0;
+// Collect one customer's outstanding obligations — single sales and batched
+// purchases (counted once), oldest first, so a payment pays down old debt first.
+function _custObligations(name){
+  const singles = [], batches = {};
   Object.values(D.strains||{}).forEach(s=>{
     (s.logs||[]).forEach(l=>{
-      if(l.type==="sale" && l.paid===false && ((l.customer||"").trim()||"Unknown")===name){ l.paid = true; l.paidDate = now(); count++; }
+      if(l.type!=="sale" || l.paid!==false) return;
+      if(((l.customer||"").trim()||"Unknown")!==name) return;
+      if(l.batchId){ (batches[l.batchId] = batches[l.batchId] || []).push(l); }
+      else singles.push(l);
     });
   });
-  if(count){ persist(); renderAll(); renderCustomers(); showToast(name + " marked paid", "ok"); }
+  const obs = [];
+  singles.forEach(l=> obs.push({ kind:"single", id:l.id, logs:[l], owed:entryOwed(l) }));
+  Object.keys(batches).forEach(bid=>{ const logs = batches[bid]; obs.push({ kind:"batch", id:logs[0].id, logs, owed:entryOwed(logs[0]) }); });
+  return obs.filter(o=>o.owed>0).sort((a,b)=>a.id-b.id);
+}
+// Apply a payment across a customer's unpaid sales (oldest first). Bumps the
+// existing amountPaid/batchPaid fields entryOwed() already reads; flips paid
+// to true once an obligation is fully covered. Returns the amount applied.
+function recordCustomerPayment(name, amount){
+  let remaining = _round2(amount);
+  let applied = 0;
+  if(remaining<=0) return 0;
+  _custObligations(name).forEach(o=>{
+    if(remaining<=0) return;
+    const pay = _round2(Math.min(remaining, o.owed));
+    if(pay<=0) return;
+    remaining = _round2(remaining - pay);
+    applied = _round2(applied + pay);
+    if(o.kind==="batch"){
+      const total = +o.logs[0].batchTotal||0;
+      const newPaid = _round2((+o.logs[0].batchPaid||0) + pay);
+      const fully = newPaid >= total - 0.005;
+      o.logs.forEach(l=>{ l.batchPaid = fully ? total : newPaid; if(fully){ l.paid = true; l.paidDate = now(); } });
+    } else {
+      const l = o.logs[0], total = +l.total||0;
+      const newPaid = _round2((+l.amountPaid||0) + pay);
+      const fully = newPaid >= total - 0.005;
+      l.amountPaid = fully ? total : newPaid;
+      if(fully){ l.paid = true; l.paidDate = now(); }
+    }
+  });
+  return applied;
+}
+let _payCustName = null;
+function openCustPay(name){
+  const c = owedByCustomer()[name]; if(!c) return;
+  _payCustName = name;
+  document.getElementById("custPayName").textContent = name;
+  document.getElementById("custPayOwed").textContent = fmtDollar(c.owed);
+  const inp = document.getElementById("custPayInput");
+  inp.value = ""; inp.dataset.owed = c.owed;
+  custPayRefresh();
+  openModal("custPay");
+  setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 60);
+}
+function _custPayAmt(){
+  const inp = document.getElementById("custPayInput");
+  const owed = +inp.dataset.owed || 0;
+  let amt = parseFloat(inp.value)||0;
+  if(amt<0) amt = 0;
+  return { owed, amt: Math.min(amt, owed) };
+}
+function custPayRefresh(){
+  const { owed, amt } = _custPayAmt();
+  const rem = _round2(Math.max(0, owed - amt));
+  const r = document.getElementById("custPayRemain");
+  r.textContent = fmtDollar(rem);
+  r.classList.toggle("zero", rem<=0);
+  const btn = document.getElementById("custPayConfirm");
+  if(btn) btn.disabled = !(amt>0);
+}
+function custPayFull(){
+  const inp = document.getElementById("custPayInput");
+  inp.value = (+inp.dataset.owed||0);
+  custPayRefresh();
+}
+function confirmCustPay(){
+  const { amt } = _custPayAmt();
+  if(amt<=0){ showToast("Enter an amount", "err"); return; }
+  const name = _payCustName;
+  const applied = recordCustomerPayment(name, amt);
+  closeModal("custPay");
+  _payCustName = null;
+  if(applied>0){
+    persist(); renderAll(); renderCustomers();
+    const left = owedByCustomer()[name] ? owedByCustomer()[name].owed : 0;
+    showToast(left>0 ? (fmtDollar(applied)+" received · "+fmtDollar(left)+" still owed") : (name+" paid in full"), "ok");
+  }
 }
 function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); } // for inline single-quoted JS args ONLY (onclick="fn('…')")
 function escVal(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); } // for plain HTML attribute values (value="…", placeholder="…")
@@ -6635,7 +6748,7 @@ const TOUR_STEPS = [
   { essential:true, tab:"stock", sel:".sgrid", icon:"money", title:"Money at a glance", body:"Earned, net profit, expenses and estimated stock value — the four numbers that matter, always front and centre." },
   { tab:"stock", sel:"#healthStrip", icon:"pulse", title:"Today at a glance", body:"A live read on today: revenue so far, sales count and your current top seller — a quick gut-check any time." },
   { essential:true, tab:"stock", sel:".qa-strip", icon:"bolt", title:"Your two everyday actions", body:"Record a sale — bundles, discounts, payment type, even on credit — or restock your inventory. These are your daily taps." },
-  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown." },
+  { essential:true, tab:"stock", sel:"#manageGroups", icon:"layers", title:"Everything else, organised", body:"Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Under Customers you can record a payment when someone settles their tab — in full, or just part of it, and their balance drops to match. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown." },
   { essential:true, tab:"log", sel:null, icon:"receipt", title:"Activity — your full history", body:"Every sale, restock, expense and internal use, in order — the complete running record of your business." },
   { tab:"log", sel:".log-search-wrap", icon:"search", title:"Find anything fast", body:"Search by product, customer, note or amount to jump straight to any transaction — no scrolling required." },
   { tab:"log", sel:"#logList", icon:"edit", title:"Tap any entry to edit", body:"Fix a typo or adjust a sale by tapping any line — your totals update instantly." },
