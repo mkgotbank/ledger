@@ -701,17 +701,18 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .cust-actions{display:flex;gap:8px;margin-top:11px;}
 .cust-paid-btn{background:rgba(76,175,122,0.14);border:1px solid rgba(76,175,122,0.35);color:#4caf7a;border-radius:8px;padding:9px 12px;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:var(--font);flex:1;text-align:center;transition:background 0.15s;}
 .cust-paid-btn:active{background:rgba(76,175,122,0.25);}
-.cpay-head{margin-bottom:14px;}
-.cpay-name{font-size:15px;font-weight:800;color:var(--txt-b);margin-bottom:9px;}
-.cpay-owed-row,.cpay-remain-row{display:flex;align-items:center;justify-content:space-between;}
-.cpay-owed{font-size:15px;font-weight:700;color:#e05c5c;}
-.cpay-remain-row{margin:13px 0 2px;}
-.cpay-remain{font-size:15px;font-weight:700;color:#4caf7a;transition:color 0.15s;}
-.cpay-remain.zero{color:#4caf7a;}
-.m-input-lg.cpay-in{border-color:var(--bdr);}
+.cpay-card{background:var(--fill-1);border:1px solid var(--bdr);border-radius:14px;padding:13px 15px;margin-bottom:16px;}
+.cpay-card-name{font-size:14px;font-weight:800;color:var(--txt-b);text-align:center;margin-bottom:11px;padding-bottom:11px;border-bottom:1px solid var(--bdr);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cpay-line{display:flex;align-items:baseline;justify-content:space-between;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);}
+.cpay-line + .cpay-line{margin-top:10px;}
+.cpay-owed{font-size:17px;font-weight:700;color:#e05c5c;letter-spacing:-0.3px;}
+.cpay-remain{font-size:17px;font-weight:700;color:#4caf7a;letter-spacing:-0.3px;transition:color 0.15s;}
+.cpay-amt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.cpay-amt-hdr .m-lbl{margin-bottom:0;}
+.m-input-lg.cpay-in{border-color:var(--bdr);margin-bottom:16px;}
 .m-input-lg.cpay-in:focus{border-color:var(--acc-bdr);}
-.cpay-full-btn{width:100%;background:var(--fill-2);border:1px solid var(--bdr);color:var(--txt-b);border-radius:12px;padding:11px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:var(--font);margin:13px 0 0;transition:background 0.15s;}
-.cpay-full-btn:active{background:var(--fill-3);}
+.cpay-full-btn{background:var(--acc-dim);border:1px solid var(--acc-bdr);color:var(--acc);border-radius:8px;padding:6px 12px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:var(--font);flex-shrink:0;transition:background 0.15s;}
+.cpay-full-btn:active{filter:brightness(1.1);}
 .btn-confirm:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
 .tag-btn.on{background:var(--acc-dim);border-color:var(--acc-bdr);color:var(--acc);}
 .log-badge{display:inline-block;font-size:7px;letter-spacing:1px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
@@ -1829,7 +1830,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.49.1</div>
+    <div class="wn-badge" id="wnVersion">Version 2.49.2</div>
     <div class="wn-list">
       <div class="wn-item">
         <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5"/><path d="M16.5 11.5h5v4h-5a2 2 0 0 1 0-4z"/></svg></div>
@@ -2026,14 +2027,16 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">Record Payment</div>
       <button class="modal-close" aria-label="Close" onclick="closeModal('custPay')">✕</button>
     </div>
-    <div class="cpay-head">
-      <div class="cpay-name" id="custPayName"></div>
-      <div class="cpay-owed-row"><span class="m-lbl">Currently owes</span><span class="cpay-owed" id="custPayOwed">$0</span></div>
+    <div class="cpay-card">
+      <div class="cpay-card-name" id="custPayName"></div>
+      <div class="cpay-line"><span>Currently owes</span><b class="cpay-owed" id="custPayOwed">$0</b></div>
+      <div class="cpay-line"><span>Remaining after</span><b class="cpay-remain" id="custPayRemain">$0</b></div>
     </div>
-    <span class="m-lbl">Amount received now</span>
+    <div class="cpay-amt-hdr">
+      <span class="m-lbl">Amount received now</span>
+      <button class="cpay-full-btn" onclick="custPayFull()">Pay full</button>
+    </div>
     <input class="m-input-lg cpay-in" id="custPayInput" aria-label="Amount received" type="number" placeholder="0" inputmode="decimal" oninput="custPayRefresh()"/>
-    <div class="cpay-remain-row"><span class="m-lbl">Remaining after</span><span class="cpay-remain" id="custPayRemain">$0</span></div>
-    <button class="cpay-full-btn" onclick="custPayFull()">Paid in full</button>
     <button class="btn-confirm" id="custPayConfirm" onclick="confirmCustPay()">Record Payment</button>
   </div>
 </div>
@@ -2243,7 +2246,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.1";
+const APP_VER    = "2.49.2";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
