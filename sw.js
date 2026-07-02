@@ -4,7 +4,7 @@
    This ensures home screen / PWA always serves from cache (fast) and
    updates are applied explicitly by the app, not the CDN. */
 
-const CACHE = 'ledger-v6';
+const CACHE = 'ledger-v7';
 const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/i18n.js', '/ledger/icon.svg',
                '/ledger/icon-monogram.svg', '/ledger/icon-book.svg',
                // Self-hosted libraries (were CDN): precache so the app + PDF export work fully
@@ -13,7 +13,10 @@ const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/i18n.js', '/ledger/ico
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(SHELL))
+    // Resilient precache: cache each shell URL independently (allSettled) so a single transient
+    // failure — e.g. a file not yet live during a GitHub Pages deploy — can't abort the whole
+    // install and strand the worker. Anything missed is re-fetched on demand by the fetch handler.
+    caches.open(CACHE).then(cache => Promise.allSettled(SHELL.map(u => cache.add(u))))
   );
   self.skipWaiting();
 });
