@@ -4,13 +4,15 @@
 <!-- The Ledger — © 2026 The Ledger. All rights reserved. Proprietary software; see LICENSE. Unauthorized copying, modification, or distribution is prohibited. -->
 <meta charset="UTF-8"/>
 <!-- Content-Security-Policy: the app is built on inline scripts + inline event handlers, so
-     script-src must keep 'unsafe-inline'. All third-party libraries are self-hosted (vendor/),
-     so script-src is 'self' only — no CDN origin is trusted. The real value here is connect-src —
-     it pins where the page may send data, so even if an XSS sink is ever missed, a payload cannot
-     exfiltrate the Supabase session token or stored AI keys to an attacker host. object-src/
-     base-uri are locked down too. (frame-ancestors needs an HTTP header and is ignored in
-     <meta>, so it is omitted — GitHub Pages can't set headers.) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.github.com https://raw.githubusercontent.com https://api.groq.com https://api.anthropic.com https://api.openai.com https://text.pollinations.ai; worker-src 'self'; manifest-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+     script-src must keep 'unsafe-inline'. supabase-js (which holds the auth session) is
+     self-hosted ONLY. cdn.jsdelivr.net is allowed in script-src solely as a FALLBACK source for
+     the invoice PDF libraries (jsPDF / html2canvas) when the self-hosted copy can't be fetched;
+     those libs never touch the session or user data. The real protection is connect-src — it
+     pins where the page may send data (note: jsdelivr is NOT in connect-src), so even if an XSS
+     sink is ever missed, a payload cannot exfiltrate the session token or stored AI keys to an
+     attacker host. object-src/base-uri are locked down too. (frame-ancestors needs an HTTP header
+     and is ignored in <meta>, so it is omitted — GitHub Pages can't set headers.) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.github.com https://raw.githubusercontent.com https://api.groq.com https://api.anthropic.com https://api.openai.com https://text.pollinations.ai; worker-src 'self'; manifest-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
@@ -2258,7 +2260,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.3";
+const APP_VER    = "2.49.4";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -4472,12 +4474,16 @@ function printInvoice(){
 // ── IN-APP PDF EXPORT ──────────────────────────────────────────────────────
 // Renders ONLY the invoice paper to a real PDF (html2canvas + jsPDF), so there is
 // no browser-added URL/date/page footer (which iOS Safari injects and CSS can't remove).
-// Libs are lazy-loaded from the same CDN as supabase-js; falls back to window.print().
-// Self-hosted (vendor/, pinned versions) — same rationale as supabase-js above: no third-party
-// CDN in the load path. Loaded on demand only when the user exports an invoice PDF.
+// Each lib is loaded on demand (only when exporting a PDF). PRIMARY source is the self-hosted
+// copy in vendor/ (no third party in the normal path); if that copy can't be fetched — e.g. a
+// just-deployed build the device hasn't cached yet — we fall back to the public CDN so the clean
+// canvas PDF still works instead of silently degrading to the browser's print view (which stamps
+// a URL header + date/page footer that CSS can't remove on iOS). These libs never touch the auth
+// session or user data, and connect-src still blocks any exfiltration, so the CDN fallback is a
+// reliability-only concession — supabase-js (which holds the session) stays self-hosted ONLY.
 const _PDF_LIBS = {
-  html2canvas: "vendor/html2canvas.min.js",
-  jspdf:       "vendor/jspdf.umd.min.js"
+  html2canvas: ["vendor/html2canvas.min.js", "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"],
+  jspdf:       ["vendor/jspdf.umd.min.js",   "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"]
 };
 let _pdfLibsPromise = null;
 function _loadScriptOnce(src){
@@ -4491,11 +4497,15 @@ function _loadScriptOnce(src){
     document.head.appendChild(el);
   });
 }
+// Try each source in order; resolve on the first that loads, reject only if all fail.
+function _loadFromSources(sources){
+  return sources.reduce((chain, url)=>chain.catch(()=>_loadScriptOnce(url)), Promise.reject());
+}
 function _ensurePdfLibs(){
   if(window.html2canvas && window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
   if(!_pdfLibsPromise){
-    _pdfLibsPromise = _loadScriptOnce(_PDF_LIBS.html2canvas)
-      .then(()=>_loadScriptOnce(_PDF_LIBS.jspdf))
+    _pdfLibsPromise = _loadFromSources(_PDF_LIBS.html2canvas)
+      .then(()=>_loadFromSources(_PDF_LIBS.jspdf))
       .catch(err=>{ _pdfLibsPromise=null; throw err; });
   }
   return _pdfLibsPromise;
