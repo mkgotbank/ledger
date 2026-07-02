@@ -3,6 +3,13 @@
 <head>
 <!-- The Ledger — © 2026 The Ledger. All rights reserved. Proprietary software; see LICENSE. Unauthorized copying, modification, or distribution is prohibited. -->
 <meta charset="UTF-8"/>
+<!-- Content-Security-Policy: the app is built on inline scripts + inline event handlers, so
+     script-src must keep 'unsafe-inline'. The real value here is connect-src — it pins where
+     the page may send data, so even if an XSS sink is ever missed, a payload cannot exfiltrate
+     the Supabase session token or stored AI keys to an attacker host. object-src/base-uri are
+     locked down too. (frame-ancestors needs an HTTP header and is ignored in <meta>, so it is
+     omitted — GitHub Pages can't set headers.) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.github.com https://raw.githubusercontent.com https://api.groq.com https://api.anthropic.com https://api.openai.com https://text.pollinations.ai; worker-src 'self'; manifest-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
@@ -2246,7 +2253,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.2";
+const APP_VER    = "2.49.3";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2369,8 +2376,13 @@ function fmtLogDate(str){
 let pinBuffer = "", pinPhase = "verify", pinNew1 = "";
 function hasPIN(){ return !!localStorage.getItem(PIN_SK); }
 function getPIN(){ return localStorage.getItem(PIN_SK)||""; }
-function savePIN(p){ localStorage.setItem(PIN_SK, p); try{ if(D&&typeof D==="object"){ D.pin = p; persist(); } }catch(e){} }   // mirror into D so the lock travels with the account
-function clearPIN(){ localStorage.removeItem(PIN_SK); try{ if(D&&typeof D==="object"){ delete D.pin; persist(); } }catch(e){} }
+// The app-lock PIN is a DEVICE lock and stays device-local (localStorage only). It is NOT
+// written into D: businesses.data syncs to the cloud and is readable by every co-tenant of the
+// business (any member has SELECT), so mirroring the raw PIN there exposed it to staff/viewers.
+// If a legacy PIN is still present in D, hydrate() below migrates it to localStorage and scrubs
+// it from the synced document.
+function savePIN(p){ localStorage.setItem(PIN_SK, p); try{ if(D&&typeof D==="object"&&D.pin!==undefined){ delete D.pin; persist(); } }catch(e){} }
+function clearPIN(){ localStorage.removeItem(PIN_SK); try{ if(D&&typeof D==="object"&&D.pin!==undefined){ delete D.pin; persist(); } }catch(e){} }
 
 function showPINScreen(phase, title, sub){
   pinBuffer = ""; pinPhase = phase; if(phase!=="set2") pinNew1="";
@@ -2665,7 +2677,7 @@ function openEditLog(id){
         ).join("");
       } else {
         packBtnsEl.innerHTML = (s.priceRef||[]).map(r => {
-          const nd = r.label.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          const nd = escHtml(r.label);
           return `<button class="pbtn el-pbtn${editSaleType===r.label?' on':''}" data-pack="${nd}" onclick="setEditPack(this.dataset.pack,this)">${nd}</button>`;
         }).join("");
       }
@@ -3438,7 +3450,13 @@ function _normalizeD(){
   if(D.font  && !localStorage.getItem("ledger_font"))  try{ localStorage.setItem("ledger_font",  D.font); _applyFontVar(D.font); }catch(e){}
   if(D.curSym && !localStorage.getItem("ledger_currency")) try{ localStorage.setItem("ledger_currency", D.curSym); }catch(e){}
   if(D.icon && !localStorage.getItem("ledger_icon")) try{ localStorage.setItem("ledger_icon", D.icon); if(window.LedgerIcon) window.LedgerIcon.apply(D.icon, false); }catch(e){}
-  if(D.pin   && !localStorage.getItem(PIN_SK))         try{ localStorage.setItem(PIN_SK, D.pin); }catch(e){}  // restore the account PIN on a new device
+  // Legacy: older builds synced the PIN inside D. Adopt it on THIS device if we don't already
+  // have one, then delete it from D so the next persist() scrubs the plaintext PIN out of the
+  // co-tenant-readable cloud document. Going forward the PIN never leaves this device.
+  if(D.pin !== undefined){
+    try{ if(D.pin && !localStorage.getItem(PIN_SK)) localStorage.setItem(PIN_SK, D.pin); }catch(e){}
+    try{ delete D.pin; }catch(e){}
+  }
   const globalRef = D.priceRef || PRICE_REF_DEFAULTS.map(r => ({...r}));
   Object.values(D.strains).forEach(s => {
     if(!s.priceRef) s.priceRef = globalRef.map(r => ({...r}));
@@ -3661,7 +3679,7 @@ function renderPackBtns(){
   } else {
     const pks = s.priceRef || [];
     c.innerHTML = pks.map((r,i) =>
-      `<button class="pbtn${saleType===r.label?" on":""}" onclick="setPackCustom(${i},this)">${r.label}</button>`
+      `<button class="pbtn${saleType===r.label?" on":""}" onclick="setPackCustom(${i},this)">${escHtml(r.label)}</button>`
     ).join("");
   }
 }
@@ -4173,6 +4191,12 @@ function confirmCustPay(){
   }
 }
 function escAttr(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;"); } // for inline single-quoted JS args ONLY (onclick="fn('…')")
+// Safe <img src> for cloud-synced logos: a business logo lives in businesses.data, which any
+// co-tenant with write access can set to an arbitrary string — so this is a trust boundary,
+// not cosmetics. Only allow inline raster data-URIs or http(s); anything else (javascript:,
+// quote-breakout, svg-with-script) collapses to empty. The "&quot; guard keeps a stray quote
+// from escaping the double-quoted attribute even for allowed values.
+function safeImgSrc(s){ s = String(s||""); return /^(data:image\/(png|jpe?g|gif|webp)[;,]|https?:\/\/)/i.test(s) ? s.replace(/"/g,"&quot;") : ""; }
 function escVal(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); } // for plain HTML attribute values (value="…", placeholder="…")
 
 // ── INVOICING ────────────────────────────────────────────────────────────────
@@ -4371,7 +4395,8 @@ function renderInvoicePaper(inv){
   const dispNo = (inv.no!=null) ? inv.no : (b.prefix + String(b.next).padStart(4,"0"));
   const style = INV_STYLES.some(s=>s.id===b.invStyle) ? b.invStyle : "classic";
   const font  = INV_FONTS.find(f=>f.id===b.invFont) || INV_FONTS[0];
-  const logo = b.logo ? `<img src="${b.logo}" alt="" class="inv-logo"/>` : "";
+  const _logoSrc = safeImgSrc(b.logo);
+  const logo = _logoSrc ? `<img src="${_logoSrc}" alt="" class="inv-logo"/>` : "";
   const contact = [b.address,b.phone,b.email,b.taxId?(__("Tax ID")+": "+b.taxId):""].filter(Boolean).map(escHtml).join("<br>");
   const custContact = [inv.customerAddress,inv.customerPhone,inv.customerEmail,inv.customerTaxId?(__("Tax ID")+": "+inv.customerTaxId):""].filter(Boolean).map(escHtml).join("<br>");
   const rows = (inv.items||[]).filter(it=>(it.desc||"").trim()||+it.qty||+it.price).map(it=>`<tr>
@@ -4608,7 +4633,7 @@ function renderBusinessPage(){
   const b=getBusiness();
   el.innerHTML=`
     <div class="biz-logo-row">
-      ${b.logo?`<img src="${b.logo}" class="biz-logo-prev"/>`:`<div class="biz-logo-ph">No logo</div>`}
+      ${safeImgSrc(b.logo)?`<img src="${safeImgSrc(b.logo)}" class="biz-logo-prev"/>`:`<div class="biz-logo-ph">No logo</div>`}
       <div style="display:flex;flex-direction:column;gap:7px">
         <button class="btn-sm-acc" onclick="pickBusinessLogo()">${b.logo?"Change logo":"Upload logo"}</button>
         ${b.logo?`<button class="btn-sm-danger" onclick="clearBusinessLogo()">Remove</button>`:""}
@@ -5256,7 +5281,7 @@ Address exactly these 5 areas using the numbers above:
 
 // ── AI CHAT ──
 function escHtml(str){
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 // The app is emoji-free by design — scrub any emoji the AI sneaks in.
 function stripEmoji(str){
@@ -5457,7 +5482,7 @@ function renderPriceRef(){
     }
     const delBtn = canDel ? `<button class="pref-del-btn" onclick="deletePackRow(${i})" title="Delete row">✕</button>` : `<span style="width:24px;display:inline-block"></span>`;
     return `<div class="pref-row" style="grid-template-columns:1fr auto auto 28px 24px;gap:6px">
-      <span class="pref-sz">${r.label}</span>
+      <span class="pref-sz">${escHtml(r.label)}</span>
       <span style="font-size:10px">${priceStr}</span>
       ${marginHtml}
       <button class="pref-edit-btn" onclick="openEditPriceModal(${i})">✎</button>
@@ -5900,7 +5925,7 @@ function renderAll(){
       const pr = priceLabel(r.lo, r.hi);
       const empty = c === 0;
       return `<div class="pack-row${empty?" empty":""}">
-        <div><span class="pack-nm">${r.label}</span><span class="pack-pr">${pr}</span></div>
+        <div><span class="pack-nm">${escHtml(r.label)}</span><span class="pack-pr">${pr}</span></div>
         <div><span class="pack-ct">${empty?"—":c+" bundles"}</span>${empty?"":` <span class="pack-ea">~${fmtDollar(c*r.hi)}</span>`}</div>
       </div>`;
     }).join(""));
@@ -5952,21 +5977,21 @@ function renderSingleLog(l, s){
     const actions = `<div class="log-actions">${invBtn}<button class="log-edit-btn" onclick="openEditLog(${l.id})">✎</button></div>`;
     const wD     = fmtQty(l.w, s);
     const afterD = l.after != null ? fmtQty(l.after, s) : "";
-    const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
-    const catBadge = l.category ? `<span class="log-badge log-badge-cat">${l.category}</span>` : "";
-    const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
+    const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${escHtml(l.tag)}</span>` : "";
+    const catBadge = l.category ? `<span class="log-badge log-badge-cat">${escHtml(l.category)}</span>` : "";
+    const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${escHtml(l.payment)}</span>` : "";
     const unpaidBadge = (l.type==="sale" && l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
     const custNote = l.customer ? `<div class="log-note"><span class="ic">${_li("customers")}</span> ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
     const discNote = l.discount ? `<div class="log-note" style="color:var(--acc)"><span class="ic">${_li("pricetag")}</span> ${l.discount.type==="pct" ? l.discount.amt+"% off" : fmtDollar(l.discount.amt)+" off"}</div>` : "";
     let inner = "";
     if(l.type==="sale")
-      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${l.pack}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD ${l.qty}× ${escHtml(l.pack)}${tagBadge}${payBadge}${unpaidBadge}</div>${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}${discNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.total)}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="restock")
       inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
       inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="expense")
-      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${l.note}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
+      inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
     return `<div class="log-swipe-wrap" data-id="${l.id}"><div class="log-swipe-bg">${_li("trash")}</div>${inner}</div>`;
 }
@@ -5978,8 +6003,8 @@ function renderBatchCard(l, s){
   const items = l.batchItems || [];
   const multiProd = Object.keys(D.strains||{}).length > 1;
   const lines = items.map(it => `<div class="log-note">• ${it.qty}× ${escHtml(it.label)}${multiProd?` <span style="color:var(--txt-d)">(${escHtml(it.strain)})</span>`:""} — ${fmtDollar(it.total)}</div>`).join("");
-  const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${l.payment}</span>` : "";
-  const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${l.tag}</span>` : "";
+  const payBadge = (l.payment && l.payment!=="Cash") ? `<span class="log-badge log-badge-pay">${escHtml(l.payment)}</span>` : "";
+  const tagBadge = l.tag ? `<span class="log-badge log-badge-tag">${escHtml(l.tag)}</span>` : "";
   const unpaidBadge = (l.paid===false) ? `<span class="log-badge log-badge-cat">Unpaid</span>` : "";
   const custNote = l.customer ? `<div class="log-note"><span class="ic">${_li("customers")}</span> ${escHtml(l.customer)}${l.paid===false?" · owes "+fmtDollar(entryOwed(l)):""}</div>` : "";
   const inner = `<div class="log-entry sale"><div class="log-inner"><div class="log-lt"><div class="log-title g">SOLD · ${items.length} ITEMS${tagBadge}${payBadge}${unpaidBadge}</div>${lines}${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}${custNote}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${fmtDollar(l.batchTotal)}</div></div></div><div class="log-actions"><button class="log-edit-btn" onclick="invFromSale(${l.id})" aria-label="Create invoice">${_li("invoices")}</button></div></div>`;
@@ -6081,7 +6106,7 @@ function renderQS(){
     { l:"All Products Earned", v:fmtDollar(te),                                                         c:"#4caf7a" },
     { l:"Total Net Profit",    v:(tp>=0?"+":"-")+fmtDollar(Math.abs(tp)),                               c:tp>=0?"#4caf7a":"#c05050" },
     _bizScope && allWeight ? { l:"Total Stock (All)", v:ts.toFixed(1)+"g", c:"var(--acc)" }
-                           : { l:_bizScope ? "Current Stock — "+D.cur : "Current Stock", v:fmtQty(stock,s), c:"var(--acc)" },
+                           : { l:_bizScope ? "Current Stock — "+escHtml(D.cur) : "Current Stock", v:fmtQty(stock,s), c:"var(--acc)" },
     { l:"Sales Logged",        v:tsl,                                                                   c:"var(--txt-b)" },
     { l:"Internal Use (All)",  v:allWeight ? tu.toFixed(1)+"g" : tu.toFixed(0)+" "+unitPlural(s),       c:"#c05050" },
     { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"var(--acc)" },
