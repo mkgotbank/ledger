@@ -4,9 +4,12 @@
    This ensures home screen / PWA always serves from cache (fast) and
    updates are applied explicitly by the app, not the CDN. */
 
-const CACHE = 'ledger-v5';
+const CACHE = 'ledger-v6';
 const SHELL = ['/ledger/', '/ledger/index.html', '/ledger/i18n.js', '/ledger/icon.svg',
-               '/ledger/icon-monogram.svg', '/ledger/icon-book.svg'];
+               '/ledger/icon-monogram.svg', '/ledger/icon-book.svg',
+               // Self-hosted libraries (were CDN): precache so the app + PDF export work fully
+               // offline and never touch a third-party origin.
+               '/ledger/vendor/supabase.js', '/ledger/vendor/jspdf.umd.min.js', '/ledger/vendor/html2canvas.min.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -34,23 +37,8 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Runtime-cache the CDN libraries (supabase, html2canvas, jsPDF) so they load instantly
-  // and work offline after the first fetch — keeps invoice PDF export reliable across the
-  // page reloads that app updates trigger (stale-while-revalidate).
-  if (url.hostname === 'cdn.jsdelivr.net') {
-    event.respondWith(
-      caches.open(CACHE).then(cache =>
-        cache.match(event.request).then(cached => {
-          const net = fetch(event.request)
-            .then(resp => { if (resp && resp.ok) cache.put(event.request, resp.clone()); return resp; })
-            .catch(() => cached);
-          return cached || net;
-        })
-      )
-    );
-    return;
-  }
-
+  // Third-party libraries are now self-hosted under /ledger/vendor/ (same-origin), so there is
+  // no CDN branch here anymore — they are precached in SHELL and served by the logic below.
   if (url.origin !== location.origin) return;
 
   // i18n.js is 270KB+ and parser-blocking: stale-while-revalidate so PWA launches never
