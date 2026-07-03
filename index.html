@@ -1100,7 +1100,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
     <form style="display:contents" onsubmit="event.preventDefault();authSubmit()">
       <input id="authEmail" class="auth-input" type="email" inputmode="email" placeholder="Email" aria-label="Email" autocomplete="email" autocapitalize="none" spellcheck="false"/>
       <input id="authPw" class="auth-input" type="password" placeholder="Password" aria-label="Password" autocomplete="current-password"/>
-      <button id="authSubmit" class="auth-btn" type="submit">Sign In</button>
+      <button id="authSubmitBtn" class="auth-btn" type="submit">Sign In</button>
     </form>
     <div class="auth-or" id="authOr"><span>or</span></div>
     <button id="authGoogle" class="auth-btn-google" onclick="authGoogle()">
@@ -2260,7 +2260,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.4";
+const APP_VER    = "2.49.5";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -7345,7 +7345,7 @@ let _authMode = "signin";
 function _authMsg(t, kind){ const e=document.getElementById("authMsg"); if(e){ e.textContent=t||""; e.className="auth-msg"+(kind?(" "+kind):""); } }
 function authSetMode(m){
   _authMode = m;
-  const sub=document.getElementById("authSub"), btn=document.getElementById("authSubmit"),
+  const sub=document.getElementById("authSub"), btn=document.getElementById("authSubmitBtn"),
         pw=document.getElementById("authPw"), toggle=document.getElementById("authToggle"),
         forgot=document.getElementById("authForgot"), resend=document.getElementById("authResend");
   _authMsg("");
@@ -7428,7 +7428,7 @@ async function authResend(){
 async function authSubmit(){
   const email=(document.getElementById("authEmail").value||"").trim();
   const pw=(document.getElementById("authPw").value||"");
-  const btn=document.getElementById("authSubmit");
+  const btn=document.getElementById("authSubmitBtn");
   const lock=(on)=>{ if(btn){ btn.disabled=on; btn.style.opacity=on?"0.6":""; } };
   try{
     if(_authMode==="reset"){
