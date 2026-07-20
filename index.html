@@ -2260,7 +2260,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.5";
+const APP_VER    = "2.49.6";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2572,7 +2572,7 @@ function renderBizReport(){
   if(!all.length){ el.innerHTML=""; return; }
   const rows = all.map(([n,st])=>{
     const earned = st.earned||0, exp = st.expenses||0;
-    return { n, sales:(st.logs||[]).filter(l=>l.type==="sale").length, earned, exp, profit:earned-exp };
+    return { n, archived:!!st.archived, sales:(st.logs||[]).filter(l=>l.type==="sale").length, earned, exp, profit:earned-exp };
   }).sort((a,b)=>b.earned-a.earned);
   const te  = rows.reduce((a,r)=>a+r.earned,0);
   const tx  = rows.reduce((a,r)=>a+r.exp,0);
@@ -2593,7 +2593,7 @@ function renderBizReport(){
   }
   const ap = lp+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
   const xLabels = [0,6,13].map(i=>{ const d=new Date(data[i].ts+43200000); return `<span>${(d.getMonth()+1)+'/'+d.getDate()}</span>`; }).join("");
-  const tRows = rows.map(r=>`<tr><td class="rt-name" title="${escHtml(r.n)}">${escHtml(r.n)}</td><td>${r.sales}</td><td style="color:#4caf7a">${fmtDollar(r.earned)}</td><td style="color:#c05050">${fmtDollar(r.exp)}</td><td style="color:${r.profit>=0?'#4caf7a':'#c05050'}">${(r.profit>=0?"+":"-")+fmtDollar(Math.abs(r.profit))}</td></tr>`).join("");
+  const tRows = rows.map(r=>`<tr><td class="rt-name" title="${escHtml(r.n)}">${escHtml(r.n)}${r.archived?'<span style="color:var(--txt-d);font-size:8px;letter-spacing:1px"> · removed</span>':''}</td><td>${r.sales}</td><td style="color:#4caf7a">${fmtDollar(r.earned)}</td><td style="color:#c05050">${fmtDollar(r.exp)}</td><td style="color:${r.profit>=0?'#4caf7a':'#c05050'}">${(r.profit>=0?"+":"-")+fmtDollar(Math.abs(r.profit))}</td></tr>`).join("");
   el.innerHTML = `
     <div class="sgrid" style="margin-bottom:10px">
       <div class="scard"><div class="scard-lbl">Earned</div><div class="scard-val" style="color:#4caf7a">${fmtDollar(te)}</div></div>
@@ -2869,6 +2869,11 @@ function avgUnitPrice(s){
   return ref.hi / Math.max(1, packW(ref));
 }
 function cur(){ return D.strains[D.cur] || null; }
+// Active (non-archived) product names. Archiving a finished product KEEPS it in D.strains — so
+// the whole-business report and the "who owes you" list retain its full history (sales,
+// expenses, profit, unpaid debts) — but it no longer shows in the active switcher, product
+// manager or sale pickers. This is why deleting a product must never erase its data.
+function _activeStrainKeys(){ return Object.keys(D.strains).filter(k=>{ const s=D.strains[k]; return s && !s.archived; }); }
 
 // ── UNIT HELPERS ──
 function getUnit(){ return (cur() && cur().unit) || "g"; }
@@ -3420,6 +3425,9 @@ function _mergeDocs(secondary, scaffold){
       if((cs.stock||0) < 0) cs.stock = 0;                          // concurrent over-sell can't go negative
       cs.startStock = Math.max(cs.startStock||0, cs.stock||0);
     }
+    // Archive is sticky: if a product was removed (archived) on EITHER device, keep it archived
+    // in the merge so it doesn't pop back into the active list — while all its history stays.
+    if(ls.archived){ cs.archived = true; if(!cs.archivedAt) cs.archivedAt = ls.archivedAt || Date.now(); }
   }
   // Deletions made on the SECONDARY side remove the scaffold's stale copies too.
   for(const name in out.strains){ added += _applyVoidsToStrain(out.strains[name], V); }
@@ -3429,7 +3437,9 @@ function _mergeDocs(secondary, scaffold){
     if(tv >= _strainNewest(out.strains[name])){ delete out.strains[name]; added++; }
     else delete SV[name];                          // re-created since — tombstone is obsolete
   }
-  if(!out.strains[out.cur]) out.cur = Object.keys(out.strains)[0] || "";
+  if(!out.strains[out.cur] || out.strains[out.cur].archived){
+    out.cur = Object.keys(out.strains).filter(k=>!out.strains[k].archived)[0] || Object.keys(out.strains)[0] || "";
+  }
   // Invoices: append-only, keyed by id (invoice number as fallback for legacy rows).
   const ikey = inv => String(inv && (inv.id != null ? inv.id : inv.no));
   const IV = out.invoiceVoids;
@@ -3476,6 +3486,11 @@ function _normalizeD(){
   Object.values(D.strains).forEach(s => {
     if(Array.isArray(s.logs)) s.logs.forEach(l => { if(l && l.category === "Re-up") l.category = "Restock"; });
   });
+  // Never leave the app focused on an archived (removed) product — jump to the first active one.
+  if(!D.cur || !D.strains[D.cur] || D.strains[D.cur].archived){
+    const firstActive = _activeStrainKeys()[0];
+    if(firstActive) D.cur = firstActive;
+  }
   syncPricesFromRef();
 }
 // Local load (used by the offline fallback boot). Cloud boot sets D from Supabase.
@@ -3579,22 +3594,34 @@ function addStrain(){
   showToast("Product added", "ok");
 }
 function deleteStrain(n){
-  if(Object.keys(D.strains).length <= 1){ showToast("Can't delete your only product!", "err"); return; }
-  // Tombstone the entries AND the name so the deletion sticks across sync merges
-  try{ (D.strains[n].logs||[]).forEach(l=>{ if(l && l.id!=null) _void(l.id); }); _voidStrainName(n); }catch(e){}
-  delete D.strains[n];
-  if(D.cur === n) D.cur = Object.keys(D.strains)[0];
+  const s = D.strains[n]; if(!s) return;
+  if(_activeStrainKeys().length <= 1){ showToast("Can't remove your only product!", "err"); return; }
+  // ARCHIVE, don't erase. A finished product is removed from the active switcher, product
+  // manager and sale pickers, but it STAYS in D.strains — so its full history (sales,
+  // expenses, profit) still counts in the whole-business report, and any unpaid balances
+  // still appear under "who owes you". Nothing is voided or tombstoned, so nothing is lost
+  // and it all keeps syncing normally. (Undo restores it to the active list.)
+  s.archived = true; s.archivedAt = Date.now();
+  if(D.cur === n) D.cur = _activeStrainKeys()[0];
   persist(); renderAll(); renderStrainMgr();
-  try{ _logActivity("product", { action:"removed", product:n }, null); }catch(e){}
-  showToast("Product deleted");
+  try{ _logActivity("product", { action:"archived", product:n }, null); }catch(e){}
+  showToast("Product removed — history kept in Reports (restore under Manage Products)", "ok", 3400);
+}
+// Bring an archived product back into the active list (Undo / restore).
+function unarchiveStrain(n){
+  const s = D.strains[n]; if(!s) return;
+  delete s.archived; delete s.archivedAt;
+  persist(); renderAll(); renderStrainMgr();
+  showToast("Product restored");
 }
 function renderStrainSel(){
-  document.getElementById("strainSel").innerHTML = Object.keys(D.strains)
+  document.getElementById("strainSel").innerHTML = _activeStrainKeys()
     .map(n => { const nd = n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); return `<option value="${nd}"${n===D.cur?" selected":""}>${nd}</option>`; }).join("");
 }
 function renderStrainMgr(){
-  const keys = Object.keys(D.strains);
-  document.getElementById("strainList").innerHTML = keys.map(n => {
+  const keys = _activeStrainKeys();
+  const _archivedKeys = Object.keys(D.strains).filter(k=>D.strains[k] && D.strains[k].archived);
+  const _activeHtml = keys.map(n => {
     const s = D.strains[n], active = n === D.cur;
     const nd = n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     if(_renamingStrain === n){
@@ -3618,6 +3645,21 @@ function renderStrainMgr(){
       </div>
     </div>`;
   }).join("");
+  // Removed (archived) products: kept for their history, restorable at any time.
+  const _archivedHtml = _archivedKeys.length ? '<div style="font-size:8px;letter-spacing:2px;color:var(--txt-d);text-transform:uppercase;margin:16px 0 7px">Removed · history kept in Reports</div>' + _archivedKeys.map(n=>{
+    const s = D.strains[n];
+    const nd = n.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return `<div class="strain-item" style="opacity:.72">
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <div class="si-name">${nd}</div>
+        <div class="si-sub">${fmtDollar(s.earned||0)} earned · still counted in Reports</div>
+      </div>
+      <div class="si-btns">
+        <button class="si-edit" data-n="${nd}" onclick="unarchiveStrain(this.dataset.n)" title="Restore to active">Restore</button>
+      </div>
+    </div>`;
+  }).join("") : "";
+  document.getElementById("strainList").innerHTML = _activeHtml + _archivedHtml;
   if(_renamingStrain) setTimeout(()=>{const i=document.getElementById("renameInp");if(i){i.focus();i.select();}},30);
 }
 function startRename(name){
@@ -3820,7 +3862,7 @@ function openSaleModal(){
   // there's more than one product. Remember which product we opened on.
   saleOpenStrain = D.cur;
   const psel = document.getElementById("saleStrainSel");
-  const pkeys = Object.keys(D.strains);
+  const pkeys = _activeStrainKeys();
   if(psel) psel.innerHTML = pkeys.map(k=>`<option value="${escVal(k)}"${k===D.cur?" selected":""}>${escHtml(k)}</option>`).join("");
   const psec = document.getElementById("saleProductSec");
   if(psec) psec.style.display = pkeys.length>1 ? "block" : "none";
@@ -6129,7 +6171,7 @@ function renderQS(){
                            : { l:_bizScope ? "Current Stock — "+escHtml(D.cur) : "Current Stock", v:fmtQty(stock,s), c:"var(--acc)" },
     { l:"Sales Logged",        v:tsl,                                                                   c:"var(--txt-b)" },
     { l:"Internal Use (All)",  v:allWeight ? tu.toFixed(1)+"g" : tu.toFixed(0)+" "+unitPlural(s),       c:"#c05050" },
-    { l:"Products Tracked",    v:Object.keys(D.strains).length,                                         c:"var(--acc)" },
+    { l:"Products Tracked",    v:_activeStrainKeys().length,                                            c:"var(--acc)" },
   ].map(q => `<div class="qs-card"><div class="qs-lbl">${q.l}</div><div class="qs-val" style="color:${q.c}">${q.v}</div></div>`).join("");
 
   const tips = [];
@@ -6152,7 +6194,7 @@ function renderQS(){
     const top = Object.entries(salesByPack).sort((a,b) => b[1]-a[1])[0];
     if(top) tips.push(_tip("bolt",`${escHtml(top[0])} bundles are your fastest seller — always keep that size available.`));
 
-    const strainKeys = Object.keys(D.strains);
+    const strainKeys = _activeStrainKeys();   // don't suggest restocking a removed product
     if(strainKeys.length > 1){
       const best = strainKeys.sort((a,b) => (D.strains[b].earned||0)-(D.strains[a].earned||0))[0];
       if(best !== D.cur) tips.push(_tip("ai",`${escHtml(best)} is your top earner overall — consider prioritizing its stock.`));
