@@ -137,6 +137,10 @@ begin
         updated_at      = now();
 end $$;
 revoke execute on function public.upsert_payment_account(uuid, payment_provider, text, boolean, jsonb) from public, anon, authenticated;
+-- The edge functions call this with the SERVICE ROLE (server-side only) after they create /
+-- refresh the provider account, so service_role must keep execute (the revoke above stripped it
+-- via PUBLIC). Never granted to anon/authenticated — no browser can write a connection row.
+grant execute on function public.upsert_payment_account(uuid, payment_provider, text, boolean, jsonb) to service_role;
 
 -- record_payment_event is likewise service-role only (the webhook). Idempotent on
 -- (provider, provider_ref). Returns the invoice number so the function can react.
@@ -155,6 +159,9 @@ begin
     set status = excluded.status, amount = excluded.amount, raw = excluded.raw;
 end $$;
 revoke execute on function public.record_payment_event(uuid, integer, payment_provider, text, numeric, text, payment_status, jsonb) from public, anon, authenticated;
+-- Called ONLY by the webhook edge function with the service role. Keep execute for service_role
+-- (the revoke above stripped it via PUBLIC); never for anon/authenticated — clients can't forge a payment.
+grant execute on function public.record_payment_event(uuid, integer, payment_provider, text, numeric, text, payment_status, jsonb) to service_role;
 
 -- ════════════════════════════════════════════════════════════════════════════
 -- POST-DEPLOY ASSERTION (must return ZERO rows): every new table RLS-locked.

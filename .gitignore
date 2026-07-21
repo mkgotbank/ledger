@@ -21,3 +21,7 @@ claude-flow.config.json
 .claude/
 CLAUDE.md
 AGENTS.md
+
+# Payment secrets — NEVER commit real keys (only the .example template is tracked)
+supabase/.env.payments
+.env.payments

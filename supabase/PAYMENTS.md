@@ -39,10 +39,11 @@ the webhook is the server-verified source of truth, signature-checked and idempo
 | Piece | Where | Status |
 |-------|-------|--------|
 | DB schema (`payment_accounts`, `payment_events`, RPCs, RLS) | `migrations/0009_payments.sql` | ✅ built |
-| `connect-onboard` (create/refresh connected account → onboarding URL) | `functions/connect-onboard/` | ⏳ next |
-| `create-checkout` (Checkout Session on the connected account for an invoice) | `functions/create-checkout/` | ⏳ next |
-| `payments-webhook` (verify signature, record payment / update account) | `functions/payments-webhook/` | ⏳ next |
-| Client UI (connect payouts, "Request payment" button, reconcile) | `index.html` | ⏳ next |
+| `connect-onboard` (create/refresh connected account → onboarding URL) | `functions/connect-onboard/` | ✅ built |
+| `create-checkout` (Checkout Session on the connected account for an invoice) | `functions/create-checkout/` | ✅ built |
+| `payments-webhook` (verify signature, record payment / update account) | `functions/payments-webhook/` | ✅ built |
+| One-command deploy script + `.env` template | `setup-payments.sh`, `.env.payments.example` | ✅ built |
+| Client UI (connect payouts, "Request payment" button, reconcile) | `index.html` | ⏳ next (after test-mode passes) |
 
 Staging: **Phase 1 = Stripe Connect end-to-end** (onboard → checkout → webhook → reconcile), then
 **Phase 2 = add PayPal** reusing the same tables + reconcile. Building both rails at once multiplies
@@ -71,16 +72,24 @@ or git:
 3. A processor account in **test/sandbox** mode to develop against.
 4. Later, for go-live: your platform business details, and a terms/refund policy for your users.
 
-## Deploy (once the functions are built)
+## Deploy (Stripe / Phase 1 — ready now)
+
+One-time: install the Supabase CLI (`brew install supabase/tap/supabase`), then `supabase login`
+and `supabase link --project-ref <your-ref>`. Then:
 
 ```sh
-# from the repo root, with the Supabase CLI linked to your project:
-supabase secrets set STRIPE_SECRET_KEY=sk_test_… STRIPE_WEBHOOK_SECRET=whsec_… \
-                     PAYPAL_CLIENT_ID=… PAYPAL_SECRET=… APP_URL=https://mkgotbank.github.io/ledger/
-supabase db push                         # applies migrations, incl. 0009
-supabase functions deploy connect-onboard create-checkout payments-webhook
-# then register the function URL(s) as webhook endpoints in Stripe & PayPal dashboards
+cp supabase/.env.payments.example supabase/.env.payments   # fill in your TEST keys
+bash supabase/setup-payments.sh                            # sets secrets, db push, deploys funcs
 ```
+
+The script deploys `payments-webhook` with `--no-verify-jwt` (Stripe can't send a Supabase JWT;
+the Stripe signature is the auth). After it runs, add the webhook endpoint in the Stripe
+dashboard (below) and re-run once with the real `STRIPE_WEBHOOK_SECRET`.
+
+**Register the webhook (browser, ~2 min):** Stripe → Developers → Webhooks → *Add endpoint* →
+point it at your `payments-webhook` function URL, tick **"Listen to events on Connected accounts"**,
+and select `account.updated` + `checkout.session.completed`. Copy its **signing secret** into
+`.env.payments`.
 
 ## Test plan (before any real money)
 
