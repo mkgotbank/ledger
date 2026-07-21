@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <!-- The Ledger — © 2026 The Ledger. All rights reserved. Proprietary software; see LICENSE. Unauthorized copying, modification, or distribution is prohibited. -->
+<!-- ════════════════════════════════════════════════════════════════════════════
+  PURPOSE — The Ledger is a general-purpose inventory, sales & business-management
+  app for ANY type of business, big or small: small store owners, retailers,
+  service providers, entrepreneurs, and companies. It tracks inventory/stock,
+  records sales and expenses, monitors profit, manages customers who owe money,
+  creates invoices, and offers AI business advice. It is business-type-agnostic —
+  NOT tied to any specific industry or product category.
+  NOTE ON NAMING: for legacy reasons the internal data model keys each product
+  under `D.strains` (an early working name). This is plain GENERIC PRODUCT
+  inventory; the user-facing UI everywhere says "product." Read `strain` as
+  "product" throughout the code.
+════════════════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8"/>
 <!-- Content-Security-Policy: the app is built on inline scripts + inline event handlers, so
      script-src must keep 'unsafe-inline'. supabase-js (which holds the auth session) is
@@ -2822,6 +2834,9 @@ const UNIT_USE_DEFAULTS     = { g:2,  halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 
 const UNIT_STEPS            = { g:1,  halfoz:0.5, oz:0.25, halflb:0.25, lb:0.125 };
 const USE_STEPS             = { g:0.5, halfoz:0.2, oz:0.1, halflb:0.01, lb:0.005 };
 
+// D — the whole business document. `strains` is a legacy key name for the business's
+// GENERIC PRODUCTS (any industry); `cur` is the currently-selected product name. The Ledger
+// is a general small-business inventory/sales/invoicing tool, not industry-specific.
 let D = { strains:{}, cur:"" };
 let restockAmt = 14, useAmt = 2, saleType = "14g", saleQty = 1, salePrice = 90, logFilter = "all", aiLoading = false, chatLoading = false, expMode = "add", editingPriceIdx = -1, editNoteId = null;
 let _renamingStrain = null;
