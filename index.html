@@ -696,6 +696,13 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 .cat-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;padding:7px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
 .cat-btn.on{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.35);color:#e05c5c;}
 
+/* ── INTERNAL-USE REASON (why the stock was used up) ── */
+.use-reason{margin-top:10px;padding-top:9px;border-top:1px solid var(--hairline);}
+.use-reason .m-lbl{display:block;margin-bottom:6px;}
+.rsn-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.rsn-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;padding:6px 10px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
+.rsn-btn.on{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.35);color:#e05c5c;}
+
 /* ── SALE TAG BUTTONS ── */
 .tag-btn{background:var(--fill-1);border:1px solid var(--bdr);color:var(--txt-d);border-radius:8px;padding:7px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;font-family:var(--font);transition:all 0.2s;text-transform:uppercase;}
 .pay-btns{display:flex;gap:6px;}
@@ -958,7 +965,7 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
 }
 .btn-sale:active,.btn-confirm:active,.setup-btn:active,.btn-confirm-red:active,.btn-yes-red:active{transform:scale(0.975);}
 .qs-card:active,.perf-card:active{transform:scale(0.99);}
-.tab,.pbtn,.lf-btn,.uBtn,.tag-btn,.cat-btn,.curr-btn{transition:all 0.22s cubic-bezier(0.2,0.8,0.2,1);}
+.tab,.pbtn,.lf-btn,.uBtn,.tag-btn,.cat-btn,.rsn-btn,.curr-btn{transition:all 0.22s cubic-bezier(0.2,0.8,0.2,1);}
 /* Soft entrance when switching tab panels */
 .panel.on{animation:panelIn 0.34s cubic-bezier(0.2,0.8,0.2,1);}
 @keyframes panelIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
@@ -1671,6 +1678,18 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
         </div>
         <button class="btn-act r" onclick="doUse()">Log Internal</button>
       </div>
+      <div class="use-reason">
+        <span class="m-lbl">Reason (optional)</span>
+        <div class="rsn-btns">
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Damaged</button>
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Sample</button>
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Staff use</button>
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Personal</button>
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Gift</button>
+          <button type="button" class="rsn-btn" onclick="setUseReason(this)">Expired</button>
+        </div>
+        <input class="m-input" id="useNote" maxlength="120" autocomplete="off" aria-label="Reason for internal use (optional)" placeholder="Why was this used? e.g. damaged in transit" oninput="syncUseReasonBtns()"/>
+      </div>
       <div class="acard-sum" id="useSum" style="display:none">
         Internal use: <span class="r" id="useTotG">0g</span> · Est. lost: <span class="r" id="useTotLost">$0</span>
       </div>
@@ -1852,20 +1871,20 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       <div class="m-title">✦ What's New</div>
       <button class="modal-close" aria-label="Close" onclick="dismissWhatsNew()">✕</button>
     </div>
-    <div class="wn-badge" id="wnVersion">Version 2.49.2</div>
+    <div class="wn-badge" id="wnVersion">Version 2.50.0</div>
     <div class="wn-list">
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5"/><path d="M16.5 11.5h5v4h-5a2 2 0 0 1 0-4z"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg></div>
         <div>
-          <div class="wn-title">Record part-payments on credit</div>
-          <div class="wn-desc">When someone who owes you pays back only part of it, you no longer have to mark the whole thing paid. Open More → Customers, tap Payment, and enter what they handed you — say $50 of a $100 tab. The balance drops to $50 and keeps showing until it's cleared. The "Paid in full" button is right there for when they settle the rest.</div>
+          <div class="wn-title">Say why stock was used internally</div>
+          <div class="wn-desc">Internal Use now takes a reason. Tap a quick one — Damaged, Sample, Staff use, Personal, Gift, Expired — or type your own, then log it. The reason sits right on the entry in your Activity log and in Recent Internal Use, so months later you still know where that stock went.</div>
         </div>
       </div>
       <div class="wn-item">
-        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <div class="wn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></div>
         <div>
-          <div class="wn-title">Payments pay off the oldest debt first</div>
-          <div class="wn-desc">If a customer has several unpaid sales, a payment is applied to their oldest purchase first and rolls forward from there — so their running balance and "Owed to you" total always stay accurate.</div>
+          <div class="wn-title">Editable later, and the AI reads it</div>
+          <div class="wn-desc">Got the reason wrong or left it blank? Tap the entry in Activity and edit it like any other. Reasons are searchable in the log, they show up in the audit log and CSV export, and the AI Advisor now factors them in — so instead of just "internal use cost you $80" it can tell you how much of that was damage versus samples.</div>
         </div>
       </div>
     </div>
@@ -2153,8 +2172,8 @@ html.has-data:not(.has-pin) #mainApp{display:block;}
       </div>
     </div>
     <div class="m-sec" id="el-note-sec">
-      <span class="m-lbl">Note (optional)</span>
-      <input class="m-input" id="el-note" placeholder="e.g. regular, cash..."/>
+      <span class="m-lbl" id="el-note-lbl">Note (optional)</span>
+      <input class="m-input" id="el-note" maxlength="120" placeholder="e.g. regular, cash..."/>
     </div>
     <button class="btn-confirm" id="el-confirm" onclick="confirmEditLog()">Save Changes</button>
   </div>
@@ -2272,7 +2291,7 @@ const PIN_SK = "ledger_pin";
 // 2. REPLACE the What's New items with ONLY this version's changes (search: id="modal-whatsNew") + bump its badge
 // 3. git commit + git push origin main  — auto-update + popup handle the rest
 // ──────────────────────────────────────────────────────────────────────────────
-const APP_VER    = "2.49.6";
+const APP_VER    = "2.50.0";
 const VERSION    = APP_VER;
 const VER_KEY    = "ledger_wn_" + APP_VER; // version-specific key — always fresh per release
 const RAW_URL    = "https://raw.githubusercontent.com/mkgotbank/ledger/main/index.html";
@@ -2682,7 +2701,15 @@ function openEditLog(id){
   document.getElementById("el-sale-sec").style.display    = l.type==="sale"    ?"block":"none";
   document.getElementById("el-weight-sec").style.display  = (l.type==="restock"||l.type==="use")?"block":"none";
   document.getElementById("el-expense-sec").style.display = l.type==="expense" ?"block":"none";
-  document.getElementById("el-note-sec").style.display    = (l.type==="sale"||l.type==="expense")?"block":"none";
+  document.getElementById("el-note-sec").style.display    = (l.type==="sale"||l.type==="expense"||l.type==="use")?"block":"none";
+  // Internal use asks "why", sales/expenses ask for a plain note — same field, different prompt.
+  // data-i18n-placeholder holds the English key so a later i18n pass translates (not reverts) it.
+  const _nLbl = l.type==="use" ? "Reason (optional)" : "Note (optional)";
+  const _nPh  = l.type==="use" ? "Why was this used? e.g. damaged in transit" : "e.g. regular, cash...";
+  document.getElementById("el-note-lbl").textContent = __(_nLbl);
+  const _nIn = document.getElementById("el-note");
+  _nIn.setAttribute("data-i18n-placeholder", _nPh);
+  _nIn.placeholder = __(_nPh);
   if(l.type==="sale"){
     editSaleType = l.pack || (isWeight(s) ? "14g" : ((s.priceRef||[])[0]?.label || "Single"));
     editSaleQty  = l.qty || 1;
@@ -2711,6 +2738,7 @@ function openEditLog(id){
     document.getElementById("el-weight-title").textContent = _uLbl + " " + _action;
     document.getElementById("el-weight-input").value = isWeight(_s) ? toDisp(l.w) : l.w;
     document.getElementById("el-weight-lbl").textContent = _uLbl;
+    if(l.type==="use") document.getElementById("el-note").value = l.note||"";
     document.getElementById("el-confirm").textContent = "Save Changes";
   } else if(l.type==="expense"){
     document.getElementById("el-exp-input").value = l.amount||0;
@@ -2788,7 +2816,8 @@ function confirmEditLog(){
     if(s.stock+delta<0){ showToast("Not enough stock for this edit!","err"); return; }
     s.stock=round(s.stock+delta);
     s.useTotal=round(Math.max(0,(s.useTotal||0)+(newW-l.w)));
-    s.logs[idx]={...l,w:newW,after:null};
+    const note=document.getElementById("el-note").value.trim().slice(0,120);
+    s.logs[idx]={...l,w:newW,note,after:null};
   } else if(l.type==="expense"){
     const newAmt=parseFloat(document.getElementById("el-exp-input").value)||0;
     if(newAmt<=0){ showToast("Enter a valid amount","err"); return; }
@@ -2882,6 +2911,19 @@ function avgUnitPrice(s){
   if(isWeight(s)){ const ref=(s.priceRef||[])[0]; return ref ? ref.hi/Math.max(0.001, packW(ref)) : 27.5/3.5; }
   const ref = (s.priceRef||[])[0]; if(!ref) return 0;
   return ref.hi / Math.max(1, packW(ref));
+}
+// Groups internal-use entries by the reason the user typed, biggest first — so the advisor
+// can say WHY stock is disappearing, not just how much. Untagged entries roll into "no reason given".
+function _useReasonSummary(logs){
+  const by = {}; let untagged = 0;
+  (logs||[]).filter(l => l && l.type === "use").forEach(l => {
+    const k = String(l.note || "").trim();
+    if(!k){ untagged = round(untagged + (l.w||0)); return; }
+    by[k] = round((by[k]||0) + (l.w||0));
+  });
+  const parts = Object.entries(by).sort((a,b) => b[1]-a[1]).slice(0,5).map(([k,v]) => `${k}: ${v}`);
+  if(untagged > 0) parts.push(`no reason given: ${untagged}`);
+  return parts.join(", ") || "none logged";
 }
 function cur(){ return D.strains[D.cur] || null; }
 // Active (non-archived) product names. Archiving a finished product KEEPS it in D.strains — so
@@ -3022,7 +3064,7 @@ function undoDelete(){
     // Re-insert the entry at its original position
     s.logs.splice(snap.idx, 0, snap.entry);
     _unvoid(snap.entry && snap.entry.id);
-    try{ const e=snap.entry||{}; const rs={ was:e.type, product:snap.strainKey }; if(e.type==="sale"){ rs.total=e.total; rs.items=(e.batchItems?e.batchItems.length:1); } else if(e.type==="expense"){ rs.amount=e.amount; rs.category=e.category; } else if(e.type==="restock"||e.type==="use"){ rs.amount=e.w; } _logActivity("restore", rs, null); }catch(e){}
+    try{ const e=snap.entry||{}; const rs={ was:e.type, product:snap.strainKey }; if(e.type==="sale"){ rs.total=e.total; rs.items=(e.batchItems?e.batchItems.length:1); } else if(e.type==="expense"){ rs.amount=e.amount; rs.category=e.category; } else if(e.type==="restock"||e.type==="use"){ rs.amount=e.w; rs.note=e.note; } _logActivity("restore", rs, null); }catch(e){}
   }
   persist(); renderAll();
   if(_undoStack.length > 0){
@@ -3718,6 +3760,24 @@ function adjUse(dir){
   useAmt = Math.round(Math.min(9999, Math.max(step, (parseFloat(inp.value)||useAmt) + dir * step)) * 1000) / 1000;
   inp.value = useAmt;
 }
+// Internal-use reason: the chips are shortcuts that fill the free-text box, so a typed
+// reason and a tapped one are the same thing. Chip labels are read from the DOM, not
+// hardcoded, so a translated chip stores the reason in the user's own language.
+function setUseReason(btn){
+  const inp = document.getElementById("useNote"); if(!inp) return;
+  inp.value = btn.classList.contains("on") ? "" : btn.textContent.trim();
+  syncUseReasonBtns();
+}
+function syncUseReasonBtns(){
+  const inp = document.getElementById("useNote");
+  const v = (inp ? inp.value : "").trim().toLowerCase();
+  document.querySelectorAll(".rsn-btn").forEach(b =>
+    b.classList.toggle("on", !!v && b.textContent.trim().toLowerCase() === v));
+}
+function clearUseReason(){
+  const inp = document.getElementById("useNote"); if(inp) inp.value = "";
+  syncUseReasonBtns();
+}
 function adjQty(d){ saleQty = Math.max(1, saleQty + d); updateSaleModal(); }
 function adjPrice(d){ salePrice = Math.max(1, salePrice + d); updateSaleModal(); }
 function midPrice(t){ const p = PRICES[t]; return p ? Math.round((p.lo + p.hi) / 2) : 0; }
@@ -4143,7 +4203,7 @@ function renderUseHistory(){
   const s = cur(); if(!s){ el.innerHTML = ""; return; }
   const uses = (s.logs||[]).filter(l => l.type==="use");
   if(!uses.length){ el.innerHTML = `<div class="log-empty" style="padding:28px 0">No internal use logged yet</div>`; return; }
-  el.innerHTML = uses.map(l => `<div class="hist-row"><div style="min-width:0"><div class="hist-t r">Internal Use</div><div class="hist-d">${fmtLogDate(l.date)}</div></div><div class="hist-a r">−${fmtQty(l.w,s)}</div></div>`).join("");
+  el.innerHTML = uses.map(l => `<div class="hist-row"><div style="min-width:0"><div class="hist-t r">Internal Use</div>${l.note?`<div class="hist-n">${escHtml(l.note)}</div>`:""}<div class="hist-d">${fmtLogDate(l.date)}</div></div><div class="hist-a r">−${fmtQty(l.w,s)}</div></div>`).join("");
 }
 function renderCustomers(){
   const el = document.getElementById("customersList"); if(!el) return;
@@ -4787,12 +4847,15 @@ function doUse(){
   useAmt = inputVal;
   const useAmt_ = isWeight(s) ? fromDisp(useAmt) : useAmt;
   if(useAmt_ > s.stock){ showToast("Not enough stock!", "err"); return; }
+  const noteEl = document.getElementById("useNote");
+  const note = noteEl ? noteEl.value.trim().slice(0, 120) : "";
   const ns = round(s.stock - useAmt_);
   s.stock = ns;
   s.useTotal = round((s.useTotal||0) + useAmt_);
-  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns, ..._actorStamp() });
-  _logActivity("use", { product:D.cur, amount:useAmt_, after:ns }, null);
+  s.logs.unshift({ id:Date.now(), type:"use", w:useAmt_, date:now(), after:ns, note, ..._actorStamp() });
+  _logActivity("use", { product:D.cur, amount:useAmt_, after:ns, note }, null);
   showToast(useAmt + " " + unitSingular(s) + " logged");
+  clearUseReason();
   persist(); renderAll();
 }
 function confirmSale(){
@@ -4966,7 +5029,7 @@ function deleteLog(id){
   s.startStock = highs.length > 0 ? Math.max(...highs, s.stock) : s.stock;
   _pushUndo(snap);
   // Audit: record the removal (append-only — the original entry stays logged too)
-  try{ const ds={ was:l.type, product:D.cur }; if(l.type==="sale"){ ds.total=l.total; ds.items=(l.batchItems?l.batchItems.length:1); if(l.batchItems) ds.products=[...new Set(l.batchItems.map(b=>b.strain))]; } else if(l.type==="expense"){ ds.amount=l.amount; ds.category=l.category; } else if(l.type==="restock"||l.type==="use"){ ds.amount=l.w; } _logActivity("delete", ds, null); }catch(e){}
+  try{ const ds={ was:l.type, product:D.cur }; if(l.type==="sale"){ ds.total=l.total; ds.items=(l.batchItems?l.batchItems.length:1); if(l.batchItems) ds.products=[...new Set(l.batchItems.map(b=>b.strain))]; } else if(l.type==="expense"){ ds.amount=l.amount; ds.category=l.category; } else if(l.type==="restock"||l.type==="use"){ ds.amount=l.w; ds.note=l.note; } _logActivity("delete", ds, null); }catch(e){}
   persist(); renderAll();
   _showUndoToast();
 }
@@ -5287,7 +5350,8 @@ async function getAI(){
     });
     const topPack     = Object.entries(byPack).sort((a,b) => b[1].rev - a[1].rev)[0];
     const recentSales = saleLogs.slice(0,5).map(l => `${l.qty}×${l.pack} $${l.total}${l.note?" ("+l.note+")":""}`).join(", ") || "none";
-    return { name:n, isCurrent:n===D.cur, stock:st.stock||0, earned, exp, profit, marginPct, expCovPct, salesCount:saleLogs.length, byPack, topPack, avgSale, use, useLost, recentSales };
+    const useReasons  = _useReasonSummary(logs);
+    return { name:n, isCurrent:n===D.cur, stock:st.stock||0, earned, exp, profit, marginPct, expCovPct, salesCount:saleLogs.length, byPack, topPack, avgSale, use, useLost, useReasons, recentSales };
   });
 
   const focus       = products.find(p => p.isCurrent) || products[0];
@@ -5323,6 +5387,7 @@ FOCUS PRODUCT: ${focus.name}
   Revenue by pack :
 ${packLines}
   Internal use    : ${focus.use.toFixed(1)} ${focusUnitPlural}  (~$${focus.useLost} in lost revenue)
+  Use reasons     : ${focus.useReasons}
   Recent sales    : ${focus.recentSales}
 
 ${others.length ? "OTHER PRODUCTS:\n"+otherLines+"\n\n" : ""}PORTFOLIO TOTAL: $${totalEarned.toFixed(0)} earned  /  $${totalExp.toFixed(0)} expenses  /  ${totalProfit>=0?"+":""}$${totalProfit.toFixed(0)} net
@@ -5366,7 +5431,7 @@ function stripEmoji(str){
 }
 // What the AI knows about using The Ledger itself (for "how do I…" questions).
 const APP_GUIDE =
-"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you; the Customers row appears once someone owes you), Inventory (Internal Use, Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data & Sync lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under More → Team & roles with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business (appears when you belong to more than one). Customization: theme, font, app icon, currency and 10 languages under Settings. AI brain: under More → AI settings the advisor can run on the free service, a free Groq key, or the user's own Claude (Anthropic) or ChatGPT (OpenAI) API key for the smartest answers — keys are stored only on the device. Audit log: More → Audit log (owners and admins only) shows who recorded each entry. Install as app: More → Install on your phone. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
+"THE LEDGER QUICK GUIDE — Home tab: shows the active product's stats; record a sale with + Record Sale, add inventory with Add/Restock, log personal/internal use with Internal Use. Tap the product name at the top to switch products; the gear button manages products. More tab groups: Money (Expenses, Customers — who owes you; the Customers row appears once someone owes you), Inventory (Internal Use — stock used up rather than sold; you can tap a quick reason (Damaged, Sample, Staff use, Personal, Gift, Expired) or type your own before logging it, and the reason shows on the entry in Activity and can be changed later by editing that entry — and Stock Breakdown), Analysis (Reports, AI Advisor, Price Reference). Reports has two views: Whole business (default — total earned, expenses, net profit and sales count across every product, a combined 14-day chart, and a per-product breakdown table) and This product (the active product's 14-day chart). The official website is at More → Visit our website. Invoices: tap the invoice icon on any sale in the log, or More → Invoices. Backups: Settings → Data & Sync lets you export a backup file and Restore from one; signing in (free) also syncs data to the cloud automatically and across devices. Teams: owners can invite members under More → Team & roles with roles Owner / Admin / Staff / Viewer. Multiple businesses: More → Switch business (appears when you belong to more than one). Customization: theme, font, app icon, currency and 10 languages under Settings. AI brain: under More → AI settings the advisor can run on the free service, a free Groq key, or the user's own Claude (Anthropic) or ChatGPT (OpenAI) API key for the smartest answers — keys are stored only on the device. Audit log: More → Audit log (owners and admins only) shows who recorded each entry. Install as app: More → Install on your phone. Privacy Policy and Terms are in More. If a question isn't covered here, say you are not sure instead of guessing.";
 
 // Starter questions shown as tappable chips while the chat is empty —
 // half about the user's numbers, half about using the app itself.
@@ -5466,6 +5531,7 @@ ACTIVE PRODUCT: ${D.cur}
   Stock: ${fmtQty(s.stock||0,s)} | Earned: $${earned.toFixed(0)} | Expenses: $${exp.toFixed(0)} | Profit: ${profit>=0?"+":""}$${Math.abs(profit).toFixed(0)} | Margin: ${marginPct}%
   Sales by pack: ${packSummary}
   Internal use: ${use.toFixed(1)} ${unitPlural(s)} (~$${useLost} lost revenue)
+  Internal use reasons: ${_useReasonSummary(s.logs||[])}
 
 ALL PRODUCTS:
 ${allProducts}
@@ -5778,6 +5844,16 @@ try{
   "Connection is slow — retrying…": {"es":"La conexión va lenta — reintentando…","zh":"网络较慢 — 正在重试…","hi":"कनेक्शन धीमा है — फिर कोशिश हो रही है…","ar":"الاتصال بطيء — تتم إعادة المحاولة…","fr":"Connexion lente — nouvelle tentative…","pt":"Conexão lenta — tentando novamente…","ru":"Медленное соединение — повторяем…","de":"Langsame Verbindung — neuer Versuch…","ja":"接続が遅いため再試行中…"},
   "Loading your books…": {"es":"Cargando tus libros…","zh":"正在加载您的账本…","hi":"आपकी बहियाँ लोड हो रही हैं…","ar":"جارٍ تحميل دفاترك…","fr":"Chargement de vos livres…","pt":"Carregando seus livros…","ru":"Загружаем ваши книги…","de":"Ihre Bücher werden geladen…","ja":"帳簿を読み込み中…"},
     "Neatly grouped into Money, Inventory and Analysis: expenses, who owes you, stock breakdown, the AI advisor and more. Reports opens on your whole business — every product's sales, expenses and profit in one place, with a per-product breakdown.": {"es":"Bien agrupado en Dinero, Inventario y Análisis: gastos, quién te debe, desglose de stock, el asesor de IA y más. Informes abre con todo tu negocio — ventas, gastos y ganancias de cada producto en un solo lugar, con un desglose por producto.","zh":"整齐地分为资金、库存和分析三组：支出、欠款客户、库存明细、AI 顾问等。报表默认显示整个商家 — 每件商品的销售、支出和利润尽收眼底，并附按商品的明细。","hi":"पैसा, इन्वेंटरी और विश्लेषण में करीने से बाँटा गया: खर्च, कौन आपका बकाया है, स्टॉक विवरण, एआई सलाहकार और बहुत कुछ। रिपोर्ट्स आपके पूरे व्यवसाय से खुलती है — हर उत्पाद की बिक्री, खर्च और लाभ एक ही जगह, उत्पाद-वार विवरण के साथ।","ar":"منظم بدقة في المال والمخزون والتحليل: المصروفات، من يدين لك، تفاصيل المخزون، مستشار الذكاء الاصطناعي والمزيد. التقارير تفتح على نشاطك التجاري بأكمله — مبيعات ومصروفات وأرباح كل منتج في مكان واحد، مع تفصيل لكل منتج.","fr":"Bien organisé en Argent, Inventaire et Analyse : dépenses, qui vous doit, détail du stock, le conseiller IA et plus. Rapports s'ouvre sur toute votre entreprise — ventes, dépenses et bénéfices de chaque produit au même endroit, avec un détail par produit.","pt":"Bem agrupado em Dinheiro, Estoque e Análise: despesas, quem deve a você, detalhamento do estoque, o consultor de IA e mais. Relatórios abre com o negócio inteiro — vendas, despesas e lucro de cada produto em um só lugar, com detalhamento por produto.","ru":"Аккуратно сгруппировано: Деньги, Запасы и Анализ — расходы, должники, разбивка запасов, ИИ-советник и другое. Отчёты открываются по всему бизнесу — продажи, расходы и прибыль каждого товара в одном месте, с разбивкой по товарам.","de":"Übersichtlich gruppiert in Geld, Inventar und Analyse: Ausgaben, wer Ihnen etwas schuldet, Bestandsaufschlüsselung, der KI-Berater und mehr. Berichte öffnet mit dem gesamten Unternehmen — Verkäufe, Ausgaben und Gewinn jedes Produkts an einem Ort, mit Aufschlüsselung pro Produkt.","ja":"お金・在庫・分析にすっきり整理：経費、未収金、在庫内訳、AIアドバイザーなど。レポートはビジネス全体で開きます — 全商品の売上・経費・利益を商品別の内訳とともに一画面で確認できます。"}
+  ,
+  "Reason (optional)": {"es":"Motivo (opcional)","zh":"原因（可选）","hi":"कारण (वैकल्पिक)","ar":"السبب (اختياري)","fr":"Motif (facultatif)","pt":"Motivo (opcional)","ru":"Причина (необязательно)","de":"Grund (optional)","ja":"理由（任意）"},
+  "Why was this used? e.g. damaged in transit": {"es":"¿Por qué se usó? p. ej. dañado en el transporte","zh":"为什么被使用？例如：运输中损坏","hi":"इसका उपयोग क्यों हुआ? जैसे परिवहन में क्षतिग्रस्त","ar":"لماذا تم استخدامه؟ مثلاً تالف أثناء النقل","fr":"Pourquoi a-t-il été utilisé ? ex. endommagé pendant le transport","pt":"Por que foi usado? ex. danificado no transporte","ru":"Почему это было использовано? напр. повреждено при перевозке","de":"Warum wurde das verbraucht? z. B. beim Transport beschädigt","ja":"なぜ使用しましたか？例：輸送中に破損"},
+  "Reason for internal use (optional)": {"es":"Motivo del uso interno (opcional)","zh":"内部使用原因（可选）","hi":"आंतरिक उपयोग का कारण (वैकल्पिक)","ar":"سبب الاستخدام الداخلي (اختياري)","fr":"Motif de l'usage interne (facultatif)","pt":"Motivo do uso interno (opcional)","ru":"Причина внутреннего использования (необязательно)","de":"Grund für den internen Verbrauch (optional)","ja":"内部使用の理由（任意）"},
+  "Damaged": {"es":"Dañado","zh":"损坏","hi":"क्षतिग्रस्त","ar":"تالف","fr":"Endommagé","pt":"Danificado","ru":"Повреждено","de":"Beschädigt","ja":"破損"},
+  "Sample": {"es":"Muestra","zh":"样品","hi":"नमूना","ar":"عينة","fr":"Échantillon","pt":"Amostra","ru":"Образец","de":"Muster","ja":"サンプル"},
+  "Staff use": {"es":"Uso del personal","zh":"员工使用","hi":"स्टाफ़ उपयोग","ar":"استخدام الموظفين","fr":"Usage du personnel","pt":"Uso da equipe","ru":"Для сотрудников","de":"Mitarbeiterverbrauch","ja":"スタッフ使用"},
+  "Personal": {"es":"Uso personal","zh":"个人使用","hi":"व्यक्तिगत","ar":"شخصي","fr":"Usage personnel","pt":"Pessoal","ru":"Личное","de":"Privat","ja":"個人使用"},
+  "Gift": {"es":"Regalo","zh":"赠送","hi":"उपहार","ar":"هدية","fr":"Cadeau","pt":"Presente","ru":"Подарок","de":"Geschenk","ja":"贈答"},
+  "Expired": {"es":"Caducado","zh":"过期","hi":"एक्सपायर","ar":"منتهي الصلاحية","fr":"Périmé","pt":"Vencido","ru":"Просрочено","de":"Abgelaufen","ja":"期限切れ"}
   };
   for(const k in _EXTRA_I18N){ if(!(k in window.LEDGER_I18N)) window.LEDGER_I18N[k] = _EXTRA_I18N[k]; }
 }catch(e){}
@@ -6066,7 +6142,7 @@ function renderSingleLog(l, s){
     else if(l.type==="restock")
       inner = `<div class="log-entry restock"><div class="log-inner"><div class="log-lt"><div class="log-title g">RESTOCKED +${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt g">+${wD}</div>${afterD?`<div class="log-left">${afterD} total</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="use")
-      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div><div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
+      inner = `<div class="log-entry use"><div class="log-inner"><div class="log-lt"><div class="log-title r">INTERNAL USE ${wD}</div>${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${wD}</div>${afterD?`<div class="log-left">${afterD} left</div>`:""}</div></div>${actions}</div>`;
     else if(l.type==="expense")
       inner = `<div class="log-entry expense"><div class="log-inner"><div class="log-lt"><div class="log-title r">EXPENSE${catBadge}</div>${l.note?`<div class="log-note">${escHtml(l.note)}</div>`:""}<div class="log-date">${fmtLogDate(l.date)}${byTag}</div></div><div class="log-rt"><div class="log-amt r">−${fmtDollar(l.amount)}</div></div></div>${actions}</div>`;
     if(!inner) return "";
@@ -7184,7 +7260,7 @@ function _auditSummary(type, s){
   s=s||{};
   if(type==="sale") return (s.total!=null?fmtDollar(s.total):"")+(s.items>1?(" · "+s.items+" items"):"")+_audProds(s);
   if(type==="expense") return (s.amount!=null?fmtDollar(s.amount):"")+(s.category?(" · "+escHtml(String(s.category))):"")+_audProds(s);
-  if(type==="restock"||type==="use") return (s.amount!=null?String(s.amount):"")+(s.product?(" · "+escHtml(String(s.product))):"");
+  if(type==="restock"||type==="use") return (s.amount!=null?String(s.amount):"")+(s.product?(" · "+escHtml(String(s.product))):"")+(s.note?(" · "+escHtml(String(s.note))):"");
   if(type==="invoice") return (s.no!=null&&s.no!==""?("#"+escHtml(String(s.no))):"no number")+(s.total!=null?(" · "+fmtDollar(s.total)):"");
   if(type==="delete"||type==="restore"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(inner?(" · "+inner):""); }
   if(type==="edit"){ const inner=_auditSummary(s.was, s); return escHtml(String(s.was||"entry"))+(s.field?(" "+escHtml(String(s.field))):"")+(inner?(" · "+inner):""); }
@@ -7239,7 +7315,7 @@ function _buildBackfillEvents(){
     let summary={};
     if(l.type==="sale") summary={ total:l.total, items:(l.batchItems?l.batchItems.length:1), pack:l.pack, payment:l.payment, product:name };
     else if(l.type==="expense") summary={ amount:l.amount, category:l.category, note:l.note, product:name };
-    else if(l.type==="restock"||l.type==="use") summary={ amount:l.w, product:name, after:l.after };
+    else if(l.type==="restock"||l.type==="use") summary={ amount:l.w, product:name, after:l.after, note:l.note };
     evs.push({ client_id:String(l.id), type:l.type||"entry", by:(l.by||""), summary, at:new Date(+l.id||Date.now()).toISOString() });
   }); });
   return evs;
